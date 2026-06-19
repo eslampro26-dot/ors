@@ -1,6 +1,4 @@
 
-'use client';
-
 // Firebase Firestore persistence layer - replaces localStorage
 import { db } from './firebase';
 import { 
