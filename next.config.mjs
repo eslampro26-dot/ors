@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ─── Source Directory ───
-  srcDir: './src',
-
   // ─── Image Optimization ───
   images: {
     remotePatterns: [
