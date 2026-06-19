@@ -1,6 +1,4 @@
 
-'use client';
-
 // Database Adapter - Firebase with localStorage fallback
 // This module provides a unified API that tries Firebase first,
 // and falls back to localStorage if Firebase is not configured.
