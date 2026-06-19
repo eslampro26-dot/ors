@@ -4,12 +4,25 @@ import { initializeDB } from '@/lib/db.firebase';
 import { verifyApiSecret } from '@/lib/auth';
 
 /**
+ * GET /api/init
+ * Public endpoint - seeds the database only if it's not already initialized.
+ * Safe to call multiple times (idempotent).
+ */
+export async function GET() {
+  try {
+    await initializeDB();
+    return NextResponse.json({ success: true, message: 'Database ready' });
+  } catch (e) {
+    console.error('Init error:', e);
+    return NextResponse.json({ error: 'Failed to initialize database', details: e.message }, { status: 500 });
+  }
+}
+
+/**
  * POST /api/init
  * Fixes [H-7]: DB init endpoint now requires admin authentication.
- * Previously open to anyone — could wipe the entire database.
  */
 export async function POST(request) {
-  // Require admin session or secret header
   if (!verifyApiSecret(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

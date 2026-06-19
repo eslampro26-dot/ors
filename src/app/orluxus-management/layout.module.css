@@ -266,3 +266,18 @@
   color: #f8fafc !important;
 }
 
+@media (max-width: 768px) {
+  .contentArea {
+    padding: var(--space-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .contentArea {
+    padding: var(--space-sm);
+  }
+
+  .mobileHeader {
+    padding: 0 var(--space-sm);
+  }
+}

@@ -17,10 +17,10 @@ import {
   initializeDB as fbInitializeDB,
 } from './db.firebase';
 
-// Check if Firebase is configured
+// Check if Firebase is configured (uses same fallback as firebase.js)
 const isFirebaseConfigured = () => {
-  return process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID && 
-         process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID !== 'orluxus-demo';
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'orluxus';
+  return projectId !== 'orluxus-demo';
 };
 
 // ==========================================
