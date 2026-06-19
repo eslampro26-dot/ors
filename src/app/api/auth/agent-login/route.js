@@ -38,9 +38,28 @@ export async function POST(request) {
       return NextResponse.json({ error: 'بيانات الدخول غير صحيحة.' }, { status: 401 });
     }
 
-    // Secure verification (C-5): Enforce bcrypt comparison (no plaintext fallback)
+    // Secure verification (C-5): bcrypt comparison with plaintext fallback for first-time setup
     const bcrypt = require('bcryptjs');
-    const passwordMatch = await bcrypt.compare(password, agent.password);
+    let passwordMatch = false;
+
+    // Check if password is bcrypt hashed
+    if (agent.password && (agent.password.startsWith('$2a$') || agent.password.startsWith('$2b$'))) {
+      passwordMatch = await bcrypt.compare(password, agent.password);
+    } else {
+      // Plaintext fallback (first deployment before passwords are hashed)
+      passwordMatch = (password === agent.password);
+      // Auto-hash the password for future logins
+      if (passwordMatch) {
+        try {
+          const { updateAgent } = require('@/lib/db.firebase');
+          const salt = await bcrypt.genSalt(10);
+          const hashed = await bcrypt.hash(password, salt);
+          await updateAgent(agent.id, { password: hashed });
+        } catch (e) {
+          console.error('Auto-hash upgrade failed:', e);
+        }
+      }
+    }
 
     if (!passwordMatch) {
       return NextResponse.json({ error: 'بيانات الدخول غير صحيحة.' }, { status: 401 });
