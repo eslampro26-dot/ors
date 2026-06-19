@@ -8,6 +8,8 @@ import ToastProvider from "@/components/Toast";
 import SkipToContent from "@/components/SkipToContent";
 import { getSeoMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/context/LanguageContext";
+import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
+
 
 const RTL_LOCALES = ['ar'];
 
@@ -49,6 +51,7 @@ export default function RootLayout({ children, params }) {
             <ErrorBoundary>
               {children}
             </ErrorBoundary>
+            <WhatsAppFloatingButton />
           </ThemeProvider>
           <ToastProvider />
         </LanguageProvider>

@@ -247,14 +247,31 @@ const ls = {
 if (isClient) ls.initializeDB();
 
 // ==========================================
-// UNIFIED EXPORTS - Firebase first, LS fallback
+// UNIFIED EXPORTS - Firebase first, LS fallback with Timeout Circuit Breaker
 // ==========================================
 
 const useFirebase = isFirebaseConfigured();
 
+const withTimeout = async (promise, fallbackFn, timeoutMs = 2500) => {
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error('Firebase operation timed out'));
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } catch (error) {
+    console.warn('Firebase DB timed out or failed. Falling back:', error.message || error);
+    return typeof fallbackFn === 'function' ? fallbackFn() : fallbackFn;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
 export async function initializeDB() {
   if (useFirebase) {
-    return fbInitializeDB();
+    return withTimeout(fbInitializeDB(), () => ls.initializeDB(), 3000);
   }
   if (process.env.NODE_ENV === 'production') {
     throw new Error('Database connection failed. Firebase must be configured for production.');
@@ -263,131 +280,135 @@ export async function initializeDB() {
 }
 
 export async function getTrips(slug, category) {
-  if (useFirebase) return fbGetTrips(slug, category);
+  if (useFirebase) return withTimeout(fbGetTrips(slug, category), () => ls.getTrips(slug, category));
   return ls.getTrips(slug, category);
 }
 
 export async function addTrip(slug, category, tripData) {
-  if (useFirebase) return fbAddTrip(slug, category, tripData);
+  if (useFirebase) return withTimeout(fbAddTrip(slug, category, tripData), () => ls.addTrip(slug, category, tripData));
   return ls.addTrip(slug, category, tripData);
 }
 
 export async function getPackages(pkgId) {
-  if (useFirebase) return fbGetPackages(pkgId);
+  if (useFirebase) return withTimeout(fbGetPackages(pkgId), () => ls.getPackages(pkgId));
   return ls.getPackages(pkgId);
 }
 
 export async function addPackage(pkgId, packageData) {
-  if (useFirebase) return fbAddPackage(pkgId, packageData);
+  if (useFirebase) return withTimeout(fbAddPackage(pkgId, packageData), () => ls.addPackage(pkgId, packageData));
   return ls.addPackage(pkgId, packageData);
 }
 
 export async function getAgents() {
-  if (useFirebase) return fbGetAgents();
+  if (useFirebase) return withTimeout(fbGetAgents(), () => ls.getAgents());
   return ls.getAgents();
 }
 
 export async function saveAgents(agents) {
-  if (useFirebase) return fbSaveAgents(agents);
+  if (useFirebase) return withTimeout(fbSaveAgents(agents), () => ls.saveAgents(agents));
   return ls.saveAgents(agents);
 }
 
 export async function getAgentById(id) {
-  if (useFirebase) return fbGetAgentById(id);
+  if (useFirebase) return withTimeout(fbGetAgentById(id), () => ls.getAgentById(id));
   return ls.getAgentById(id);
 }
 
 export async function getAgentByUsername(username) {
-  if (useFirebase) return fbGetAgentByUsername(username);
+  if (useFirebase) return withTimeout(fbGetAgentByUsername(username), () => ls.getAgentByUsername(username));
   return ls.getAgentByUsername(username);
 }
 
 export async function addAgent(agentData) {
-  if (useFirebase) return fbAddAgent(agentData);
+  if (useFirebase) return withTimeout(fbAddAgent(agentData), () => ls.addAgent(agentData));
   return ls.addAgent(agentData);
 }
 
 export async function getBookings() {
-  if (useFirebase) return fbGetBookings();
+  if (useFirebase) return withTimeout(fbGetBookings(), () => ls.getBookings());
   return ls.getBookings();
 }
 
 export async function saveBookings(bookings) {
-  if (useFirebase) return fbSaveBookings(bookings);
+  if (useFirebase) return withTimeout(fbSaveBookings(bookings), () => ls.saveBookings(bookings));
   return ls.saveBookings(bookings);
 }
 
 export async function addBooking(bookingData) {
-  if (useFirebase) return fbAddBooking(bookingData);
+  if (useFirebase) return withTimeout(fbAddBooking(bookingData), () => ls.addBooking(bookingData));
   return ls.addBooking(bookingData);
 }
 
 export async function updateBookingStatus(id, newStatus) {
-  if (useFirebase) return fbUpdateBookingStatus(id, newStatus);
+  if (useFirebase) return withTimeout(fbUpdateBookingStatus(id, newStatus), () => ls.updateBookingStatus(id, newStatus));
   return ls.updateBookingStatus(id, newStatus);
 }
 
 export async function getPromoCodes() {
-  if (useFirebase) return fbGetPromoCodes();
+  if (useFirebase) return withTimeout(fbGetPromoCodes(), () => ls.getPromoCodes());
   return ls.getPromoCodes();
 }
 
 export async function savePromoCodes(codes) {
-  if (useFirebase) return fbSavePromoCodes(codes);
+  if (useFirebase) return withTimeout(fbSavePromoCodes(codes), () => ls.savePromoCodes(codes));
   return ls.savePromoCodes(codes);
 }
 
 export async function addPromoCode(codeData) {
-  if (useFirebase) return fbAddPromoCode(codeData);
+  if (useFirebase) return withTimeout(fbAddPromoCode(codeData), () => ls.addPromoCode(codeData));
   return ls.addPromoCode(codeData);
 }
 
 export async function deletePromoCode(code) {
-  if (useFirebase) return fbDeletePromoCode(code);
+  if (useFirebase) return withTimeout(fbDeletePromoCode(code), () => ls.deletePromoCode(code));
   return ls.deletePromoCode(code);
 }
 
 export async function validatePromoCode(codeStr) {
-  if (useFirebase) return fbValidatePromoCode(codeStr);
+  if (useFirebase) return withTimeout(fbValidatePromoCode(codeStr), () => ls.validatePromoCode(codeStr));
   return ls.validatePromoCode(codeStr);
 }
 
 export async function consumePromoCode(codeStr) {
-  if (useFirebase) return fbConsumePromoCode(codeStr);
+  if (useFirebase) return withTimeout(fbConsumePromoCode(codeStr), () => ls.consumePromoCode(codeStr));
   return ls.consumePromoCode(codeStr);
 }
 
 export async function getReviews() {
-  if (useFirebase) return fbGetReviews();
+  if (useFirebase) return withTimeout(fbGetReviews(), () => ls.getReviews());
   return ls.getReviews();
 }
 
 export async function addReview(reviewData) {
-  if (useFirebase) return fbAddReview(reviewData);
+  if (useFirebase) return withTimeout(fbAddReview(reviewData), () => ls.addReview(reviewData));
   return ls.addReview(reviewData);
 }
 
 export async function getSocialMedia() {
-  if (useFirebase) return fbGetSocialMedia();
+  if (useFirebase) return withTimeout(fbGetSocialMedia(), () => ls.getSocialMedia());
   return ls.getSocialMedia();
 }
 
 export async function saveSocialMedia(socialData) {
-  if (useFirebase) return fbSaveSocialMedia(socialData);
+  if (useFirebase) return withTimeout(fbSaveSocialMedia(socialData), () => ls.saveSocialMedia(socialData));
   return ls.saveSocialMedia(socialData);
 }
 
 export async function getSettings() {
-  if (useFirebase) return fbGetSettings();
+  if (useFirebase) return withTimeout(fbGetSettings(), () => ({ 
+    siteName: 'ORLUXUS', 
+    whatsapp: '+20100000000',
+    paypalEmail: 'info@orluxus.com'
+  }));
   return { 
-    siteName: localStorage?.getItem('orluxus_site_name') || 'ORLUXUS', 
-    whatsapp: localStorage?.getItem('orluxus_whatsapp') || '+20100000000',
-    paypalEmail: localStorage?.getItem('orluxus_paypal_email') || 'info@orluxus.com'
+    siteName: typeof localStorage !== 'undefined' ? localStorage.getItem('orluxus_site_name') || 'ORLUXUS' : 'ORLUXUS', 
+    whatsapp: typeof localStorage !== 'undefined' ? localStorage.getItem('orluxus_whatsapp') || '+20100000000' : '+20100000000',
+    paypalEmail: typeof localStorage !== 'undefined' ? localStorage.getItem('orluxus_paypal_email') || 'info@orluxus.com' : 'info@orluxus.com'
   };
 }
 
 export async function saveSettings(settingsData) {
-  if (useFirebase) return fbSaveSettings(settingsData);
+  if (useFirebase) return withTimeout(fbSaveSettings(settingsData), () => false);
   if (!isClient) return false;
   try {
     if (settingsData.siteName) localStorage.setItem('orluxus_site_name', settingsData.siteName);

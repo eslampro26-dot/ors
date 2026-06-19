@@ -108,23 +108,35 @@ export default function CategoryPage({ params }) {
               
               return (
                 <div key={trip.id} className="glass-card stagger-children" style={{ padding: 0, overflow: 'hidden', animationDelay: `${idx * 0.1}s`, display: 'flex', flexDirection: 'column' }}>
-                  {/* Trip Card Image */}
-                  <div style={{ 
-                    height: '200px', 
-                    backgroundImage: `url(${trip.image})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundColor: 'var(--bg-tertiary)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  {/* Circular Trip Card Image */}
+                  <div style={{
+                    display: 'flex',
                     justifyContent: 'center',
+                    alignItems: 'center',
+                    paddingTop: '2rem',
                     position: 'relative'
                   }}>
-                    {!trip.image && <span style={{ fontSize: '1.2rem', opacity: 0.3, letterSpacing: '2px', fontWeight: 'bold', color: 'var(--text-tertiary)' }}>ORLUXUS</span>}
+                    <div style={{
+                      width: '150px',
+                      height: '150px',
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      border: '4px solid var(--gold-500)',
+                      boxShadow: 'var(--shadow-glow-gold), 0 8px 16px rgba(0,0,0,0.3)',
+                      backgroundImage: `url(${trip.image || '/images/default.jpg'})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundColor: 'var(--bg-tertiary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      {!trip.image && <span style={{ fontSize: '0.9rem', opacity: 0.3, letterSpacing: '1px', fontWeight: 'bold', color: 'var(--text-tertiary)' }}>ORLUXUS</span>}
+                    </div>
                     
                     {trip.id.toString().startsWith('custom') && (
-                      <span className="badge badge-gold" style={{ position: 'absolute', top: '10px', left: '10px', transform: 'scale(0.9)' }}>
+                      <span className="badge badge-gold" style={{ position: 'absolute', top: '15px', right: '15px', transform: 'scale(0.85)' }}>
                         {t('common.newBadge')}
                       </span>
                     )}
@@ -222,6 +234,27 @@ export default function CategoryPage({ params }) {
                       <span>⏱️ {trip.duration}</span>
                       <span>⭐ {trip.rating || '5.0'} ({trip.reviews || '1'})</span>
                     </div>
+
+                    {trip.locationUrl && (
+                      <a 
+                        href={trip.locationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-secondary"
+                        style={{ 
+                          width: '100%', 
+                          display: 'inline-flex', 
+                          justifyContent: 'center', 
+                          alignItems: 'center', 
+                          gap: '0.4rem', 
+                          marginBottom: '0.6rem',
+                          borderColor: 'var(--gold-500)',
+                          color: 'var(--gold-400)'
+                        }}
+                      >
+                        📍 {locale === 'ar' ? 'الموقع على الخريطة' : 'Location on Map'}
+                      </a>
+                    )}
                     
                     <Link 
                       href={`/checkout?tripId=${trip.id}&price=${activeTier.price}&titleAr=${encodeURIComponent(trip.titleAr + ' - ' + activeTier.names.ar)}&titleEn=${encodeURIComponent((trip.titleEn || trip.titleAr) + ' - ' + activeTier.names.en)}&type=trip&city=${encodeURIComponent(city.nameAr)}`} 
@@ -234,23 +267,6 @@ export default function CategoryPage({ params }) {
                 </div>
               );
             })}
-            
-            {/* Show empty slots */}
-            {Array.from({ length: Math.max(0, 20 - trips.length) }).map((_, i) => (
-              <div key={`empty-${i}`} className="glass-card" style={{ 
-                display: 'flex', 
-                flexDirection: 'column',
-                alignItems: 'center', 
-                justifyContent: 'center',
-                padding: 'var(--space-2xl)',
-                borderStyle: 'dashed',
-                opacity: 0.35,
-                minHeight: '320px'
-              }}>
-                <span style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'var(--text-tertiary)' }}>+</span>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{t('common.emptySlot', { num: trips.length + i + 1 })}</span>
-              </div>
-            ))}
           </div>
         ) : (
           <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>

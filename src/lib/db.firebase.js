@@ -2,10 +2,44 @@
 // Firebase Firestore persistence layer - replaces localStorage
 import { db } from './firebase';
 import { 
-  collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
-  query, where, orderBy, limit, onSnapshot, writeBatch, increment
+  collection, doc, 
+  getDoc as fbGetDoc, 
+  getDocs as fbGetDocs, 
+  setDoc as fbSetDoc, 
+  addDoc as fbAddDoc, 
+  updateDoc as fbUpdateDoc, 
+  deleteDoc as fbDeleteDoc,
+  writeBatch as fbWriteBatch,
+  query, where, orderBy, limit, onSnapshot, increment
 } from 'firebase/firestore';
 import { sampleTrips } from './data';
+
+// Timeout helper for Firebase Firestore operations
+async function withTimeout(promise, timeoutMs = 2000) {
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error('Firebase operation timed out')), timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// Intercepted safe functions with timeout circuit breakers
+const getDoc = (ref) => withTimeout(fbGetDoc(ref));
+const getDocs = (q) => withTimeout(fbGetDocs(q));
+const setDoc = (ref, data, options) => withTimeout(fbSetDoc(ref, data, options));
+const addDoc = (collRef, data) => withTimeout(fbAddDoc(collRef, data));
+const updateDoc = (ref, data) => withTimeout(fbUpdateDoc(ref, data));
+const deleteDoc = (ref) => withTimeout(fbDeleteDoc(ref));
+const writeBatch = (firestoreDb) => {
+  const batch = fbWriteBatch(firestoreDb);
+  const originalCommit = batch.commit.bind(batch);
+  batch.commit = () => withTimeout(originalCommit());
+  return batch;
+};
 
 // ==========================================
 // COLLECTION NAMES

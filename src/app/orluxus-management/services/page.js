@@ -29,6 +29,7 @@ export default function AdminServices() {
     description: '',
     icon: '✈️',
     image: '',
+    locationUrl: '',
   });
 
   // Load persistent trips & packages
@@ -89,7 +90,7 @@ export default function AdminServices() {
     e.preventDefault();
     
     if (modalType === 'trip') {
-      const { city, category, titleAr, titleEn, price, duration, image } = formData;
+      const { city, category, titleAr, titleEn, price, duration, image, locationUrl } = formData;
       if (!titleAr || !titleEn || !price) {
         alert('يرجى ملء جميع الحقول المطلوبة!');
         return;
@@ -101,7 +102,8 @@ export default function AdminServices() {
           titleEn,
           price: parseFloat(price),
           duration,
-          image: image || '/images/trips/glass-boat.jpg'
+          image: image || '/images/trips/glass-boat.jpg',
+          locationUrl: locationUrl || ''
         });
 
         if (success) {
@@ -118,6 +120,7 @@ export default function AdminServices() {
             description: '',
             icon: '✈️',
             image: '',
+            locationUrl: '',
           });
           await loadData(); // Reload list
         } else {
@@ -578,18 +581,32 @@ export default function AdminServices() {
                   </div>
                 </>
               ) : (
-                /* Image Url */
-                <div className={styles.formGroup}>
-                  <label>رابط الصورة (اختياري)</label>
-                  <input 
-                    type="text" 
-                    name="image" 
-                    value={formData.image} 
-                    onChange={handleInputChange}
-                    placeholder="مثال: /images/trips/custom.jpg"
-                    className={styles.input}
-                  />
-                </div>
+                <>
+                  {/* Image Url */}
+                  <div className={styles.formGroup}>
+                    <label>رابط الصورة (اختياري)</label>
+                    <input 
+                      type="text" 
+                      name="image" 
+                      value={formData.image} 
+                      onChange={handleInputChange}
+                      placeholder="مثال: /images/trips/custom.jpg"
+                      className={styles.input}
+                    />
+                  </div>
+                  {/* Location URL */}
+                  <div className={styles.formGroup}>
+                    <label>رابط الموقع الجغرافي للمطعم/المكان (Google Maps URL) (اختياري)</label>
+                    <input 
+                      type="text" 
+                      name="locationUrl" 
+                      value={formData.locationUrl} 
+                      onChange={handleInputChange}
+                      placeholder="مثال: https://maps.google.com/..."
+                      className={styles.input}
+                    />
+                  </div>
+                </>
               )}
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>

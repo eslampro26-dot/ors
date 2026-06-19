@@ -231,23 +231,6 @@ export default function PackagePage({ params }) {
                 </div>
               );
             })}
-
-            {/* Empty Slots */}
-            {Array.from({ length: Math.max(0, 20 - items.length) }).map((_, i) => (
-              <div key={`empty-${i}`} className="glass-card" style={{ 
-                display: 'flex', 
-                flexDirection: 'column',
-                alignItems: 'center', 
-                justifyContent: 'center',
-                padding: 'var(--space-2xl)',
-                borderStyle: 'dashed',
-                opacity: 0.35,
-                minHeight: '280px'
-              }}>
-                <span style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'var(--text-tertiary)' }}>+</span>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{t('common.emptySlot', { num: items.length + i + 1 })}</span>
-              </div>
-            ))}
           </div>
         ) : (
           <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>

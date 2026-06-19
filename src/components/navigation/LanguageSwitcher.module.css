@@ -198,9 +198,14 @@
     min-width: 100%;
     margin-top: 6px;
     border-radius: var(--radius-md);
+    display: none;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: all !important;
   }
 
   .dropdownOpen {
+    display: block;
     transform: none;
   }
 

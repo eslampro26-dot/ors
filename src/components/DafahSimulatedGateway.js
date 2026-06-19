@@ -26,6 +26,9 @@ export default function DafahSimulatedGateway({ searchParams, router, addBooking
   const travelers = parseInt(searchParams.get('travelers') || '1', 10);
   const title = searchParams.get('title') || 'رحلة سياحية';
   const city = searchParams.get('city') || 'شرم الشيخ';
+  const email = searchParams.get('email') || '';
+  const pickupLocation = searchParams.get('pickupLocation') || '';
+  const extras = searchParams.get('extras') || '';
 
   const translate = (key) => {
     const dict = {
@@ -82,6 +85,7 @@ export default function DafahSimulatedGateway({ searchParams, router, addBooking
         await addBooking({
           id: `BK-${txParam.replace('dafah-tx-', '').split('-')[0]}`,
           customer: customerName,
+          email: email,
           phone: phone,
           whatsapp: whatsapp || phone,
           service: title,
@@ -95,14 +99,16 @@ export default function DafahSimulatedGateway({ searchParams, router, addBooking
           status: 'مؤكد',
           promoCode: promoCode,
           paymentType: 'card',
-          txId: txParam
+          txId: txParam,
+          pickupLocation: pickupLocation,
+          extras: extras
         });
 
         setPaymentSuccess(true);
         setIsProcessing(false);
 
         // Redirect to success view
-        const successUrl = `/checkout?status=success&tx=${txParam}&tripId=${tripId}&amount=${amount}&originalAmount=${originalAmount}&discountAmount=${discountAmount}&promoCode=${promoCode}&agentId=${agentId || ''}&agentName=${encodeURIComponent(agentName)}&customerName=${encodeURIComponent(customerName)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(date)}&travelers=${travelers}&title=${encodeURIComponent(title)}&paymentType=card`;
+        const successUrl = `/checkout?status=success&tx=${txParam}&tripId=${tripId}&amount=${amount}&originalAmount=${originalAmount}&discountAmount=${discountAmount}&promoCode=${promoCode}&agentId=${agentId || ''}&agentName=${encodeURIComponent(agentName)}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(date)}&travelers=${travelers}&title=${encodeURIComponent(title)}&paymentType=card&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(extras)}`;
         
         router.push(successUrl);
       } catch (err) {

@@ -65,11 +65,50 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <div className={`${styles.navLinks} ${mobileOpen ? styles.navLinksOpen : ''}`}>
+          {/* 1. Home */}
           <Link href="/" className={styles.navLink} onClick={() => setMobileOpen(false)}>
             {t('nav.home')}
           </Link>
 
-          {/* City Dropdowns */}
+          {/* 2. Internal Packages Dropdown */}
+          <div className={styles.dropdown}>
+            <button
+              className={`${styles.navLink} ${styles.dropdownTrigger} ${activeDropdown === 'packages' ? styles.active : ''}`}
+              onClick={() => handleDropdownToggle('packages')}
+            >
+              <span>{t('nav.egyptPackages')}</span>
+              <svg className={`${styles.chevron} ${activeDropdown === 'packages' ? styles.chevronUp : ''}`} width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <div className={`${styles.megaDropdown} ${activeDropdown === 'packages' ? styles.megaDropdownOpen : ''}`}>
+              <div className={styles.megaHeader}>
+                <div>
+                  <h3 className={styles.megaTitle}>{t('nav.egyptPackages')}</h3>
+                  <p className={styles.megaDesc}>Complete internal vacation packages including hotel accommodations, flights, and transfers.</p>
+                </div>
+              </div>
+              <div className={styles.megaGrid}>
+                {internalPackages.map((pkg) => {
+                  const locPkg = getLocalizedPackage(pkg, locale);
+                  return (
+                    <Link
+                      key={pkg.id}
+                      href={`/packages/${pkg.id}`}
+                      className={styles.megaItem}
+                      onClick={() => { setActiveDropdown(null); setMobileOpen(false); }}
+                    >
+                      <div>
+                        <span className={styles.megaItemName}>{locPkg.name}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* 3. City Dropdowns */}
           {cities.map((city) => {
             const locCity = getLocalizedCity(city, locale);
             return (
@@ -109,44 +148,7 @@ export default function Navbar() {
             );
           })}
 
-          {/* Internal Packages Dropdown */}
-          <div className={styles.dropdown}>
-            <button
-              className={`${styles.navLink} ${styles.dropdownTrigger} ${activeDropdown === 'packages' ? styles.active : ''}`}
-              onClick={() => handleDropdownToggle('packages')}
-            >
-              <span>{t('nav.egyptPackages')}</span>
-              <svg className={`${styles.chevron} ${activeDropdown === 'packages' ? styles.chevronUp : ''}`} width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            <div className={`${styles.megaDropdown} ${activeDropdown === 'packages' ? styles.megaDropdownOpen : ''}`}>
-              <div className={styles.megaHeader}>
-                <div>
-                  <h3 className={styles.megaTitle}>{t('nav.egyptPackages')}</h3>
-                  <p className={styles.megaDesc}>Complete internal vacation packages including hotel accommodations, flights, and transfers.</p>
-                </div>
-              </div>
-              <div className={styles.megaGrid}>
-                {internalPackages.map((pkg) => {
-                  const locPkg = getLocalizedPackage(pkg, locale);
-                  return (
-                    <Link
-                      key={pkg.id}
-                      href={`/packages/${pkg.id}`}
-                      className={styles.megaItem}
-                      onClick={() => { setActiveDropdown(null); setMobileOpen(false); }}
-                    >
-                      <div>
-                        <span className={styles.megaItemName}>{locPkg.name}</span>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
+          {/* 4. Entertainment */}
           <Link href="/entertainment" className={styles.navLink} onClick={() => setMobileOpen(false)}>
             {t('nav.entertainment')}
           </Link>

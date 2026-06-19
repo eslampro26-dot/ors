@@ -785,9 +785,6 @@ body {
   background: var(--bg-tertiary);
 }
 
-  }
-}
-
 @keyframes slideInLeft {
   from {
     opacity: 0;

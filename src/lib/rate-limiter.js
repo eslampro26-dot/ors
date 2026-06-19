@@ -21,6 +21,19 @@ export function getClientIp(request) {
   return '127.0.0.1';
 }
 
+// Timeout helper for Firebase Firestore operations
+async function withTimeout(promise, timeoutMs = 2000) {
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error('Firebase operation timed out')), timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 /**
  * Checks and records rate limits.
  * Uses Firestore if configured, otherwise falls back to in-memory Map.
@@ -40,11 +53,11 @@ export async function checkRateLimit(ip, actionType, maxAttempts, windowMs) {
   if (isFirebaseConfigured) {
     try {
       const docRef = doc(db, 'rate_limits', `${sanitizedIp}_${actionType}`);
-      const snap = await getDoc(docRef);
+      const snap = await withTimeout(getDoc(docRef), 2000);
       const now = Date.now();
       
       if (!snap.exists()) {
-        await setDoc(docRef, { count: 1, resetAt: now + windowMs });
+        await withTimeout(setDoc(docRef, { count: 1, resetAt: now + windowMs }), 2000);
         return { allowed: true, remaining: maxAttempts - 1 };
       }
       
@@ -52,7 +65,7 @@ export async function checkRateLimit(ip, actionType, maxAttempts, windowMs) {
       
       if (now > data.resetAt) {
         // Reset window
-        await setDoc(docRef, { count: 1, resetAt: now + windowMs });
+        await withTimeout(setDoc(docRef, { count: 1, resetAt: now + windowMs }), 2000);
         return { allowed: true, remaining: maxAttempts - 1 };
       }
       
@@ -61,7 +74,7 @@ export async function checkRateLimit(ip, actionType, maxAttempts, windowMs) {
         return { allowed: false, retryAfter };
       }
       
-      await updateDoc(docRef, { count: data.count + 1 });
+      await withTimeout(updateDoc(docRef, { count: data.count + 1 }), 2000);
       return { allowed: true, remaining: maxAttempts - (data.count + 1) };
     } catch (e) {
       console.error('Firestore rate limiting failed, falling back to local memory:', e);
