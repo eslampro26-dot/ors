@@ -5,13 +5,22 @@ import { checkRateLimit, getClientIp } from '@/lib/rate-limiter';
 
 /**
  * POST /api/auth/agent-login
- * Server-side agent login.
- * Fixes: [C-5] Plaintext password comparison, [H-1] Insecure cookies,
- *         [H-5] No rate limiting
+ * Server-side agent login with Firebase + fallback to default agents.
  */
 
 const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 15 * 60 * 1000;
+
+// Default agents fallback (used if Firebase is empty/not seeded yet)
+const DEFAULT_AGENTS = [
+  { id: '1', name: 'أحمد محمود',      username: 'ahmed',   password: 'Agent@2026!Sec', tier: 'silver',   status: 'نشط' },
+  { id: '2', name: 'سارة إبراهيم',    username: 'sara',    password: 'Agent@2026!Sec', tier: 'gold',     status: 'نشط' },
+  { id: '3', name: 'خالد عبد الرحمن', username: 'khaled',  password: 'Agent@2026!Sec', tier: 'silver',   status: 'نشط' },
+  { id: '4', name: 'منى جمال',        username: 'mona',    password: 'Agent@2026!Sec', tier: 'bronze',   status: 'موقوف' },
+  { id: '5', name: 'طارق زياد',       username: 'tarek',   password: 'Agent@2026!Sec', tier: 'platinum', status: 'نشط' },
+  { id: '6', name: 'يوسف سليم',       username: 'youssef', password: 'Agent@2026!Sec', tier: 'bronze',   status: 'نشط' },
+  { id: '7', name: 'حازم عمر',        username: 'hazem',   password: 'Agent@2026!Sec', tier: 'bronze',   status: 'نشط' },
+];
 
 export async function POST(request) {
   try {
@@ -31,27 +40,38 @@ export async function POST(request) {
       return NextResponse.json({ error: 'الرجاء تعبئة كافة الحقول.' }, { status: 400 });
     }
 
-    // Look up agent on server side
-    const agent = await getAgentByUsername(username.trim());
+    const cleanUsername = username.trim().toLowerCase();
+
+    // 1) Try Firebase first
+    let agent = null;
+    try {
+      agent = await getAgentByUsername(cleanUsername);
+    } catch (e) {
+      console.error('Firebase agent lookup failed:', e);
+    }
+
+    // 2) Fallback to hardcoded default agents if Firebase returned nothing
+    if (!agent) {
+      const fallback = DEFAULT_AGENTS.find(a => a.username === cleanUsername);
+      if (fallback) agent = { ...fallback };
+    }
 
     if (!agent) {
       return NextResponse.json({ error: 'بيانات الدخول غير صحيحة.' }, { status: 401 });
     }
 
-    // Secure verification (C-5): bcrypt comparison with plaintext fallback for first-time setup
+    // 3) Password verification — bcrypt hash OR plaintext fallback
     const bcrypt = require('bcryptjs');
     let passwordMatch = false;
 
-    // Check if password is bcrypt hashed
     if (agent.password && (agent.password.startsWith('$2a$') || agent.password.startsWith('$2b$'))) {
       passwordMatch = await bcrypt.compare(password, agent.password);
     } else {
-      // Plaintext fallback (first deployment before passwords are hashed)
       passwordMatch = (password === agent.password);
-      // Auto-hash the password for future logins
+      // Auto-upgrade to bcrypt hash for next login
       if (passwordMatch) {
         try {
-          const { updateAgent } = require('@/lib/db.firebase');
+          const { updateAgent } = await import('@/lib/db.firebase');
           const salt = await bcrypt.genSalt(10);
           const hashed = await bcrypt.hash(password, salt);
           await updateAgent(agent.id, { password: hashed });
@@ -69,22 +89,17 @@ export async function POST(request) {
       return NextResponse.json({ error: 'هذا الحساب موقوف. تواصل مع الإدارة.' }, { status: 403 });
     }
 
-    // Generate signed token and set HttpOnly cookie
+    // 4) Generate signed session token
     const token = generateAgentToken(agent.id);
-
     const response = NextResponse.json({
       success: true,
-      agent: {
-        id: agent.id,
-        name: agent.name,
-        email: agent.email,
-        tier: agent.tier,
-      },
+      agent: { id: agent.id, name: agent.name, tier: agent.tier },
     });
     response.headers.set('Set-Cookie', buildAgentCookieHeader(token));
     return response;
+
   } catch (e) {
+    console.error('Agent login error:', e);
     return NextResponse.json({ error: 'حدث خطأ أثناء تسجيل الدخول.' }, { status: 500 });
   }
 }
-
