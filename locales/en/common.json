@@ -1,0 +1,40 @@
+{
+  "siteTitle": "ORLUXUS",
+  "nav": {
+    "home": "Home",
+    "packages": "Packages",
+    "agents": "Agents",
+    "bookings": "Bookings",
+    "entertainment": "Entertainment",
+    "contact": "Contact",
+    "reviews": "Reviews",
+    "cities": "Cities"
+  },
+  "hero": {
+    "title": "Discover the Wonders of Egypt with",
+    "description": "Book premium marine cruises, desert safaris, and local city excursions in Sharm El Sheikh, Hurghada, Marsa Alam, Dahab, and Ain Sokhna at select rates.",
+    "start": "Start Your Journey"
+  },
+  "common": {
+    "bookNow": "Book Now",
+    "learnMore": "Learn More",
+    "viewAll": "View All",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "search": "Search",
+    "noResults": "No results found",
+    "currency": "EGP",
+    "perPerson": "per person",
+    "from": "From",
+    "to": "To"
+  },
+  "footer": {
+    "copyright": "© ORLUXUS",
+    "tagline": "With A Family Spirit"
+  },
+  "language": {
+    "select": "Select Language",
+    "current": "English"
+  }
+}

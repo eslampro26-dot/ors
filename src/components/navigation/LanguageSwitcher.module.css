@@ -1,0 +1,210 @@
+.switcher {
+  position: relative;
+  z-index: 50;
+}
+
+/* ===== Trigger Button ===== */
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-medium);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  font-family: var(--font-en);
+  white-space: nowrap;
+}
+
+.trigger:hover {
+  background: var(--bg-glass-hover);
+  border-color: rgba(251, 191, 36, 0.35);
+  color: var(--text-primary);
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.08);
+}
+
+.triggerOpen {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(251, 191, 36, 0.4);
+  color: var(--text-primary);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.1);
+}
+
+.currentFlag {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.currentName {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 0.8rem;
+}
+
+.arrow {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.6;
+}
+
+.arrowUp {
+  transform: rotate(180deg);
+}
+
+/* ===== Dropdown Panel ===== */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  min-width: 280px;
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-lg);
+}
+
+.dropdownOpen {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+  transform: translateX(-50%) translateY(0);
+}
+
+.dropdownHeader {
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dropdownTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}
+
+/* ===== Language Grid ===== */
+.langGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.langGrid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.langGrid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+/* ===== Language Option ===== */
+.langOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: start;
+  color: var(--text-secondary);
+  position: relative;
+}
+
+.langOption:hover {
+  background: rgba(251, 191, 36, 0.08);
+  color: var(--text-primary);
+}
+
+.langOptionActive {
+  background: rgba(251, 191, 36, 0.12) !important;
+  color: var(--gold-400) !important;
+}
+
+.langOptionActive::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--gradient-gold);
+  border-radius: 3px;
+}
+
+.langFlag {
+  font-size: 1.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.langInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.langName {
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-en);
+}
+
+.checkIcon {
+  margin-right: auto;
+  color: var(--gold-400);
+  flex-shrink: 0;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .switcher {
+    width: 100%;
+  }
+
+  .trigger {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .dropdown {
+    position: static;
+    transform: none;
+    min-width: 100%;
+    margin-top: 6px;
+    border-radius: var(--radius-md);
+  }
+
+  .dropdownOpen {
+    transform: none;
+  }
+
+  .langGrid {
+    max-height: 240px;
+  }
+}

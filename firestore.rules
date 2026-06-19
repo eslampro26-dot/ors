@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. Trips & Packages: Publicly readable, writeable only by Admin via backend API
+    match /trips/{document} {
+      allow read: if true;
+      allow write: if false; // Block client-side direct writes
+    }
+    match /packages/{document} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // 2. Reviews: Publicly readable, writes are restricted to server API to enforce rate limiting and sanitization
+    match /reviews/{document} {
+      allow read: if true;
+      allow write: if false; // Must go through POST /api/reviews
+    }
+    
+    // 3. Settings & Social Media: Publicly readable, writes restricted to server API (admin authenticated)
+    match /settings/{document} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /social_media/{document} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // 4. Sensitive collections (Agents, Bookings, Promo Codes): Completely locked down. 
+    // Direct browser access is blocked. Access is only allowed via server-side API endpoints.
+    match /bookings/{document} {
+      allow read, write: if false; // Must go through GET/POST/PUT/DELETE /api/bookings
+    }
+    match /agents/{document} {
+      allow read, write: if false; // Must go through GET/POST/PUT/DELETE /api/agents
+    }
+    match /promo_codes/{document} {
+      allow read, write: if false; // Must go through GET/POST/DELETE /api/promo-codes
+    }
+  }
+}

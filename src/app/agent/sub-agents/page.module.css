@@ -1,0 +1,180 @@
+.treePage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.headerInfo h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.headerInfo p {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.treeContainer {
+  padding: var(--space-3xl) var(--space-xl);
+  overflow-x: auto;
+  min-height: 500px;
+  display: flex;
+  justify-content: center;
+}
+
+.treeWrapper {
+  display: flex;
+  justify-content: center;
+  min-width: max-content;
+}
+
+/* CSS Tree Layout */
+.treeNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding-top: 30px;
+}
+
+/* Connecting lines */
+.treeNode::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 30px;
+  background: var(--border-medium);
+}
+
+/* Remove line for root */
+.treeWrapper > .treeNode::before {
+  display: none;
+}
+.treeWrapper > .treeNode {
+  padding-top: 0;
+}
+
+.treeChildren {
+  display: flex;
+  gap: 40px;
+  position: relative;
+  padding-top: 30px;
+}
+
+/* Horizontal connecting line */
+.treeChildren::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 250px); /* rough calc based on card width */
+  height: 1px;
+  background: var(--border-medium);
+}
+
+.agentCard {
+  width: 250px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  position: relative;
+  z-index: 10;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-md);
+}
+
+.agentCard:hover {
+  border-color: var(--gold-400);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow-gold);
+}
+
+.rootCard {
+  border-color: var(--gold-500);
+  background: rgba(26, 34, 54, 0.95);
+  box-shadow: var(--shadow-glow-gold);
+}
+
+.agentHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.agentAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.agentInfo h4 {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.agentStats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: var(--font-size-xs);
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-secondary);
+}
+
+.stat strong {
+  color: var(--text-primary);
+  font-family: var(--font-en);
+}
+
+.infoCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-lg);
+}
+
+.infoCards h3 {
+  font-size: var(--font-size-lg);
+  color: var(--gold-400);
+  margin-bottom: var(--space-sm);
+}
+
+.infoText {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

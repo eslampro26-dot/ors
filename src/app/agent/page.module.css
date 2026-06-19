@@ -1,0 +1,495 @@
+/* ======================== DASHBOARD ======================== */
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+/* ======================== KPI CARDS ======================== */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+}
+
+.kpiCard {
+  background: var(--gradient-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-base);
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+.kpiCard:nth-child(1) { animation-delay: 0.05s; }
+.kpiCard:nth-child(2) { animation-delay: 0.1s; }
+.kpiCard:nth-child(3) { animation-delay: 0.15s; }
+.kpiCard:nth-child(4) { animation-delay: 0.2s; }
+
+.kpiCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 0 var(--radius-lg) 0 50%;
+  opacity: 0.07;
+  transition: opacity var(--transition-base);
+}
+
+.kpiCard:hover {
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-glow-gold);
+  transform: translateY(-3px);
+}
+
+.kpiCard:hover::before {
+  opacity: 0.12;
+}
+
+.kpiCardGold::before { background: var(--gradient-gold); }
+.kpiCardOcean::before { background: var(--gradient-ocean); }
+.kpiCardEmerald::before { background: linear-gradient(135deg, var(--emerald-400), var(--emerald-600)); }
+.kpiCardCoral::before { background: linear-gradient(135deg, var(--coral-400), var(--coral-600)); }
+
+.kpiHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.kpiIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+}
+
+.kpiTrend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+}
+
+.kpiTrendUp {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--emerald-400);
+}
+
+.kpiTrendDown {
+  background: rgba(244, 63, 94, 0.12);
+  color: var(--coral-400);
+}
+
+.kpiValue {
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+  margin-bottom: 4px;
+  font-family: var(--font-en);
+  direction: ltr;
+  text-align: right;
+}
+
+.kpiLabel {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ======================== DUAL GRID ======================== */
+.dualGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: var(--space-lg);
+}
+
+/* ======================== SECTION CARD ======================== */
+.sectionCard {
+  background: var(--gradient-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  animation: fadeInUp 0.5s ease-out 0.25s both;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.sectionAction {
+  font-size: var(--font-size-sm);
+  color: var(--gold-400);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  text-decoration: none;
+}
+
+.sectionAction:hover {
+  color: var(--gold-300);
+}
+
+/* ======================== BAR CHART ======================== */
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 200px;
+  padding-top: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--space-md);
+}
+
+.chartBar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bar {
+  width: 100%;
+  max-width: 40px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: var(--gradient-gold);
+  position: relative;
+  min-height: 4px;
+  transition: all var(--transition-slow);
+  animation: barGrow 0.8s ease-out both;
+  transform-origin: bottom;
+}
+
+.bar:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 -4px 16px rgba(251, 191, 36, 0.3);
+}
+
+.chartBar:nth-child(1) .bar { animation-delay: 0.1s; }
+.chartBar:nth-child(2) .bar { animation-delay: 0.15s; }
+.chartBar:nth-child(3) .bar { animation-delay: 0.2s; }
+.chartBar:nth-child(4) .bar { animation-delay: 0.25s; }
+.chartBar:nth-child(5) .bar { animation-delay: 0.3s; }
+.chartBar:nth-child(6) .bar { animation-delay: 0.35s; }
+.chartBar:nth-child(7) .bar { animation-delay: 0.4s; }
+.chartBar:nth-child(8) .bar { animation-delay: 0.45s; }
+.chartBar:nth-child(9) .bar { animation-delay: 0.5s; }
+.chartBar:nth-child(10) .bar { animation-delay: 0.55s; }
+.chartBar:nth-child(11) .bar { animation-delay: 0.6s; }
+.chartBar:nth-child(12) .bar { animation-delay: 0.65s; }
+
+.barValue {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  font-family: var(--font-en);
+  font-weight: 600;
+}
+
+.barLabel {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  margin-top: var(--space-sm);
+}
+
+.chartSummary {
+  display: flex;
+  gap: var(--space-xl);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-md);
+}
+
+.chartStat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chartStatValue {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-en);
+}
+
+.chartStatLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* ======================== TIER PROGRESS ======================== */
+.tierProgress {
+  animation: fadeInUp 0.5s ease-out 0.3s both;
+}
+
+.tierCurrentInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-md);
+  background: var(--bg-glass);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.tierEmoji {
+  font-size: 36px;
+}
+
+.tierName {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tierCommission {
+  font-size: var(--font-size-sm);
+  color: var(--gold-400);
+}
+
+.progressItem {
+  margin-bottom: var(--space-lg);
+}
+
+.progressItem:last-child {
+  margin-bottom: 0;
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.progressText {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.progressNumbers {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-family: var(--font-en);
+  direction: ltr;
+}
+
+.progressTrack {
+  height: 8px;
+  background: var(--bg-glass-strong);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--gradient-gold);
+  position: relative;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: progressGrow 1.2s ease-out both;
+}
+
+.progressFill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: shimmer 2s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+
+.nextTierHint {
+  margin-top: var(--space-xl);
+  padding: var(--space-md);
+  background: rgba(251, 191, 36, 0.05);
+  border: 1px dashed rgba(251, 191, 36, 0.2);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.nextTierText {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.nextTierName {
+  color: var(--gold-400);
+  font-weight: 700;
+}
+
+/* ======================== TRANSACTIONS TABLE ======================== */
+.tableWrap {
+  overflow-x: auto;
+  margin: 0 calc(var(--space-xl) * -1);
+  padding: 0 var(--space-xl);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.table th {
+  text-align: right;
+  padding: var(--space-md) var(--space-md);
+  color: var(--text-tertiary);
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--space-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.table tr:hover td {
+  background: var(--bg-glass);
+  color: var(--text-primary);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.statusComplete {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--emerald-400);
+}
+
+.statusPending {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--gold-400);
+}
+
+.statusCancelled {
+  background: rgba(244, 63, 94, 0.12);
+  color: var(--coral-400);
+}
+
+.amountCell {
+  font-family: var(--font-en);
+  font-weight: 600;
+  color: var(--text-primary);
+  direction: ltr;
+  text-align: right;
+}
+
+/* ======================== RESPONSIVE ======================== */
+@media (max-width: 1200px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dualGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .kpiValue {
+    font-size: var(--font-size-2xl);
+  }
+
+  .chart {
+    height: 150px;
+  }
+
+  .chartSummary {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .sectionCard {
+    padding: var(--space-lg);
+  }
+}
+
+/* ======================== ANIMATIONS ======================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes barGrow {
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes progressGrow {
+  from { width: 0 !important; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
