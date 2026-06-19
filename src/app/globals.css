@@ -785,10 +785,262 @@ body {
   background: var(--bg-tertiary);
 }
 
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.25); }
+}
+
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(14deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+  60% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out forwards;
+}
+
+/* Stagger children */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.4s; }
+.stagger-children > *:nth-child(9) { animation-delay: 0.45s; }
+
+/* ======================== SCROLLBAR ======================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-600);
+}
+
+/* ======================== RESPONSIVE ======================== */
+@media (max-width: 768px) {
+  :root {
+    --nav-height: 64px;
+  }
+
+  .section {
+    padding: var(--space-2xl) 0;
+  }
+
+  .section-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .container {
+    padding: 0 var(--space-md);
+  }
+
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: var(--font-size-xl);
+  }
+}
+
+/* ======================== OVERRIDES ======================== */
+/* Hide Google Translate Top Banner completely */
+body {
+  top: 0 !important;
+}
+
+.skiptranslate iframe,
+.goog-te-banner-frame {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+#goog-gt-tt {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* ======================== DARK MODE OVERRIDES ======================== */
+[data-theme="dark"] .glass-card:hover {
+  background: var(--bg-card-hover);
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-medium) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+[data-theme="dark"] .destination-row-card:hover {
+  background: var(--bg-card-hover) !important;
+}
+
+[data-theme="dark"] .quick-chip:hover {
+  background: var(--gold-400) !important;
+  color: #07111b !important;
+}
+
+[data-theme="dark"] footer {
+  background: #050810 !important;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+}
+
 [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
   background: var(--gold-600);
 }
 
 
-/* ????? ?????? Vercel Speed Insights ? Analytics ?? ?????? ?????? */
+/* ===== Vercel Toolbar Hide ===== */
 #vercel-speed-insights-ui, #va-vercel-toolbar, [data-vercel-toolbar], .vercel-live-toolbar, div[style*="bottom: 16px"][style*="left: 16px"], div[style*="bottom:16px"][style*="left:16px"], nextjs-portal { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; z-index: -9999 !important; }
+
+/* ===== Global Select Option Fix (Admin Dark Theme) ===== */
+/* Fixes invisible text in native browser dropdowns on dark backgrounds */
+select option {
+  background-color: #1a1f2e;
+  color: #f8fafc;
+}
+
+/* Admin panel specific - stronger override */
+.adminContainer select,
+.adminContainer select option,
+[class*="adminContainer"] select,
+[class*="adminContainer"] select option {
+  background-color: #0c0f17 !important;
+  color: #f8fafc !important;
+}
+
+/* Modal & form selects inside admin */
+select[style],
+form select {
+  color-scheme: dark;
+}
+
+/* Force visibility for all selects with dark backgrounds */
+select:not([data-light]) option {
+  background: #111827;
+  color: #f1f5f9;
+}
+
+/* ===== Mobile Responsive Fixes ===== */
+@media (max-width: 768px) {
+  /* Fix modal overflow on mobile */
+  div[style*="position: fixed"] > div[class*="glass-card"],
+  div[style*="position:fixed"] > div[class*="glass-card"] {
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 1rem;
+    width: calc(100% - 2rem) !important;
+    max-width: unset !important;
+  }
+
+  /* Fix grid forms to single column on mobile */
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Better touch targets */
+  button, select, input {
+    min-height: 44px;
+  }
+}
