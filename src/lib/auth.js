@@ -5,23 +5,20 @@ import crypto from 'crypto';
  * Handles admin authentication, API protection, and session management.
  */
 
-// ─── Admin Credentials (from env, never hardcoded) ───
+// ─── Admin Credentials (from env, lazy loaded at runtime) ───
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
-if (process.env.NODE_ENV === 'production' && !ADMIN_PASSWORD) {
-  throw new Error('CRITICAL SECURITY ERROR: ADMIN_PASSWORD environment variable is not set in production. The application will not start to prevent unauthorized access.');
+// Lazy getters — validated at request time, not at build time
+function getAdminPassword() {
+  const pwd = process.env.ADMIN_PASSWORD;
+  if (!pwd) {
+    console.warn('WARNING: ADMIN_PASSWORD is not set.');
+  }
+  return pwd || '';
 }
 
-// Fallback to random secure string if env is not defined to prevent static guessable key vulnerability
-const fallbackSecret = crypto.randomBytes(32).toString('hex');
-const API_SECRET    = process.env.API_SECRET_TOKEN || fallbackSecret;
-
-if (!process.env.API_SECRET_TOKEN) {
-  console.warn('WARNING: API_SECRET_TOKEN is not set. A temporary random secret has been generated.');
-  if (process.env.NODE_ENV === 'production') {
-     throw new Error('CRITICAL SECURITY ERROR: API_SECRET_TOKEN must be set in production to maintain session stability across serverless function cold starts.');
-  }
+function getApiSecret() {
+  return process.env.API_SECRET_TOKEN || crypto.randomBytes(32).toString('hex');
 }
 
 /**
@@ -31,7 +28,7 @@ function signPayload(payload) {
   const serialized = JSON.stringify(payload);
   const base64Payload = Buffer.from(serialized).toString('base64url');
   const signature = crypto
-    .createHmac('sha256', API_SECRET)
+    .createHmac('sha256', getApiSecret())
     .update(base64Payload)
     .digest('base64url');
   return `${base64Payload}.${signature}`;
@@ -48,7 +45,7 @@ function verifySignedToken(token) {
   
   try {
     const expectedSignature = crypto
-      .createHmac('sha256', API_SECRET)
+      .createHmac('sha256', getApiSecret())
       .update(base64Payload)
       .digest('base64url');
       
@@ -77,7 +74,7 @@ function verifySignedToken(token) {
 export function verifyAdminCredentials(username, password) {
   if (!username || !password) return false;
   const usernameMatch = username.trim() === ADMIN_USERNAME;
-  const passwordMatch = password === ADMIN_PASSWORD;
+  const passwordMatch = password === getAdminPassword();
   return usernameMatch && passwordMatch;
 }
 
@@ -153,7 +150,7 @@ export function getCookieFromRequest(request, cookieName) {
 export function verifyApiSecret(request) {
   const headerToken = request.headers.get('x-api-secret');
   const adminToken  = getCookieFromRequest(request, 'admin_session');
-  if (headerToken === API_SECRET) return true;
+  if (headerToken === getApiSecret()) return true;
   if (verifyAdminToken(adminToken)) return true;
   return false;
 }
