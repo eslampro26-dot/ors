@@ -289,7 +289,7 @@ export async function getAgents() {
     const snapshot = await getDocs(collection(db, COL.AGENTS));
     return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) {
-    console.error('Error loading agents:', e);
+    // Silently fallback to LS on timeout
     return DEFAULT_AGENTS;
   }
 }
@@ -411,7 +411,7 @@ export async function getBookings() {
     const snapshot = await getDocs(q);
     return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) {
-    console.error('Error loading bookings:', e);
+    // Silently fallback to LS on timeout
     return DEFAULT_BOOKINGS;
   }
 }
@@ -673,7 +673,7 @@ export async function getReviews() {
     const snapshot = await getDocs(q);
     return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) {
-    console.error('Error loading reviews:', e);
+    // Silently fallback
     return DEFAULT_REVIEWS;
   }
 }
@@ -714,7 +714,7 @@ export async function getSocialMedia() {
     const snap = await getDoc(doc(db, COL.SOCIAL, 'main'));
     return snap.exists() ? snap.data() : DEFAULT_SOCIAL;
   } catch (e) {
-    console.error('Error loading social media:', e);
+    // Silently fallback
     return DEFAULT_SOCIAL;
   }
 }
