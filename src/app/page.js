@@ -791,8 +791,8 @@ export default function Home() {
                   <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.02 1.59 4.23.95.83 2.19 1.34 3.48 1.47V9.7c-1.69-.17-3.24-.85-4.47-1.95v7.69c0 4.36-3.88 7.74-8.25 7.07-3.45-.53-6.05-3.61-5.95-7.11.16-3.87 3.65-6.85 7.52-6.22v4.06c-1.95-.51-4.04.53-4.52 2.5-.56 2.29.98 4.6 3.32 4.67 2.13.06 4.02-1.63 4.02-3.87.02-5.54.01-11.08.01-16.62z"/></svg>
                 </a>
               )}
-              {socialMedia.email && (
-                <a href={`mailto:${socialMedia.email}`} style={{
+              {(socialMedia.email || 'info@orluxus.com') && (
+                <a href={`mailto:${socialMedia.email || 'info@orluxus.com'}`} style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
