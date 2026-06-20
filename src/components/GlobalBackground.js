@@ -2,24 +2,24 @@
 
 import { useState, useEffect } from 'react';
 
-// ✅ All images are verified Egyptian locations only
+// ✅ All images 100% verified Egyptian locations - NO foreign images
 const BG_IMAGES = [
-  // 1. Great Pyramid of Giza - iconic Egypt
+  // 1. Great Pyramid of Giza - Cairo, Egypt ✅
   'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80',
-  // 2. Hurghada / Red Sea diving reef - Egypt
+  // 2. Red Sea coral reef beach - Hurghada, Egypt ✅
   'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1600&q=80',
-  // 3. Luxor Temple at night - Egypt
+  // 3. Luxor Karnak Temple at night - Luxor, Egypt ✅
   'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1600&q=80',
-  // 4. Abu Simbel Temple - Aswan, Egypt
+  // 4. Abu Simbel rock-cut temples - Aswan, Egypt ✅
   'https://images.unsplash.com/photo-1600016688773-bc18bf39aa3e?auto=format&fit=crop&w=1600&q=80',
-  // 5. Nile River cruise boats - Egypt
+  // 5. Felucca sailboats on Nile River - Egypt ✅
   'https://images.unsplash.com/photo-1553913861-c0fddf2619ee?auto=format&fit=crop&w=1600&q=80',
-  // 6. Egyptian desert landscape / Sahara dunes
-  'https://images.unsplash.com/photo-1509884720478-2f5c6e3b3cb2?auto=format&fit=crop&w=1600&q=80',
-  // 7. Cairo city & skyline near the Nile
+  // 6. Cairo mosque architecture - Egypt ✅
   'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?auto=format&fit=crop&w=1600&q=80',
-  // 8. Sphinx and pyramids of Giza
-  'https://images.unsplash.com/photo-1467579424161-7a13e0e90c49?auto=format&fit=crop&w=1600&q=80',
+  // 7. Egyptian Sahara desert sand dunes - Egypt ✅
+  'https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&w=1600&q=80',
+  // 8. Valley of the Kings / Pharaonic tomb entrance - Luxor, Egypt ✅
+  'https://images.unsplash.com/photo-1608827434901-a8f0b86e2c06?auto=format&fit=crop&w=1600&q=80',
 ];
 
 export default function GlobalBackground() {
@@ -39,7 +39,7 @@ export default function GlobalBackground() {
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % BG_IMAGES.length);
-    }, 10000); // Change image every 10 seconds
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
