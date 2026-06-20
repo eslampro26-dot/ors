@@ -37,6 +37,35 @@ export default function RootLayout({ children, params }) {
         <link rel="alternate" hrefLang="x-default" href="https://orluxus.com/" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#d97706" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "TravelAgency",
+              "name": "ORLUXUS",
+              "url": "https://orluxus.com",
+              "logo": "https://orluxus.com/logo_final.png",
+              "image": "https://orluxus.com/logo_final.png",
+              "description": locale === 'ar' 
+                ? "أورلوكسوس - اكتشف الرحلات البحرية الفاخرة والسفاري الصحراوية وجولات مصر الاستثنائية بروح عائلية."
+                : "ORLUXUS - Discover premium marine trips, desert safaris, and unforgettable Egypt tours with a family-first experience.",
+              "telephone": "+20100000000",
+              "email": "info@orluxus.com",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Sharm El Sheikh",
+                "addressRegion": "South Sinai",
+                "addressCountry": "EG"
+              },
+              "sameAs": [
+                "https://facebook.com/orluxus",
+                "https://www.tiktok.com/@orluxus",
+                "https://www.instagram.com/orluxus"
+              ]
+            })
+          }}
+        />
       </head>
       <body suppressHydrationWarning>
         <GlobalBackground />

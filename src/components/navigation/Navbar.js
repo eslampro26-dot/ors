@@ -38,7 +38,7 @@ export default function Navbar() {
   // Gold logo image from user
   const LogoIcon = () => (
     <img 
-      src="/logo_gold_icon.png" 
+      src="/logo_final.png" 
       alt="ORLUXUS Logo" 
       width="34" 
       height="34" 
