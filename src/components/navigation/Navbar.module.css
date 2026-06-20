@@ -166,8 +166,8 @@
 .megaDropdown {
   position: absolute;
   top: calc(100% + 12px);
-  right: 50%;
-  transform: translateX(50%) translateY(-15px) scale(0.98);
+  left: 50%;
+  transform: translateX(-50%) translateY(-15px) scale(0.98);
   min-width: 520px;
   background: var(--bg-glass-strong);
   backdrop-filter: blur(20px);
@@ -192,7 +192,7 @@
 .megaDropdownOpen {
   opacity: 1;
   visibility: visible;
-  transform: translateX(50%) translateY(0) scale(1);
+  transform: translateX(-50%) translateY(0) scale(1);
   pointer-events: all;
 }
 
@@ -351,7 +351,7 @@
 }
 
 /* ======================== RESPONSIVE ======================== */
-@media (max-width: 1024px) {
+@media (max-width: 850px) {
   .navContainer {
     padding: 0 var(--space-md);
   }
@@ -359,7 +359,7 @@
   .navLinks {
     position: fixed;
     top: 0;
-    right: -100%;
+    left: -100%;
     width: 85%;
     max-width: 400px;
     height: 100vh;
@@ -371,33 +371,33 @@
     padding: calc(var(--nav-height) + var(--space-xl)) var(--space-lg) var(--space-xl);
     gap: var(--space-sm);
     overflow-y: auto;
-    transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: var(--z-modal);
-    border-left: 1px solid rgba(217, 119, 6, 0.15);
-    box-shadow: -20px 0 60px rgba(15, 23, 42, 0.15);
+    border-right: 1px solid rgba(217, 119, 6, 0.15);
+    box-shadow: 20px 0 60px rgba(15, 23, 42, 0.15);
   }
 
   :global([data-theme="dark"]) .navLinks {
     background: rgba(15, 23, 42, 0.95);
-    border-left: 1px solid rgba(251, 191, 36, 0.15);
-    box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5);
+    border-right: 1px solid rgba(251, 191, 36, 0.15);
+    box-shadow: 20px 0 60px rgba(0, 0, 0, 0.5);
   }
 
   :global([dir="ltr"]) .navLinks {
-    right: auto;
-    left: -100%;
-    border-left: none;
-    border-right: 1px solid rgba(217, 119, 6, 0.15);
-    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    left: auto;
+    right: -100%;
+    border-right: none;
+    border-left: 1px solid rgba(217, 119, 6, 0.15);
+    transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .navLinksOpen {
-    right: 0;
+    left: 0;
   }
 
   :global([dir="ltr"]) .navLinksOpen {
-    left: 0;
-    right: auto;
+    right: 0;
+    left: auto;
   }
 
   .mobileToggle {

@@ -103,7 +103,7 @@ export default function Navbar() {
           </div>
 
           {/* 3. City Dropdowns */}
-          {cities.map((city) => {
+          {cities.filter(c => c.id !== 'dahab').map((city) => {
             const locCity = getLocalizedCity(city, locale);
             return (
               <div key={city.id} className={styles.dropdown}>

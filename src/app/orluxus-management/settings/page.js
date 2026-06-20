@@ -18,6 +18,15 @@ export default function AdminSettings() {
   const [tiktok, setTiktok] = useState('https://www.tiktok.com/@orluxus?_r=1&_t=ZS-979ayAlnRlV');
   const [instagram, setInstagram] = useState('https://www.instagram.com/orluxus?igsh=N2lmbmg2eGJzNmVx');
 
+  // Policy & Content States
+  const [vision, setVision] = useState('رؤيتنا هي تقديم أرقى مستويات الخدمة السياحية الفاخرة في مصر بروح عائلية دافئة، لتكون كل رحلة قصة لا تُنسى لضيوفنا.');
+  const [goals, setGoals] = useState('نهدف إلى توفير حجز فوري آمن، وتنظيم رحلات استثنائية ذات جودة عالية، وتوفير أقصى درجات الراحة والأمان لعملائنا.');
+  const [sustainability, setSustainability] = useState('نلتزم في أورلوكسوس بحماية البيئة البحرية والشواطئ المصرية، ودعم المجتمعات المحلية عبر توفير فرص عمل مستدامة وتطبيق أعلى معايير السياحة الخضراء.');
+  const [staff, setStaff] = useState('فريقنا يتكون من مرشدين سياحيين محترفين وخبراء محليين مدربين على أعلى معايير الضيافة والسلامة لضمان خدمة استثنائية على مدار الساعة.');
+  const [legalCompany, setLegalCompany] = useState('أورلوكسوس هي شركة سياحية مسجلة ومرخصة رسمياً من وزارة السياحة المصرية، وتخضع للقوانين المصرية المنظمة للنشاط السياحي.');
+  const [legalCancellation, setLegalCancellation] = useState('يمكن إلغاء الحجز مجاناً قبل 48 ساعة من موعد الرحلة. في حال الإلغاء المتأخر أو عدم الحضور، يتم تطبيق رسوم إلغاء تعادل قيمة الليلة الأولى أو 50% من قيمة الرحلة حسب نوع البرنامج.');
+  const [dataProtection, setDataProtection] = useState('نحن نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. لن يتم مشاركة معلوماتك أو تفاصيل حجزك مع أي أطراف ثالثة إلا لغرض إتمام الحجز وتقديم الخدمة.');
+
   // Load from LocalStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -37,6 +46,15 @@ export default function AdminSettings() {
       const savedTiktok = localStorage.getItem('orluxus_tiktok');
       const savedInstagram = localStorage.getItem('orluxus_instagram');
 
+      // Load policies
+      const savedVision = localStorage.getItem('orluxus_about_vision');
+      const savedGoals = localStorage.getItem('orluxus_about_goals');
+      const savedSustainability = localStorage.getItem('orluxus_about_sustainability');
+      const savedStaff = localStorage.getItem('orluxus_about_staff');
+      const savedLegalCompany = localStorage.getItem('orluxus_legal_company');
+      const savedLegalCancellation = localStorage.getItem('orluxus_legal_cancellation');
+      const savedDataProtection = localStorage.getItem('orluxus_data_protection');
+
       if (savedSiteName) setSiteName(savedSiteName);
       if (savedWhatsapp) setWhatsapp(savedWhatsapp);
       if (savedCurrency) setCurrency(savedCurrency);
@@ -51,6 +69,14 @@ export default function AdminSettings() {
       if (savedFacebook) setFacebook(savedFacebook);
       if (savedTiktok) setTiktok(savedTiktok);
       if (savedInstagram) setInstagram(savedInstagram);
+
+      if (savedVision) setVision(savedVision);
+      if (savedGoals) setGoals(savedGoals);
+      if (savedSustainability) setSustainability(savedSustainability);
+      if (savedStaff) setStaff(savedStaff);
+      if (savedLegalCompany) setLegalCompany(savedLegalCompany);
+      if (savedLegalCancellation) setLegalCancellation(savedLegalCancellation);
+      if (savedDataProtection) setDataProtection(savedDataProtection);
     }
   }, []);
 
@@ -83,6 +109,21 @@ export default function AdminSettings() {
       localStorage.setItem('orluxus_instagram', instagram);
 
       alert('✅ تم حفظ روابط وسائل التواصل الاجتماعي بنجاح!');
+    }
+  };
+
+  // Save Policy & About Contents
+  const handleSaveContent = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('orluxus_about_vision', vision);
+      localStorage.setItem('orluxus_about_goals', goals);
+      localStorage.setItem('orluxus_about_sustainability', sustainability);
+      localStorage.setItem('orluxus_about_staff', staff);
+      localStorage.setItem('orluxus_legal_company', legalCompany);
+      localStorage.setItem('orluxus_legal_cancellation', legalCancellation);
+      localStorage.setItem('orluxus_data_protection', dataProtection);
+
+      alert('✅ تم حفظ نصوص السياسات والتعريف بنجاح!');
     }
   };
 
@@ -343,6 +384,64 @@ export default function AdminSettings() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* 📄 إدارة نصوص التعريف والسياسات (About Us & Policies) */}
+      <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.3s', marginTop: 'var(--space-md)' }}>
+        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📄 إدارة نصوص التعريف والسياسات (تظهر للعملاء في الفوتر)</h3>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+          
+          {/* Column 1: About Us */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <h4 style={{ color: 'var(--gold-400)', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.3rem' }}>عن أورلوكسوس</h4>
+            
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>رؤيتنا</label>
+              <textarea value={vision} onChange={(e) => setVision(e.target.value)} rows="3" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>أهدافنا</label>
+              <textarea value={goals} onChange={(e) => setGoals(e.target.value)} rows="3" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>الاستدامة</label>
+              <textarea value={sustainability} onChange={(e) => setSustainability(e.target.value)} rows="3" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>موظفونا</label>
+              <textarea value={staff} onChange={(e) => setStaff(e.target.value)} rows="3" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            </div>
+          </div>
+
+          {/* Column 2: Legal & Data Protection */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <h4 style={{ color: 'var(--gold-400)', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.3rem' }}>السياسات والقانونية</h4>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>الوضع القانوني للشركة</label>
+              <textarea value={legalCompany} onChange={(e) => setLegalCompany(e.target.value)} rows="3" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>سياسة الإلغاء</label>
+              <textarea value={legalCancellation} onChange={(e) => setLegalCancellation(e.target.value)} rows="4" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>حماية البيانات والخصوصية</label>
+              <textarea value={dataProtection} onChange={(e) => setDataProtection(e.target.value)} rows="4" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            </div>
+          </div>
+
+        </div>
+
+        <button onClick={handleSaveContent} className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: 'linear-gradient(135deg, var(--gold-600), var(--gold-400))' }}>
+          💾 حفظ نصوص السياسات والتعريف
+        </button>
       </div>
     </div>
   );
