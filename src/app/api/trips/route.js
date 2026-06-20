@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { getTrips, addTrip, updateTrip, deleteTrip } from '@/lib/db.firebase';
+import { getTrips, addTrip, updateTrip, deleteTrip } from '@/lib/db';
 import { verifyApiSecret } from '@/lib/auth';
 
 export async function GET(request) {

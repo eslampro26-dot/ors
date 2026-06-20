@@ -5,13 +5,13 @@
 
 import { 
   getTrips as fbGetTrips, addTrip as fbAddTrip, updateTrip as fbUpdateTrip, deleteTrip as fbDeleteTrip,
-  getPackages as fbGetPackages, addPackage as fbAddPackage,
+  getPackages as fbGetPackages, addPackage as fbAddPackage, updatePackage as fbUpdatePackage, deletePackage as fbDeletePackage,
   getAgents as fbGetAgents, addAgent as fbAddAgent, updateAgent as fbUpdateAgent, deleteAgent as fbDeleteAgent, saveAgents as fbSaveAgents,
   getAgentById as fbGetAgentById, getAgentByUsername as fbGetAgentByUsername,
-  getBookings as fbGetBookings, addBooking as fbAddBooking, updateBookingStatus as fbUpdateBookingStatus, saveBookings as fbSaveBookings,
+  getBookings as fbGetBookings, addBooking as fbAddBooking, updateBookingStatus as fbUpdateBookingStatus, saveBookings as fbSaveBookings, deleteBooking as fbDeleteBooking,
   getPromoCodes as fbGetPromoCodes, addPromoCode as fbAddPromoCode, deletePromoCode as fbDeletePromoCode,
   validatePromoCode as fbValidatePromoCode, consumePromoCode as fbConsumePromoCode,
-  getReviews as fbGetReviews, addReview as fbAddReview,
+  getReviews as fbGetReviews, addReview as fbAddReview, deleteReview as fbDeleteReview,
   getSocialMedia as fbGetSocialMedia, saveSocialMedia as fbSaveSocialMedia,
   getSettings as fbGetSettings, saveSettings as fbSaveSettings,
   initializeDB as fbInitializeDB,
@@ -289,6 +289,16 @@ export async function addTrip(slug, category, tripData) {
   return ls.addTrip(slug, category, tripData);
 }
 
+export async function updateTrip(tripId, tripData) {
+  if (useFirebase) return withTimeout(fbUpdateTrip(tripId, tripData), () => false);
+  return false;
+}
+
+export async function deleteTrip(tripId) {
+  if (useFirebase) return withTimeout(fbDeleteTrip(tripId), () => false);
+  return false;
+}
+
 export async function getPackages(pkgId) {
   if (useFirebase) return withTimeout(fbGetPackages(pkgId), () => ls.getPackages(pkgId));
   return ls.getPackages(pkgId);
@@ -416,4 +426,34 @@ export async function saveSettings(settingsData) {
     if (settingsData.paypalEmail) localStorage.setItem('orluxus_paypal_email', settingsData.paypalEmail);
     return true;
   } catch { return false; }
+}
+
+export async function updatePackage(packageId, packageData) {
+  if (useFirebase) return withTimeout(fbUpdatePackage(packageId, packageData), () => false);
+  return false;
+}
+
+export async function deletePackage(packageId) {
+  if (useFirebase) return withTimeout(fbDeletePackage(packageId), () => false);
+  return false;
+}
+
+export async function updateAgent(id, agentData) {
+  if (useFirebase) return withTimeout(fbUpdateAgent(id, agentData), () => false);
+  return false;
+}
+
+export async function deleteAgent(id) {
+  if (useFirebase) return withTimeout(fbDeleteAgent(id), () => false);
+  return false;
+}
+
+export async function deleteBooking(id) {
+  if (useFirebase) return withTimeout(fbDeleteBooking(id), () => false);
+  return false;
+}
+
+export async function deleteReview(id) {
+  if (useFirebase) return withTimeout(fbDeleteReview(id), () => false);
+  return false;
 }

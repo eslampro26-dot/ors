@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { getReviews, addReview } from '@/lib/db.firebase';
+import { getReviews, addReview } from '@/lib/db';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limiter';
 
 /**

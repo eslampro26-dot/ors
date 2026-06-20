@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { getAgents, addAgent, updateAgent, deleteAgent } from '@/lib/db.firebase';
+import { getAgents, addAgent, updateAgent, deleteAgent } from '@/lib/db';
 import { verifyApiSecret } from '@/lib/auth';
 
 /**

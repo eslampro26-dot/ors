@@ -35,10 +35,10 @@ export default function Navbar() {
     setActiveDropdown(activeDropdown === id ? null : id);
   };
 
-  // Gold logo image from user
+  // User's provided logo
   const Logo = () => (
     <img 
-      src="/logo_gold_icon.png" 
+      src="/logo_final.png" 
       alt="ORLUXUS Logo" 
       className={styles.logoImage} 
       style={{ objectFit: 'contain', flexShrink: 0 }}
@@ -51,7 +51,6 @@ export default function Navbar() {
         <div className={styles.navContainer}>
           <div className={styles.logo}>
             <Logo />
-            <span className={styles.logoMain}>ORLUXUS</span>
           </div>
         </div>
       </nav>
@@ -64,7 +63,6 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className={styles.logo}>
           <Logo />
-          <span className={styles.logoMain}>ORLUXUS</span>
         </Link>
 
         {/* Desktop Navigation */}

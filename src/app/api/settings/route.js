@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { getSettings, saveSettings, getSocialMedia, saveSocialMedia } from '@/lib/db.firebase';
+import { getSettings, saveSettings, getSocialMedia, saveSocialMedia } from '@/lib/db';
 import { verifyApiSecret } from '@/lib/auth';
 
 export async function GET() {

@@ -75,7 +75,6 @@ export default function AgentLayout({ children }) {
   const navItems = [
     { name: 'لوحة التحكم', href: '/agent', icon: '📊' },
     { name: 'مبيعاتي', href: '/agent/sales', icon: '💰' },
-    { name: 'وكلائي', href: '/agent/sub-agents', icon: '🌳' },
     { name: 'العودة للرئيسية', href: '/', icon: '🏠' }
   ];
 

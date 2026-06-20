@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { initializeDB } from '@/lib/db.firebase';
+import { initializeDB } from '@/lib/db';
 import { verifyApiSecret } from '@/lib/auth';
 
 /**

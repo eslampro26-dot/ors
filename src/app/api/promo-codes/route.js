@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPromoCodes, addPromoCode, deletePromoCode, validatePromoCode, consumePromoCode } from '@/lib/db.firebase';
+import { getPromoCodes, addPromoCode, deletePromoCode, validatePromoCode, consumePromoCode } from '@/lib/db';
 import { verifyApiSecret, getCookieFromRequest, verifyAgentToken } from '@/lib/auth';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limiter';
 

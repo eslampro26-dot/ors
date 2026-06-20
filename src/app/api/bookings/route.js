@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { getBookings, addBooking, updateBookingStatus, deleteBooking } from '@/lib/db.firebase';
+import { getBookings, addBooking, updateBookingStatus, deleteBooking } from '@/lib/db';
 import { verifyApiSecret, getCookieFromRequest, verifyAgentToken } from '@/lib/auth';
 
 /**
