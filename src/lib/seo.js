@@ -1,16 +1,16 @@
-﻿const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://orluxus.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://orluxus.com';
 
 const metadataByLocale = {
   en: {
-    title: 'ORLUXUS | With A Family Spirit',
-    description: 'ORLUXUS - Discover premium marine trips, desert safaris, and unforgettable Egypt tours with a family-first experience.',
-    keywords: 'ORLUXUS, Egypt tours, Sharm El Sheikh, Hurghada, Marsa Alam, marine trips, desert safari, travel packages',
+    title: 'ORLUXUS | Egypt Tours, Red Sea Trips & Luxury Packages',
+    description: 'Book the best Egypt tours with ORLUXUS. Snorkeling in Sharm El Sheikh, Hurghada boat trips, Marsa Alam diving, desert safaris, Nile cruises & all-inclusive packages. Family-friendly experiences from €20.',
+    keywords: 'Egypt tours, Sharm El Sheikh tours, Hurghada day trips, Marsa Alam diving, Red Sea snorkeling, Egypt travel packages, Tiran Island cruise, Giftun Island excursion, desert safari Egypt, Nile cruise, scuba diving Egypt, things to do in Egypt, Egypt holiday, Red Sea resort, Egypt family trips, ORLUXUS',
     image: `${SITE_URL}/og-image.jpg`,
   },
   ar: {
-    title: 'أورلوكسوس | بروح العائلة',
-    description: 'أورلوكسوس - اكتشف الرحلات البحرية الفاخرة والسفاري الصحراوية وجولات مصر الاستثنائية بروح عائلية.',
-    keywords: 'أورلوكسوس, رحلات مصر, شرم الشيخ, الغردقة, مرسى علم, رحلات بحر, سفاري, باكدج سياحي',
+    title: 'أورلوكسوس | رحلات مصر السياحية والباقات الفاخرة',
+    description: 'احجز أفضل رحلات مصر مع أورلوكسوس. سنوركل شرم الشيخ، رحلات الغردقة البحرية، غوص مرسى علم، سفاري الصحراء، كروز النيل وباقات شاملة. رحلات عائلية من 20 يورو.',
+    keywords: 'رحلات مصر، رحلات شرم الشيخ، رحلات الغردقة، غوص مرسى علم، سنوركل البحر الأحمر، باقات سياحية مصر، رحلة جزيرة تيران، جزيرة الجفتون، سفاري صحراء، كروز النيل، رحلات عائلية مصر، أورلوكسوس',
     image: `${SITE_URL}/og-image-ar.jpg`,
   },
 };

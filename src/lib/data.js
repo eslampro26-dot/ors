@@ -7,8 +7,8 @@ export const cities = [
     slug: "hurghada",
     emoji: "🌊",
     image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=800&q=80",
-    descriptionAr: "تُعد الغردقة العاصمة الإدارية لمحافظة البحر الأحمر، وهي وجهة عالمية للغوص والأنشطة البحرية بفضل شعابها المرجانية الخلابة ومياهها الفيروزية الصافية. تمتد شواطئها الساحرة لتضم منتجعات فاخرة مثل سهل حشيش والجونة. تتميز الغردقة بجمعها بين سحر الطبيعة البحرية والمغامرات الصحراوية الشيقة كسفاري البيتش باجي وسط الجبال، كما تضم معالم هامة مثل مسجد الميناء الكبير ومتحف الغردقة الأثري الذي يعرض تحفاً فنية تجسد حضارة مصر عبر العصور.",
-    descriptionEn: "Hurghada is the diving capital of the Red Sea, famous globally for its stunning coral reefs, pristine turquoise waters, and vibrant marine life. Spanning luxury resort areas like Sahl Hasheesh and El Gouna, it perfectly blends sea adventures with exciting desert safaris. Visitors can explore local cultural highlights including the grand El Mina Mosque, the Hurghada Marina, and the Hurghada Museum, which houses archaeological artifacts showcasing Egypt's rich history through the ages.",
+    descriptionAr: "تُعد الغردقة عاصمة الغوص والرحلات البحرية على ساحل البحر الأحمر، وهي وجهة سياحية عالمية لا مثيل لها بفضل شعابها المرجانية الخلابة ومياهها الفيروزية الصافية. تتميز بمنتجعاتها الفاخرة مثل سهل حشيش والجونة، وتُقدّم أفضل رحلات جزيرة الجفتون ورحلات مشاهدة الدلافين وسنوركل الشعاب المرجانية التي تبدأ من 20 يورو. للمغامرين، تتوفر رحلات سفاري رباعي الدفع وركوب الجمال في الصحراء. تضم الغردقة معالم ثقافية هامة كمسجد الميناء الكبير ومتحف الغردقة الأثري.",
+    descriptionEn: "Hurghada is Egypt's premier Red Sea resort city and the top destination for snorkeling, scuba diving, and boat trips. Famous for its vibrant coral reefs, crystal-clear turquoise water, and world-class marine life, Hurghada offers the best day trips including Giftun Island excursions, dolphin watching cruises, and coral reef snorkeling starting from €20. Adventure seekers enjoy quad bike desert safaris and camel rides. Luxury resort areas like Sahl Hasheesh and El Gouna, alongside the historic Hurghada Museum, make it a complete holiday destination.",
     names: {
       en: "Hurghada",
       ar: "الغردقة",
@@ -22,8 +22,8 @@ export const cities = [
       ja: "ハルガダ"
     },
     descriptions: {
-      en: "Hurghada is the diving capital of the Red Sea, famous globally for its stunning coral reefs, pristine turquoise waters, and vibrant marine life. Spanning luxury resort areas like Sahl Hasheesh and El Gouna, it perfectly blends sea adventures with exciting desert safaris. Visitors can explore local cultural highlights including the grand El Mina Mosque, the Hurghada Marina, and the Hurghada Museum, which houses archaeological artifacts showcasing Egypt's rich history through the ages.",
-      ar: "تُعد الغردقة العاصمة الإدارية لمحافظة البحر الأحمر، وهي وجهة عالمية للغوص والأنشطة البحرية بفضل شعابها المرجانية الخلابة ومياهها الفيروزية الصافية. تمتد شواطئها الساحرة لتضم منتجعات فاخرة مثل سهل حشيش والجونة. تتميز الغردقة بجمعها بين سحر الطبيعة البحرية والمغامرات الصحراوية الشيقة كسفاري البيتش باجي وسط الجبال، كما تضم معالم هامة مثل مسجد الميناء الكبير ومتحف الغردقة الأثري الذي يعرض تحفاً فنية تجسد حضارة مصر عبر العصور.",
+      en: "Hurghada is Egypt's premier Red Sea resort city and the top destination for snorkeling, scuba diving, and boat trips. Famous for its vibrant coral reefs, crystal-clear turquoise water, and world-class marine life, Hurghada offers the best day trips including Giftun Island excursions, dolphin watching cruises, and coral reef snorkeling starting from €20. Adventure seekers enjoy quad bike desert safaris and camel rides. Luxury resort areas like Sahl Hasheesh and El Gouna, alongside the historic Hurghada Museum, make it a complete holiday destination.",
+      ar: "تُعد الغردقة عاصمة الغوص والرحلات البحرية على ساحل البحر الأحمر، وهي وجهة سياحية عالمية لا مثيل لها بفضل شعابها المرجانية الخلابة ومياهها الفيروزية الصافية. تتميز بمنتجعاتها الفاخرة مثل سهل حشيش والجونة، وتُقدّم أفضل رحلات جزيرة الجفتون ورحلات مشاهدة الدلافين وسنوركل الشعاب المرجانية التي تبدأ من 20 يورو. للمغامرين، تتوفر رحلات سفاري رباعي الدفع وركوب الجمال في الصحراء.",
       de: "Tauchhauptstadt - Unvergessliche Unterwasserabenteuer und sonnenverwöhnte Strände",
       fr: "Capitale de la plongée - Aventures sous-marines inoubliables et plages ensoleillées",
       es: "Capital del buceo: inolvidables aventuras submarinas y playas bañadas por el sol",
@@ -52,8 +52,8 @@ export const cities = [
     slug: "marsa-alam",
     emoji: "🐬",
     image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80",
-    descriptionAr: "تُعتبر مرسى علم الجنة الاستوائية المخفية على ساحل البحر الأحمر، وهي ملاذ رائع لعشاق الطبيعة البكر والهدوء الاستثنائي. تشتهر عالمياً بمواقع الغوص الأسطورية مثل شعب صمدي (بيت الدلافين) والفيستون حيث السلاحف البحرية النادرة وأبقار البحر اللطيفة. تقع المدينة بالقرب من محمية وادي الجمال الطبيعية الساحرة، وتحتوي المنطقة على معالم أثرية فريدة مثل منجم الذهب التاريخي في الفواخير ومعبد سرابيط الخادم، مما يجعلها تجربة استكشاف لا تُنسى تجمع بين المغامرة والجمال الطبيعي.",
-    descriptionEn: "Marsa Alam is Egypt's hidden tropical paradise, celebrated for its pristine beaches, tranquil environment, and exceptional marine biodiversity. It is home to legendary dive sites like Samadai Reef (Dolphin House) and Elphinstone, where divers can swim with wild dolphins, rare sea turtles, and dugongs. Located near the majestic Wadi El Gemal National Park, Marsa Alam offers access to historical gold mines and ancient desert routes, providing a unique eco-tourism experience that combines adventure with natural beauty.",
+    descriptionAr: "مرسى علم هي الجنة البحرية المخفية على ساحل البحر الأحمر، وجهة الغوص والسياحة البيئية الأولى في مصر. تشتهر عالمياً بأفضل مواقع السنوركل والغوص مثل شعب صمدي (بيت الدلافين) حيث يمكن السباحة مع الدلافين البرية، والفيستون الأسطوري للسلاحف البحرية النادرة وأبقار البحر. تقع بالقرب من محمية وادي الجمال الطبيعية، مما يجعلها وجهة مثالية لعشاق الطبيعة والمغامرة بعيداً عن الازدحام.",
+    descriptionEn: "Marsa Alam is Egypt's best-kept secret for eco-tourism and world-class diving. Home to legendary dive sites including Samadai Reef — also known as the Dolphin House — where snorkelers swim alongside wild spinner dolphins, and Elphinstone Reef, rated among the top 10 dive sites in the world. Rare sea turtles and gentle dugongs make this a bucket-list destination. Located near Wadi El Gemal National Park, Marsa Alam offers pristine, uncrowded beaches and an authentic nature experience unlike anywhere else in Egypt.",
     names: {
       en: "Marsa Alam",
       ar: "مرسى علم",
@@ -67,8 +67,8 @@ export const cities = [
       ja: "マルサ・アラム"
     },
     descriptions: {
-      en: "Marsa Alam is Egypt's hidden tropical paradise, celebrated for its pristine beaches, tranquil environment, and exceptional marine biodiversity. It is home to legendary dive sites like Samadai Reef (Dolphin House) and Elphinstone, where divers can swim with wild dolphins, rare sea turtles, and dugongs. Located near the majestic Wadi El Gemal National Park, Marsa Alam offers access to historical gold mines and ancient desert routes, providing a unique eco-tourism experience that combines adventure with natural beauty.",
-      ar: "تُعتبر مرسى علم الجنة الاستوائية المخفية على ساحل البحر الأحمر، وهي ملاذ رائع لعشاق الطبيعة البكر والهدوء الاستثنائي. تشتهر عالمياً بمواقع الغوص الأسطورية مثل شعب صمدي (بيت الدلافين) والفيستون حيث السلاحف البحرية النادرة وأبقار البحر اللطيفة. تقع المدينة بالقرب من محمية وادي الجمال الطبيعية الساحرة، وتحتوي المنطقة على معالم أثرية فريدة مثل منجم الذهب التاريخي في الفواخير ومعبد سرابيط الخادم، مما يجعلها تجربة استكشاف لا تُنسى تجمع بين المغامرة والجمال الطبيعي.",
+      en: "Marsa Alam is Egypt's best-kept secret for eco-tourism and world-class diving. Home to legendary dive sites including Samadai Reef — also known as the Dolphin House — where snorkelers swim alongside wild spinner dolphins, and Elphinstone Reef, rated among the top 10 dive sites in the world. Rare sea turtles and gentle dugongs make this a bucket-list destination. Located near Wadi El Gemal National Park, Marsa Alam offers pristine, uncrowded beaches and an authentic nature experience unlike anywhere else in Egypt.",
+      ar: "مرسى علم هي الجنة البحرية المخفية على ساحل البحر الأحمر، وجهة الغوص والسياحة البيئية الأولى في مصر. تشتهر عالمياً بأفضل مواقع السنوركل والغوص مثل شعب صمدي (بيت الدلافين) حيث يمكن السباحة مع الدلافين البرية، والفيستون الأسطوري للسلاحف البحرية النادرة وأبقار البحر. تقع بالقرب من محمية وادي الجمال الطبيعية، مما يجعلها وجهة مثالية لعشاق الطبيعة والمغامرة بعيداً عن الازدحام.",
       de: "Verstecktes Paradies - Unberührte Strände, Schwimmen mit wilden Delfinen und reiche Korallenreservate",
       fr: "Paradis caché - Plages vierges, nage avec les dauphins sauvages et riches réserves de corail",
       es: "Paraíso escondido: playas vírgenes, nado con delfines salvajes y ricas reservas de coral",
@@ -97,8 +97,8 @@ export const cities = [
     slug: "sharm-el-sheikh",
     emoji: "🏖️",
     image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&q=80",
-    descriptionAr: "تلقب شرم الشيخ بـ 'مدينة السلام'، وهي درة شبه جزيرة سيناء والوجهة السياحية الأكثر شهرة عالمياً. تمتد شواطئها على خليج العقبة والبحر الأحمر، وتضم خليج نعمة النابض بالحياة ومحمية رأس محمد الوطنية التي تحتضن أروع وأندر الشعاب المرجانية والأسماك الملونة في العالم. بالإضافة إلى الرحلات البحرية لجزيرة تيران، تتميز بوجود معالم ثقافية ودينية بارزة مثل مسجد الصحابة ذي الطراز المعماري الفريد، وكاتدرائية السمائيين، وتقع على مسافة قريبة من دير سانت كاترين التاريخي وجبل موسى المقدس.",
-    descriptionEn: "Known as the 'City of Peace', Sharm El Sheikh is the jewel of the Sinai Peninsula and one of the world's premier holiday destinations. Situated on the Gulf of Aqaba, it features the lively Naama Bay and the world-renowned Ras Mohammed National Park, sanctuary to some of the rarest coral reefs and marine species. Sharm El Sheikh also offers cultural landmarks like the architecturally unique Al Sahaba Mosque, the Heavenly Cathedral, and is the gateway to the historic St. Catherine's Monastery and Mount Sinai.",
+    descriptionAr: "شرم الشيخ 'مدينة السلام' هي أشهر وجهة سياحية في مصر وواحدة من أفضل منتجعات البحر الأحمر في العالم. تُقدّم أفضل الرحلات البحرية لجزيرة تيران، وسنوركل محمية رأس محمد الوطنية بشعابها المرجانية النادرة، ورحلات الغواصة والقارب الزجاجي، فضلاً عن سفاري رباعي الدفع وعشاء بدوي في قلب الصحراء. تضم خليج نعمة النابض بالحياة ليلاً ونهاراً، وهي بوابة دير سانت كاترين التاريخي وجبل موسى المقدس.",
+    descriptionEn: "Sharm El Sheikh, the 'City of Peace', is Egypt's most famous resort and one of the world's top diving and snorkeling destinations. Offering the best Red Sea experiences including Tiran Island day cruises, Ras Mohammed National Park snorkeling with its rare coral reefs, submarine trips, glass bottom boat tours, and thrilling quad bike desert safaris from €25. The vibrant Naama Bay comes alive every night, and Sharm is the gateway to St. Catherine's Monastery, Mount Sinai, and Dahab's legendary Blue Hole.",
     names: {
       en: "Sharm El Sheikh",
       ar: "شرم الشيخ",
@@ -112,8 +112,8 @@ export const cities = [
       ja: "シャルム・エル・シェイク"
     },
     descriptions: {
-      en: "Known as the 'City of Peace', Sharm El Sheikh is the jewel of the Sinai Peninsula and one of the world's premier holiday destinations. Situated on the Gulf of Aqaba, it features the lively Naama Bay and the world-renowned Ras Mohammed National Park, sanctuary to some of the rarest coral reefs and marine species. Sharm El Sheikh also offers cultural landmarks like the architecturally unique Al Sahaba Mosque, the Heavenly Cathedral, and is the gateway to the historic St. Catherine's Monastery and Mount Sinai.",
-      ar: "تلقب شرم الشيخ بـ 'مدينة السلام'، وهي درة شبه جزيرة سيناء والوجهة السياحية الأكثر شهرة عالمياً. تمتد شواطئها على خليج العقبة والبحر الأحمر، وتضم خليج نعمة النابض بالحياة ومحمية رأس محمد الوطنية التي تحتضن أروع وأندر الشعاب المرجانية والأسماك الملونة في العالم. بالإضافة إلى الرحلات البحرية لجزيرة تيران، تتميز بوجود معالم ثقافية ودينية بارزة مثل مسجد الصحابة ذي الطراز المعماري الفريد، وكاتدرائية السمائيين، وتقع على مسافة قريبة من دير سانت كاترين التاريخي وجبل موسى المقدس.",
+      en: "Sharm El Sheikh, the 'City of Peace', is Egypt's most famous resort and one of the world's top diving and snorkeling destinations. Offering the best Red Sea experiences including Tiran Island day cruises, Ras Mohammed National Park snorkeling with its rare coral reefs, submarine trips, glass bottom boat tours, and thrilling quad bike desert safaris from €25. The vibrant Naama Bay comes alive every night, and Sharm is the gateway to St. Catherine's Monastery, Mount Sinai, and Dahab's legendary Blue Hole.",
+      ar: "شرم الشيخ 'مدينة السلام' هي أشهر وجهة سياحية في مصر وواحدة من أفضل منتجعات البحر الأحمر في العالم. تُقدّم أفضل الرحلات البحرية لجزيرة تيران، وسنوركل محمية رأس محمد الوطنية بشعابها المرجانية النادرة، ورحلات الغواصة والقارب الزجاجي، فضلاً عن سفاري رباعي الدفع وعشاء بدوي في قلب الصحراء.",
       de: "Juwel des Roten Meeres - Exquisite Korallenriffe, Tauchen und aufregende Wüstensafaris",
       fr: "Joyau de la mer Rouge - Récifs coralliens exquis, plongée et safaris passionnants dans le désert",
       es: "Joya del Mar Rojo: exquisitos arrecifes de coral, buceo y emocionante safaris por el desierto",
@@ -142,8 +142,8 @@ export const cities = [
     slug: "north-coast",
     emoji: "🏖️",
     image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=800&q=80",
-    descriptionAr: "يمتد الساحل الشمالي المصري على طول ساحل البحر الأبيض المتوسط بمياهه الفيروزية الساحرة ورماله البيضاء الناعمة التي تضاهي جزر المالديف. يُعد الوجهة الترفيهية الأولى والراقية لقضاء الصيف في مصر، حيث يضم مدينة العلمين الجديدة بأبراجها الحديثة ومسرحها الروماني الأثري. تتميز المنطقة بأجوائها الاحتفالية النابضة بالحياة، ومنتجعاتها الفاخرة مثل مراسي وهاسيندا، إلى جانب قربها من مقبرة العلمين الحربية التاريخية ومتحف العلمين العسكري، مما يمنحها بعداً تاريخياً هاماً يمتزج مع الرفاهية المعاصرة.",
-    descriptionEn: "Egypt's North Coast stretches along the Mediterranean Sea, famous for its breathtaking turquoise waters and soft white sands that rival the Maldives. As Egypt's top luxury summer destination, it features the new smart city of Al Alamein with its modern towers and historic Roman theatre. The region offers premium resorts like Marassi and Hacienda, alongside rich historical landmarks such as the Al Alamein Military Museum and the WWII War Cemetery, blending contemporary luxury with historical significance.",
+    descriptionAr: "الساحل الشمالي المصري هو الوجهة الصيفية الأولى والأفضل في مصر، حيث تمتد شواطئه الساحرة على ساحل البحر الأبيض المتوسط بمياه فيروزية صافية ورمال بيضاء ناعمة تُضاهي جزر المالديف. يضم أرقى المنتجعات الفاخرة مثل مراسي وهاسيندا باي ومدينة العلمين الجديدة، التي تحتضن مسرحها الروماني الأثري وأبراجها الحديثة الشاهقة. يتميز الساحل بأجواء ترفيهية استثنائية ليلاً ونهاراً، مع قربه من مقبرة العلمين الحربية ومتحف العلمين العسكري ذي القيمة التاريخية العالية.",
+    descriptionEn: "Egypt's North Coast is the ultimate summer destination on the Mediterranean Sea, offering stunning turquoise waters and powdery white sands that rival the Maldives. It is home to Egypt's most exclusive beach resorts including Marassi, Hacienda Bay, and Stella Di Mare, alongside the futuristic Al Alamein New City with its iconic towers and ancient Roman theatre. The region buzzes with world-class entertainment, beach clubs, and outdoor dining. History lovers can visit the El Alamein WWII Museum and the Allied War Cemetery, making it Egypt's perfect blend of luxury and heritage.",
     names: {
       en: "North Coast",
       ar: "الساحل الشمالي",
@@ -157,8 +157,8 @@ export const cities = [
       ja: "北海岸"
     },
     descriptions: {
-      en: "Egypt's North Coast stretches along the Mediterranean Sea, famous for its breathtaking turquoise waters and soft white sands that rival the Maldives. As Egypt's top luxury summer destination, it features the new smart city of Al Alamein with its modern towers and historic Roman theatre. The region offers premium resorts like Marassi and Hacienda, alongside rich historical landmarks such as the Al Alamein Military Museum and the WWII War Cemetery, blending contemporary luxury with historical significance.",
-      ar: "يمتد الساحل الشمالي المصري على طول ساحل البحر الأبيض المتوسط بمياهه الفيروزية الساحرة ورماله البيضاء الناعمة التي تضاهي جزر المالديف. يُعد الوجهة الترفيهية الأولى والراقية لقضاء الصيف في مصر، حيث يضم مدينة العلمين الجديدة بأبراجها الحديثة ومسرحها الروماني الأثري. تتميز المنطقة بأجوائها الاحتفالية النابضة بالحياة، ومنتجعاتها الفاخرة مثل مراسي وهاسيندا، إلى جانب قربها من مقبرة العلمين الحربية التاريخية ومتحف العلمين العسكري، مما يمنحها بعداً تاريخياً هاماً يمتزج مع الرفاهية المعاصرة.",
+      en: "Egypt's North Coast is the ultimate summer destination on the Mediterranean Sea, offering stunning turquoise waters and powdery white sands that rival the Maldives. It is home to Egypt's most exclusive beach resorts including Marassi, Hacienda Bay, and Stella Di Mare, alongside the futuristic Al Alamein New City with its iconic towers and ancient Roman theatre. The region buzzes with world-class entertainment, beach clubs, and outdoor dining. History lovers can visit the El Alamein WWII Museum and the Allied War Cemetery, making it Egypt's perfect blend of luxury and heritage.",
+      ar: "الساحل الشمالي المصري هو الوجهة الصيفية الأولى والأفضل في مصر، حيث تمتد شواطئه الساحرة على ساحل البحر الأبيض المتوسط بمياه فيروزية صافية ورمال بيضاء ناعمة تُضاهي جزر المالديف. يضم أرقى المنتجعات الفاخرة مثل مراسي وهاسيندا باي ومدينة العلمين الجديدة، التي تحتضن مسرحها الروماني الأثري وأبراجها الحديثة الشاهقة. يتميز الساحل بأجواء ترفيهية استثنائية ليلاً ونهاراً.",
       de: "Goldene Küste - Türkisfarbenes Wasser, schöne Sandstrände und erstklassige Unterhaltung",
       fr: "Côte d'Or - Eaux turquoise, belles beaches de sable et ambiance de divertissement haut de gamme",
       es: "Costa Dorada: aguas turquesas, hermosas playas de arena y ambiente de entretenimiento premium",
@@ -361,23 +361,122 @@ export const platformStats = [
 export const sampleTrips = {
   "sharm-el-sheikh": {
     "sea-trips": [
-      { id: 1, titleAr: "رحلة جزيرة تيران", titleEn: "Tiran Island Cruise", price: 35, currency: "€", rating: 4.8, reviews: 234, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80", duration: "Full Day" },
-      { id: 2, titleAr: "رحلة رأس محمد", titleEn: "Ras Mohammed Marine Reserve", price: 30, currency: "€", rating: 4.9, reviews: 189, image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80", duration: "Full Day" },
-      { id: 3, titleAr: "غوص سكوبا للمبتدئين", titleEn: "Beginner Scuba Diving Experience", price: 50, currency: "€", rating: 4.7, reviews: 156, image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=400&q=80", duration: "Half Day" },
-      { id: 4, titleAr: "رحلة الغواصة", titleEn: "Red Sea Submarine Trip", price: 45, currency: "€", rating: 4.6, reviews: 312, image: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=400&q=80", duration: "3 Hours" },
-      { id: 5, titleAr: "رحلة القارب الزجاجي", titleEn: "Glass Bottom Boat Tour", price: 25, currency: "€", rating: 4.5, reviews: 278, image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=400&q=80", duration: "2 Hours" },
+      {
+        id: 1,
+        titleAr: "رحلة جزيرة تيران الكاملة",
+        titleEn: "Tiran Island Full Day Cruise",
+        descriptionAr: "رحلة بحرية ليوم كامل إلى جزيرة تيران الساحرة في خليج العقبة. تشمل سنوركل في أجمل الشعاب المرجانية، وجبة غداء على متن القارب، وقت حر على الشاطئ. مناسبة للعائلات والأزواج والمجموعات.",
+        descriptionEn: "Full day boat trip to the stunning Tiran Island in the Gulf of Aqaba. Includes snorkeling at world-class coral reefs, onboard lunch, free beach time, and hotel transfers. Suitable for all ages. One of the best things to do in Sharm El Sheikh.",
+        price: 35, currency: "€", rating: 4.8, reviews: 234,
+        image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80",
+        duration: "Full Day", includes: "Snorkeling gear, lunch, transfers"
+      },
+      {
+        id: 2,
+        titleAr: "رحلة سنوركل محمية رأس محمد",
+        titleEn: "Ras Mohammed National Park Snorkeling",
+        descriptionAr: "استكشف الشعاب المرجانية النادرة في محمية رأس محمد الوطنية، أفضل موقع غوص وسنوركل في البحر الأحمر. تشمل الرحلة معدات السنوركل، وجبة غداء، وترانسفير من الفندق.",
+        descriptionEn: "Snorkel the rare coral reefs of Ras Mohammed National Park — rated among the world's best dive and snorkel sites. Includes snorkeling equipment, lunch, and hotel transfers. A must-do Sharm El Sheikh experience.",
+        price: 30, currency: "€", rating: 4.9, reviews: 189,
+        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
+        duration: "Full Day", includes: "Snorkeling gear, lunch, park entry, transfers"
+      },
+      {
+        id: 3,
+        titleAr: "تجربة غوص سكوبا للمبتدئين",
+        titleEn: "Beginner Scuba Diving Experience — Red Sea",
+        descriptionAr: "جرّب الغوص للمرة الأولى في البحر الأحمر مع مدرب معتمد. لا تحتاج إلى خبرة سابقة. مناسب للمبتدئين تماماً. يشمل جلسة تدريب، معدات الغوص الكاملة، وجبة خفيفة.",
+        descriptionEn: "Try scuba diving for the first time in the crystal-clear Red Sea with a certified PADI instructor. No prior experience needed. Includes training session, full diving equipment, and snacks. One of the most popular activities in Sharm El Sheikh for beginners.",
+        price: 50, currency: "€", rating: 4.7, reviews: 156,
+        image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=400&q=80",
+        duration: "Half Day", includes: "PADI instructor, full equipment, snacks"
+      },
+      {
+        id: 4,
+        titleAr: "رحلة الغواصة في البحر الأحمر",
+        titleEn: "Red Sea Submarine Trip — Sharm El Sheikh",
+        descriptionAr: "استكشف أعماق البحر الأحمر على متن غواصة حديثة دون الحاجة إلى السباحة أو الغوص. شاهد الشعاب المرجانية الملونة والأسماك الاستوائية من نافذة مريحة. تجربة مثالية للعائلات والأطفال.",
+        descriptionEn: "Explore the depths of the Red Sea aboard a modern submarine — no swimming or diving required! Watch colorful coral reefs and tropical fish through a large glass window. The perfect family-friendly Sharm El Sheikh activity for all ages.",
+        price: 45, currency: "€", rating: 4.6, reviews: 312,
+        image: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=400&q=80",
+        duration: "3 Hours", includes: "Submarine ride, transfers"
+      },
+      {
+        id: 5,
+        titleAr: "جولة القارب الزجاجي",
+        titleEn: "Glass Bottom Boat Tour — Coral Reef Viewing",
+        descriptionAr: "شاهد جمال الشعاب المرجانية والأسماك الملونة من خلال قاع القارب الزجاجي دون البلل. رحلة ممتعة ومناسبة لجميع أفراد العائلة بما فيهم الأطفال والكبار في السن.",
+        descriptionEn: "View stunning coral reefs and colorful fish through the glass bottom of a boat without getting wet. A fun and relaxed Sharm El Sheikh boat trip suitable for the whole family including children and elderly visitors.",
+        price: 25, currency: "€", rating: 4.5, reviews: 278,
+        image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=400&q=80",
+        duration: "2 Hours", includes: "Glass bottom boat, refreshments"
+      },
     ],
     "desert-trips": [
-      { id: 6, titleAr: "سفاري رباعي الدفع", titleEn: "Quad Bike Desert Safari", price: 40, currency: "€", rating: 4.7, reviews: 198, image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80", duration: "Half Day" },
-      { id: 7, titleAr: "عشاء بدوي مع عرض", titleEn: "Bedouin Dinner & Show", price: 30, currency: "€", rating: 4.8, reviews: 267, image: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=400&q=80", duration: "Evening" },
-      { id: 8, titleAr: "ركوب الجمال في الصحراء", titleEn: "Traditional Camel Ride", price: 25, currency: "€", rating: 4.4, reviews: 145, image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=400&q=80", duration: "3 Hours" },
+      {
+        id: 6,
+        titleAr: "سفاري رباعي الدفع في صحراء سيناء",
+        titleEn: "Quad Bike Desert Safari — Sinai",
+        descriptionAr: "مغامرة صحراوية مثيرة على متن دراجات رباعية الدفع عبر كثبان سيناء الرملية وتضاريسها الجبلية. يشمل مرشداً متخصصاً، تعليمات السلامة، وعرض غروب الشمس الساحر.",
+        descriptionEn: "Thrilling quad bike adventure through the sand dunes and rocky terrain of Sinai desert. Includes safety briefing, expert guide, and a spectacular sunset view. One of the most exciting things to do in Sharm El Sheikh for adventure lovers.",
+        price: 40, currency: "€", rating: 4.7, reviews: 198,
+        image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80",
+        duration: "Half Day", includes: "Quad bike, guide, safety gear"
+      },
+      {
+        id: 7,
+        titleAr: "عشاء بدوي مع عرض فلكلوري",
+        titleEn: "Bedouin Dinner & Traditional Show — Sinai Desert",
+        descriptionAr: "تجربة سيناوية بدوية أصيلة تحت النجوم. يشمل ركوب الجمال، شاي بدوي بالمضارب، عشاء تقليدي شهي، وعرض موسيقي وراقص فلكلوري لا يُنسى.",
+        descriptionEn: "Authentic Bedouin experience under the Sinai stars. Includes camel ride to the camp, Bedouin tea, traditional Egyptian dinner, and a mesmerizing music and dance folklore show. Unforgettable evening activity in Sharm El Sheikh.",
+        price: 30, currency: "€", rating: 4.8, reviews: 267,
+        image: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=400&q=80",
+        duration: "Evening", includes: "Camel ride, dinner, show, transfers"
+      },
+      {
+        id: 8,
+        titleAr: "ركوب الجمال في صحراء سيناء",
+        titleEn: "Traditional Camel Ride — Sinai Desert",
+        descriptionAr: "تجربة سفاري الجمال الكلاسيكية في صحراء سيناء مع مرشد بدوي محلي. ركوب هادئ ومريح يصحبه شاي بدوي وفرصة للتصوير وسط المناظر الصحراوية الخلابة.",
+        descriptionEn: "Classic camel ride safari in the Sinai desert with a local Bedouin guide. A relaxing and memorable experience with Bedouin tea and stunning desert scenery photo opportunities. A traditional Egypt activity loved by all ages.",
+        price: 25, currency: "€", rating: 4.4, reviews: 145,
+        image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=400&q=80",
+        duration: "3 Hours", includes: "Camel ride, Bedouin tea, guide"
+      },
     ],
   },
   "hurghada": {
     "sea-trips": [
-      { id: 9, titleAr: "رحلة جزيرة الجفتون", titleEn: "Giftun Island Excursion", price: 25, currency: "€", rating: 4.8, reviews: 432, image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80", duration: "Full Day" },
-      { id: 10, titleAr: "رحلة الدلافين", titleEn: "Dolphin Spotting Cruise", price: 35, currency: "€", rating: 4.9, reviews: 356, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80", duration: "Full Day" },
-      { id: 11, titleAr: "غوص سنوركل", titleEn: "Coral Reef Snorkeling Tour", price: 20, currency: "€", rating: 4.6, reviews: 289, image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=400&q=80", duration: "Half Day" },
+      {
+        id: 9,
+        titleAr: "رحلة جزيرة الجفتون ليوم كامل",
+        titleEn: "Giftun Island Full Day Excursion — Hurghada",
+        descriptionAr: "اكتشف جمال جزيرة الجفتون البكر على بُعد 40 دقيقة من الغردقة. يشمل سنوركل في شعاب مرجانية بديعة، شاطئ رملي رائع، وجبة غداء شهية، وقت حر وترانسفير من الفندق.",
+        descriptionEn: "Discover the pristine beauty of Giftun Island, just 40 minutes from Hurghada. Includes snorkeling at spectacular coral reefs, stunning white sandy beach, delicious lunch buffet, free time, and hotel transfers. The #1 rated Hurghada day trip.",
+        price: 25, currency: "€", rating: 4.8, reviews: 432,
+        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
+        duration: "Full Day", includes: "Snorkeling gear, lunch, transfers"
+      },
+      {
+        id: 10,
+        titleAr: "رحلة مشاهدة الدلافين في البحر الأحمر",
+        titleEn: "Dolphin Watching Cruise — Hurghada Red Sea",
+        descriptionAr: "رحلة بحرية لمشاهدة الدلافين البرية في بيئتها الطبيعية في البحر الأحمر. فرصة ذهبية للسباحة مع الدلافين حول الجزر. تشمل وجبة غداء وترانسفير وفريق بحري متخصص.",
+        descriptionEn: "Cruise the Red Sea to watch wild dolphins in their natural habitat. Golden opportunity to swim with dolphins around the islands. Includes lunch, hotel transfers, and an experienced marine crew. A magical Hurghada experience families will never forget.",
+        price: 35, currency: "€", rating: 4.9, reviews: 356,
+        image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80",
+        duration: "Full Day", includes: "Lunch, guide, transfers"
+      },
+      {
+        id: 11,
+        titleAr: "سنوركل الشعاب المرجانية",
+        titleEn: "Coral Reef Snorkeling Tour — Hurghada",
+        descriptionAr: "استكشف الشعاب المرجانية الملونة والأسماك الاستوائية الرائعة في مياه الغردقة الصافية. مناسب للمبتدئين وذوي الخبرة. يشمل معدات السنوركل الكاملة ومرشداً متخصصاً.",
+        descriptionEn: "Explore vibrant coral reefs and incredible tropical fish in Hurghada's crystal-clear waters. Suitable for beginners and experienced snorkelers alike. Includes full snorkeling equipment and a knowledgeable guide. Best value snorkeling in Hurghada.",
+        price: 20, currency: "€", rating: 4.6, reviews: 289,
+        image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=400&q=80",
+        duration: "Half Day", includes: "Snorkeling gear, guide"
+      },
     ],
   },
 };
