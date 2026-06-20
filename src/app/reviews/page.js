@@ -153,7 +153,7 @@ export default function ReviewsPage() {
   };
 
   return (
-    <main style={{ minHeight: '100vh', background: 'var(--bg-primary)', display: 'flex', flexDirection: 'column' }}>
+    <main style={{ minHeight: '100vh', background: 'transparent', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
       {/* Hero Section */}

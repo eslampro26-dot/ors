@@ -58,13 +58,13 @@ export default function GlobalBackground() {
         }
 
         .global-bg-slide.active {
-          opacity: 0.07; /* 7% opacity in light mode */
+          opacity: 0.18; /* 18% opacity in light mode */
           transform: scale(1.06);
           transition: opacity 2.5s ease-in-out, transform 12s linear;
         }
 
         [data-theme="dark"] .global-bg-slide.active {
-          opacity: 0.04; /* 4% opacity in dark mode */
+          opacity: 0.10; /* 10% opacity in dark mode */
         }
 
         .global-bg-overlay {

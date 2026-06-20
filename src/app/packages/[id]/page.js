@@ -8,6 +8,15 @@ import Navbar from '@/components/navigation/Navbar';
 import { notFound } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 
+const packageBackgrounds = {
+  'relaxation': 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1600&q=80',
+  'cultural': 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80',
+  'relaxation-cultural': 'https://images.unsplash.com/photo-1572252009286-268acec5a0af?auto=format&fit=crop&w=1600&q=80',
+  'nile-cruise': 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1600&q=80',
+  'beach': 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1600&q=80',
+  'entertainment-pkg': 'https://images.unsplash.com/photo-1553913861-c0fddf2619ee?auto=format&fit=crop&w=1600&q=80'
+};
+
 export default function PackagePage({ params }) {
   const resolvedParams = use(params);
   const { id } = resolvedParams;
@@ -59,28 +68,27 @@ export default function PackagePage({ params }) {
   }
 
   return (
-    <main style={{ minHeight: '100vh', paddingBottom: '4rem', background: 'var(--bg-primary)' }}>
+    <main style={{ minHeight: '100vh', paddingBottom: '4rem', background: 'transparent' }}>
       <Navbar />
       
       {/* Package Hero */}
       <div style={{
-        paddingTop: 'calc(var(--nav-height) + 4rem)',
-        paddingBottom: '4rem',
+        paddingTop: 'calc(var(--nav-height) + 6rem)',
+        paddingBottom: '6rem',
         textAlign: 'center',
-        background: 'var(--gradient-hero)',
+        backgroundImage: `linear-gradient(rgba(10, 14, 23, 0.75), rgba(10, 14, 23, 0.75)), url(${packageBackgrounds[pkg.id] || 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80'})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         borderBottom: '1px solid var(--border-subtle)'
       }}>
         <div className="container animate-fade-in-up">
-          <div className="badge badge-coral" style={{ marginBottom: '1rem', letterSpacing: '1px' }}>EGYPT DOMESTIC PACKAGE</div>
-          <h1 className="section-title" style={{ fontSize: '2.8rem' }}>{locPkg.name}</h1>
-          <p className="section-subtitle">{locPkg.description}</p>
+          <h1 className="section-title" style={{ fontSize: '2.8rem', color: '#fff', textShadow: '0 2px 4px rgba(0,0,0,0.5)', margin: 0 }}>{locPkg.name}</h1>
         </div>
       </div>
 
       <div className="container" style={{ marginTop: '3rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
           <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '800' }}>{t('common.availableOffers')}</h2>
-          <span className="badge badge-ocean">{t('common.activeSlots', { active: items.length })}</span>
         </div>
 
         {items.length > 0 ? (

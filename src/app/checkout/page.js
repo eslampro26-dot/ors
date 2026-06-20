@@ -506,7 +506,7 @@ function CheckoutContent() {
     const isOnsite = paymentTypeParam === 'onsite';
     
     return (
-      <main style={{ minHeight: '100vh', paddingBottom: '5rem', background: 'var(--bg-primary)' }}>
+      <main style={{ minHeight: '100vh', paddingBottom: '5rem', background: 'transparent' }}>
         <Navbar />
         
         <div className="container" style={{ paddingTop: 'calc(var(--nav-height) + 3rem)', maxWidth: '800px' }}>
@@ -796,7 +796,7 @@ function CheckoutContent() {
   // 2. PAYMENT FAILED SCREEN
   if (statusParam === 'failed') {
     return (
-      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)' }}>
+      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent' }}>
         <Navbar />
         <div className="container" style={{ maxWidth: '500px', textAlign: 'center' }}>
           <div className="glass-card" style={{ padding: '3rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', border: '1px solid rgba(244, 63, 94, 0.3)' }}>
@@ -838,7 +838,7 @@ function CheckoutContent() {
   if (checkoutStep === 'payment') {
     const isAr = locale === 'ar';
     return (
-      <main style={{ minHeight: '100vh', paddingBottom: '5rem', background: 'var(--bg-primary)' }}>
+      <main style={{ minHeight: '100vh', paddingBottom: '5rem', background: 'transparent' }}>
         <Navbar />
         
         {/* Processing overlay for simulated wallets */}
@@ -1351,7 +1351,7 @@ function CheckoutContent() {
   // 4. DEFAULT INFO FORM STEP (Step 1: details)
   const isAr = locale === 'ar';
   return (
-    <main style={{ minHeight: '100vh', paddingBottom: '5rem', background: 'var(--bg-primary)' }}>
+    <main style={{ minHeight: '100vh', paddingBottom: '5rem', background: 'transparent' }}>
       <Navbar />
 
       <div className="container" style={{ paddingTop: 'calc(var(--nav-height) + 3rem)' }}>

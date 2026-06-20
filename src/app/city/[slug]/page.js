@@ -26,7 +26,7 @@ export default function CityPage() {
   }
 
   return (
-    <main style={{ minHeight: '100vh', paddingBottom: '4rem', background: 'var(--bg-primary)' }}>
+    <main style={{ minHeight: '100vh', paddingBottom: '4rem', background: 'transparent' }}>
       <Navbar />
       
       {/* 1. LARGE HIGH-IMPACT HERO BANNER */}

@@ -63,7 +63,7 @@ export default function CategoryPage({ params }) {
   }
 
   return (
-    <main style={{ minHeight: '100vh', paddingBottom: '4rem', background: 'var(--bg-primary)' }}>
+    <main style={{ minHeight: '100vh', paddingBottom: '4rem', background: 'transparent' }}>
       <Navbar />
       
       {/* Category Hero */}

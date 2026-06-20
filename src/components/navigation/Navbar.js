@@ -40,7 +40,7 @@ export default function Navbar() {
       <nav className={styles.navbar}>
         <div className={styles.navContainer}>
           <div className={styles.logo}>
-            <img src="/logo.png" alt="ORLUXUS Logo" className={styles.logoImage} />
+            <img src="/logo_white.png" alt="ORLUXUS Logo" className={styles.logoImage} />
             <span className={styles.logoMain}>ORLUXUS</span>
           </div>
         </div>
@@ -53,7 +53,7 @@ export default function Navbar() {
       <div className={styles.navContainer}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
-          <img src="/logo.png" alt="ORLUXUS Logo" className={styles.logoImage} />
+          <img src="/logo_white.png" alt="ORLUXUS Logo" className={styles.logoImage} />
           <span className={styles.logoMain}>ORLUXUS</span>
         </Link>
 
@@ -103,7 +103,7 @@ export default function Navbar() {
           </div>
 
           {/* 3. City Dropdowns */}
-          {cities.filter(c => c.id !== 'dahab').map((city) => {
+          {cities.map((city) => {
             const locCity = getLocalizedCity(city, locale);
             return (
               <div key={city.id} className={styles.dropdown}>
