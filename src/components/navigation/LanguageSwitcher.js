@@ -17,7 +17,7 @@ const LANGUAGES = [
   { code: 'ja', name: '日本語', flag: '🇯🇵', nameEn: 'Japanese' },
 ];
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ onLanguageChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const { locale, setLocale, t, isReady } = useLanguage();
   const switcherRef = useRef(null);
@@ -36,6 +36,9 @@ export default function LanguageSwitcher() {
   const handleLanguageSelect = (lang) => {
     setLocale(lang.code);
     setIsOpen(false);
+    if (onLanguageChange) {
+      onLanguageChange();
+    }
   };
 
   const currentLang = LANGUAGES.find(l => l.code === locale) || LANGUAGES[0];

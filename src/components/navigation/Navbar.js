@@ -174,7 +174,7 @@ export default function Navbar() {
           </Link>
 
           {/* Language Switcher */}
-          <LanguageSwitcher />
+          <LanguageSwitcher onLanguageChange={() => setMobileOpen(false)} />
 
           {/* Theme Toggle */}
           <ThemeToggle />
