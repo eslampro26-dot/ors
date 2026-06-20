@@ -45,8 +45,8 @@ export default function RootLayout({ children, params }) {
               "@type": "TravelAgency",
               "name": "ORLUXUS",
               "url": "https://orluxus.com",
-              "logo": "https://orluxus.com/logo_final.png",
-              "image": "https://orluxus.com/logo_final.png",
+              "logo": "https://orluxus.com/logo_gold_full.png",
+              "image": "https://orluxus.com/logo_gold_full.png",
               "description": locale === 'ar' 
                 ? "أورلوكسوس - اكتشف الرحلات البحرية الفاخرة والسفاري الصحراوية وجولات مصر الاستثنائية بروح عائلية."
                 : "ORLUXUS - Discover premium marine trips, desert safaris, and unforgettable Egypt tours with a family-first experience.",

@@ -64,7 +64,7 @@ export default function AgentLogin() {
     <div className={styles.loginContainer}>
       <div className={`${styles.loginCard} glass-card animate-scale-in`}>
         <div className={styles.logoArea}>
-          <img src="/logo_final.png" alt="ORLUXUS Logo" style={{ height: '80px', margin: '0 auto 1rem', objectFit: 'contain' }} />
+          <img src="/logo_gold_full.png" alt="ORLUXUS Logo" style={{ height: '80px', margin: '0 auto 1rem', objectFit: 'contain' }} />
           <h2>بوابة وكلاء ORLUXUS</h2>
           <p className={styles.subtitle}>سجل دخولك لمتابعة أعمالك وعملائك</p>
         </div>
