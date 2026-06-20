@@ -352,7 +352,7 @@
 }
 
 /* ======================== RESPONSIVE ======================== */
-@media (max-width: 850px) {
+@media (max-width: 1080px) {
   .navContainer {
     padding: 0 var(--space-md);
   }
@@ -364,12 +364,13 @@
     width: 85%;
     max-width: 400px;
     height: 100vh;
+    height: 100dvh;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
     flex-direction: column;
     align-items: stretch;
-    padding: calc(var(--nav-height) + var(--space-xl)) var(--space-lg) var(--space-xl);
+    padding: calc(var(--nav-height) + var(--space-xl)) var(--space-lg) 120px;
     gap: var(--space-sm);
     overflow-y: auto;
     transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);

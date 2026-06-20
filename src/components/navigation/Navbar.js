@@ -36,12 +36,10 @@ export default function Navbar() {
   };
 
   // Gold logo image from user
-  const LogoIcon = () => (
+  const Logo = () => (
     <img 
       src="/logo_final.png" 
       alt="ORLUXUS Logo" 
-      width="34" 
-      height="34" 
       className={styles.logoImage} 
       style={{ objectFit: 'contain', flexShrink: 0 }}
     />
@@ -52,8 +50,7 @@ export default function Navbar() {
       <nav className={styles.navbar}>
         <div className={styles.navContainer}>
           <div className={styles.logo}>
-            <LogoIcon />
-            <span className={styles.logoMain}>ORLUXUS</span>
+            <Logo />
           </div>
         </div>
       </nav>
@@ -65,8 +62,7 @@ export default function Navbar() {
       <div className={styles.navContainer}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
-          <LogoIcon />
-          <span className={styles.logoMain}>ORLUXUS</span>
+          <Logo />
         </Link>
 
         {/* Desktop Navigation */}
