@@ -20,6 +20,8 @@ export const messages = {
       desertSafaris: '🏜️ Desert Safaris',
       historicTours: '🏛️ Historic Tours',
       allInclusive: '📦 All-inclusive Packages',
+      storyQuote: "More Than a Booking… A Story You'll Never Forget.",
+      storyQuoteSub: "أكثر من مجرد حجز… إنها قصة ستبقى معك إلى الأبد. ✨🇪🇬",
     },
     destinations: {
       title: 'Destinations',
@@ -37,6 +39,21 @@ export const messages = {
       bookingDesc: 'Secure card & PayPal payment with instant dynamic invoicing.',
       excursions: 'Safe Excursions',
       excursionsDesc: 'Fully licensed local guides and private luxury transfers.',
+      storyTitle: "Why ORLUXUS?",
+      story: [
+        "Imagine you decided to give yourself a few days of rest and happiness…",
+        "Days where you escape the pressures of life to make unforgettable memories.",
+        "This is where we began.",
+        "Before we ask you to book with us, we asked ourselves one question: How do we make someone visit Egypt and feel they lived the most beautiful days of their life?",
+        "That is why we didn't just look for any service, we didn't choose just any place, and we didn't partner with just anyone. We traveled… we tried… we asked… we compared… and we tested the details ourselves. Because we believe that an exceptional experience is not made by chance.",
+        "We chose our service providers after real experiences, because we do not want to offer you anything we wouldn't want our own families and friends to experience.",
+        "Then we started building ORLUXUS piece by piece… We put in place a system that makes every step easy and clear, so you don't worry about the details, but only focus on one thing… To enjoy.",
+        "We cared about safety at every stage, because peace of mind is the first step to true enjoyment.",
+        "We cared about the small details, because we believe the most beautiful memories are born from things not everyone might notice… but they mean everything.",
+        "In the end, we created a place where you can find all of Egypt in one place… Its sea and its islands… Its adventures and its serenity… Its luxury and its simplicity… Its best experiences and its best service providers.",
+        "But the most important truth is that ORLUXUS was not born from a commercial idea only… It was born from a dream. A dream that everyone who comes to us leaves saying: \"It wasn't just a trip… it was an experience that changed my feeling about Egypt.\"",
+        "And that's why… We don't sell bookings. We don't sell trips. And we don't sell activities. We make moments… we make memories… and we make a different experience, because you deserve to live every minute as if it was made specially for you."
+      ]
     },
     reviews: {
       title: 'Reviews',
@@ -110,6 +127,8 @@ export const messages = {
       desertSafaris: '🏜️ سفاري الصحراء',
       historicTours: '🏛️ جولات تاريخية',
       allInclusive: '📦 باقات شاملة الكل',
+      storyQuote: "أكثر من مجرد حجز… إنها قصة ستبقى معك إلى الأبد. ✨🇪🇬",
+      storyQuoteSub: "More Than a Booking… A Story You'll Never Forget.",
     },
     destinations: {
       title: 'الوجهات السياحية',
@@ -127,6 +146,21 @@ export const messages = {
       bookingDesc: 'دفع آمن بالبطاقة وPayPal مع فواتير ديناميكية فورية.',
       excursions: 'رحلات آمنة',
       excursionsDesc: 'مرشدون محليون مرخصون بالكامل وانتقالات خاصة فاخرة.',
+      storyTitle: "لماذا ORLUXUS؟",
+      story: [
+        "تخيّل أنك قررت أن تمنح نفسك بضعة أيام من الراحة والسعادة…",
+        "أيام تهرب فيها من ضغوط الحياة لتصنع ذكريات لا تُنسى.",
+        "هنا بدأنا نحن.",
+        "قبل أن نطلب منك الحجز معنا، سألنا أنفسنا سؤالًا واحدًا: كيف نجعل شخصًا يزور مصر ويشعر أنه عاش أجمل أيام حياته؟",
+        "ولهذا لم نبحث عن أي خدمة، ولم نختر أي مكان، ولم نتعاون مع أي شخص. سافرنا… جرّبنا… سألنا… وقارنّا… واختبرنا التفاصيل بأنفسنا. لأننا نؤمن أن التجربة الاستثنائية لا تُصنع بالصدفة.",
+        "اخترنا مزودي خدماتنا بعد تجارب حقيقية، لأننا لا نريد أن نقدم لك شيئًا لا نرضى أن يعيشه أهلنا وأصدقاؤنا.",
+        "ثم بدأنا نبني ORLUXUS قطعةً قطعة… وضعنا نظامًا يجعل كل خطوة سهلة وواضحة، حتى لا تنشغل بالتفاصيل، بل تنشغل فقط بشيء واحد… أن تستمتع.",
+        "اهتممنا بالأمان في كل مرحلة، لأن الشعور بالطمأنينة هو أول طريق الاستمتاع الحقيقي.",
+        "اهتممنا بالتفاصيل الصغيرة، لأننا نؤمن أن أجمل الذكريات تولد من أشياء قد لا يلاحظها الجميع… لكنها تعني كل شيء.",
+        "وفي النهاية صنعنا مكانًا تستطيع أن تجد فيه مصر كلها في مكان واحد… بحرها وجزرها… مغامراتها وهدوءها… فخامتها وبساطتها… أفضل تجاربها وأفضل مزودي خدماتها.",
+        "لكن الحقيقة الأهم هي أن ORLUXUS لم تولد من فكرة تجارية فقط… لقد وُلدت من حلم. حلم أن يأتي كل شخص إلينا ويغادر وهو يقول: \"لم تكن مجرد رحلة… كانت تجربة غيّرت إحساسي بمصر.\"",
+        "ولهذا… نحن لا نبيع حجوزات. لا نبيع رحلات. ولا نبيع أنشطة. نحن نصنع لحظات… نصنع ذكريات… ونصنع تجربة مختلفة، لأنك تستحق أن تعيش كل دقيقة وكأنها صُنعت خصيصًا لك."
+      ]
     },
     reviews: {
       title: 'التقييمات',

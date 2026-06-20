@@ -9,6 +9,7 @@ import SkipToContent from "@/components/SkipToContent";
 import { getSeoMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/context/LanguageContext";
 import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
+import GlobalBackground from "@/components/GlobalBackground";
 
 
 const RTL_LOCALES = ['ar'];
@@ -38,10 +39,7 @@ export default function RootLayout({ children, params }) {
         <meta name="theme-color" content="#d97706" />
       </head>
       <body suppressHydrationWarning>
-        <div className="fluid-bg">
-          <div className="fluid-bg-image"></div>
-          <div className="fluid-bg-blob"></div>
-        </div>
+        <GlobalBackground />
         <LanguageProvider>
           <ThemeProvider>
             <SkipToContent />

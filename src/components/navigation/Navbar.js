@@ -40,10 +40,8 @@ export default function Navbar() {
       <nav className={styles.navbar}>
         <div className={styles.navContainer}>
           <div className={styles.logo}>
-            <div className={styles.logoText}>
-              <span className={styles.logoMain}>ORLUXUS</span>
-              <span className={styles.logoSub}>WITH A FAMILY SPIRIT</span>
-            </div>
+            <img src="/logo.png" alt="ORLUXUS Logo" className={styles.logoImage} />
+            <span className={styles.logoMain}>ORLUXUS</span>
           </div>
         </div>
       </nav>
@@ -55,12 +53,8 @@ export default function Navbar() {
       <div className={styles.navContainer}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
-          <div className={styles.logoText}>
-            <span className={styles.logoMain}>ORLUXUS</span>
-            <span className={styles.logoSub} style={{ fontFamily: 'var(--font-en)' }}>
-              {t('footer.tagline').toUpperCase()}
-            </span>
-          </div>
+          <img src="/logo.png" alt="ORLUXUS Logo" className={styles.logoImage} />
+          <span className={styles.logoMain}>ORLUXUS</span>
         </Link>
 
         {/* Desktop Navigation */}

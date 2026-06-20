@@ -8,6 +8,7 @@ import LazySection, { SectionSkeleton } from '@/components/LazySection';
 import { cities, getLocalizedCity } from '@/lib/data';
 import { getReviews, addReview, getSocialMedia } from '@/lib/db';
 import { useLanguage } from '@/context/LanguageContext';
+import { getMessages, messages } from '@/lib/messages';
 
 export default function Home() {
   const [siteName, setSiteName] = useState('ORLUXUS');
@@ -16,6 +17,32 @@ export default function Home() {
   const [socialMedia, setSocialMedia] = useState({});
   
   const { locale, t, isReady } = useLanguage();
+
+  const [heroActiveIndex, setHeroActiveIndex] = useState(0);
+
+  const HERO_IMAGES = useMemo(() => [
+    'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80', // Pyramids
+    'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1600&q=80', // Hurghada
+    'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1600&q=80', // Luxor
+    'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1600&q=80'  // Sharm
+  ], []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroActiveIndex(prev => (prev + 1) % HERO_IMAGES.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [HERO_IMAGES]);
+
+  const storyParagraphs = useMemo(() => {
+    const msgs = getMessages(locale);
+    return msgs.whyChooseUs?.story || messages.en.whyChooseUs.story;
+  }, [locale]);
+
+  const storyTitle = useMemo(() => {
+    const msgs = getMessages(locale);
+    return msgs.whyChooseUs?.storyTitle || messages.en.whyChooseUs.storyTitle;
+  }, [locale]);
 
   // Review Form States
   const [reviewForm, setReviewForm] = useState({
@@ -105,28 +132,35 @@ export default function Home() {
       
       {/* 1. HERO SECTION */}
       <section style={{
-        minHeight: '90vh',
+        minHeight: '95vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
         padding: 'var(--space-3xl) var(--space-xl) var(--space-xl) var(--space-xl)',
-        background: 'var(--gradient-hero)',
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Background glow elements */}
-        <div style={{
-          position: 'absolute',
-          top: '15%',
-          right: '10%',
-          width: '300px',
-          height: '300px',
-          background: 'var(--gold-500)',
-          filter: 'blur(150px)',
-          opacity: 0.12,
-          borderRadius: '50%'
-        }}></div>
+        {/* Background Slideshow */}
+        {HERO_IMAGES.map((img, idx) => (
+          <div
+            key={idx}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `linear-gradient(to bottom, rgba(10, 14, 23, 0.45), rgba(10, 14, 23, 0.75)), url(${img})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              opacity: heroActiveIndex === idx ? 1 : 0,
+              transition: 'opacity 1.5s ease-in-out',
+              transform: heroActiveIndex === idx ? 'scale(1.05)' : 'scale(1)',
+              animation: heroActiveIndex === idx ? 'kenburns 6s ease-out forwards' : 'none',
+              zIndex: 1
+            }}
+          />
+        ))}
+
+        {/* Glow Element */}
         <div style={{
           position: 'absolute',
           bottom: '10%',
@@ -135,74 +169,83 @@ export default function Home() {
           height: '350px',
           background: 'var(--ocean-500)',
           filter: 'blur(150px)',
-          opacity: 0.1,
-          borderRadius: '50%'
+          opacity: 0.08,
+          borderRadius: '50%',
+          zIndex: 2
         }}></div>
 
         <div className="container" style={{ position: 'relative', zIndex: 10 }}>
           <div className="animate-fade-in-up">
-            <span className="badge badge-gold" style={{ marginBottom: '1.5rem', fontSize: 'var(--font-size-sm)', letterSpacing: '2px' }}>
-              {siteName.toUpperCase()} - {t('hero.familySpirit')}
-            </span>
             
             <h1 style={{ 
-              fontSize: 'clamp(2.5rem, 6.5vw, 4.2rem)', 
+              fontSize: 'clamp(3.5rem, 8.5vw, 6.5rem)', 
               fontWeight: 900, 
               color: 'var(--text-primary)',
-              lineHeight: 1.2,
-              marginBottom: '1.5rem',
-              letterSpacing: '1px'
+              lineHeight: 1.1,
+              marginBottom: '1rem',
+              letterSpacing: '4px',
+              fontFamily: 'var(--font-en)',
+              background: 'linear-gradient(135deg, var(--gold-300) 30%, var(--gold-500) 70%, var(--gold-600) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              filter: 'drop-shadow(0 4px 15px rgba(217, 119, 6, 0.4))'
             }}>
-              {t('hero.title')} <br />
-              <span style={{ color: 'var(--gold-600)', fontFamily: 'var(--font-en)' }}>{siteName}</span>
+              {siteName}
             </h1>
             
             <p style={{ 
-              fontSize: 'var(--font-size-lg)', 
-              color: 'var(--text-secondary)',
-              maxWidth: '650px',
-              margin: '0 auto 2.5rem auto',
-              lineHeight: 1.6
+              fontSize: 'clamp(0.95rem, 2.5vw, 1.3rem)', 
+              color: '#f8fafc',
+              letterSpacing: '6px',
+              textTransform: 'uppercase',
+              fontWeight: '700',
+              marginBottom: '4rem',
+              fontFamily: 'var(--font-en)',
+              textShadow: '0 2px 8px rgba(0,0,0,0.5)'
             }}>
-              {t('hero.description')}
+              {t('hero.familySpirit')}
             </p>
-
-            {/* Quick Access Icon Category Chips */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '0.8rem',
-              flexWrap: 'wrap',
-              marginBottom: '3rem',
-              maxWidth: '750px',
-              marginInline: 'auto'
-            }}>
-              {quickLinks.map((link, idx) => (
-                <Link 
-                  key={idx} 
-                  href={link.href}
-                  className="quick-chip"
-                  style={{
-                    padding: '8px 18px',
-                    borderRadius: '999px',
-                    background: 'var(--bg-glass)',
-                    border: '1px solid var(--border-subtle)',
-                    color: 'var(--text-secondary)',
-                    fontSize: 'var(--font-size-sm)',
-                    fontWeight: '600',
-                    transition: 'all var(--transition-base)',
-                    boxShadow: 'var(--shadow-sm)'
-                  }}
-                >
-                  {link.name}
-                </Link>
-              ))}
-            </div>
             
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-              <Link href="/city/sharm-el-sheikh" className="btn btn-primary" style={{ padding: '1rem 2.2rem', fontSize: 'var(--font-size-md)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', alignItems: 'center', justifyContent: 'center' }}>
+              <Link href="/city/sharm-el-sheikh" className="btn btn-primary" style={{ padding: '1.2rem 3.2rem', fontSize: '1.15rem', borderRadius: '50px', boxShadow: '0 8px 30px rgba(217, 119, 6, 0.5)', transition: 'all 0.3s ease', transform: 'translateY(0)' }}>
                 {t('hero.start')}
               </Link>
+
+              {/* Tagline Container */}
+              <div style={{
+                marginTop: '1.5rem',
+                padding: '1.5rem 2.5rem',
+                borderRadius: '20px',
+                background: 'rgba(9, 13, 22, 0.65)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(251, 191, 36, 0.25)',
+                maxWidth: '650px',
+                width: '100%',
+                marginInline: 'auto'
+              }}>
+                <p style={{
+                  color: 'var(--gold-400)',
+                  fontSize: '1.25rem',
+                  fontWeight: '800',
+                  lineHeight: '1.6',
+                  margin: 0,
+                  textShadow: '0 2px 10px rgba(251, 191, 36, 0.3)'
+                }}>
+                  {t('hero.storyQuote')}
+                </p>
+                <p style={{
+                  color: '#e2e8f0',
+                  fontSize: '0.92rem',
+                  fontWeight: '600',
+                  lineHeight: '1.6',
+                  marginTop: '0.5rem',
+                  marginBottom: 0
+                }}>
+                  {t('hero.storyQuoteSub')}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -335,47 +378,99 @@ export default function Home() {
       {/* 3. PREMIUM ADVANTAGES SECTION */}
       <LazySection fallback={<SectionSkeleton height="400px" />}>
       <section style={{ padding: 'var(--space-4xl) 0', background: 'var(--bg-tertiary)', borderTop: '1px solid var(--border-subtle)', position: 'relative' }}>
-        <div className="container">
+        <div className="container" style={{ maxWidth: '850px' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
             <span style={{ color: 'var(--gold-600)', fontWeight: '700', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', fontSize: 'var(--font-size-sm)' }}>
-              {t('whyChooseUs.title')}
+              {storyTitle}
             </span>
-            <h2 style={{ fontSize: 'var(--font-size-3xl)', fontWeight: '800', color: 'var(--text-primary)' }}>{t('whyChooseUs.subtitle')}</h2>
+            <h2 style={{ fontSize: 'var(--font-size-3xl)', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
+              {locale === 'ar' ? 'تخيّل أنك قررت أن تمنح نفسك السعادة…' : 'Imagine Giving Yourself Happiness…'}
+            </h2>
+            <div style={{ width: '80px', height: '3px', background: 'var(--gold-400)', margin: '0 auto' }}></div>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: 'var(--space-xl)',
-            maxWidth: '1100px',
-            margin: '0 auto'
+          <div className="glass-card" style={{
+            padding: '3rem var(--space-xl)',
+            background: 'var(--bg-secondary)',
+            border: '2px solid var(--border-accent)',
+            borderRadius: '24px',
+            boxShadow: 'var(--shadow-lg), var(--shadow-glow-gold)',
+            position: 'relative',
+            overflow: 'hidden'
           }}>
-            {features.map((feat, idx) => (
-              <div key={idx} className="glass-card" style={{
-                textAlign: 'left',
-                padding: '2rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.8rem',
-                border: '1px solid var(--border-subtle)',
-                background: 'var(--bg-secondary)',
-                boxShadow: 'var(--shadow-sm)'
+            {/* Elegant quotes background icon */}
+            <div style={{
+              position: 'absolute',
+              top: '1.5rem',
+              left: locale === 'ar' ? 'auto' : '2.5rem',
+              right: locale === 'ar' ? '2.5rem' : 'auto',
+              fontSize: '8rem',
+              color: 'var(--gold-500)',
+              opacity: 0.08,
+              lineHeight: 1,
+              fontFamily: 'serif',
+              pointerEvents: 'none'
+            }}>
+              “
+            </div>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.5rem',
+              textAlign: locale === 'ar' ? 'right' : 'left',
+              lineHeight: '1.85',
+              fontSize: '1.12rem',
+              color: 'var(--text-primary)',
+              position: 'relative',
+              zIndex: 2,
+              fontFamily: 'inherit'
+            }}>
+              {storyParagraphs.map((paragraph, idx) => (
+                <p 
+                  key={idx} 
+                  style={{ 
+                    margin: 0,
+                    textIndent: '0.5rem',
+                    fontWeight: paragraph.includes('ORLUXUS') || paragraph.includes('نحن لا نبيع') ? '700' : '500'
+                  }}
+                >
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+
+            {/* Signature Divider */}
+            <div style={{
+              marginTop: '3rem',
+              borderTop: '1px solid rgba(251, 191, 36, 0.2)',
+              paddingTop: '2rem',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem'
+            }}>
+              <span style={{
+                fontFamily: 'var(--font-en)',
+                fontSize: '1.8rem',
+                fontWeight: '900',
+                letterSpacing: '3px',
+                background: 'linear-gradient(135deg, var(--gold-400), var(--gold-600))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
               }}>
-                <div style={{
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '12px',
-                  background: 'rgba(251, 191, 36, 0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1.8rem',
-                  border: '1px solid rgba(251, 191, 36, 0.15)'
-                }}>{feat.icon}</div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--text-primary)' }}>{feat.title}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>{feat.desc}</p>
-              </div>
-            ))}
+                ORLUXUS
+              </span>
+              <span style={{
+                color: 'var(--text-secondary)',
+                fontSize: 'var(--font-size-sm)',
+                fontWeight: '600',
+                letterSpacing: '1px'
+              }}>
+                {t('footer.tagline')}
+              </span>
+            </div>
           </div>
         </div>
       </section>
@@ -792,6 +887,11 @@ export default function Home() {
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-10px) rotate(3deg); }
+        }
+        
+        @keyframes kenburns {
+          from { transform: scale(1.02) translate(0, 0); }
+          to { transform: scale(1.08) translate(0.5%, -0.5%); }
         }
         
         .water-bg-pattern {
