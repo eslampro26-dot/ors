@@ -13,7 +13,7 @@ const packageBackgrounds = {
   'cultural': 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80',
   'relaxation-cultural': 'https://images.unsplash.com/photo-1572252009286-268acec5a0af?auto=format&fit=crop&w=1600&q=80',
   'nile-cruise': 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1600&q=80',
-  'beach': 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1600&q=80',
+  'beach': 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1600&q=80',
   'entertainment-pkg': 'https://images.unsplash.com/photo-1553913861-c0fddf2619ee?auto=format&fit=crop&w=1600&q=80'
 };
 

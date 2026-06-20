@@ -365,12 +365,12 @@ export const sampleTrips = {
       { id: 2, titleAr: "رحلة رأس محمد", titleEn: "Ras Mohammed Marine Reserve", price: 30, currency: "€", rating: 4.9, reviews: 189, image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80", duration: "Full Day" },
       { id: 3, titleAr: "غوص سكوبا للمبتدئين", titleEn: "Beginner Scuba Diving Experience", price: 50, currency: "€", rating: 4.7, reviews: 156, image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=400&q=80", duration: "Half Day" },
       { id: 4, titleAr: "رحلة الغواصة", titleEn: "Red Sea Submarine Trip", price: 45, currency: "€", rating: 4.6, reviews: 312, image: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=400&q=80", duration: "3 Hours" },
-      { id: 5, titleAr: "رحلة القارب الزجاجي", titleEn: "Glass Bottom Boat Tour", price: 25, currency: "€", rating: 4.5, reviews: 278, image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=80", duration: "2 Hours" },
+      { id: 5, titleAr: "رحلة القارب الزجاجي", titleEn: "Glass Bottom Boat Tour", price: 25, currency: "€", rating: 4.5, reviews: 278, image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=400&q=80", duration: "2 Hours" },
     ],
     "desert-trips": [
-      { id: 6, titleAr: "سفاري رباعي الدفع", titleEn: "Quad Bike Desert Safari", price: 40, currency: "€", rating: 4.7, reviews: 198, image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=80", duration: "Half Day" },
+      { id: 6, titleAr: "سفاري رباعي الدفع", titleEn: "Quad Bike Desert Safari", price: 40, currency: "€", rating: 4.7, reviews: 198, image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80", duration: "Half Day" },
       { id: 7, titleAr: "عشاء بدوي مع عرض", titleEn: "Bedouin Dinner & Show", price: 30, currency: "€", rating: 4.8, reviews: 267, image: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=400&q=80", duration: "Evening" },
-      { id: 8, titleAr: "ركوب الجمال في الصحراء", titleEn: "Traditional Camel Ride", price: 25, currency: "€", rating: 4.4, reviews: 145, image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=400&q=80", duration: "3 Hours" },
+      { id: 8, titleAr: "ركوب الجمال في الصحراء", titleEn: "Traditional Camel Ride", price: 25, currency: "€", rating: 4.4, reviews: 145, image: "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=400&q=80", duration: "3 Hours" },
     ],
   },
   "hurghada": {

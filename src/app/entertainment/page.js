@@ -54,22 +54,7 @@ export default function EntertainmentPage() {
           <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>
             {isAr ? 'لا توجد فعاليات مضافة حالياً في هذا القسم' : 'No events currently added in this section'}
           </h3>
-          <p style={{ color: 'var(--text-secondary)' }}>
-            {isAr ? 'يمكنك إضافة الفعاليات في هذه القائمة من خلال لوحة تحكم الإدارة.' : 'You can add events to this list through the admin control panel.'}
-          </p>
-          
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginTop: '2rem' }}>
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div key={i} style={{ 
-                width: '40px', height: '40px', 
-                borderRadius: '4px', border: '1px dashed var(--border-medium)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '12px', color: 'var(--text-tertiary)'
-              }}>
-                {i+1}
-              </div>
-            ))}
-          </div>
+
         </div>
       </div>
     </main>
