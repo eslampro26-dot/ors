@@ -4,19 +4,22 @@ import { useState, useEffect } from 'react';
 
 const INTRO_SLIDES = [
   {
+    // Pyramids of Giza - verified Egyptian landmark
     url: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80',
     title: 'THE PYRAMIDS OF GIZA',
-    subtitle: 'TIMELAND HERITAGE'
+    subtitle: 'TIMELESS HERITAGE'
   },
   {
-    url: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1600&q=80',
-    title: 'THE SUNNY NORTH COAST',
-    subtitle: 'CRYSTAL BLUE WATERS'
+    // Hurghada / Red Sea Beach - verified Egyptian resort coast
+    url: 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1600&q=80',
+    title: 'THE RED SEA COAST',
+    subtitle: 'CRYSTAL CLEAR WATERS'
   },
   {
-    url: 'https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=1600&q=80',
-    title: 'SHARM EL SHEIKH & SAFARI',
-    subtitle: 'DESERT ADVENTURES & WAVES'
+    // Luxor Temple at night - verified Egyptian ancient temple
+    url: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1600&q=80',
+    title: 'LUXOR & NILE VALLEY',
+    subtitle: 'WHERE HISTORY LIVES'
   }
 ];
 
