@@ -7,8 +7,8 @@ export const cities = [
     slug: "hurghada",
     emoji: "🌊",
     image: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=800&q=80",
-    descriptionAr: "عاصمة الغوص - تجربة بحرية لا تُنسى مع أجمل شواطئ البحر الأحمر",
-    descriptionEn: "Diving Capital - Unforgettable underwater marine adventures and sun-soaked beaches",
+    descriptionAr: "تُعد الغردقة العاصمة الإدارية لمحافظة البحر الأحمر، وهي وجهة عالمية للغوص والأنشطة البحرية بفضل شعابها المرجانية الخلابة ومياهها الفيروزية الصافية. تمتد شواطئها الساحرة لتضم منتجعات فاخرة مثل سهل حشيش والجونة. تتميز الغردقة بجمعها بين سحر الطبيعة البحرية والمغامرات الصحراوية الشيقة كسفاري البيتش باجي وسط الجبال، كما تضم معالم هامة مثل مسجد الميناء الكبير ومتحف الغردقة الأثري الذي يعرض تحفاً فنية تجسد حضارة مصر عبر العصور.",
+    descriptionEn: "Hurghada is the diving capital of the Red Sea, famous globally for its stunning coral reefs, pristine turquoise waters, and vibrant marine life. Spanning luxury resort areas like Sahl Hasheesh and El Gouna, it perfectly blends sea adventures with exciting desert safaris. Visitors can explore local cultural highlights including the grand El Mina Mosque, the Hurghada Marina, and the Hurghada Museum, which houses archaeological artifacts showcasing Egypt's rich history through the ages.",
     names: {
       en: "Hurghada",
       ar: "الغردقة",
@@ -22,8 +22,8 @@ export const cities = [
       ja: "ハルガダ"
     },
     descriptions: {
-      en: "Diving Capital - Unforgettable underwater marine adventures and sun-soaked beaches",
-      ar: "عاصمة الغوص - تجربة بحرية لا تُنسى مع أجمل شواطئ البحر الأحمر",
+      en: "Hurghada is the diving capital of the Red Sea, famous globally for its stunning coral reefs, pristine turquoise waters, and vibrant marine life. Spanning luxury resort areas like Sahl Hasheesh and El Gouna, it perfectly blends sea adventures with exciting desert safaris. Visitors can explore local cultural highlights including the grand El Mina Mosque, the Hurghada Marina, and the Hurghada Museum, which houses archaeological artifacts showcasing Egypt's rich history through the ages.",
+      ar: "تُعد الغردقة العاصمة الإدارية لمحافظة البحر الأحمر، وهي وجهة عالمية للغوص والأنشطة البحرية بفضل شعابها المرجانية الخلابة ومياهها الفيروزية الصافية. تمتد شواطئها الساحرة لتضم منتجعات فاخرة مثل سهل حشيش والجونة. تتميز الغردقة بجمعها بين سحر الطبيعة البحرية والمغامرات الصحراوية الشيقة كسفاري البيتش باجي وسط الجبال، كما تضم معالم هامة مثل مسجد الميناء الكبير ومتحف الغردقة الأثري الذي يعرض تحفاً فنية تجسد حضارة مصر عبر العصور.",
       de: "Tauchhauptstadt - Unvergessliche Unterwasserabenteuer und sonnenverwöhnte Strände",
       fr: "Capitale de la plongée - Aventures sous-marines inoubliables et plages ensoleillées",
       es: "Capital del buceo: inolvidables aventuras submarinas y playas bañadas por el sol",
@@ -52,8 +52,8 @@ export const cities = [
     slug: "marsa-alam",
     emoji: "🐬",
     image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80",
-    descriptionAr: "الجنة المخفية - شواطئ بكر ودلافين برية ومحميات طبيعية غنية",
-    descriptionEn: "Hidden Paradise - Pristine beaches, swimming with wild dolphins, and rich coral reserves",
+    descriptionAr: "تُعتبر مرسى علم الجنة الاستوائية المخفية على ساحل البحر الأحمر، وهي ملاذ رائع لعشاق الطبيعة البكر والهدوء الاستثنائي. تشتهر عالمياً بمواقع الغوص الأسطورية مثل شعب صمدي (بيت الدلافين) والفيستون حيث السلاحف البحرية النادرة وأبقار البحر اللطيفة. تقع المدينة بالقرب من محمية وادي الجمال الطبيعية الساحرة، وتحتوي المنطقة على معالم أثرية فريدة مثل منجم الذهب التاريخي في الفواخير ومعبد سرابيط الخادم، مما يجعلها تجربة استكشاف لا تُنسى تجمع بين المغامرة والجمال الطبيعي.",
+    descriptionEn: "Marsa Alam is Egypt's hidden tropical paradise, celebrated for its pristine beaches, tranquil environment, and exceptional marine biodiversity. It is home to legendary dive sites like Samadai Reef (Dolphin House) and Elphinstone, where divers can swim with wild dolphins, rare sea turtles, and dugongs. Located near the majestic Wadi El Gemal National Park, Marsa Alam offers access to historical gold mines and ancient desert routes, providing a unique eco-tourism experience that combines adventure with natural beauty.",
     names: {
       en: "Marsa Alam",
       ar: "مرسى علم",
@@ -67,8 +67,8 @@ export const cities = [
       ja: "マルサ・アラム"
     },
     descriptions: {
-      en: "Hidden Paradise - Pristine beaches, swimming with wild dolphins, and rich coral reserves",
-      ar: "الجنة المخفية - شواطئ بكر ودلافين برية ومحميات طبيعية غنية",
+      en: "Marsa Alam is Egypt's hidden tropical paradise, celebrated for its pristine beaches, tranquil environment, and exceptional marine biodiversity. It is home to legendary dive sites like Samadai Reef (Dolphin House) and Elphinstone, where divers can swim with wild dolphins, rare sea turtles, and dugongs. Located near the majestic Wadi El Gemal National Park, Marsa Alam offers access to historical gold mines and ancient desert routes, providing a unique eco-tourism experience that combines adventure with natural beauty.",
+      ar: "تُعتبر مرسى علم الجنة الاستوائية المخفية على ساحل البحر الأحمر، وهي ملاذ رائع لعشاق الطبيعة البكر والهدوء الاستثنائي. تشتهر عالمياً بمواقع الغوص الأسطورية مثل شعب صمدي (بيت الدلافين) والفيستون حيث السلاحف البحرية النادرة وأبقار البحر اللطيفة. تقع المدينة بالقرب من محمية وادي الجمال الطبيعية الساحرة، وتحتوي المنطقة على معالم أثرية فريدة مثل منجم الذهب التاريخي في الفواخير ومعبد سرابيط الخادم، مما يجعلها تجربة استكشاف لا تُنسى تجمع بين المغامرة والجمال الطبيعي.",
       de: "Verstecktes Paradies - Unberührte Strände, Schwimmen mit wilden Delfinen und reiche Korallenreservate",
       fr: "Paradis caché - Plages vierges, nage avec les dauphins sauvages et riches réserves de corail",
       es: "Paraíso escondido: playas vírgenes, nado con delfines salvajes y ricas reservas de coral",
@@ -97,8 +97,8 @@ export const cities = [
     slug: "sharm-el-sheikh",
     emoji: "🏖️",
     image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&q=80",
-    descriptionAr: "جوهرة البحر الأحمر - أجمل الشعاب المرجانية والرياضات المائية والسفاري",
-    descriptionEn: "Red Sea Jewel - Exquisite coral reefs, diving, and exciting desert safaris",
+    descriptionAr: "تلقب شرم الشيخ بـ 'مدينة السلام'، وهي درة شبه جزيرة سيناء والوجهة السياحية الأكثر شهرة عالمياً. تمتد شواطئها على خليج العقبة والبحر الأحمر، وتضم خليج نعمة النابض بالحياة ومحمية رأس محمد الوطنية التي تحتضن أروع وأندر الشعاب المرجانية والأسماك الملونة في العالم. بالإضافة إلى الرحلات البحرية لجزيرة تيران، تتميز بوجود معالم ثقافية ودينية بارزة مثل مسجد الصحابة ذي الطراز المعماري الفريد، وكاتدرائية السمائيين، وتقع على مسافة قريبة من دير سانت كاترين التاريخي وجبل موسى المقدس.",
+    descriptionEn: "Known as the 'City of Peace', Sharm El Sheikh is the jewel of the Sinai Peninsula and one of the world's premier holiday destinations. Situated on the Gulf of Aqaba, it features the lively Naama Bay and the world-renowned Ras Mohammed National Park, sanctuary to some of the rarest coral reefs and marine species. Sharm El Sheikh also offers cultural landmarks like the architecturally unique Al Sahaba Mosque, the Heavenly Cathedral, and is the gateway to the historic St. Catherine's Monastery and Mount Sinai.",
     names: {
       en: "Sharm El Sheikh",
       ar: "شرم الشيخ",
@@ -112,15 +112,15 @@ export const cities = [
       ja: "シャルム・エル・シェイク"
     },
     descriptions: {
-      en: "Red Sea Jewel - Exquisite coral reefs, diving, and exciting desert safaris",
-      ar: "جوهرة البحر الأحمر - أجمل الشعاب المرجانية والرياضات المائية والسفاري",
+      en: "Known as the 'City of Peace', Sharm El Sheikh is the jewel of the Sinai Peninsula and one of the world's premier holiday destinations. Situated on the Gulf of Aqaba, it features the lively Naama Bay and the world-renowned Ras Mohammed National Park, sanctuary to some of the rarest coral reefs and marine species. Sharm El Sheikh also offers cultural landmarks like the architecturally unique Al Sahaba Mosque, the Heavenly Cathedral, and is the gateway to the historic St. Catherine's Monastery and Mount Sinai.",
+      ar: "تلقب شرم الشيخ بـ 'مدينة السلام'، وهي درة شبه جزيرة سيناء والوجهة السياحية الأكثر شهرة عالمياً. تمتد شواطئها على خليج العقبة والبحر الأحمر، وتضم خليج نعمة النابض بالحياة ومحمية رأس محمد الوطنية التي تحتضن أروع وأندر الشعاب المرجانية والأسماك الملونة في العالم. بالإضافة إلى الرحلات البحرية لجزيرة تيران، تتميز بوجود معالم ثقافية ودينية بارزة مثل مسجد الصحابة ذي الطراز المعماري الفريد، وكاتدرائية السمائيين، وتقع على مسافة قريبة من دير سانت كاترين التاريخي وجبل موسى المقدس.",
       de: "Juwel des Roten Meeres - Exquisite Korallenriffe, Tauchen und aufregende Wüstensafaris",
       fr: "Joyau de la mer Rouge - Récifs coralliens exquis, plongée et safaris passionnants dans le désert",
-      es: "Joya del Mar Rojo: exquisitos arrecifes de coral, buceo y emocionantes safaris por el desierto",
+      es: "Joya del Mar Rojo: exquisitos arrecifes de coral, buceo y emocionante safaris por el desierto",
       it: "Gioiello del Mar Rosso - Splendide barriere coralline, immersioni ed emozionanti safari nel deserto",
       ru: "Жемчужина Красного моря - великолепные коралловые рифы, дайвинг и увлекательное сафари в пустыне",
       tr: "Kızıldeniz Mücevheri - Enfes mercan resifleri, dalış ve heyecan verici çöl safarileri",
-      zh: "红海明珠 - 精美的珊瑚礁、潜水和令人兴奋的沙漠探险",
+      zh: "红海明珠 - 精美的珊瑚礁、潜水 and 令人兴奋的沙漠探险",
       ja: "红海の宝石 - 美しいサンゴ礁、ダイビング、そしてエキサイティングな砂漠サファリ"
     },
     categories: [
@@ -142,8 +142,8 @@ export const cities = [
     slug: "north-coast",
     emoji: "🏖️",
     image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=800&q=80",
-    descriptionAr: "الساحل الذهبي - مياه زرقاء فيروزية وشواطئ رملية ساحرة وأجواء ترفيهية راقية",
-    descriptionEn: "Golden Coast - Turquoise waters, beautiful sandy beaches, and premium entertainment vibes",
+    descriptionAr: "يمتد الساحل الشمالي المصري على طول ساحل البحر الأبيض المتوسط بمياهه الفيروزية الساحرة ورماله البيضاء الناعمة التي تضاهي جزر المالديف. يُعد الوجهة الترفيهية الأولى والراقية لقضاء الصيف في مصر، حيث يضم مدينة العلمين الجديدة بأبراجها الحديثة ومسرحها الروماني الأثري. تتميز المنطقة بأجوائها الاحتفالية النابضة بالحياة، ومنتجعاتها الفاخرة مثل مراسي وهاسيندا، إلى جانب قربها من مقبرة العلمين الحربية التاريخية ومتحف العلمين العسكري، مما يمنحها بعداً تاريخياً هاماً يمتزج مع الرفاهية المعاصرة.",
+    descriptionEn: "Egypt's North Coast stretches along the Mediterranean Sea, famous for its breathtaking turquoise waters and soft white sands that rival the Maldives. As Egypt's top luxury summer destination, it features the new smart city of Al Alamein with its modern towers and historic Roman theatre. The region offers premium resorts like Marassi and Hacienda, alongside rich historical landmarks such as the Al Alamein Military Museum and the WWII War Cemetery, blending contemporary luxury with historical significance.",
     names: {
       en: "North Coast",
       ar: "الساحل الشمالي",
@@ -157,8 +157,8 @@ export const cities = [
       ja: "北海岸"
     },
     descriptions: {
-      en: "Golden Coast - Turquoise waters, beautiful sandy beaches, and premium entertainment vibes",
-      ar: "الساحل الذهبي - مياه زرقاء فيروزية وشواطئ رملية ساحرة وأجواء ترفيهية راقية",
+      en: "Egypt's North Coast stretches along the Mediterranean Sea, famous for its breathtaking turquoise waters and soft white sands that rival the Maldives. As Egypt's top luxury summer destination, it features the new smart city of Al Alamein with its modern towers and historic Roman theatre. The region offers premium resorts like Marassi and Hacienda, alongside rich historical landmarks such as the Al Alamein Military Museum and the WWII War Cemetery, blending contemporary luxury with historical significance.",
+      ar: "يمتد الساحل الشمالي المصري على طول ساحل البحر الأبيض المتوسط بمياهه الفيروزية الساحرة ورماله البيضاء الناعمة التي تضاهي جزر المالديف. يُعد الوجهة الترفيهية الأولى والراقية لقضاء الصيف في مصر، حيث يضم مدينة العلمين الجديدة بأبراجها الحديثة ومسرحها الروماني الأثري. تتميز المنطقة بأجوائها الاحتفالية النابضة بالحياة، ومنتجعاتها الفاخرة مثل مراسي وهاسيندا، إلى جانب قربها من مقبرة العلمين الحربية التاريخية ومتحف العلمين العسكري، مما يمنحها بعداً تاريخياً هاماً يمتزج مع الرفاهية المعاصرة.",
       de: "Goldene Küste - Türkisfarbenes Wasser, schöne Sandstrände und erstklassige Unterhaltung",
       fr: "Côte d'Or - Eaux turquoise, belles beaches de sable et ambiance de divertissement haut de gamme",
       es: "Costa Dorada: aguas turquesas, hermosas playas de arena y ambiente de entretenimiento premium",

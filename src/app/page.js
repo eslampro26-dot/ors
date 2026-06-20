@@ -596,15 +596,7 @@ export default function Home() {
       }}>
         <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', textAlign: locale === 'ar' ? 'right' : 'left', paddingBottom: '3rem', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'relative', zIndex: 2 }}>
           
-          {/* Column 1: Logo & Slogan */}
-          <div>
-            <h3 style={{ fontSize: '1.6rem', fontWeight: '900', color: 'var(--gold-400)', marginBottom: '1rem', letterSpacing: '1px' }}>
-              {siteName.toUpperCase()}
-            </h3>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-              {locale === 'ar' ? 'رحلات سياحية مصرية استثنائية بروح عائلية دافئة. احجز رحلات السفاري واليخوت والجولات بأمان.' : 'Exceptional Egyptian excursions with a warm family spirit. Book premium safaris, yacht trips, and city packages securely.'}
-            </p>
-          </div>
+
 
           {/* Column 2: About Us (عننا) */}
           <div>

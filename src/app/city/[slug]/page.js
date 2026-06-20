@@ -107,18 +107,6 @@ export default function CityPage() {
           {city.categories.map((cat, idx) => {
             const categoryName = getCategoryName(cat.id, locale);
             
-            // Set unique category icons for premium look
-            let icon = '🚤';
-            if (cat.id === 'desert-trips') icon = '🏜️';
-            else if (cat.id === 'city-tours') icon = '🏛️';
-            else if (cat.id === 'internal-packages') icon = '✈️';
-            else if (cat.id === 'restaurants') icon = '🍽️';
-            else if (cat.id === 'cafes') icon = '☕';
-            else if (cat.id === 'shopping') icon = '🛍️';
-            else if (cat.id === 'transfers') icon = '🚐';
-            else if (cat.id === 'entertainment') icon = '🎭';
-            else if (cat.id === 'packages') icon = '📦';
-
             return (
               <Link 
                 key={cat.id} 
@@ -154,29 +142,10 @@ export default function CityPage() {
                   transition: 'width var(--transition-base)'
                 }} className="accent-line"></div>
 
-                {/* Icon */}
-                <div style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: 'var(--radius-md)',
-                  background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(59, 130, 246, 0.06))',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1.6rem',
-                  flexShrink: 0,
-                  border: '1px solid rgba(251, 191, 36, 0.15)'
-                }}>
-                  {icon}
-                </div>
-
                 <div style={{ flex: 1, textAlign: locale === 'ar' ? 'right' : 'left' }}>
-                  <h3 style={{ fontSize: '1.15rem', color: 'var(--text-primary)', marginBottom: '2px', fontWeight: '700' }}>
+                  <h3 style={{ fontSize: '1.15rem', color: 'var(--text-primary)', margin: 0, fontWeight: '700' }}>
                     {categoryName}
                   </h3>
-                  <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-tertiary)' }}>
-                    {t('common.activeSlots', { active: cat.slots || 20 })}
-                  </span>
                 </div>
                 <div style={{ 
                   color: 'var(--gold-500)', 
