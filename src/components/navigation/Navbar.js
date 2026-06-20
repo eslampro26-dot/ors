@@ -35,30 +35,16 @@ export default function Navbar() {
     setActiveDropdown(activeDropdown === id ? null : id);
   };
 
-  // Inline SVG golden compass logo - always visible on any background
+  // Gold logo image from user
   const LogoIcon = () => (
-    <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-      {/* Outer ring */}
-      <circle cx="50" cy="50" r="44" stroke="url(#goldGrad)" strokeWidth="3" fill="none" opacity="0.7"/>
-      {/* Wave / ocean */}
-      <path d="M20 62 Q32 55 44 62 Q56 69 68 62 Q80 55 90 62" stroke="url(#goldGrad)" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-      <path d="M15 70 Q27 63 39 70 Q51 77 63 70 Q75 63 87 70" stroke="url(#goldGrad)" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.5"/>
-      {/* Compass needle - north */}
-      <path d="M50 18 L56 50 L50 45 L44 50 Z" fill="url(#goldGrad)"/>
-      {/* Compass needle - south */}
-      <path d="M50 82 L56 50 L50 55 L44 50 Z" fill="url(#goldGrad)" opacity="0.5"/>
-      {/* Center dot */}
-      <circle cx="50" cy="50" r="4" fill="url(#goldGrad)"/>
-      {/* N letter */}
-      <text x="50" y="14" textAnchor="middle" fill="#D97706" fontSize="10" fontWeight="800" fontFamily="Inter,sans-serif">N</text>
-      <defs>
-        <linearGradient id="goldGrad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#FBBF24"/>
-          <stop offset="50%" stopColor="#F59E0B"/>
-          <stop offset="100%" stopColor="#D97706"/>
-        </linearGradient>
-      </defs>
-    </svg>
+    <img 
+      src="/logo_gold_icon.png" 
+      alt="ORLUXUS Logo" 
+      width="34" 
+      height="34" 
+      className={styles.logoImage} 
+      style={{ objectFit: 'contain', flexShrink: 0 }}
+    />
   );
 
   if (!isReady) {
