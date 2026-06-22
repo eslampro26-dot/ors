@@ -4,12 +4,12 @@ import styles from './page.module.css';
 
 export default function AdminDashboard() {
   const kpis = [
-    { label: 'إجمالي الإيرادات', value: '€2.4M', trend: '+15%', icon: '💰', color: 'gold' },
-    { label: 'إجمالي الحجوزات', value: '45,200', trend: '+8%', icon: '📋', color: 'ocean' },
-    { label: 'وكلاء نشطين', value: '342', trend: '+12%', icon: '👥', color: 'emerald' },
-    { label: 'رحلات متاحة', value: '185', trend: '+2%', icon: '🚤', color: 'coral' },
-    { label: 'إيرادات الشهر الحالي', value: '€185K', trend: '+5%', icon: '📈', color: 'gold' },
-    { label: 'نسبة النمو السنوي', value: '24%', trend: '+4%', icon: '🚀', color: 'emerald' },
+    { label: 'إجمالي الإيرادات', value: '€2.4M', trend: '+15%', icon: '◆', color: 'gold' },
+    { label: 'إجمالي الحجوزات', value: '45,200', trend: '+8%', icon: '▣', color: 'ocean' },
+    { label: 'وكلاء نشطين', value: '342', trend: '+12%', icon: '◉', color: 'emerald' },
+    { label: 'رحلات متاحة', value: '185', trend: '+2%', icon: '▲', color: 'coral' },
+    { label: 'إيرادات الشهر الحالي', value: '€185K', trend: '+5%', icon: '◈', color: 'gold' },
+    { label: 'نسبة النمو السنوي', value: '24%', trend: '+4%', icon: '◐', color: 'emerald' },
   ];
 
   const topAgents = [
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
             <div className={styles.bookingsFeed}>
               {recentBookings.map((booking, idx) => (
                 <div key={idx} className={styles.bookingItem}>
-                  <div className={styles.bookingIcon}>🛎️</div>
+                  <div className={styles.bookingIcon}>◎</div>
                   <div className={styles.bookingDetails}>
                     <div className={styles.bookingHeader}>
                       <span className={styles.bookingService}>{booking.service}</span>

@@ -82,7 +82,7 @@ export default function AgentSales() {
     <div className={styles.salesPage}>
       <div className={`${styles.filterCard} glass-card animate-fade-in-up`}>
         <div className={styles.searchBox}>
-          <span className={styles.searchIcon}>🔍</span>
+          <span className={styles.searchIcon}>◎</span>
           <input 
             type="text" 
             placeholder="ابحث برقم الحجز، الخدمة، أو اسم العميل..." 
@@ -135,7 +135,7 @@ export default function AgentSales() {
                   <td>{trx.service}</td>
                   <td>
                     <span style={{ fontSize: '11px', color: 'var(--gold-500)', background: 'rgba(251,191,36,0.08)', padding: '2px 6px', borderRadius: '4px' }}>
-                      📍 {trx.city}
+                      ◆ {trx.city}
                     </span>
                   </td>
                   <td style={{ fontFamily: 'var(--font-en)' }}>{trx.amount}</td>
@@ -150,7 +150,7 @@ export default function AgentSales() {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan="8" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>
-                    ❌ لا توجد عمليات مطابقة لخيارات البحث المحددة.
+                    لا توجد عمليات مطابقة لخيارات البحث المحددة.
                   </td>
                 </tr>
               )}

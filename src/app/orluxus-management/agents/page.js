@@ -22,6 +22,12 @@ export default function AdminAgents() {
   const [newAgentTier, setNewAgentTier] = useState('bronze');
   const [newAgentPromo, setNewAgentPromo] = useState('');
   const [parentAgentId, setParentAgentId] = useState('');
+  // New fields
+  const [newAgentPhone, setNewAgentPhone] = useState('');
+  const [newAgentBank, setNewAgentBank] = useState('');
+  const [newAgentCountry, setNewAgentCountry] = useState('');
+  const [newAgentPartnerId, setNewAgentPartnerId] = useState('');
+  const [newAgentPhoto, setNewAgentPhoto] = useState('');
 
   const loadData = async () => {
     try {
@@ -78,7 +84,13 @@ export default function AdminAgents() {
         password: newAgentPassword,
         tier: newAgentTier,
         parentId: parentIdParsed,
-        promoCodes: cleanPromo ? [cleanPromo] : []
+        promoCodes: cleanPromo ? [cleanPromo] : [],
+        phone: newAgentPhone,
+        bankAccount: newAgentBank,
+        country: newAgentCountry,
+        partnerId: newAgentPartnerId || `PRT-${Date.now().toString().slice(-6)}`,
+        photo: newAgentPhoto,
+        joinDate: new Date().toISOString().split('T')[0],
       });
 
       // Create promo code in database if provided
@@ -106,6 +118,11 @@ export default function AdminAgents() {
       setNewAgentTier('bronze');
       setNewAgentPromo('');
       setParentAgentId('');
+      setNewAgentPhone('');
+      setNewAgentBank('');
+      setNewAgentCountry('');
+      setNewAgentPartnerId('');
+      setNewAgentPhoto('');
 
       // Reload data
       await loadData();
@@ -285,14 +302,14 @@ export default function AdminAgents() {
             </button>
           </div>
           <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-            <span>➕</span> إضافة وكيل مباشر جديد
+            <span>+</span> إضافة وكيل مباشر جديد
           </button>
         </div>
       </div>
 
       <div className={`${styles.filterCard} glass-card`}>
         <div className={styles.searchBox}>
-          <span className={styles.searchIcon}>🔍</span>
+          <span className={styles.searchIcon}>◎</span>
           <input 
             type="text" 
             placeholder="ابحث بالاسم، اسم المستخدم، البريد، أو الكود..." 
@@ -395,7 +412,7 @@ export default function AdminAgents() {
                             onClick={() => handleToggleStatus(agent.id)}
                             title={agent.status === 'نشط' ? 'تجميد الحساب' : 'تفعيل الحساب'}
                           >
-                            {agent.status === 'نشط' ? '⏸️' : '▶️'}
+                            {agent.status === 'نشط' ? '■' : '▶'}
                           </button>
                         </div>
                       </td>
@@ -405,7 +422,7 @@ export default function AdminAgents() {
                 {filteredAgents.length === 0 && (
                   <tr>
                     <td colSpan="12" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>
-                      ❌ لا يوجد وكلاء يطابقون خيارات البحث.
+                    لا يوجد وكلاء يطابقون خيارات البحث.
                     </td>
                   </tr>
                 )}
@@ -573,6 +590,66 @@ export default function AdminAgents() {
                     ))}
                   </select>
                 </div>
+              </div>
+
+              {/* Profile Photo URL */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>صورة الملف الشخصي (Profile Photo URL)</label>
+                <input
+                  type="text"
+                  value={newAgentPhoto}
+                  onChange={(e) => setNewAgentPhoto(e.target.value)}
+                  placeholder="https://example.com/photo.jpg (اختياري)"
+                  style={{ padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none', textAlign: 'left' }}
+                />
+              </div>
+
+              {/* Partner ID */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Partner ID (اختياري)</label>
+                  <input
+                    type="text"
+                    value={newAgentPartnerId}
+                    onChange={(e) => setNewAgentPartnerId(e.target.value)}
+                    placeholder="PRT-001"
+                    style={{ padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none', textAlign: 'left', fontFamily: 'var(--font-en)' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>رقم الهاتف (Phone Number)</label>
+                  <input
+                    type="tel"
+                    value={newAgentPhone}
+                    onChange={(e) => setNewAgentPhone(e.target.value)}
+                    placeholder="+20100000000"
+                    style={{ padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none', textAlign: 'left' }}
+                  />
+                </div>
+              </div>
+
+              {/* Bank Account */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>رقم الحساب البنكي (Bank Account Number)</label>
+                <input
+                  type="text"
+                  value={newAgentBank}
+                  onChange={(e) => setNewAgentBank(e.target.value)}
+                  placeholder="IBAN أو رقم الحساب"
+                  style={{ padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none', textAlign: 'left', fontFamily: 'var(--font-en)', letterSpacing: '0.5px' }}
+                />
+              </div>
+
+              {/* Country / City */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>الدولة / المدينة (Country / City)</label>
+                <input
+                  type="text"
+                  value={newAgentCountry}
+                  onChange={(e) => setNewAgentCountry(e.target.value)}
+                  placeholder="مثال: مصر - شرم الشيخ"
+                  style={{ padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none' }}
+                />
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>

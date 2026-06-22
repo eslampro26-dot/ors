@@ -73,9 +73,9 @@ export default function AgentLayout({ children }) {
   }
 
   const navItems = [
-    { name: 'لوحة التحكم', href: '/agent', icon: '📊' },
-    { name: 'مبيعاتي', href: '/agent/sales', icon: '💰' },
-    { name: 'العودة للرئيسية', href: '/', icon: '🏠' }
+    { name: 'لوحة التحكم', href: '/agent', icon: '◈' },
+    { name: 'مبيعاتي', href: '/agent/sales', icon: '◆' },
+    { name: 'العودة للرئيسية', href: '/', icon: '←' }
   ];
 
   const handleLogout = async () => {
@@ -123,7 +123,7 @@ export default function AgentLayout({ children }) {
             className={styles.navItem} 
             style={{ width: '100%', border: 'none', background: 'none', textAlign: 'right', cursor: 'pointer', color: 'var(--coral-400)', marginTop: 'auto' }}
           >
-            <span className={styles.navIcon}>🚪</span>
+            <span className={styles.navIcon}>←</span>
             <span className={styles.navLabel}>تسجيل الخروج</span>
           </button>
         </nav>
@@ -135,7 +135,7 @@ export default function AgentLayout({ children }) {
             <div className={styles.agentMiniInfo}>
               <div className={styles.agentMiniName}>{agent.name}</div>
               <div className={styles.agentMiniTier}>
-                {tierConfig[agent.tier]?.icon || '🥉'} وكيل {tierConfig[agent.tier]?.nameAr || 'برونزي'}
+                {tierConfig[agent.tier]?.nameAr || 'برونزي'} وكيل
               </div>
             </div>
           </div>
@@ -163,12 +163,12 @@ export default function AgentLayout({ children }) {
                 color: agent.tier === 'platinum' ? 'var(--emerald-400)' : agent.tier === 'gold' ? 'var(--gold-400)' : agent.tier === 'silver' ? '#94a3b8' : '#cd7f32',
                 border: `1px solid rgba(${agent.tier === 'platinum' ? '16,185,129' : agent.tier === 'gold' ? '251,191,36' : agent.tier === 'silver' ? '148,163,184' : '205,127,50'}, 0.25)`
               }}>
-                {tierConfig[agent.tier]?.icon || '🥉'} وكيل {tierConfig[agent.tier]?.nameAr || 'برونزي'}
+                {tierConfig[agent.tier]?.nameAr || 'برونزي'} وكيل
               </span>
             </div>
             
             <button className={styles.notifBtn}>
-              🔔
+              ◉
               <span className={styles.notifDot}></span>
             </button>
           </div>

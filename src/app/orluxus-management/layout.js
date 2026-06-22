@@ -39,15 +39,15 @@ export default function AdminLayout({ children }) {
   };
 
   const navItems = [
-    { name: 'الرئيسية', href: '/orluxus-management', icon: '📊' },
-    { name: 'إدارة الخدمات', href: '/orluxus-management/services', icon: '🏷️' },
-    { name: 'إدارة الوكلاء', href: '/orluxus-management/agents', icon: '👥' },
-    { name: 'أكواد الخصم', href: '/orluxus-management/promo-codes', icon: '🎫' },
-    { name: 'نظام الترقيات', href: '/orluxus-management/tiers', icon: '⭐' },
-    { name: 'الحجوزات', href: '/orluxus-management/bookings', icon: '📋' },
-    { name: 'التقارير', href: '/orluxus-management/reports', icon: '📈' },
-    { name: 'الإعدادات', href: '/orluxus-management/settings', icon: '⚙️' },
-    { name: 'العودة للموقع', href: '/', icon: '🏠' }
+    { name: 'الرئيسية', href: '/orluxus-management', icon: '◈' },
+    { name: 'إدارة الخدمات', href: '/orluxus-management/services', icon: '◇' },
+    { name: 'إدارة الوكلاء', href: '/orluxus-management/agents', icon: '◉' },
+    { name: 'أكواد الخصم', href: '/orluxus-management/promo-codes', icon: '◐' },
+    { name: 'نظام الترقيات', href: '/orluxus-management/tiers', icon: '◆' },
+    { name: 'الحجوزات', href: '/orluxus-management/bookings', icon: '▣' },
+    { name: 'التقارير', href: '/orluxus-management/reports', icon: '▲' },
+    { name: 'الإعدادات', href: '/orluxus-management/settings', icon: '◎' },
+    { name: 'العودة للموقع', href: '/', icon: '←' }
   ];
 
   if (pathname === '/orluxus-management/login') {
@@ -69,7 +69,7 @@ export default function AdminLayout({ children }) {
 
       <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
-          <div className={styles.adminAvatar}>👑</div>
+          <div className={styles.adminAvatar}>A</div>
           <div className={styles.adminInfo}>
             <div className={styles.adminName}>{admin.name}</div>
             <div className={styles.adminRole}>{admin.role}</div>
@@ -100,8 +100,8 @@ export default function AdminLayout({ children }) {
             {navItems.find(item => item.href === pathname)?.name || 'لوحة التحكم'}
           </h1>
           <div className={styles.topbarActions}>
-            <button className={styles.iconBtn}>🔔 <span className={styles.badge}>3</span></button>
-            <button className={styles.iconBtn}>✉️</button>
+            <button className={styles.iconBtn}>◉ <span className={styles.badge}>3</span></button>
+            <button className={styles.iconBtn}>✦</button>
           </div>
         </header>
         
