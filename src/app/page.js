@@ -184,87 +184,98 @@ export default function Home() {
       
       {/* 1. HERO SECTION */}
       <section style={{
-        minHeight: '95vh',
+        height: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        padding: 'var(--space-3xl) var(--space-xl) var(--space-xl) var(--space-xl)',
+        padding: '0 var(--space-xl)',
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Background Slideshow */}
-        {HERO_IMAGES.map((img, idx) => (
-          <div
-            key={idx}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `linear-gradient(to bottom, rgba(10, 14, 23, 0.45), rgba(10, 14, 23, 0.75)), url(${img})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              opacity: heroActiveIndex === idx ? 1 : 0,
-              transition: 'opacity 1.5s ease-in-out',
-              transform: heroActiveIndex === idx ? 'scale(1.05)' : 'scale(1)',
-              animation: heroActiveIndex === idx ? 'kenburns 6s ease-out forwards' : 'none',
-              zIndex: 1
-            }}
-          />
-        ))}
+        {/* Drone video background */}
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 1
+          }}
+        >
+          <source src="https://assets.mixkit.co/videos/preview/mixkit-luxury-yacht-cruising-on-deep-blue-water-43306-large.mp4" type="video/mp4" />
+        </video>
 
-        {/* Glow Element */}
+        {/* 40% Dark Overlay */}
         <div style={{
           position: 'absolute',
-          bottom: '10%',
-          left: '10%',
-          width: '350px',
-          height: '350px',
-          background: 'var(--ocean-500)',
-          filter: 'blur(150px)',
-          opacity: 0.08,
-          borderRadius: '50%',
+          inset: 0,
+          background: 'rgba(11, 11, 11, 0.4)',
           zIndex: 2
         }}></div>
 
-        <div className="container" style={{ position: 'relative', zIndex: 10 }}>
-          <div className="animate-fade-in-up">
+        <div className="container" style={{ position: 'relative', zIndex: 10, maxWidth: '900px' }}>
+          <div className="animate-fade-in-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
             
             <h1 style={{ 
-              fontSize: 'clamp(3.5rem, 8.5vw, 6.5rem)', 
-              fontWeight: 900, 
-              color: 'var(--text-primary)',
-              lineHeight: 1.1,
-              marginBottom: '1rem',
-              letterSpacing: '4px',
-              fontFamily: 'var(--font-en)',
-              background: 'linear-gradient(135deg, var(--gold-300) 30%, var(--gold-500) 70%, var(--gold-600) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              filter: 'drop-shadow(0 4px 15px rgba(217, 119, 6, 0.4))'
+              fontSize: 'clamp(2rem, 5vw, 3.8rem)', 
+              fontWeight: 700, 
+              color: '#FFFFFF',
+              lineHeight: 1.2,
+              letterSpacing: '1px',
+              fontFamily: 'var(--font-title)',
+              textShadow: '0 4px 20px rgba(0,0,0,0.6)',
+              textTransform: 'uppercase',
             }}>
-              {siteName}
+              {locale === 'ar' ? 'أورلوكسوس | كشف النقاب عن الفخامة الحصرية' : 'ORLUXUS | UNVEIL EXCLUSIVE LUXURY'}
             </h1>
             
             <p style={{ 
-              fontSize: 'clamp(0.95rem, 2.5vw, 1.3rem)', 
-              color: '#f8fafc',
-              letterSpacing: '6px',
-              textTransform: 'uppercase',
-              fontWeight: '700',
-              marginBottom: '4rem',
+              fontSize: 'clamp(0.95rem, 2vw, 1.15rem)', 
+              color: '#F5F5F5',
+              fontWeight: '400',
               fontFamily: 'var(--font-en)',
-              textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+              lineHeight: 1.5,
+              textShadow: '0 2px 10px rgba(0,0,0,0.6)',
+              maxWidth: '650px',
+              margin: '0 auto'
             }}>
-              {t('hero.familySpirit')}
+              {locale === 'ar' 
+                ? 'تجارب سياحية منتقاة للمسافر الشغوف، حيث تلتقي الرفاهية والمغامرة في أجمل الوجهات المصرية.' 
+                : 'Curated experiences for the discerning traveler, where sophistication meets unparalleled adventure.'}
             </p>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', alignItems: 'center', justifyContent: 'center' }}>
-              <Link href="/city/sharm-el-sheikh" className="btn btn-primary" style={{ padding: '1.2rem 3.2rem', fontSize: '1.15rem', borderRadius: '50px', boxShadow: '0 8px 30px rgba(217, 119, 6, 0.5)', transition: 'all 0.3s ease', transform: 'translateY(0)' }}>
-                {t('hero.start')}
-              </Link>
-
-              {/* Tagline Container Removed */}
+            <div style={{ marginTop: '2rem' }}>
+              <a href="#destinations" className="btn" style={{ 
+                padding: '16px 40px', 
+                fontSize: '16px', 
+                borderRadius: '999px',
+                fontWeight: '700',
+                background: 'var(--gold-500)',
+                color: locale === 'ar' ? '#FFFFFF' : '#FFFFFF', // Keep it white for premium visibility
+                boxShadow: '0 8px 30px rgba(201, 162, 39, 0.4)', 
+                transition: 'all 0.3s ease',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'scale(1.05)';
+                e.target.style.boxShadow = '0 12px 35px rgba(201, 162, 39, 0.6)';
+                e.target.style.background = 'var(--gold-600)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'scale(1)';
+                e.target.style.boxShadow = '0 8px 30px rgba(201, 162, 39, 0.4)';
+                e.target.style.background = 'var(--gold-500)';
+              }}
+              >
+                {locale === 'ar' ? 'اكتشف رحلتك' : 'DISCOVER YOUR JOURNEY'}
+              </a>
             </div>
           </div>
         </div>
@@ -280,27 +291,29 @@ export default function Home() {
       </div>
 
       {/* 2. SELECT DESTINATION SECTION */}
-      <section style={{ padding: 'var(--space-4xl) 0', background: 'transparent', position: 'relative', overflow: 'hidden' }}>
+      <section id="destinations" style={{ padding: 'var(--space-4xl) 0', background: 'transparent', position: 'relative', overflow: 'hidden' }}>
         {/* Soft water bubbles decoration */}
         <div className="water-bubble" style={{ position: 'absolute', top: '10%', left: '5%', width: '60px', height: '60px', borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(59,130,246,0.1))', opacity: 0.2, filter: 'blur(2px)', animation: 'float 6s ease-in-out infinite' }}></div>
         <div className="water-bubble" style={{ position: 'absolute', bottom: '15%', right: '8%', width: '90px', height: '90px', borderRadius: '50%', background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), rgba(59,130,246,0.1))', opacity: 0.15, filter: 'blur(1px)', animation: 'float 9s ease-in-out infinite' }}></div>
         
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }} className="animate-fade-in-up">
-            <span style={{ color: 'var(--gold-600)', fontWeight: '700', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', fontSize: 'var(--font-size-sm)' }}>
+            <span style={{ color: 'var(--gold-500)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', fontSize: 'var(--font-size-xs)' }}>
               {t('destinations.title')}
             </span>
-            <h2 className="section-title">{t('destinations.subtitle')}</h2>
-            <p className="section-subtitle">{t('destinations.desc')}</p>
+            <h2 className="section-title" style={{ fontFamily: 'var(--font-title)', fontSize: 'clamp(2rem, 4vw, 2.5rem)', color: 'var(--text-primary)', marginBottom: '1rem' }}>
+              {t('destinations.subtitle')}
+            </h2>
+            <p className="section-subtitle" style={{ fontSize: '18px', color: 'var(--text-secondary)' }}>{t('destinations.desc')}</p>
           </div>
 
-          {/* Grid layout for destinations, stacked vertically (column) */}
+          {/* Grid layout for destinations */}
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-            gap: '2.5rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+            gap: '2rem',
             margin: '0 auto',
-            maxWidth: '1100px',
+            maxWidth: '1200px',
             width: '100%'
           }}>
             {cities.map((city, idx) => {
@@ -309,80 +322,283 @@ export default function Home() {
                 <Link 
                   href={`/city/${city.slug}`}
                   key={city.id}
-                  className="destination-card"
+                  className="luxury-experience-card"
                   style={{ 
                     display: 'flex', 
                     flexDirection: 'column',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                    gap: '1.2rem',
                     textDecoration: 'none',
                     position: 'relative',
                     width: '100%',
-                    padding: '2rem var(--space-md) var(--space-lg) var(--space-md)',
-                    borderRadius: '24px',
-                    background: 'var(--bg-glass)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
+                    borderRadius: '20px',
+                    background: 'var(--bg-secondary)',
                     border: '1px solid var(--border-subtle)',
                     boxShadow: 'var(--shadow-md)',
-                    transition: 'all var(--transition-base)',
-                    animationDelay: `${idx * 0.08}s`,
+                    transition: 'all 300ms ease',
+                    overflow: 'hidden',
                   }}
                 >
-                  {/* Oval-shaped Image wrapper positioned on top of the text */}
+                  {/* 16:9 Image wrapper */}
                   <div style={{
-                    width: '140px',
-                    height: '105px',
-                    borderRadius: '140px / 105px', // Exact elliptical / oval shape
-                    overflow: 'hidden',
-                    border: '3px solid var(--gold-400)',
-                    boxShadow: 'var(--shadow-glow-gold)',
                     position: 'relative',
-                    flexShrink: 0,
-                    transition: 'all var(--transition-base)'
-                  }} className="oval-thumbnail-wrapper">
-                    <OptimizedImage
-                      src={city.image}
-                      alt={locCity.name}
-                      width={140}
-                      height={105}
-                      style={{ 
-                        objectFit: 'cover',
-                        width: '100%',
-                        height: '100%',
-                      }}
-                      className="oval-thumbnail"
-                      sizes="140px"
-                    />
+                    width: '100%',
+                    paddingTop: '56.25%', /* 16:9 Aspect Ratio */
+                    overflow: 'hidden',
+                  }}>
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                    }}>
+                      <OptimizedImage
+                        src={city.image}
+                        alt={locCity.name}
+                        width={400}
+                        height={225}
+                        style={{ 
+                          objectFit: 'cover',
+                          width: '100%',
+                          height: '100%',
+                          transition: 'transform 300ms ease',
+                        }}
+                        className="card-image-hover"
+                        sizes="(max-width: 768px) 100vw, 400px"
+                      />
+                    </div>
+                    
+                    {/* Overlay Tag: Price starts from */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: locale === 'ar' ? 'auto' : '12px',
+                      left: locale === 'ar' ? '12px' : 'auto',
+                      background: 'rgba(11, 11, 11, 0.75)',
+                      backdropFilter: 'blur(8px)',
+                      color: '#FFFFFF',
+                      padding: '4px 12px',
+                      borderRadius: '999px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      fontFamily: 'var(--font-en)',
+                      zIndex: 2,
+                    }}>
+                      {locale === 'ar' ? 'تبدأ من €45' : 'from €45'}
+                    </div>
                   </div>
 
-                  {/* Text info positioned below the image */}
-                  <div style={{ flex: 1, textAlign: 'center' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+                  {/* Info Content */}
+                  <div style={{ 
+                    padding: '1.2rem', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '0.6rem',
+                    textAlign: locale === 'ar' ? 'right' : 'left'
+                  }}>
+                    {/* Stars & Category info */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ color: 'var(--gold-500)', fontSize: '12px' }}>
+                        ★★★★★
+                      </div>
+                      <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        {locale === 'ar' ? 'وجهة فاخرة' : 'LUXURY DESTINATION'}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 style={{ 
+                      fontSize: '1.15rem', 
+                      fontWeight: '700', 
+                      color: 'var(--text-primary)', 
+                      margin: 0,
+                      fontFamily: 'var(--font-title)'
+                    }}>
                       {locCity.name}
                     </h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5' }}>
-                      {locCity.description}
-                    </p>
-                  </div>
-                  
-                  {/* Arrow/Explore label */}
-                  <div style={{ 
-                    color: 'var(--gold-600)', 
-                    fontWeight: 'bold', 
-                    fontSize: '0.9rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.3rem',
-                    transition: 'transform var(--transition-base)'
-                  }} className="explore-label">
-                    <span>{t('common.learnMore')}</span>
-                    <span className="arrow-icon">→</span>
+
+                    {/* Location/Desc Pin */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-secondary)', fontSize: '13px' }}>
+                      <span>📍</span>
+                      <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                        {locale === 'ar' ? 'مصر' : 'Egypt'} • {locCity.description.split(' ').slice(0, 4).join(' ')}...
+                      </span>
+                    </div>
+
+                    {/* CTA Text */}
+                    <div style={{ 
+                      color: 'var(--gold-600)', 
+                      fontWeight: '700', 
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      marginTop: '0.4rem',
+                      transition: 'transform 300ms ease'
+                    }} className="explore-label-cta">
+                      <span>{locale === 'ar' ? 'عرض التفاصيل' : 'View Details'}</span>
+                      <span className="arrow-icon" style={{ fontSize: '12px' }}>&gt;</span>
+                    </div>
                   </div>
                 </Link>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* 2.5 YOUR PERSONAL CONCIERGE SERVICE SECTION */}
+      <section style={{
+        padding: 'var(--space-4xl) 0',
+        background: 'var(--bg-secondary)',
+        borderTop: '1px solid var(--border-subtle)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div className="container" style={{ maxWidth: '1100px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <span style={{ color: 'var(--gold-500)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', fontSize: 'var(--font-size-xs)' }}>
+              {locale === 'ar' ? 'الفخامة المخصصة' : 'EXCLUSIVE EXPERIENCE'}
+            </span>
+            <h2 style={{ fontFamily: 'var(--font-title)', fontSize: 'clamp(2rem, 4vw, 2.5rem)', color: 'var(--text-primary)', marginBottom: '1rem' }}>
+              {locale === 'ar' ? 'خدمة الكونسيرج الشخصية الخاصة بك' : 'Your Personal Concierge Service'}
+            </h2>
+            <p style={{ fontSize: '18px', color: 'var(--text-secondary)', maxWidth: '650px', margin: '0 auto', lineHeight: '1.6' }}>
+              {locale === 'ar' 
+                ? 'نقدم لك تجارب سياحية وخدمات خاصة متكاملة بإشراف خبراء متخصصين لتنعم بالراحة والفخامة التامة.'
+                : 'Our bespoke concierge services provide elite access to private aviation, island dining, tailor-made itineraries, and luxury transportation.'}
+            </p>
+          </div>
+
+          {/* 3 Column Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '3rem var(--space-xl)',
+            marginBottom: '4rem'
+          }}>
+            {/* 1. Private Jets */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(201,162,39,0.05)', border: '1px solid rgba(201,162,39,0.15)' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A227" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"/>
+                </svg>
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
+                {locale === 'ar' ? 'الطيران الخاص' : 'Private Jets'}
+              </h3>
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
+                {locale === 'ar' ? 'حجز طائرات خاصة للتنقل بحرية وخصوصية تامة بين المعالم.' : 'Bespoke charter services connecting you directly to key global and local airports.'}
+              </p>
+            </div>
+
+            {/* 2. Island Dining */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(201,162,39,0.05)', border: '1px solid rgba(201,162,39,0.15)' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A227" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="8" />
+                  <path d="M5 8v6a3 3 0 0 0 3 3h1V8H5zM19 8v6a3 3 0 0 1-3 3h-1V8h4zM12 12V8" />
+                </svg>
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
+                {locale === 'ar' ? 'عشاء الجزر الخاصة' : 'Island Dining'}
+              </h3>
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
+                {locale === 'ar' ? 'تجربة وجبات العشاء الفاخرة المحضرة بواسطة طهاة عالميين على شواطئ الجزر.' : 'Exquisite culinary experiences set on secluded shores, curated by top private chefs.'}
+              </p>
+            </div>
+
+            {/* 3. Bespoke Itineraries */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(201,162,39,0.05)', border: '1px solid rgba(201,162,39,0.15)' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A227" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2" />
+                  <path d="M9 9h6M9 13h6M9 17h4" />
+                </svg>
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
+                {locale === 'ar' ? 'مسارات رحلات مخصصة' : 'Bespoke Itineraries'}
+              </h3>
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
+                {locale === 'ar' ? 'تنظيم وتصميم مسارات يومية تناسب ذوقك وتطلعاتك الشخصية.' : 'Tailor-made itineraries crafted by local guides to meet your precise desires.'}
+              </p>
+            </div>
+
+            {/* 4. Safaris & Treks */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(201,162,39,0.05)', border: '1px solid rgba(201,162,39,0.15)' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A227" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m8 3 4 8 5-5 5 15H2L8 3Z" />
+                </svg>
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
+                {locale === 'ar' ? 'رحلات ومغامرات سفاري' : 'Safaris & Adventures'}
+              </h3>
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
+                {locale === 'ar' ? 'استكشاف الكثبان الرملية والوديان والواحات المخفية بسيارات دفع رباعية فاخرة.' : 'Venture deep into desert terrains, dunes, and hidden oases with private luxury guides.'}
+              </p>
+            </div>
+
+            {/* 5. Cafe Time */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(201,162,39,0.05)', border: '1px solid rgba(201,162,39,0.15)' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A227" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 8h1a4 4 0 1 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8Z" />
+                  <path d="M6 2v2M10 2v2M14 2v2" />
+                </svg>
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
+                {locale === 'ar' ? 'جلسات مقهى VIP' : 'Premium Cafe Lounges'}
+              </h3>
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
+                {locale === 'ar' ? 'حجز مساحات خاصة في أرقى المقاهي الشاطئية وأماكن الراحة الهادئة.' : 'Relax in handpicked seaside cafes and exclusive lounges with high-end dining.'}
+              </p>
+            </div>
+
+            {/* 6. VIP Services */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '70px', height: '70px', borderRadius: '50%', background: 'rgba(201,162,39,0.05)', border: '1px solid rgba(201,162,39,0.15)' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A227" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+                </svg>
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
+                {locale === 'ar' ? 'حماية وخدمات VIP' : 'VIP Security & Services'}
+              </h3>
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
+                {locale === 'ar' ? 'حماية شخصية متكاملة وسيارات ليموزين مصفحة وسائقين محترفين لحمايتك.' : 'Premium executive security, armored limousines, and dedicated personal assistance.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Proposal CTA Button */}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <a 
+              href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(locale === 'ar' ? 'مرحباً، أود الاستفسار عن عروض الكونسيرج الفاخرة.' : 'Hello, I would like to inquire about bespoke luxury concierge services.')}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="btn" 
+              style={{
+                padding: '16px 40px',
+                fontSize: '16px',
+                borderRadius: '999px',
+                fontWeight: '700',
+                background: 'var(--gold-500)',
+                color: '#FFFFFF',
+                boxShadow: '0 8px 30px rgba(201, 162, 39, 0.4)',
+                transition: 'all 0.3s ease',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'scale(1.05)';
+                e.target.style.boxShadow = '0 12px 35px rgba(201, 162, 39, 0.6)';
+                e.target.style.background = 'var(--gold-600)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'scale(1)';
+                e.target.style.boxShadow = '0 8px 30px rgba(201, 162, 39, 0.4)';
+                e.target.style.background = 'var(--gold-500)';
+              }}
+            >
+              {locale === 'ar' ? 'طلب عرض مخصص' : 'REQUEST A PROPOSAL'}
+            </a>
           </div>
         </div>
       </section>

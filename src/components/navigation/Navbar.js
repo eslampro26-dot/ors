@@ -37,12 +37,15 @@ export default function Navbar() {
 
   // User's provided logo
   const Logo = () => (
-    <img 
-      src="/logo_gold_icon.png" 
-      alt="ORLUXUS Logo" 
-      className={styles.logoImage} 
-      style={{ objectFit: 'contain', flexShrink: 0 }}
-    />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <img 
+        src="/logo_gold_icon.png" 
+        alt="ORLUXUS Logo" 
+        className={styles.logoImage} 
+        style={{ height: '36px', width: 'auto', objectFit: 'contain', flexShrink: 0 }}
+      />
+      <span className={styles.logoTextString}>ORLUXUS</span>
+    </div>
   );
 
   if (!isReady) {
@@ -58,7 +61,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav ref={navRef} className={`${styles.navbar} ${isScrolled ? styles.scrolled : ''}`}>
+    <nav ref={navRef} className={`${styles.navbar} ${isScrolled ? styles.scrolled : styles.transparent}`}>
       <div className={styles.navContainer}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
@@ -160,6 +163,11 @@ export default function Navbar() {
 
           {/* Theme Toggle */}
           <ThemeToggle />
+
+          {/* Book Now Gold CTA */}
+          <Link href="/city/sharm-el-sheikh" className={styles.bookNowCTA} onClick={() => setMobileOpen(false)}>
+            {locale === 'ar' ? 'احجز الآن' : 'Book Now'}
+          </Link>
         </div>
 
         {/* Mobile Toggle */}
