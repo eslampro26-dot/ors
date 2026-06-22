@@ -252,7 +252,7 @@ if (isClient) ls.initializeDB();
 
 const useFirebase = isFirebaseConfigured();
 
-const withTimeout = async (promise, fallbackFn, timeoutMs = 2500) => {
+const withTimeout = async (promise, fallbackFn, timeoutMs = 8000) => {
   let timeoutId;
   const timeoutPromise = new Promise((_, reject) => {
     timeoutId = setTimeout(() => {

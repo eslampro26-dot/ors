@@ -1,6 +1,6 @@
 
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyA3Q9bwzj9Xr05ha_gMIMrg-pOTIhSeCTI',
@@ -13,7 +13,12 @@ const firebaseConfig = {
 
 // Initialize Firebase (prevent re-initialization in dev hot reload)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const db = getFirestore(app);
+let db;
+try {
+  db = initializeFirestore(app, { experimentalForceLongPolling: true });
+} catch (e) {
+  db = getFirestore(app);
+}
 
 export { db };
 export default app;
