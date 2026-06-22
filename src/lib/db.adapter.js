@@ -1,73 +1,65 @@
+/**
+ * db.adapter.js — Unified Database Layer
+ * 
+ * Uses Upstash Redis (HTTP-based, no WebSockets) when configured.
+ * Falls back to hardcoded defaults for zero-downtime operation.
+ * Firebase has been completely removed to eliminate timeout errors.
+ */
 
-// Database Adapter - Firebase with localStorage fallback
-// This module provides a unified API that tries Firebase first,
-// and falls back to localStorage if Firebase is not configured.
-
-import { 
-  getTrips as fbGetTrips, addTrip as fbAddTrip, updateTrip as fbUpdateTrip, deleteTrip as fbDeleteTrip,
-  getPackages as fbGetPackages, addPackage as fbAddPackage, updatePackage as fbUpdatePackage, deletePackage as fbDeletePackage,
-  getAgents as fbGetAgents, addAgent as fbAddAgent, updateAgent as fbUpdateAgent, deleteAgent as fbDeleteAgent, saveAgents as fbSaveAgents,
-  getAgentById as fbGetAgentById, getAgentByUsername as fbGetAgentByUsername,
-  getBookings as fbGetBookings, addBooking as fbAddBooking, updateBookingStatus as fbUpdateBookingStatus, saveBookings as fbSaveBookings, deleteBooking as fbDeleteBooking,
-  getPromoCodes as fbGetPromoCodes, addPromoCode as fbAddPromoCode, deletePromoCode as fbDeletePromoCode,
-  validatePromoCode as fbValidatePromoCode, consumePromoCode as fbConsumePromoCode,
-  getReviews as fbGetReviews, addReview as fbAddReview, deleteReview as fbDeleteReview,
-  getSocialMedia as fbGetSocialMedia, saveSocialMedia as fbSaveSocialMedia,
-  getSettings as fbGetSettings, saveSettings as fbSaveSettings,
-  initializeDB as fbInitializeDB,
-} from './db.firebase';
-
-// Check if Firebase is configured (uses same fallback as firebase.js)
-const isFirebaseConfigured = () => {
-  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'orluxus';
-  return projectId !== 'orluxus-demo';
-};
-
-// ==========================================
-// LOCAL STORAGE FALLBACK (original db.js logic)
-// ==========================================
-const isClient = typeof window !== 'undefined';
+import {
+  getTrips as upGetTrips,
+  addTrip as upAddTrip,
+  updateTrip as upUpdateTrip,
+  deleteTrip as upDeleteTrip,
+  getPackages as upGetPackages,
+  addPackage as upAddPackage,
+  updatePackage as upUpdatePackage,
+  deletePackage as upDeletePackage,
+  getAgents as upGetAgents,
+  saveAgents as upSaveAgents,
+  getAgentById as upGetAgentById,
+  getAgentByUsername as upGetAgentByUsername,
+  addAgent as upAddAgent,
+  updateAgent as upUpdateAgent,
+  deleteAgent as upDeleteAgent,
+  getBookings as upGetBookings,
+  saveBookings as upSaveBookings,
+  addBooking as upAddBooking,
+  updateBookingStatus as upUpdateBookingStatus,
+  deleteBooking as upDeleteBooking,
+  getPromoCodes as upGetPromoCodes,
+  savePromoCodes as upSavePromoCodes,
+  addPromoCode as upAddPromoCode,
+  deletePromoCode as upDeletePromoCode,
+  validatePromoCode as upValidatePromoCode,
+  consumePromoCode as upConsumePromoCode,
+  getReviews as upGetReviews,
+  addReview as upAddReview,
+  deleteReview as upDeleteReview,
+  getSocialMedia as upGetSocialMedia,
+  saveSocialMedia as upSaveSocialMedia,
+  getSettings as upGetSettings,
+  saveSettings as upSaveSettings,
+  initializeDB as upInitializeDB,
+  DEFAULT_AGENTS,
+  DEFAULT_BOOKINGS,
+  DEFAULT_PROMO_CODES,
+  DEFAULT_REVIEWS,
+  DEFAULT_SOCIAL,
+  DEFAULT_SETTINGS,
+  isUpstashConfigured,
+} from './db.upstash';
 
 import { sampleTrips } from './data';
 
-const DEFAULT_AGENTS = [
-  { id: 1, name: 'أحمد محمود', email: 'ahmed@example.com', username: 'ahmed', password: 'Agent@2026!Sec', tier: 'silver', sales: 105000, subAgents: 3, joinDate: '2026-01-10', status: 'نشط', parentId: 5, promoCodes: ['AHMED10'] },
-  { id: 2, name: 'سارة إبراهيم', email: 'sara@example.com', username: 'sara', password: 'Agent@2026!Sec', tier: 'gold', sales: 98500, subAgents: 0, joinDate: '2025-11-20', status: 'نشط', parentId: 5, promoCodes: ['SARA20'] },
-  { id: 3, name: 'خالد عبد الرحمن', email: 'khaled@example.com', username: 'khaled', password: 'Agent@2026!Sec', tier: 'silver', sales: 85200, subAgents: 0, joinDate: '2026-02-05', status: 'نشط', parentId: 5, promoCodes: ['KHALED15'] },
-  { id: 4, name: 'منى جمال', email: 'mona@example.com', username: 'mona', password: 'Agent@2026!Sec', tier: 'bronze', sales: 75000, subAgents: 0, joinDate: '2026-03-15', status: 'موقوف', parentId: 1, promoCodes: ['MONA5'] },
-  { id: 5, name: 'طارق زياد', email: 'tarek@example.com', username: 'tarek', password: 'Agent@2026!Sec', tier: 'platinum', sales: 250000, subAgents: 4, joinDate: '2025-05-10', status: 'نشط', parentId: null, promoCodes: ['TAREK25'] },
-  { id: 6, name: 'يوسف سليم', email: 'youssef@example.com', username: 'youssef', password: 'Agent@2026!Sec', tier: 'bronze', sales: 20000, subAgents: 0, joinDate: '2026-04-01', status: 'نشط', parentId: 1, promoCodes: ['YOUSSEF10'] },
-  { id: 7, name: 'حازم عمر', email: 'hazem@example.com', username: 'hazem', password: 'Agent@2026!Sec', tier: 'bronze', sales: 12000, subAgents: 0, joinDate: '2026-04-10', status: 'نشط', parentId: 1, promoCodes: ['HAZEM10'] },
-];
+// ==========================================
+// CLIENT-SIDE (browser) localStorage helpers
+// ==========================================
+const isClient = typeof window !== 'undefined';
+const isProd = process.env.NODE_ENV === 'production';
 
-const DEFAULT_PROMO_CODES = [
-  { code: 'AHMED10', agentId: 1, discountType: 'percentage', discountValue: 10, maxUses: 100, usedCount: 5, isActive: true, expiryDate: '2026-12-31', createdAt: '2026-01-10', createdBy: 'admin' },
-  { code: 'SARA20', agentId: 2, discountType: 'percentage', discountValue: 20, maxUses: 50, usedCount: 12, isActive: true, expiryDate: '2026-12-31', createdAt: '2025-11-20', createdBy: 'admin' },
-  { code: 'KHALED15', agentId: 3, discountType: 'percentage', discountValue: 15, maxUses: 100, usedCount: 8, isActive: true, expiryDate: '2026-12-31', createdAt: '2026-02-05', createdBy: 'admin' },
-  { code: 'MONA5', agentId: 4, discountType: 'percentage', discountValue: 5, maxUses: 200, usedCount: 3, isActive: true, expiryDate: '2026-12-31', createdAt: '2026-03-15', createdBy: 'admin' },
-  { code: 'TAREK25', agentId: 5, discountType: 'percentage', discountValue: 25, maxUses: 50, usedCount: 22, isActive: true, expiryDate: '2026-12-31', createdAt: '2025-05-10', createdBy: 'admin' },
-  { code: 'YOUSSEF10', agentId: 6, discountType: 'percentage', discountValue: 10, maxUses: 100, usedCount: 2, isActive: true, expiryDate: '2026-12-31', createdAt: '2026-04-01', createdBy: 'admin' },
-  { code: 'HAZEM10', agentId: 7, discountType: 'percentage', discountValue: 10, maxUses: 100, usedCount: 1, isActive: true, expiryDate: '2026-12-31', createdAt: '2026-04-10', createdBy: 'admin' },
-];
-
-const DEFAULT_BOOKINGS = [
-  { id: 'BK-1001', date: '2026-05-21', customer: 'محمد علي', phone: '01012345678', whatsapp: '01012345678', service: 'رحلة جزيرة تيران', city: 'شرم الشيخ', agentId: 1, agentName: 'أحمد محمود', originalAmount: 70, discountAmount: 7, finalAmount: 63, travelers: 2, status: 'مؤكد', promoCode: 'AHMED10', paymentType: 'paypal', txId: 'pp-tx-1001' },
-  { id: 'BK-1002', date: '2026-05-21', customer: 'سارة إبراهيم', phone: '01123456789', whatsapp: '01123456789', service: 'عشاء بدوي مع عرض', city: 'شرم الشيخ', agentId: null, agentName: 'مباشر (بدون وكيل)', originalAmount: 30, discountAmount: 0, finalAmount: 30, travelers: 1, status: 'قيد الانتظار', promoCode: '', paymentType: 'cash', txId: 'cash-tx-1002' },
-  { id: 'BK-1003', date: '2026-05-20', customer: 'كريم مصطفى', phone: '01234567890', whatsapp: '01234567890', service: 'سفاري رباعي الدفع', city: 'الغردقة', agentId: 3, agentName: 'خالد عبد الرحمن', originalAmount: 80, discountAmount: 12, finalAmount: 68, travelers: 2, status: 'مكتمل', promoCode: 'KHALED15', paymentType: 'paypal', txId: 'pp-tx-1003' },
-  { id: 'BK-1004', date: '2026-05-20', customer: 'منى يوسف', phone: '01512345678', whatsapp: '01512345678', service: 'رحلة جزيرة الجفتون', city: 'الغردقة', agentId: 2, agentName: 'سارة إبراهيم', originalAmount: 50, discountAmount: 10, finalAmount: 40, travelers: 2, status: 'مؤكد', promoCode: 'SARA20', paymentType: 'paypal', txId: 'pp-tx-1004' },
-  { id: 'BK-1005', date: '2026-05-19', customer: 'طارق حسن', phone: '01098765432', whatsapp: '01098765432', service: 'غوص للمبتدئين', city: 'مرسى علم', agentId: 1, agentName: 'أحمد محمود', originalAmount: 50, discountAmount: 5, finalAmount: 45, travelers: 1, status: 'ملغي', promoCode: 'AHMED10', paymentType: 'cash', txId: 'cash-tx-1005' },
-];
-
-const DEFAULT_REVIEWS = [
-  { id: 'rev-1', name: 'Sophie L.', country: 'France', rating: 5, text: 'Absolutely spectacular yacht trip. The family atmosphere made us feel so safe and welcomed.', date: '2026-05-20', image: null },
-  { id: 'rev-2', name: 'Michael K.', country: 'Germany', rating: 5, text: 'Seamless reservation via PayPal, instant PDF invoice, and the private airport transfer was punctual.', date: '2026-05-18', image: null },
-  { id: 'rev-3', name: 'Ahmed A.', country: 'Egypt', rating: 5, text: 'Best safari in Sharm El Sheikh. Outstanding organization, and very respectful staff.', date: '2026-05-15', image: null }
-];
-
-// --- Local Storage Helpers ---
 function lsGet(key, fallback = null) {
-  if (process.env.NODE_ENV === 'production') return fallback;
-  if (!isClient) return fallback;
+  if (isProd || !isClient) return fallback;
   try {
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : fallback;
@@ -75,19 +67,15 @@ function lsGet(key, fallback = null) {
 }
 
 function lsSet(key, value) {
-  if (process.env.NODE_ENV === 'production') {
-    console.error('LocalStorage is disabled in production.');
-    return false;
-  }
-  if (!isClient) return false;
+  if (isProd || !isClient) return false;
   try { localStorage.setItem(key, JSON.stringify(value)); return true; }
   catch { return false; }
 }
 
-// --- Local Storage CRUD ---
+// Browser-only localStorage layer (dev mode only)
 const ls = {
   getTrips: (slug, category) => {
-    const staticTrips = (sampleTrips[slug] && sampleTrips[slug][category]) || [];
+    const staticTrips = sampleTrips[slug]?.[category] || [];
     const custom = lsGet(`trips_${slug}_${category}`, []);
     return [...staticTrips, ...custom];
   },
@@ -100,7 +88,7 @@ const ls = {
   getPackages: (pkgId) => lsGet(`packages_${pkgId}`, []),
   addPackage: (pkgId, packageData) => {
     const existing = lsGet(`packages_${pkgId}`, []);
-    const newPkg = { id: `custom-pkg-${Date.now()}`, currency: 'EUR', rating: 5.0, reviews: 1, icon: packageData.icon || 'plane', ...packageData };
+    const newPkg = { id: `custom-pkg-${Date.now()}`, currency: 'EUR', rating: 5.0, reviews: 1, ...packageData };
     lsSet(`packages_${pkgId}`, [...existing, newPkg]);
     return newPkg;
   },
@@ -108,42 +96,24 @@ const ls = {
   saveAgents: (agents) => lsSet('agents_data', agents),
   getAgentById: (id) => {
     const agents = lsGet('agents_data', DEFAULT_AGENTS);
-    return agents.find(a => a.id === id || a.id === parseInt(id, 10)) || null;
+    return agents.find(a => String(a.id) === String(id)) || null;
   },
   getAgentByUsername: (username) => {
     const agents = lsGet('agents_data', DEFAULT_AGENTS);
-    return agents.find(a => a.username.toLowerCase() === username.toLowerCase()) || null;
+    return agents.find(a => a.username?.toLowerCase() === username?.toLowerCase()) || null;
   },
   addAgent: (agentData) => {
     const agents = lsGet('agents_data', DEFAULT_AGENTS);
-    const nextId = agents.length > 0 ? Math.max(...agents.map(a => a.id)) + 1 : 1;
-
-    // Hash password if not already hashed (C-2, C-5)
-    let hashedPassword = agentData.password;
-    if (hashedPassword && !hashedPassword.startsWith('$2a$') && !hashedPassword.startsWith('$2b$')) {
-      try {
-        const bcrypt = require('bcryptjs');
-        const salt = bcrypt.genSaltSync(10);
-        hashedPassword = bcrypt.hashSync(hashedPassword, salt);
-      } catch (e) {
-        console.error('Error hashing password in local storage adapter:', e);
-      }
-    }
-
-    const newAgent = { id: nextId, sales: 0, subAgents: 0, joinDate: new Date().toISOString().split('T')[0], status: 'نشط', promoCodes: [], parentId: null, ...agentData, password: hashedPassword };
-    const updated = [...agents, newAgent];
-    if (newAgent.parentId) {
-      const parentIdx = updated.findIndex(a => a.id === parseInt(newAgent.parentId, 10));
-      if (parentIdx !== -1) updated[parentIdx].subAgents = (updated[parentIdx].subAgents || 0) + 1;
-    }
-    lsSet('agents_data', updated);
+    const nextId = String(agents.length > 0 ? Math.max(...agents.map(a => parseInt(a.id) || 0)) + 1 : 1);
+    const newAgent = { id: nextId, sales: 0, subAgents: 0, joinDate: new Date().toISOString().split('T')[0], status: 'نشط', promoCodes: [], parentId: null, ...agentData };
+    lsSet('agents_data', [...agents, newAgent]);
     return newAgent;
   },
   getBookings: () => lsGet('bookings_data', DEFAULT_BOOKINGS),
   saveBookings: (bookings) => lsSet('bookings_data', bookings),
   addBooking: (bookingData) => {
     const bookings = lsGet('bookings_data', DEFAULT_BOOKINGS);
-    const nextId = `BK-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 10)}`;
+    const nextId = `BK-${Date.now().toString().slice(-6)}`;
     const newBooking = { id: nextId, date: new Date().toISOString().split('T')[0], status: 'مؤكد', ...bookingData };
     lsSet('bookings_data', [newBooking, ...bookings]);
     return newBooking;
@@ -152,14 +122,8 @@ const ls = {
     const bookings = lsGet('bookings_data', DEFAULT_BOOKINGS);
     const idx = bookings.findIndex(b => b.id === id);
     if (idx === -1) return false;
-    const old = bookings[idx];
-    bookings[idx] = { ...old, status: newStatus };
+    bookings[idx] = { ...bookings[idx], status: newStatus };
     lsSet('bookings_data', bookings);
-    if (newStatus === 'ملغي' && old.status !== 'ملغي' && old.agentId) {
-      const agents = lsGet('agents_data', DEFAULT_AGENTS);
-      const aIdx = agents.findIndex(a => a.id === parseInt(old.agentId, 10));
-      if (aIdx !== -1) { agents[aIdx].sales = Math.max(0, (agents[aIdx].sales || 0) - old.finalAmount); lsSet('agents_data', agents); }
-    }
     return true;
   },
   getPromoCodes: () => lsGet('promo_codes', DEFAULT_PROMO_CODES),
@@ -168,24 +132,18 @@ const ls = {
     const codes = lsGet('promo_codes', DEFAULT_PROMO_CODES);
     const cleanCode = codeData.code.trim().toUpperCase();
     if (codes.some(c => c.code === cleanCode)) return { error: 'كود الخصم هذا موجود بالفعل!' };
-    const newCode = { code: cleanCode, usedCount: 0, isActive: true, createdAt: new Date().toISOString().split('T')[0], ...codeData, code: cleanCode };
+    const newCode = { ...codeData, code: cleanCode, usedCount: 0, isActive: true, createdAt: new Date().toISOString().split('T')[0] };
     lsSet('promo_codes', [...codes, newCode]);
     if (newCode.agentId) {
       const agents = lsGet('agents_data', DEFAULT_AGENTS);
-      const aIdx = agents.findIndex(a => a.id === parseInt(newCode.agentId, 10));
+      const aIdx = agents.findIndex(a => String(a.id) === String(newCode.agentId));
       if (aIdx !== -1) { agents[aIdx].promoCodes = [...(agents[aIdx].promoCodes || []), cleanCode]; lsSet('agents_data', agents); }
     }
     return newCode;
   },
   deletePromoCode: (code) => {
     const codes = lsGet('promo_codes', DEFAULT_PROMO_CODES);
-    const deleted = codes.find(c => c.code === code);
     lsSet('promo_codes', codes.filter(c => c.code !== code));
-    if (deleted && deleted.agentId) {
-      const agents = lsGet('agents_data', DEFAULT_AGENTS);
-      const aIdx = agents.findIndex(a => a.id === parseInt(deleted.agentId, 10));
-      if (aIdx !== -1) { agents[aIdx].promoCodes = (agents[aIdx].promoCodes || []).filter(c => c !== code); lsSet('agents_data', agents); }
-    }
     return true;
   },
   validatePromoCode: (codeStr) => {
@@ -193,267 +151,190 @@ const ls = {
     const codes = lsGet('promo_codes', DEFAULT_PROMO_CODES);
     const promo = codes.find(c => c.code.toUpperCase() === codeStr.trim().toUpperCase());
     if (!promo) return { isValid: false, reason: 'كود الخصم غير صحيح!' };
-    if (!promo.isActive) return { isValid: false, reason: 'كود الخصم غير نشط حالياً!' };
-    if (promo.maxUses && promo.usedCount >= promo.maxUses) return { isValid: false, reason: 'عذراً، انتهت صلاحية استخدام هذا الكود لتجاوز الحد الأقصى!' };
-    if (promo.expiryDate) { const today = new Date().toISOString().split('T')[0]; if (today > promo.expiryDate) return { isValid: false, reason: 'عذراً، هذا الكود منتهي الصلاحية!' }; }
-    let agentName = 'مباشر (بدون وكيل)';
-    if (promo.agentId) { const agent = ls.getAgentById(promo.agentId); if (agent) { if (agent.status !== 'نشط') return { isValid: false, reason: 'كود الخصم هذا تابع لوكيل موقوف حالياً!' }; agentName = agent.name; } }
-    return { isValid: true, code: promo.code, agentId: promo.agentId, agentName, discountType: promo.discountType, discountValue: promo.discountValue };
+    if (!promo.isActive) return { isValid: false, reason: 'كود الخصم غير نشط!' };
+    if (promo.maxUses && promo.usedCount >= promo.maxUses) return { isValid: false, reason: 'انتهى الحد الأقصى لهذا الكود!' };
+    if (promo.expiryDate && new Date().toISOString().split('T')[0] > promo.expiryDate) return { isValid: false, reason: 'هذا الكود منتهي الصلاحية!' };
+    const agents = lsGet('agents_data', DEFAULT_AGENTS);
+    const agent = agents.find(a => String(a.id) === String(promo.agentId));
+    if (agent && agent.status !== 'نشط') return { isValid: false, reason: 'كود الخصم هذا تابع لوكيل موقوف!' };
+    return { isValid: true, code: promo.code, agentId: promo.agentId, agentName: agent?.name || 'مباشر', discountType: promo.discountType, discountValue: promo.discountValue };
   },
   consumePromoCode: (codeStr) => {
     const codes = lsGet('promo_codes', DEFAULT_PROMO_CODES);
     const idx = codes.findIndex(c => c.code.toUpperCase() === codeStr.trim().toUpperCase());
     if (idx === -1) return false;
     codes[idx].usedCount = (codes[idx].usedCount || 0) + 1;
-    lsSet('promo_codes', codes);
-    return true;
+    return lsSet('promo_codes', codes);
   },
   getReviews: () => lsGet('site_reviews', DEFAULT_REVIEWS),
   addReview: (reviewData) => {
     const reviews = lsGet('site_reviews', DEFAULT_REVIEWS);
-    const newReview = { id: `rev-${Date.now()}`, date: new Date().toISOString().split('T')[0], image: null, ...reviewData };
+    const newReview = { id: `rev-${Date.now()}`, date: new Date().toISOString().split('T')[0], ...reviewData };
     lsSet('site_reviews', [newReview, ...reviews]);
     return newReview;
   },
-  getSocialMedia: () => {
-    if (!isClient) return { email: 'info@orluxus.com', facebook: 'https://facebook.com/orluxus', tiktok: 'https://www.tiktok.com/@orluxus?_r=1&_t=ZS-979ayAlnRlV', instagram: 'https://www.instagram.com/orluxus?igsh=N2lmbmg2eGJzNmVx' };
-    return {
-      email: localStorage.getItem('orluxus_email') || 'info@orluxus.com',
-      facebook: localStorage.getItem('orluxus_facebook') || 'https://facebook.com/orluxus',
-      tiktok: localStorage.getItem('orluxus_tiktok') || 'https://www.tiktok.com/@orluxus?_r=1&_t=ZS-979ayAlnRlV',
-      instagram: localStorage.getItem('orluxus_instagram') || 'https://www.instagram.com/orluxus?igsh=N2lmbmg2eGJzNmVx'
-    };
-  },
-  saveSocialMedia: (socialData) => {
-    if (!isClient) return false;
-    try {
-      if (socialData.email) localStorage.setItem('orluxus_email', socialData.email);
-      if (socialData.facebook) localStorage.setItem('orluxus_facebook', socialData.facebook);
-      if (socialData.tiktok) localStorage.setItem('orluxus_tiktok', socialData.tiktok);
-      if (socialData.instagram) localStorage.setItem('orluxus_instagram', socialData.instagram);
-      return true;
-    } catch { return false; }
-  },
+  getSocialMedia: () => DEFAULT_SOCIAL,
+  saveSocialMedia: () => false,
+  getSettings: () => DEFAULT_SETTINGS,
+  saveSettings: () => false,
   initializeDB: () => {
-    if (!isClient) return;
-    if (!localStorage.getItem('agents_data')) localStorage.setItem('agents_data', JSON.stringify(DEFAULT_AGENTS));
-    if (!localStorage.getItem('promo_codes')) localStorage.setItem('promo_codes', JSON.stringify(DEFAULT_PROMO_CODES));
-    if (!localStorage.getItem('bookings_data')) localStorage.setItem('bookings_data', JSON.stringify(DEFAULT_BOOKINGS));
-    if (!localStorage.getItem('site_reviews')) localStorage.setItem('site_reviews', JSON.stringify(DEFAULT_REVIEWS));
+    if (!isClient || isProd) return;
+    if (!localStorage.getItem('agents_data')) lsSet('agents_data', DEFAULT_AGENTS);
+    if (!localStorage.getItem('promo_codes')) lsSet('promo_codes', DEFAULT_PROMO_CODES);
+    if (!localStorage.getItem('bookings_data')) lsSet('bookings_data', DEFAULT_BOOKINGS);
+    if (!localStorage.getItem('site_reviews')) lsSet('site_reviews', DEFAULT_REVIEWS);
   },
 };
 
-// Auto-init localStorage
-if (isClient) ls.initializeDB();
+// Auto-init localStorage in dev/browser
+if (isClient && !isProd) ls.initializeDB();
 
 // ==========================================
-// UNIFIED EXPORTS - Firebase first, LS fallback with Timeout Circuit Breaker
+// ROUTING LOGIC
+// Uses Upstash when on server (API routes).
+// Uses localStorage when in browser (dev only).
+// Always falls back to hardcoded defaults.
 // ==========================================
+const useUpstash = !isClient; // Upstash is for server-side only
 
-const useFirebase = isFirebaseConfigured();
-
-const withTimeout = async (promise, fallbackFn, timeoutMs = 8000) => {
-  let timeoutId;
-  const timeoutPromise = new Promise((_, reject) => {
-    timeoutId = setTimeout(() => {
-      reject(new Error('Firebase operation timed out'));
-    }, timeoutMs);
-  });
-  try {
-    return await Promise.race([promise, timeoutPromise]);
-  } catch (error) {
-    console.warn('Firebase DB timed out or failed. Falling back:', error.message || error);
-    return typeof fallbackFn === 'function' ? fallbackFn() : fallbackFn;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-};
-
-export async function initializeDB() {
-  if (useFirebase) {
-    return withTimeout(fbInitializeDB(), () => ls.initializeDB(), 3000);
-  }
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('Database connection failed. Firebase must be configured for production.');
-  }
-  return ls.initializeDB();
-}
-
+// -- TRIPS --
 export async function getTrips(slug, category) {
-  if (useFirebase) return withTimeout(fbGetTrips(slug, category), () => ls.getTrips(slug, category));
+  if (useUpstash) return upGetTrips(slug, category);
   return ls.getTrips(slug, category);
 }
-
 export async function addTrip(slug, category, tripData) {
-  if (useFirebase) return withTimeout(fbAddTrip(slug, category, tripData), () => ls.addTrip(slug, category, tripData));
+  if (useUpstash) return upAddTrip(slug, category, tripData);
   return ls.addTrip(slug, category, tripData);
 }
+export async function updateTrip() { return false; }
+export async function deleteTrip() { return false; }
 
-export async function updateTrip(tripId, tripData) {
-  if (useFirebase) return withTimeout(fbUpdateTrip(tripId, tripData), () => false);
-  return false;
-}
-
-export async function deleteTrip(tripId) {
-  if (useFirebase) return withTimeout(fbDeleteTrip(tripId), () => false);
-  return false;
-}
-
+// -- PACKAGES --
 export async function getPackages(pkgId) {
-  if (useFirebase) return withTimeout(fbGetPackages(pkgId), () => ls.getPackages(pkgId));
+  if (useUpstash) return upGetPackages(pkgId);
   return ls.getPackages(pkgId);
 }
-
 export async function addPackage(pkgId, packageData) {
-  if (useFirebase) return withTimeout(fbAddPackage(pkgId, packageData), () => ls.addPackage(pkgId, packageData));
+  if (useUpstash) return upAddPackage(pkgId, packageData);
   return ls.addPackage(pkgId, packageData);
 }
+export async function updatePackage() { return false; }
+export async function deletePackage() { return false; }
 
+// -- AGENTS --
 export async function getAgents() {
-  if (useFirebase) return withTimeout(fbGetAgents(), () => ls.getAgents());
+  if (useUpstash) return upGetAgents();
   return ls.getAgents();
 }
-
 export async function saveAgents(agents) {
-  if (useFirebase) return withTimeout(fbSaveAgents(agents), () => ls.saveAgents(agents));
+  if (useUpstash) return upSaveAgents(agents);
   return ls.saveAgents(agents);
 }
-
 export async function getAgentById(id) {
-  if (useFirebase) return withTimeout(fbGetAgentById(id), () => ls.getAgentById(id));
+  if (useUpstash) return upGetAgentById(id);
   return ls.getAgentById(id);
 }
-
 export async function getAgentByUsername(username) {
-  if (useFirebase) return withTimeout(fbGetAgentByUsername(username), () => ls.getAgentByUsername(username));
+  if (useUpstash) return upGetAgentByUsername(username);
   return ls.getAgentByUsername(username);
 }
-
 export async function addAgent(agentData) {
-  if (useFirebase) return withTimeout(fbAddAgent(agentData), () => ls.addAgent(agentData));
+  if (useUpstash) return upAddAgent(agentData);
   return ls.addAgent(agentData);
 }
+export async function updateAgent(id, agentData) {
+  if (useUpstash) return upUpdateAgent(id, agentData);
+  return false;
+}
+export async function deleteAgent(id) {
+  if (useUpstash) return upDeleteAgent(id);
+  return false;
+}
 
+// -- BOOKINGS --
 export async function getBookings() {
-  if (useFirebase) return withTimeout(fbGetBookings(), () => ls.getBookings());
+  if (useUpstash) return upGetBookings();
   return ls.getBookings();
 }
-
 export async function saveBookings(bookings) {
-  if (useFirebase) return withTimeout(fbSaveBookings(bookings), () => ls.saveBookings(bookings));
+  if (useUpstash) return upSaveBookings(bookings);
   return ls.saveBookings(bookings);
 }
-
 export async function addBooking(bookingData) {
-  if (useFirebase) return withTimeout(fbAddBooking(bookingData), () => ls.addBooking(bookingData));
+  if (useUpstash) return upAddBooking(bookingData);
   return ls.addBooking(bookingData);
 }
-
 export async function updateBookingStatus(id, newStatus) {
-  if (useFirebase) return withTimeout(fbUpdateBookingStatus(id, newStatus), () => ls.updateBookingStatus(id, newStatus));
+  if (useUpstash) return upUpdateBookingStatus(id, newStatus);
   return ls.updateBookingStatus(id, newStatus);
 }
+export async function deleteBooking(id) {
+  if (useUpstash) return upDeleteBooking(id);
+  return false;
+}
 
+// -- PROMO CODES --
 export async function getPromoCodes() {
-  if (useFirebase) return withTimeout(fbGetPromoCodes(), () => ls.getPromoCodes());
+  if (useUpstash) return upGetPromoCodes();
   return ls.getPromoCodes();
 }
-
 export async function savePromoCodes(codes) {
-  if (useFirebase) return withTimeout(fbSavePromoCodes(codes), () => ls.savePromoCodes(codes));
+  if (useUpstash) return upSavePromoCodes(codes);
   return ls.savePromoCodes(codes);
 }
-
 export async function addPromoCode(codeData) {
-  if (useFirebase) return withTimeout(fbAddPromoCode(codeData), () => ls.addPromoCode(codeData));
+  if (useUpstash) return upAddPromoCode(codeData);
   return ls.addPromoCode(codeData);
 }
-
 export async function deletePromoCode(code) {
-  if (useFirebase) return withTimeout(fbDeletePromoCode(code), () => ls.deletePromoCode(code));
+  if (useUpstash) return upDeletePromoCode(code);
   return ls.deletePromoCode(code);
 }
-
 export async function validatePromoCode(codeStr) {
-  if (useFirebase) return withTimeout(fbValidatePromoCode(codeStr), () => ls.validatePromoCode(codeStr));
+  if (useUpstash) return upValidatePromoCode(codeStr);
   return ls.validatePromoCode(codeStr);
 }
-
 export async function consumePromoCode(codeStr) {
-  if (useFirebase) return withTimeout(fbConsumePromoCode(codeStr), () => ls.consumePromoCode(codeStr));
+  if (useUpstash) return upConsumePromoCode(codeStr);
   return ls.consumePromoCode(codeStr);
 }
 
+// -- REVIEWS --
 export async function getReviews() {
-  if (useFirebase) return withTimeout(fbGetReviews(), () => ls.getReviews());
+  if (useUpstash) return upGetReviews();
   return ls.getReviews();
 }
-
 export async function addReview(reviewData) {
-  if (useFirebase) return withTimeout(fbAddReview(reviewData), () => ls.addReview(reviewData));
+  if (useUpstash) return upAddReview(reviewData);
   return ls.addReview(reviewData);
 }
+export async function deleteReview(id) {
+  if (useUpstash) return upDeleteReview(id);
+  return false;
+}
 
+// -- SOCIAL MEDIA --
 export async function getSocialMedia() {
-  if (useFirebase) return withTimeout(fbGetSocialMedia(), () => ls.getSocialMedia());
+  if (useUpstash) return upGetSocialMedia();
   return ls.getSocialMedia();
 }
-
-export async function saveSocialMedia(socialData) {
-  if (useFirebase) return withTimeout(fbSaveSocialMedia(socialData), () => ls.saveSocialMedia(socialData));
-  return ls.saveSocialMedia(socialData);
+export async function saveSocialMedia(data) {
+  if (useUpstash) return upSaveSocialMedia(data);
+  return ls.saveSocialMedia(data);
 }
 
+// -- SETTINGS --
 export async function getSettings() {
-  if (useFirebase) return withTimeout(fbGetSettings(), () => ({ 
-    siteName: 'ORLUXUS', 
-    whatsapp: '+20100000000',
-    paypalEmail: 'info@orluxus.com'
-  }));
-  return { 
-    siteName: typeof localStorage !== 'undefined' ? localStorage.getItem('orluxus_site_name') || 'ORLUXUS' : 'ORLUXUS', 
-    whatsapp: typeof localStorage !== 'undefined' ? localStorage.getItem('orluxus_whatsapp') || '+20100000000' : '+20100000000',
-    paypalEmail: typeof localStorage !== 'undefined' ? localStorage.getItem('orluxus_paypal_email') || 'info@orluxus.com' : 'info@orluxus.com'
-  };
+  if (useUpstash) return upGetSettings();
+  return ls.getSettings();
+}
+export async function saveSettings(data) {
+  if (useUpstash) return upSaveSettings(data);
+  return ls.saveSettings(data);
 }
 
-export async function saveSettings(settingsData) {
-  if (useFirebase) return withTimeout(fbSaveSettings(settingsData), () => false);
-  if (!isClient) return false;
-  try {
-    if (settingsData.siteName) localStorage.setItem('orluxus_site_name', settingsData.siteName);
-    if (settingsData.whatsapp) localStorage.setItem('orluxus_whatsapp', settingsData.whatsapp);
-    if (settingsData.paypalEmail) localStorage.setItem('orluxus_paypal_email', settingsData.paypalEmail);
-    return true;
-  } catch { return false; }
-}
-
-export async function updatePackage(packageId, packageData) {
-  if (useFirebase) return withTimeout(fbUpdatePackage(packageId, packageData), () => false);
-  return false;
-}
-
-export async function deletePackage(packageId) {
-  if (useFirebase) return withTimeout(fbDeletePackage(packageId), () => false);
-  return false;
-}
-
-export async function updateAgent(id, agentData) {
-  if (useFirebase) return withTimeout(fbUpdateAgent(id, agentData), () => false);
-  return false;
-}
-
-export async function deleteAgent(id) {
-  if (useFirebase) return withTimeout(fbDeleteAgent(id), () => false);
-  return false;
-}
-
-export async function deleteBooking(id) {
-  if (useFirebase) return withTimeout(fbDeleteBooking(id), () => false);
-  return false;
-}
-
-export async function deleteReview(id) {
-  if (useFirebase) return withTimeout(fbDeleteReview(id), () => false);
-  return false;
+// -- INIT --
+export async function initializeDB() {
+  if (useUpstash) return upInitializeDB();
+  return ls.initializeDB();
 }
