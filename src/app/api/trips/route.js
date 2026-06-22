@@ -1,9 +1,9 @@
-
 import { NextResponse } from 'next/server';
 import { getTrips, addTrip, updateTrip, deleteTrip } from '@/lib/db';
 import { verifyApiSecret } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -64,11 +64,11 @@ export async function DELETE(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   try {
-    const { id } = await request.json();
-    if (!id) {
-      return NextResponse.json({ error: 'Missing trip ID' }, { status: 400 });
+    const { slug, category, id } = await request.json();
+    if (!slug || !category || !id) {
+      return NextResponse.json({ error: 'Missing slug, category, or trip ID' }, { status: 400 });
     }
-    const result = await deleteTrip(id);
+    const result = await deleteTrip(slug, category, id);
     return NextResponse.json({ success: result });
   } catch (e) {
     console.error('API Error deleting trip:', e);

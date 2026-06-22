@@ -203,6 +203,7 @@ async function apiCall(url, method = 'GET', body = null) {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       cache: 'no-store',
     };
     if (body) {
