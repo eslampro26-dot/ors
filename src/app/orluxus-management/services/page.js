@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { cities, internalPackages } from '@/lib/data';
-import { getTrips, addTrip, getPackages, addPackage } from '@/lib/db';
+import { getTrips, addTrip, deleteTrip, getPackages, addPackage, deletePackage } from '@/lib/db';
 import styles from './page.module.css';
 
 export default function AdminServices() {
@@ -172,37 +172,36 @@ export default function AdminServices() {
     }
   };
 
-  const handleDeleteTrip = (cityId, catId, tripId) => {
+  const handleDeleteTrip = async (cityId, catId, tripId) => {
     if (confirm('هل أنت متأكد من رغبتك في حذف هذه الخدمة؟')) {
-      const key = `trips_${cityId}_${catId}`;
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const filtered = parsed.filter(t => t.id !== tripId);
-        localStorage.setItem(key, JSON.stringify(filtered));
-        
-        // Also remove from master list
-        const masterStored = localStorage.getItem('all_custom_trips');
-        if (masterStored) {
-          const masterParsed = JSON.parse(masterStored);
-          const masterFiltered = masterParsed.filter(t => t.id !== tripId);
-          localStorage.setItem('all_custom_trips', JSON.stringify(masterFiltered));
+      try {
+        const success = await deleteTrip(cityId, catId, tripId);
+        if (success) {
+          alert('تم حذف الخدمة بنجاح!');
+          await loadData();
+        } else {
+          alert('حدث خطأ أثناء حذف الخدمة.');
         }
-
-        loadData();
+      } catch (err) {
+        console.error('Error deleting trip:', err);
+        alert('حدث خطأ أثناء حذف الخدمة.');
       }
     }
   };
 
-  const handleDeletePackage = (pkgId, itemUniqueId) => {
+  const handleDeletePackage = async (pkgId, itemUniqueId) => {
     if (confirm('هل أنت متأكد من رغبتك في حذف هذا الباكدج؟')) {
-      const key = `packages_${pkgId}`;
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const filtered = parsed.filter(p => p.id !== itemUniqueId);
-        localStorage.setItem(key, JSON.stringify(filtered));
-        loadData();
+      try {
+        const success = await deletePackage(pkgId, itemUniqueId);
+        if (success) {
+          alert('تم حذف الباكدج بنجاح!');
+          await loadData();
+        } else {
+          alert('حدث خطأ أثناء حذف الباكدج.');
+        }
+      } catch (err) {
+        console.error('Error deleting package:', err);
+        alert('حدث خطأ أثناء حذف الباكدج.');
       }
     }
   };

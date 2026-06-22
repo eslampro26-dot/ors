@@ -329,7 +329,21 @@ export async function initializeDB() {
 }
 
 export async function updateTrip() { return false; }
-export async function deleteTrip() { return false; }
+
+export async function deleteTrip(slug, category, id) {
+  if (!isUpstashConfigured()) return true;
+  const existing = await kvGet(`trips:${slug}:${category}`) || [];
+  const filtered = existing.filter(t => t.id !== id);
+  return await kvSet(`trips:${slug}:${category}`, filtered);
+}
+
 export async function updatePackage() { return false; }
-export async function deletePackage() { return false; }
+
+export async function deletePackage(pkgId, id) {
+  if (!isUpstashConfigured()) return true;
+  const existing = await kvGet(`packages:${pkgId}`) || [];
+  const filtered = existing.filter(p => p.id !== id);
+  return await kvSet(`packages:${pkgId}`, filtered);
+}
+
 export async function savePromoCodes_alias(codes) { return savePromoCodes(codes); }

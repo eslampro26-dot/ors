@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPromoCodes, addPromoCode, deletePromoCode, validatePromoCode, consumePromoCode } from '@/lib/db';
+import { getPromoCodes, addPromoCode, deletePromoCode, validatePromoCode, consumePromoCode, savePromoCodes } from '@/lib/db';
 import { verifyApiSecret, getCookieFromRequest, verifyAgentToken } from '@/lib/auth';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limiter';
 
@@ -140,3 +140,19 @@ export async function DELETE(request) {
   }
 }
 
+export async function PUT(request) {
+  if (!isAdmin(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  try {
+    const codes = await request.json();
+    if (!Array.isArray(codes)) {
+      return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
+    }
+    const result = await savePromoCodes(codes);
+    return NextResponse.json({ success: result });
+  } catch (e) {
+    console.error('API Error updating promo codes:', e);
+    return NextResponse.json({ error: 'Failed to update promo codes' }, { status: 500 });
+  }
+}

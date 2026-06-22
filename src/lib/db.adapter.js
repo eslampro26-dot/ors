@@ -195,146 +195,230 @@ if (isClient && !isProd) ls.initializeDB();
 // Uses localStorage when in browser (dev only).
 // Always falls back to hardcoded defaults.
 // ==========================================
-const useUpstash = !isClient; // Upstash is for server-side only
+// Client-side API caller
+async function apiCall(url, method = 'GET', body = null) {
+  try {
+    const options = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    };
+    if (body) {
+      options.body = JSON.stringify(body);
+    }
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      throw new Error(`API error: ${res.status}`);
+    }
+    return await res.json();
+  } catch (err) {
+    console.error(`Error in apiCall to ${url}:`, err);
+    return null;
+  }
+}
+
+// ==========================================
+// ROUTING LOGIC
+// Uses Upstash when on server (API routes / SSR).
+// Uses fetch API calls when in browser (client-side).
+// ==========================================
 
 // -- TRIPS --
 export async function getTrips(slug, category) {
-  if (useUpstash) return upGetTrips(slug, category);
-  return ls.getTrips(slug, category);
+  if (!isClient) return upGetTrips(slug, category);
+  const res = await apiCall(`/api/trips?slug=${slug}&category=${category}`);
+  return res || sampleTrips[slug]?.[category] || [];
 }
+
 export async function addTrip(slug, category, tripData) {
-  if (useUpstash) return upAddTrip(slug, category, tripData);
-  return ls.addTrip(slug, category, tripData);
+  if (!isClient) return upAddTrip(slug, category, tripData);
+  return await apiCall('/api/trips', 'POST', { slug, category, ...tripData });
 }
-export async function updateTrip() { return false; }
-export async function deleteTrip() { return false; }
+
+export async function updateTrip(id, tripData) {
+  if (!isClient) return upUpdateTrip(id, tripData);
+  const res = await apiCall('/api/trips', 'PUT', { id, ...tripData });
+  return res ? res.success : false;
+}
+
+export async function deleteTrip(slug, category, id) {
+  if (!isClient) return upDeleteTrip(slug, category, id);
+  const res = await apiCall('/api/trips', 'DELETE', { slug, category, id });
+  return res ? res.success : false;
+}
 
 // -- PACKAGES --
 export async function getPackages(pkgId) {
-  if (useUpstash) return upGetPackages(pkgId);
-  return ls.getPackages(pkgId);
+  if (!isClient) return upGetPackages(pkgId);
+  return await apiCall(`/api/packages?pkgId=${pkgId}`) || [];
 }
+
 export async function addPackage(pkgId, packageData) {
-  if (useUpstash) return upAddPackage(pkgId, packageData);
-  return ls.addPackage(pkgId, packageData);
+  if (!isClient) return upAddPackage(pkgId, packageData);
+  return await apiCall('/api/packages', 'POST', { pkgId, ...packageData });
 }
-export async function updatePackage() { return false; }
-export async function deletePackage() { return false; }
+
+export async function updatePackage() {
+  return false;
+}
+
+export async function deletePackage(pkgId, id) {
+  if (!isClient) return upDeletePackage(pkgId, id);
+  const res = await apiCall('/api/packages', 'DELETE', { pkgId, id });
+  return res ? res.success : false;
+}
 
 // -- AGENTS --
 export async function getAgents() {
-  if (useUpstash) return upGetAgents();
-  return ls.getAgents();
+  if (!isClient) return upGetAgents();
+  return await apiCall('/api/agents') || DEFAULT_AGENTS;
 }
+
 export async function saveAgents(agents) {
-  if (useUpstash) return upSaveAgents(agents);
-  return ls.saveAgents(agents);
+  if (!isClient) return upSaveAgents(agents);
+  // We will call the PUT api/agents for updating statuses, but we also support bulk save
+  const res = await apiCall('/api/agents', 'PUT', { bulk: true, agents });
+  return res ? res.success : false;
 }
+
 export async function getAgentById(id) {
-  if (useUpstash) return upGetAgentById(id);
-  return ls.getAgentById(id);
+  if (!isClient) return upGetAgentById(id);
+  const agents = await getAgents();
+  return agents.find(a => String(a.id) === String(id)) || null;
 }
+
 export async function getAgentByUsername(username) {
-  if (useUpstash) return upGetAgentByUsername(username);
-  return ls.getAgentByUsername(username);
+  if (!isClient) return upGetAgentByUsername(username);
+  const agents = await getAgents();
+  return agents.find(a => a.username?.toLowerCase() === username?.toLowerCase()) || null;
 }
+
 export async function addAgent(agentData) {
-  if (useUpstash) return upAddAgent(agentData);
-  return ls.addAgent(agentData);
+  if (!isClient) return upAddAgent(agentData);
+  return await apiCall('/api/agents', 'POST', agentData);
 }
+
 export async function updateAgent(id, agentData) {
-  if (useUpstash) return upUpdateAgent(id, agentData);
-  return false;
+  if (!isClient) return upUpdateAgent(id, agentData);
+  const res = await apiCall('/api/agents', 'PUT', { id, ...agentData });
+  return res ? res.success : false;
 }
+
 export async function deleteAgent(id) {
-  if (useUpstash) return upDeleteAgent(id);
-  return false;
+  if (!isClient) return upDeleteAgent(id);
+  const res = await apiCall('/api/agents', 'DELETE', { id });
+  return res ? res.success : false;
 }
 
 // -- BOOKINGS --
 export async function getBookings() {
-  if (useUpstash) return upGetBookings();
-  return ls.getBookings();
+  if (!isClient) return upGetBookings();
+  return await apiCall('/api/bookings') || DEFAULT_BOOKINGS;
 }
+
 export async function saveBookings(bookings) {
-  if (useUpstash) return upSaveBookings(bookings);
-  return ls.saveBookings(bookings);
-}
-export async function addBooking(bookingData) {
-  if (useUpstash) return upAddBooking(bookingData);
-  return ls.addBooking(bookingData);
-}
-export async function updateBookingStatus(id, newStatus) {
-  if (useUpstash) return upUpdateBookingStatus(id, newStatus);
-  return ls.updateBookingStatus(id, newStatus);
-}
-export async function deleteBooking(id) {
-  if (useUpstash) return upDeleteBooking(id);
+  if (!isClient) return upSaveBookings(bookings);
   return false;
+}
+
+export async function addBooking(bookingData) {
+  if (!isClient) return upAddBooking(bookingData);
+  return await apiCall('/api/bookings', 'POST', bookingData);
+}
+
+export async function updateBookingStatus(id, newStatus) {
+  if (!isClient) return upUpdateBookingStatus(id, newStatus);
+  const res = await apiCall('/api/bookings', 'PUT', { id, status: newStatus });
+  return res ? res.success : false;
+}
+
+export async function deleteBooking(id) {
+  if (!isClient) return upDeleteBooking(id);
+  const res = await apiCall('/api/bookings', 'DELETE', { id });
+  return res ? res.success : false;
 }
 
 // -- PROMO CODES --
 export async function getPromoCodes() {
-  if (useUpstash) return upGetPromoCodes();
-  return ls.getPromoCodes();
+  if (!isClient) return upGetPromoCodes();
+  return await apiCall('/api/promo-codes') || DEFAULT_PROMO_CODES;
 }
+
 export async function savePromoCodes(codes) {
-  if (useUpstash) return upSavePromoCodes(codes);
-  return ls.savePromoCodes(codes);
+  if (!isClient) return upSavePromoCodes(codes);
+  const res = await apiCall('/api/promo-codes', 'PUT', codes);
+  return res ? res.success : false;
 }
+
 export async function addPromoCode(codeData) {
-  if (useUpstash) return upAddPromoCode(codeData);
-  return ls.addPromoCode(codeData);
+  if (!isClient) return upAddPromoCode(codeData);
+  return await apiCall('/api/promo-codes', 'POST', codeData);
 }
+
 export async function deletePromoCode(code) {
-  if (useUpstash) return upDeletePromoCode(code);
-  return ls.deletePromoCode(code);
+  if (!isClient) return upDeletePromoCode(code);
+  const res = await apiCall('/api/promo-codes', 'DELETE', { code });
+  return res ? res.success : false;
 }
+
 export async function validatePromoCode(codeStr) {
-  if (useUpstash) return upValidatePromoCode(codeStr);
-  return ls.validatePromoCode(codeStr);
+  if (!isClient) return upValidatePromoCode(codeStr);
+  return await apiCall(`/api/promo-codes?validate=${codeStr}`);
 }
+
 export async function consumePromoCode(codeStr) {
-  if (useUpstash) return upConsumePromoCode(codeStr);
-  return ls.consumePromoCode(codeStr);
+  if (!isClient) return upConsumePromoCode(codeStr);
+  const res = await apiCall('/api/promo-codes', 'POST', { action: 'use', code: codeStr });
+  return res ? res.success : false;
 }
 
 // -- REVIEWS --
 export async function getReviews() {
-  if (useUpstash) return upGetReviews();
-  return ls.getReviews();
+  if (!isClient) return upGetReviews();
+  return await apiCall('/api/reviews') || DEFAULT_REVIEWS;
 }
+
 export async function addReview(reviewData) {
-  if (useUpstash) return upAddReview(reviewData);
-  return ls.addReview(reviewData);
+  if (!isClient) return upAddReview(reviewData);
+  return await apiCall('/api/reviews', 'POST', reviewData);
 }
+
 export async function deleteReview(id) {
-  if (useUpstash) return upDeleteReview(id);
+  if (!isClient) return upDeleteReview(id);
   return false;
 }
 
 // -- SOCIAL MEDIA --
 export async function getSocialMedia() {
-  if (useUpstash) return upGetSocialMedia();
-  return ls.getSocialMedia();
+  if (!isClient) return upGetSocialMedia();
+  const settings = await apiCall('/api/settings');
+  return settings || DEFAULT_SOCIAL;
 }
+
 export async function saveSocialMedia(data) {
-  if (useUpstash) return upSaveSocialMedia(data);
-  return ls.saveSocialMedia(data);
+  if (!isClient) return upSaveSocialMedia(data);
+  const res = await apiCall('/api/settings', 'POST', { type: 'social', data });
+  return res ? res.success : false;
 }
 
 // -- SETTINGS --
 export async function getSettings() {
-  if (useUpstash) return upGetSettings();
-  return ls.getSettings();
+  if (!isClient) return upGetSettings();
+  const settings = await apiCall('/api/settings');
+  return settings || DEFAULT_SETTINGS;
 }
+
 export async function saveSettings(data) {
-  if (useUpstash) return upSaveSettings(data);
-  return ls.saveSettings(data);
+  if (!isClient) return upSaveSettings(data);
+  const res = await apiCall('/api/settings', 'POST', data);
+  return res ? res.success : false;
 }
 
 // -- INIT --
 export async function initializeDB() {
-  if (useUpstash) return upInitializeDB();
-  return ls.initializeDB();
+  if (!isClient) return upInitializeDB();
+  return true;
 }
+

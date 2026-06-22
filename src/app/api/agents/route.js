@@ -1,6 +1,5 @@
-
 import { NextResponse } from 'next/server';
-import { getAgents, addAgent, updateAgent, deleteAgent } from '@/lib/db';
+import { getAgents, addAgent, updateAgent, deleteAgent, saveAgents } from '@/lib/db';
 import { verifyApiSecret } from '@/lib/auth';
 
 /**
@@ -9,6 +8,7 @@ import { verifyApiSecret } from '@/lib/auth';
  */
 
 export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   if (!verifyApiSecret(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -49,7 +49,12 @@ export async function PUT(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   try {
-    const { id, ...data } = await request.json();
+    const body = await request.json();
+    if (body.bulk && Array.isArray(body.agents)) {
+      const result = await saveAgents(body.agents);
+      return NextResponse.json({ success: result });
+    }
+    const { id, ...data } = body;
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
     const result = await updateAgent(id, data);
     return NextResponse.json({ success: result });

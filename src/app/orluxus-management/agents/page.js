@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from './page.module.css';
-import { getAgents, addAgent, saveAgents, getBookings, addPromoCode } from '@/lib/db';
+import { getAgents, addAgent, updateAgent, getBookings, addPromoCode } from '@/lib/db';
 import { tierConfig } from '@/lib/data';
 
 export default function AdminAgents() {
@@ -118,11 +118,10 @@ export default function AdminAgents() {
   const handleToggleStatus = async (id) => {
     try {
       const allAgents = await getAgents();
-      const idx = (allAgents || []).findIndex(a => a.id === id);
-      if (idx !== -1) {
-        const currentStatus = allAgents[idx].status;
-        allAgents[idx].status = currentStatus === 'نشط' ? 'موقوف' : 'نشط';
-        await saveAgents(allAgents);
+      const agent = (allAgents || []).find(a => a.id === id);
+      if (agent) {
+        const newStatus = agent.status === 'نشط' ? 'موقوف' : 'نشط';
+        await updateAgent(id, { status: newStatus });
         alert(`تم تعديل حالة الوكيل بنجاح!`);
         await loadData();
       }

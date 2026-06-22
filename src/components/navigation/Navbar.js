@@ -38,7 +38,7 @@ export default function Navbar() {
   // User's provided logo
   const Logo = () => (
     <img 
-      src="/logo_final.png" 
+      src="/logo_gold_icon.png" 
       alt="ORLUXUS Logo" 
       className={styles.logoImage} 
       style={{ objectFit: 'contain', flexShrink: 0 }}
