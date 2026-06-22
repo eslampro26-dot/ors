@@ -9,6 +9,7 @@ import { checkRateLimit, getClientIp } from '@/lib/rate-limiter';
  * GET is intentionally public (reviews are visible to all visitors).
  */
 
+export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const reviews = await getReviews();

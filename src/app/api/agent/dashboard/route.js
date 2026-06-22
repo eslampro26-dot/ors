@@ -2,11 +2,14 @@ import { NextResponse } from 'next/server';
 import { getCookieFromRequest, verifyAgentToken } from '@/lib/auth';
 import { getBookings, getAgents, getAgentById } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/agent/dashboard
  * Returns the current agent's bookings, stats, and sub-agents count.
  * Requires a valid agent_session HttpOnly cookie.
  */
+export const dynamic = 'force-dynamic';
 export async function GET(request) {
   try {
     const token = getCookieFromRequest(request, 'agent_session');

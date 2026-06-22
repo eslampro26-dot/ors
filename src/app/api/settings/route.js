@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getSettings, saveSettings, getSocialMedia, saveSocialMedia } from '@/lib/db';
 import { verifyApiSecret } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const [settings, social] = await Promise.all([getSettings(), getSocialMedia()]);

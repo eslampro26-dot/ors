@@ -19,6 +19,7 @@ const DEFAULT_AGENTS = [
   { id: '7', name: 'حازم عمر',        username: 'hazem',   tier: 'bronze',   status: 'نشط', email: 'hazem@orluxus.com', joinDate: '2025-01-01', sales: 0, promoCodes: [] },
 ];
 
+export const dynamic = 'force-dynamic';
 export async function GET(request) {
   try {
     const token = getCookieFromRequest(request, 'agent_session');

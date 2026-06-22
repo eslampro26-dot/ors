@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getTrips, addTrip, updateTrip, deleteTrip } from '@/lib/db';
 import { verifyApiSecret } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);

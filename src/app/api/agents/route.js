@@ -8,6 +8,7 @@ import { verifyApiSecret } from '@/lib/auth';
  * Requests must include a valid admin_session cookie OR x-api-secret header.
  */
 
+export const dynamic = 'force-dynamic';
 export async function GET(request) {
   if (!verifyApiSecret(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

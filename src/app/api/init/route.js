@@ -8,6 +8,7 @@ import { verifyApiSecret } from '@/lib/auth';
  * Public endpoint - seeds the database only if it's not already initialized.
  * Safe to call multiple times (idempotent).
  */
+export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     await initializeDB();

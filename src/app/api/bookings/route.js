@@ -18,6 +18,7 @@ function isAgent(request) {
   return verifyAgentToken(token) !== null;
 }
 
+export const dynamic = 'force-dynamic';
 export async function GET(request) {
   if (!isAdmin(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
