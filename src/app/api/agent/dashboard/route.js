@@ -9,7 +9,6 @@ export const dynamic = 'force-dynamic';
  * Returns the current agent's bookings, stats, and sub-agents count.
  * Requires a valid agent_session HttpOnly cookie.
  */
-export const dynamic = 'force-dynamic';
 export async function GET(request) {
   try {
     const token = getCookieFromRequest(request, 'agent_session');
