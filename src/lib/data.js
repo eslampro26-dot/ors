@@ -395,7 +395,7 @@ export const sampleTrips = {
         id: 4,
         titleAr: "رحلة الغواصة في البحر الأحمر",
         titleEn: "Red Sea Submarine Trip — Sharm El Sheikh",
-        descriptionAr: "استكشف أعماق البحر الأحمر على متن غواصة حديثة دون الحاجة إلى السباحة أو الغوص. شاهد الشعاب المرجانية الملونة والأسماك الاستوائية من نافذة مريحة. تجربة مثالية للعائلات والأطفال.",
+        descriptionAr: "استكشف أعماق البحر الأحمر على متن غواصة حديثة دون الحاجة إلى السباحة أو الغوص. شاهد الشعاب المرجانية الملونة والأسماك الاستوائية من نافذة مريحة. تجربة مألوفة وعائلية.",
         descriptionEn: "Explore the depths of the Red Sea aboard a modern submarine — no swimming or diving required! Watch colorful coral reefs and tropical fish through a large glass window. The perfect family-friendly Sharm El Sheikh activity for all ages.",
         price: 45, currency: "€", rating: 4.6, reviews: 312,
         image: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=400&q=80",
@@ -444,6 +444,38 @@ export const sampleTrips = {
         duration: "3 Hours", includes: "Camel ride, Bedouin tea, guide"
       },
     ],
+    "restaurants": [
+      {
+        id: "rest-sharm-1",
+        titleAr: "مطعم فارس للمأكولات البحرية",
+        titleEn: "Fares Seafood Restaurant",
+        descriptionAr: "أشهر مطعم مأكولات بحرية في شرم الشيخ يقع في السوق القديم ويتميز بتقديم الشوربة البحرية الشهيرة والأسماك الطازجة المحضرة على الطريقة المصرية.",
+        descriptionEn: "The most famous seafood restaurant in Sharm El Sheikh, located in the Old Market, renowned for its signature seafood soup and fresh local catch cooked in traditional Egyptian and Bedouin styles.",
+        price: 35, currency: "€", rating: 4.8, reviews: 520,
+        image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=400&q=80",
+        duration: "1-2 Hours", includes: "Fresh seafood meal, side dishes, service"
+      },
+      {
+        id: "rest-sharm-2",
+        titleAr: "مطعم أكونا ماتاتا - سوهو سكوير",
+        titleEn: "Akuna Matata Restaurant - SOHO Square",
+        descriptionAr: "مطعم عائلي مميز في قلب ميدان سوهو يقدم تشكيلة رائعة من المأكولات العالمية والبيتزا الإيطالية والمأكولات البحرية والشرقية في أجواء نابضة بالحياة.",
+        descriptionEn: "A vibrant family-friendly food court restaurant in SOHO Square offering a rich variety of international cuisines, Italian pizzas, seafood, and Egyptian grills in an elegant atmosphere.",
+        price: 25, currency: "€", rating: 4.7, reviews: 310,
+        image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80",
+        duration: "1.5 Hours", includes: "Main meal, soft drink, service"
+      },
+      {
+        id: "rest-sharm-3",
+        titleAr: "مطعم المصريين للمشويات",
+        titleEn: "El Masrien Grill Restaurant",
+        descriptionAr: "يقدم تجربة الكباب والكفتة والمشويات المصرية الأصيلة بتوابلها الفريدة في السوق القديم بشرم الشيخ. أجواء شعبية متميزة وجودة عالية.",
+        descriptionEn: "Provides an authentic Egyptian kebab, kofta, and grill experience with unique oriental spices in the Old Market. Renowned for traditional hospitality and high quality.",
+        price: 20, currency: "€", rating: 4.6, reviews: 480,
+        image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80",
+        duration: "1-2 Hours", includes: "Mixed grill plate, appetizers, bread"
+      }
+    ]
   },
   "hurghada": {
     "sea-trips": [
@@ -478,8 +510,152 @@ export const sampleTrips = {
         duration: "Half Day", includes: "Snorkeling gear, guide"
       },
     ],
+    "restaurants": [
+      {
+        id: "rest-hurg-1",
+        titleAr: "مطعم ذا لودج - مارينا الغردقة",
+        titleEn: "The Lodge Restaurant - Hurghada Marina",
+        descriptionAr: "مطعم وستيك هاوس راقٍ يقع في مارينا الغردقة، يقدم أفضل شرائح اللحم البقري المشوية والمأكولات البحرية الطازجة مع عروض موسيقية حية وإطلالة ساحرة على اليخوت.",
+        descriptionEn: "A premier steakhouse and grill located in Hurghada Marina, offering high-quality steaks and fresh seafood accompanied by live acoustic music and a stunning view of luxury yachts.",
+        price: 40, currency: "€", rating: 4.8, reviews: 290,
+        image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80",
+        duration: "2 Hours", includes: "Premium steak or seafood, appetizer, dessert"
+      },
+      {
+        id: "rest-hurg-2",
+        titleAr: "مطعم توسكانا الإيطالي",
+        titleEn: "Toscana Italian Restaurant",
+        descriptionAr: "يقدم تجربة طعام إيطالية كلاسيكية دافئة في الغردقة، يشتهر بالباستا المحضرة يدوياً والبيتزا المخبوزة في فرن الحطب والمقبلات الإيطالية الفاخرة.",
+        descriptionEn: "An authentic Italian dining experience in Hurghada. Renowned for handmade pastas, wood-fired pizzas, and premium Italian antipasti in a cozy, elegant atmosphere.",
+        price: 30, currency: "€", rating: 4.7, reviews: 185,
+        image: "https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?auto=format&fit=crop&w=400&q=80",
+        duration: "1.5 Hours", includes: "Italian main course, starter, beverage"
+      },
+      {
+        id: "rest-hurg-3",
+        titleAr: "مطعم سردينيا للمأكولات البحرية",
+        titleEn: "Sardinia Seafood Restaurant",
+        descriptionAr: "تجربة تذوق استثنائية لأشهى الأسماك الطازجة والمأكولات البحرية في الممشى السياحي، مع إعداد مبتكر على أيدي طهاة محترفين.",
+        descriptionEn: "An exceptional culinary experience presenting the freshest catch and seafood dishes on the Touristic Promenade, prepared with gourmet creativity by master chefs.",
+        price: 35, currency: "€", rating: 4.6, reviews: 142,
+        image: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=400&q=80",
+        duration: "2 Hours", includes: "Seafood meal, welcome drink, desserts"
+      }
+    ]
   },
-};
+  "marsa-alam": {
+    "sea-trips": [
+      {
+        id: 12,
+        titleAr: "رحلة السنوركل في شعب صمدي (بيت الدلافين)",
+        titleEn: "Samadai Reef (Dolphin House) Snorkeling Cruise",
+        descriptionAr: "رحلة بحرية مميزة لشعب صمدي (بيت الدلافين) للاستمتاع بالسنوركل في المياه الفيروزية الصافية والسباحة بجوار الدلافين البرية في بيئتها الطبيعية الآمنة.",
+        descriptionEn: "A premium cruise to Samadai Reef (Dolphin House). Snorkel in turquoise clear water and experience the magical opportunity to swim alongside wild spinner dolphins.",
+        price: 45, currency: "€", rating: 4.9, reviews: 110,
+        image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80",
+        duration: "Full Day", includes: "Snorkeling gear, buffet lunch, drinks, transfers"
+      },
+      {
+        id: 13,
+        titleAr: "رحلة محمية وادي الجمال وشاطئ شرم اللولي",
+        titleEn: "Wadi El Gemal & Sharm El Luli Day Tour",
+        descriptionAr: "استكشف جمال وادي الجمال وشاطئ شرم اللولي المصنف عالمياً برماله البيضاء الناعمة ومياهه الشبيهة ببحيرات السباحة الكريستالية.",
+        descriptionEn: "Explore the ecological wonders of Wadi El Gemal protectorate and swim at the world-famous Sharm El Luli beach, known for white powdery sands and crystal-clear shallow lagoons.",
+        price: 55, currency: "€", rating: 4.8, reviews: 88,
+        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
+        duration: "Full Day", includes: "Protected area entry, snorkeling gear, lunch, transfers"
+      }
+    ],
+    "restaurants": [
+      {
+        id: "rest-marsa-1",
+        titleAr: "مطعم سولتانا",
+        titleEn: "Sultana Restaurant",
+        descriptionAr: "يقدم مطعم سولتانا تجربة طعام فاخرة مع تشكيلة واسعة من المأكولات العالمية والشرقية المتميزة وإطلالة خلابة على البحر الأحمر الهادئ.",
+        descriptionEn: "Sultana Restaurant offers a premium dining experience with a wide selection of international and oriental cuisines, with breathtaking views of the quiet Red Sea.",
+        price: 35, currency: "€", rating: 4.8, reviews: 120,
+        image: "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=400&q=80",
+        duration: "1.5 Hours", includes: "Main meal, soft drink, service"
+      },
+      {
+        id: "rest-marsa-2",
+        titleAr: "مطعم باسيليكو الإيطالي",
+        titleEn: "Basilico Italian Restaurant",
+        descriptionAr: "أطباق إيطالية أصلية تحضر بمكونات طازجة ومستوردة في أجواء هادئة وأنيقة بمرسى علم. بيتزا وباستا وحلويات إيطالية كلاسيكية.",
+        descriptionEn: "Authentic Italian dishes prepared with fresh, imported ingredients in a quiet and elegant Marsa Alam setting. Features classic pizzas, pastas, and desserts.",
+        price: 30, currency: "€", rating: 4.7, reviews: 95,
+        image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80",
+        duration: "1.5 Hours", includes: "Pasta/pizza, starter, Italian dessert"
+      },
+      {
+        id: "rest-marsa-3",
+        titleAr: "مطعم روكا الآسيوي",
+        titleEn: "Rocca Asian Restaurant",
+        descriptionAr: "مزيج فريد من النكهات الآسيوية والسوشي والمأكولات التايلندية والهندية المحضرة ببراعة في أجواء شاطئية ساحرة.",
+        descriptionEn: "A unique fusion of Asian flavors, sushi, Thai, and Indian dishes prepared with culinary artistry in a beautiful beachfront atmosphere.",
+        price: 45, currency: "€", rating: 4.9, reviews: 78,
+        image: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=400&q=80",
+        duration: "2 Hours", includes: "Asian set menu, welcome mocktail"
+      }
+    ]
+  },
+  "north-coast": {
+    "sea-trips": [
+      {
+        id: 14,
+        titleAr: "رحلة يخت فاخرة في شواطئ سيدي عبد الرحمن",
+        titleEn: "Luxury Yacht Cruise in Sidi Abdel Rahman",
+        descriptionAr: "استمتع بنصف يوم من الفخامة والاستجمام على متن يخت خاص في مياه سيدي عبد الرحمن الفيروزية الصافية، يشمل المشروبات والوجبات الخفيفة والسباحة.",
+        descriptionEn: "Enjoy a half-day of pure luxury aboard a private yacht in the breathtaking turquoise waters of Sidi Abdel Rahman, including drinks, fresh snacks, and swimming.",
+        price: 60, currency: "€", rating: 4.9, reviews: 74,
+        image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=400&q=80",
+        duration: "4 Hours", includes: "Private yacht access, snacks, soft drinks, safety gear"
+      },
+      {
+        id: 15,
+        titleAr: "جولة بحرية في مارينا العلمين",
+        titleEn: "Marina El Alamein Boat Tour",
+        descriptionAr: "جولة ممتعة بالقارب الكهربائي أو السريع عبر قنوات مارينا العلمين المائية الخلابة للاستمتاع بجمال المنتجعات من البحر والتقاط الصور التذكارية.",
+        descriptionEn: "A fun boat ride through the scenic saltwater lagoons and channels of Marina El Alamein, enjoying the resort architecture and capturing memories from the water.",
+        price: 30, currency: "€", rating: 4.7, reviews: 52,
+        image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=400&q=80",
+        duration: "2 Hours", includes: "Boat ride, guide, soft drinks"
+      }
+    ],
+    "restaurants": [
+      {
+        id: "rest-north-1",
+        titleAr: "مطعم سال - ممشى ديبلو",
+        titleEn: "Sal's Restaurant - Diplo Walkway",
+        descriptionAr: "أحد أرقى مطاعم ممشى ديبلو بالساحل الشمالي، يقدم تجربة تذوق عصرية للأطباق المتوسطية والعالمية المبتكرة وشرائح اللحم الفاخرة.",
+        descriptionEn: "One of the finest dining concepts at the Diplo Walkway, offering a modern culinary journey of Mediterranean and international gourmet dishes and prime cuts.",
+        price: 50, currency: "€", rating: 4.9, reviews: 165,
+        image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=400&q=80",
+        duration: "2 Hours", includes: "Gourmet main course, starter, premium drink"
+      },
+      {
+        id: "rest-north-2",
+        titleAr: "مطعم أسماك الشريف",
+        titleEn: "El Sherif Seafood Restaurant",
+        descriptionAr: "الاسم الأبرز لتناول المأكولات البحرية والأسماك الطازجة في الساحل الشمالي، تجربة محلية أصيلة بنكهات بحرية ممتازة وطرق طهي شرقية تقليدية.",
+        descriptionEn: "The premier local name for fresh Mediterranean catch and seafood in Sahel, offering an authentic experience with excellent traditional spices and oriental cooking styles.",
+        price: 35, currency: "€", rating: 4.7, reviews: 240,
+        image: "https://images.unsplash.com/photo-1534080391025-a77af3ec35df?auto=format&fit=crop&w=400&q=80",
+        duration: "1.5 Hours", includes: "Fresh fish meal, rice, appetizers, bread"
+      },
+      {
+        id: "rest-north-3",
+        titleAr: "مطعم إيتري - مراسي",
+        titleEn: "Eateri Restaurant - Marassi",
+        descriptionAr: "يقدم أطباقاً عالمية مبتكرة وتجربة برانش فاخرة وحلويات فرنسية وإيطالية راقية في أجواء مراسي الساحرة والفاخرة.",
+        descriptionEn: "Offers innovative international dishes, luxury brunch menus, and fine French and Italian desserts in the glamorous and upscale atmosphere of Marassi.",
+        price: 45, currency: "€", rating: 4.8, reviews: 112,
+        image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=400&q=80",
+        duration: "2 Hours", includes: "Main meal, specialty coffee/mocktail, dessert"
+      }
+    ]
+  }
+};;
 
 // Generates 3 tiers for a given trip
 export function getTripTiers(trip) {
