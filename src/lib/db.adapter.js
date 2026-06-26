@@ -238,21 +238,19 @@ export async function getTrips(slug, category) {
 }
 
 export async function addTrip(slug, category, tripData) {
+  // Always use API route for writes (avoids Firebase client-side permission errors)
   if (!isClient) return fbAddTrip(slug, category, tripData);
-  if (isFirebaseConfigured()) return fbAddTrip(slug, category, tripData);
   return await apiCall('/api/trips', 'POST', { slug, category, ...tripData });
 }
 
 export async function updateTrip(id, tripData) {
   if (!isClient) return fbUpdateTrip(id, tripData);
-  if (isFirebaseConfigured()) return fbUpdateTrip(id, tripData);
   const res = await apiCall('/api/trips', 'PUT', { id, ...tripData });
   return res ? res.success : false;
 }
 
 export async function deleteTrip(slug, category, id) {
   if (!isClient) return fbDeleteTrip(slug, category, id);
-  if (isFirebaseConfigured()) return fbDeleteTrip(slug, category, id);
   const res = await apiCall('/api/trips', 'DELETE', { slug, category, id });
   return res ? res.success : false;
 }
@@ -265,21 +263,19 @@ export async function getPackages(pkgId) {
 }
 
 export async function addPackage(pkgId, packageData) {
+  // Always use API route for writes
   if (!isClient) return fbAddPackage(pkgId, packageData);
-  if (isFirebaseConfigured()) return fbAddPackage(pkgId, packageData);
   return await apiCall('/api/packages', 'POST', { pkgId, ...packageData });
 }
 
 export async function updatePackage(pkgId, id, packageData) {
   if (!isClient) return fbUpdatePackage(pkgId, id, packageData);
-  if (isFirebaseConfigured()) return fbUpdatePackage(pkgId, id, packageData);
   const res = await apiCall('/api/packages', 'PUT', { pkgId, id, ...packageData });
   return res ? res.success : false;
 }
 
 export async function deletePackage(pkgId, id) {
   if (!isClient) return fbDeletePackage(pkgId, id);
-  if (isFirebaseConfigured()) return fbDeletePackage(pkgId, id);
   const res = await apiCall('/api/packages', 'DELETE', { pkgId, id });
   return res ? res.success : false;
 }
@@ -300,30 +296,30 @@ export async function saveAgents(agents) {
 }
 
 export async function getAgentById(id) {
-  if (!isClient) return upGetAgentById(id);
+  if (!isClient) return fbGetAgentById(id);
   const agents = await getAgents();
   return agents.find(a => String(a.id) === String(id)) || null;
 }
 
 export async function getAgentByUsername(username) {
-  if (!isClient) return upGetAgentByUsername(username);
+  if (!isClient) return fbGetAgentByUsername(username);
   const agents = await getAgents();
   return agents.find(a => a.username?.toLowerCase() === username?.toLowerCase()) || null;
 }
 
 export async function addAgent(agentData) {
-  if (!isClient) return upAddAgent(agentData);
+  if (!isClient) return fbAddAgent(agentData);
   return await apiCall('/api/agents', 'POST', agentData);
 }
 
 export async function updateAgent(id, agentData) {
-  if (!isClient) return upUpdateAgent(id, agentData);
+  if (!isClient) return fbUpdateAgent(id, agentData);
   const res = await apiCall('/api/agents', 'PUT', { id, ...agentData });
   return res ? res.success : false;
 }
 
 export async function deleteAgent(id) {
-  if (!isClient) return upDeleteAgent(id);
+  if (!isClient) return fbDeleteAgent(id);
   const res = await apiCall('/api/agents', 'DELETE', { id });
   return res ? res.success : false;
 }
@@ -336,99 +332,99 @@ export async function getBookings() {
 }
 
 export async function saveBookings(bookings) {
-  if (!isClient) return upSaveBookings(bookings);
+  if (!isClient) return fbSaveBookings(bookings);
   return false;
 }
 
 export async function addBooking(bookingData) {
-  if (!isClient) return upAddBooking(bookingData);
+  if (!isClient) return fbAddBooking(bookingData);
   return await apiCall('/api/bookings', 'POST', bookingData);
 }
 
 export async function updateBookingStatus(id, newStatus) {
-  if (!isClient) return upUpdateBookingStatus(id, newStatus);
+  if (!isClient) return fbUpdateBookingStatus(id, newStatus);
   const res = await apiCall('/api/bookings', 'PUT', { id, status: newStatus });
   return res ? res.success : false;
 }
 
 export async function deleteBooking(id) {
-  if (!isClient) return upDeleteBooking(id);
+  if (!isClient) return fbDeleteBooking(id);
   const res = await apiCall('/api/bookings', 'DELETE', { id });
   return res ? res.success : false;
 }
 
 // -- PROMO CODES --
 export async function getPromoCodes() {
-  if (!isClient) return upGetPromoCodes();
+  if (!isClient) return fbGetPromoCodes();
   return await apiCall('/api/promo-codes') || DEFAULT_PROMO_CODES;
 }
 
 export async function savePromoCodes(codes) {
-  if (!isClient) return upSavePromoCodes(codes);
+  if (!isClient) return fbSavePromoCodes(codes);
   const res = await apiCall('/api/promo-codes', 'PUT', codes);
   return res ? res.success : false;
 }
 
 export async function addPromoCode(codeData) {
-  if (!isClient) return upAddPromoCode(codeData);
+  if (!isClient) return fbAddPromoCode(codeData);
   return await apiCall('/api/promo-codes', 'POST', codeData);
 }
 
 export async function deletePromoCode(code) {
-  if (!isClient) return upDeletePromoCode(code);
+  if (!isClient) return fbDeletePromoCode(code);
   const res = await apiCall('/api/promo-codes', 'DELETE', { code });
   return res ? res.success : false;
 }
 
 export async function validatePromoCode(codeStr) {
-  if (!isClient) return upValidatePromoCode(codeStr);
+  if (!isClient) return fbValidatePromoCode(codeStr);
   return await apiCall(`/api/promo-codes?validate=${codeStr}`);
 }
 
 export async function consumePromoCode(codeStr) {
-  if (!isClient) return upConsumePromoCode(codeStr);
+  if (!isClient) return fbConsumePromoCode(codeStr);
   const res = await apiCall('/api/promo-codes', 'POST', { action: 'use', code: codeStr });
   return res ? res.success : false;
 }
 
 // -- REVIEWS --
 export async function getReviews() {
-  if (!isClient) return upGetReviews();
+  if (!isClient) return fbGetReviews();
   return await apiCall('/api/reviews') || DEFAULT_REVIEWS;
 }
 
 export async function addReview(reviewData) {
-  if (!isClient) return upAddReview(reviewData);
+  if (!isClient) return fbAddReview(reviewData);
   return await apiCall('/api/reviews', 'POST', reviewData);
 }
 
 export async function deleteReview(id) {
-  if (!isClient) return upDeleteReview(id);
+  if (!isClient) return fbDeleteReview(id);
   return false;
 }
 
 // -- SOCIAL MEDIA --
 export async function getSocialMedia() {
-  if (!isClient) return upGetSocialMedia();
+  if (!isClient) return fbGetSocialMedia();
   const settings = await apiCall('/api/settings');
   return settings || DEFAULT_SOCIAL;
 }
 
 export async function saveSocialMedia(data) {
-  if (!isClient) return upSaveSocialMedia(data);
+  if (!isClient) return fbSaveSocialMedia(data);
   const res = await apiCall('/api/settings', 'POST', { type: 'social', data });
   return res ? res.success : false;
 }
 
 // -- SETTINGS --
 export async function getSettings() {
-  if (!isClient) return upGetSettings();
+  if (!isClient) return fbGetSettings();
   const settings = await apiCall('/api/settings');
   return settings || DEFAULT_SETTINGS;
 }
 
 export async function saveSettings(data) {
-  if (!isClient) return upSaveSettings(data);
+  if (!isClient) return fbSaveSettings(data);
   const res = await apiCall('/api/settings', 'POST', data);
   return res ? res.success : false;
 }
