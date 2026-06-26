@@ -3,19 +3,58 @@
 import { db } from './firebase';
 import { 
   collection, doc, 
-  getDoc as fbGetDoc, 
-  getDocs as fbGetDocs, 
-  setDoc as fbSetDoc, 
-  addDoc as fbAddDoc, 
-  updateDoc as fbUpdateDoc, 
-  deleteDoc as fbDeleteDoc,
-  writeBatch as fbWriteBatch,
+  getDoc, 
+  getDocs, 
+  setDoc, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc,
+  writeBatch,
   query, where, orderBy, limit, onSnapshot, increment
 } from 'firebase/firestore';
 import { sampleTrips } from './data';
 
+// ==========================================
+// CIRCUIT BREAKER - منع تكرار أخطاء Firebase
+// ==========================================
+const _circuitBreaker = {
+  tripped: false,        // هل تم تفعيل القاطع؟
+  trippedAt: null,       // متى تم تفعيله؟
+  resetAfterMs: 60000,   // إعادة المحاولة بعد 60 ثانية
+  errorLogged: false,    // هل تم طباعة رسالة الخطأ؟
+
+  isOpen() {
+    if (!this.tripped) return false;
+    // إعادة الضبط التلقائي بعد المدة المحددة
+    if (Date.now() - this.trippedAt > this.resetAfterMs) {
+      this.tripped = false;
+      this.errorLogged = false;
+      return false;
+    }
+    return true;
+  },
+
+  trip(error) {
+    this.tripped = true;
+    this.trippedAt = Date.now();
+    if (!this.errorLogged) {
+      this.errorLogged = true;
+      const isPermissionError = error?.message?.includes('permission') || error?.code === 'permission-denied';
+      if (isPermissionError) {
+        console.warn(
+          '[ORLUXUS] Firebase Firestore: صلاحيات القراءة غير متاحة.\n' +
+          'سيتم استخدام البيانات المحلية (sampleTrips) كبديل.\n' +
+          'لتفعيل Firebase: عدّل Firestore Security Rules من لوحة Firebase Console.'
+        );
+      } else {
+        console.warn('[ORLUXUS] Firebase غير متاح - يتم استخدام البيانات المحلية كبديل:', error?.message);
+      }
+    }
+  }
+};
+
 // Timeout helper for Firebase Firestore operations
-async function withTimeout(promise, timeoutMs = 2000) {
+async function withTimeout(promise, timeoutMs = 5000) {
   let timeoutId;
   const timeoutPromise = new Promise((_, reject) => {
     timeoutId = setTimeout(() => reject(new Error('Firebase operation timed out')), timeoutMs);
@@ -28,14 +67,14 @@ async function withTimeout(promise, timeoutMs = 2000) {
 }
 
 // Intercepted safe functions with timeout circuit breakers
-const getDoc = (ref) => withTimeout(fbGetDoc(ref));
-const getDocs = (q) => withTimeout(fbGetDocs(q));
-const setDoc = (ref, data, options) => withTimeout(fbSetDoc(ref, data, options));
-const addDoc = (collRef, data) => withTimeout(fbAddDoc(collRef, data));
-const updateDoc = (ref, data) => withTimeout(fbUpdateDoc(ref, data));
-const deleteDoc = (ref) => withTimeout(fbDeleteDoc(ref));
-const writeBatch = (firestoreDb) => {
-  const batch = fbWriteBatch(firestoreDb);
+const safeGetDoc = (ref) => withTimeout(getDoc(ref));
+const safeGetDocs = (q) => withTimeout(getDocs(q));
+const safeSetDoc = (ref, data, options) => withTimeout(setDoc(ref, data, options));
+const safeAddDoc = (collRef, data) => withTimeout(addDoc(collRef, data));
+const safeUpdateDoc = (ref, data) => withTimeout(updateDoc(ref, data));
+const safeDeleteDoc = (ref) => withTimeout(deleteDoc(ref));
+const safeWriteBatch = (firestoreDb) => {
+  const batch = writeBatch(firestoreDb);
   const originalCommit = batch.commit.bind(batch);
   batch.commit = () => withTimeout(originalCommit());
   return batch;
@@ -125,7 +164,7 @@ export async function initializeDB() {
     const metaDoc = await getDoc(doc(db, '_meta', 'initialized'));
     if (metaDoc.exists()) return;
 
-    const batch = writeBatch(db);
+    const batch = safeWriteBatch(db);
 
     // Seed agents
     const bcrypt = require('bcryptjs');
@@ -160,12 +199,17 @@ export async function initializeDB() {
     batch.set(doc(db, COL.SETTINGS, 'main'), DEFAULT_SETTINGS);
 
     // Mark as initialized
-    batch.set(doc(db, '_meta', 'initialized'), { seededAt: new Date().toISOString() });
+    batch.set(doc(db, '_meta', 'initialized'), { 
+      seededAt: new Date().toISOString(),
+      databaseId: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || databaseId
+    });
 
     await batch.commit();
-    console.log('Firebase DB seeded successfully');
+    console.log('Firebase DB seeded successfully with database ID:', process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || databaseId);
+    return true;
   } catch (e) {
     console.error('Error seeding Firebase DB:', e);
+    return false;
   }
 }
 
@@ -175,13 +219,15 @@ export async function initializeDB() {
 
 export async function getTrips(slug, category) {
   const staticTrips = (sampleTrips[slug] && sampleTrips[slug][category]) || [];
+  // Circuit breaker: skip Firebase if previously failed
+  if (_circuitBreaker.isOpen()) return staticTrips;
   try {
     const q = query(collection(db, COL.TRIPS), where('slug', '==', slug), where('category', '==', category));
-    const snapshot = await getDocs(q);
+    const snapshot = await withTimeout(getDocs(q), 5000);
     const customTrips = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
     return [...staticTrips, ...customTrips];
   } catch (e) {
-    console.error('Error loading trips from Firebase:', e);
+    _circuitBreaker.trip(e);
     return staticTrips;
   }
 }
@@ -198,7 +244,7 @@ export async function addTrip(slug, category, tripData) {
       createdAt: new Date().toISOString(),
       ...tripData,
     };
-    const docRef = await addDoc(collection(db, COL.TRIPS), newTrip);
+    const docRef = await safeAddDoc(collection(db, COL.TRIPS), newTrip);
     return { id: docRef.id, ...newTrip };
   } catch (e) {
     console.error('Error saving trip to Firebase:', e);
@@ -208,18 +254,36 @@ export async function addTrip(slug, category, tripData) {
 
 export async function updateTrip(tripId, tripData) {
   try {
-    await updateDoc(doc(db, COL.TRIPS, tripId), tripData);
-    return true;
+    // البحث عن الرحلة باستخدام tripId
+    const q = query(collection(db, COL.TRIPS), where('id', '==', tripId));
+    const snapshot = await getDocs(q);
+    
+    if (!snapshot.empty) {
+      // تحديث أول تطابق
+      await safeUpdateDoc(doc(db, COL.TRIPS, snapshot.docs[0].id), tripData);
+      return true;
+    }
+    
+    return false;
   } catch (e) {
     console.error('Error updating trip:', e);
     return false;
   }
 }
 
-export async function deleteTrip(tripId) {
+export async function deleteTrip(slug, category, tripId) {
   try {
-    await deleteDoc(doc(db, COL.TRIPS, tripId));
-    return true;
+    // البحث عن الرحلة باستخدام slug و category
+    const q = query(collection(db, COL.TRIPS), where('slug', '==', slug), where('category', '==', category));
+    const snapshot = await getDocs(q);
+    
+    if (!snapshot.empty) {
+      // حذف أول تطابق
+      await safeDeleteDoc(doc(db, COL.TRIPS, snapshot.docs[0].id));
+      return true;
+    }
+    
+    return false;
   } catch (e) {
     console.error('Error deleting trip:', e);
     return false;
@@ -231,12 +295,14 @@ export async function deleteTrip(tripId) {
 // ==========================================
 
 export async function getPackages(pkgId) {
+  // Circuit breaker: skip Firebase if previously failed
+  if (_circuitBreaker.isOpen()) return [];
   try {
     const q = query(collection(db, COL.PACKAGES), where('pkgId', '==', pkgId));
-    const snapshot = await getDocs(q);
+    const snapshot = await withTimeout(getDocs(q), 5000);
     return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) {
-    console.error('Error loading packages from Firebase:', e);
+    _circuitBreaker.trip(e);
     return [];
   }
 }
@@ -252,7 +318,7 @@ export async function addPackage(pkgId, packageData) {
       createdAt: new Date().toISOString(),
       ...packageData,
     };
-    const docRef = await addDoc(collection(db, COL.PACKAGES), newPackage);
+    const docRef = await safeAddDoc(collection(db, COL.PACKAGES), newPackage);
     return { id: docRef.id, ...newPackage };
   } catch (e) {
     console.error('Error saving package to Firebase:', e);
@@ -260,20 +326,38 @@ export async function addPackage(pkgId, packageData) {
   }
 }
 
-export async function updatePackage(packageId, packageData) {
+export async function updatePackage(pkgId, packageId, packageData) {
   try {
-    await updateDoc(doc(db, COL.PACKAGES, packageId), packageData);
-    return true;
+    // البحث عن الباقة باستخدام packageId
+    const q = query(collection(db, COL.PACKAGES), where('id', '==', packageId));
+    const snapshot = await getDocs(q);
+    
+    if (!snapshot.empty) {
+      // تحديث أول تطابق
+      await safeUpdateDoc(doc(db, COL.PACKAGES, snapshot.docs[0].id), packageData);
+      return true;
+    }
+    
+    return false;
   } catch (e) {
     console.error('Error updating package:', e);
     return false;
   }
 }
 
-export async function deletePackage(packageId) {
+export async function deletePackage(pkgId, packageId) {
   try {
-    await deleteDoc(doc(db, COL.PACKAGES, packageId));
-    return true;
+    // البحث عن الباقة باستخدام pkgId
+    const q = query(collection(db, COL.PACKAGES), where('pkgId', '==', pkgId));
+    const snapshot = await getDocs(q);
+    
+    if (!snapshot.empty) {
+      // حذف أول تطابق
+      await safeDeleteDoc(doc(db, COL.PACKAGES, snapshot.docs[0].id));
+      return true;
+    }
+    
+    return false;
   } catch (e) {
     console.error('Error deleting package:', e);
     return false;
@@ -296,7 +380,7 @@ export async function getAgents() {
 
 export async function saveAgents(agents) {
   try {
-    const batch = writeBatch(db);
+    const batch = safeWriteBatch(db);
     // Delete all existing then write new
     const existing = await getDocs(collection(db, COL.AGENTS));
     existing.docs.forEach(d => batch.delete(d.ref));
@@ -370,7 +454,7 @@ export async function addAgent(agentData) {
       const parentRef = doc(db, COL.AGENTS, String(newAgent.parentId));
       const parentSnap = await getDoc(parentRef);
       if (parentSnap.exists()) {
-        await updateDoc(parentRef, { subAgents: increment(1) });
+        await safeUpdateDoc(parentRef, { subAgents: increment(1) });
       }
     }
 
@@ -383,7 +467,7 @@ export async function addAgent(agentData) {
 
 export async function updateAgent(id, agentData) {
   try {
-    await updateDoc(doc(db, COL.AGENTS, String(id)), agentData);
+    await safeUpdateDoc(doc(db, COL.AGENTS, String(id)), agentData);
     return true;
   } catch (e) {
     console.error('Error updating agent:', e);
@@ -418,7 +502,7 @@ export async function getBookings() {
 
 export async function saveBookings(bookings) {
   try {
-    const batch = writeBatch(db);
+    const batch = safeWriteBatch(db);
     const existing = await getDocs(collection(db, COL.BOOKINGS));
     existing.docs.forEach(d => batch.delete(d.ref));
     bookings.forEach(booking => {
@@ -449,7 +533,7 @@ export async function addBooking(bookingData) {
       const agentRef = doc(db, COL.AGENTS, String(newBooking.agentId));
       const agentSnap = await getDoc(agentRef);
       if (agentSnap.exists()) {
-        await updateDoc(agentRef, { sales: increment(newBooking.finalAmount || 0) });
+        await safeUpdateDoc(agentRef, { sales: increment(newBooking.finalAmount || 0) });
       }
     }
 
@@ -474,12 +558,12 @@ export async function updateBookingStatus(id, newStatus) {
     const oldBooking = bookingSnap.data();
     const oldStatus = oldBooking.status;
 
-    await updateDoc(bookingRef, { status: newStatus });
+    await safeUpdateDoc(bookingRef, { status: newStatus });
 
     // Handle agent sales adjustment on cancel/restore
     if (newStatus === 'ملغي' && oldStatus !== 'ملغي' && oldStatus !== 'فاشل' && oldBooking.agentId) {
       const agentRef = doc(db, COL.AGENTS, String(oldBooking.agentId));
-      await updateDoc(agentRef, { sales: increment(-(oldBooking.finalAmount || 0)) });
+      await safeUpdateDoc(agentRef, { sales: increment(-(oldBooking.finalAmount || 0)) });
     } else if (oldStatus === 'ملغي' && newStatus !== 'ملغي' && newStatus !== 'فاشل' && oldBooking.agentId) {
       const agentRef = doc(db, COL.AGENTS, String(oldBooking.agentId));
       await updateDoc(agentRef, { sales: increment(oldBooking.finalAmount || 0) });
@@ -518,7 +602,7 @@ export async function getPromoCodes() {
 
 export async function savePromoCodes(codes) {
   try {
-    const batch = writeBatch(db);
+    const batch = safeWriteBatch(db);
     const existing = await getDocs(collection(db, COL.PROMO_CODES));
     existing.docs.forEach(d => batch.delete(d.ref));
     codes.forEach(code => {
@@ -697,7 +781,7 @@ export async function addReview(reviewData) {
 
 export async function deleteReview(id) {
   try {
-    await deleteDoc(doc(db, COL.REVIEWS, id));
+    await safeDeleteDoc(doc(db, COL.REVIEWS, id));
     return true;
   } catch (e) {
     console.error('Error deleting review:', e);
@@ -711,7 +795,7 @@ export async function deleteReview(id) {
 
 export async function getSocialMedia() {
   try {
-    const snap = await getDoc(doc(db, COL.SOCIAL, 'main'));
+    const snap = await safeGetDoc(doc(db, COL.SOCIAL, 'main'));
     return snap.exists() ? snap.data() : DEFAULT_SOCIAL;
   } catch (e) {
     // Silently fallback
@@ -721,7 +805,7 @@ export async function getSocialMedia() {
 
 export async function saveSocialMedia(socialData) {
   try {
-    await setDoc(doc(db, COL.SOCIAL, 'main'), socialData, { merge: true });
+    await safeSetDoc(doc(db, COL.SOCIAL, 'main'), socialData, { merge: true });
     return true;
   } catch (e) {
     console.error('Error saving social media:', e);
@@ -741,7 +825,7 @@ export async function getSettings() {
 
 export async function saveSettings(settingsData) {
   try {
-    await setDoc(doc(db, COL.SETTINGS, 'main'), settingsData, { merge: true });
+    await safeSetDoc(doc(db, COL.SETTINGS, 'main'), settingsData, { merge: true });
     return true;
   } catch (e) {
     console.error('Error saving settings:', e);
@@ -775,3 +859,55 @@ export function subscribeToAgents(callback) {
     callback(agents);
   });
 }
+
+// تحقق من إعداد Firebase
+export const isFirebaseConfigured = () => {
+  return !!db;
+};
+
+// تصدير جميع الدوال
+export {
+  getTrips,
+  addTrip,
+  updateTrip,
+  deleteTrip,
+  getPackages,
+  addPackage,
+  updatePackage,
+  deletePackage,
+  getAgents,
+  saveAgents,
+  getAgentById,
+  getAgentByUsername,
+  addAgent,
+  updateAgent,
+  deleteAgent,
+  getBookings,
+  saveBookings,
+  addBooking,
+  updateBookingStatus,
+  deleteBooking,
+  getPromoCodes,
+  savePromoCodes,
+  addPromoCode,
+  deletePromoCode,
+  validatePromoCode,
+  consumePromoCode,
+  getReviews,
+  addReview,
+  deleteReview,
+  getSocialMedia,
+  saveSocialMedia,
+  getSettings,
+  saveSettings,
+  initializeDB,
+  subscribeToBookings,
+  subscribeToReviews,
+  subscribeToAgents,
+  DEFAULT_AGENTS,
+  DEFAULT_BOOKINGS,
+  DEFAULT_PROMO_CODES,
+  DEFAULT_REVIEWS,
+  DEFAULT_SOCIAL,
+  DEFAULT_SETTINGS
+};

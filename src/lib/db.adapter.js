@@ -1,54 +1,57 @@
 /**
  * db.adapter.js — Unified Database Layer
  * 
- * Uses Upstash Redis (HTTP-based, no WebSockets) when configured.
- * Falls back to hardcoded defaults for zero-downtime operation.
- * Firebase has been completely removed to eliminate timeout errors.
+ * Uses Firebase Firestore when configured.
+ * Falls back to localStorage in development mode.
+ * Upstash Redis is removed for better performance and reliability.
  */
 
 import {
-  getTrips as upGetTrips,
-  addTrip as upAddTrip,
-  updateTrip as upUpdateTrip,
-  deleteTrip as upDeleteTrip,
-  getPackages as upGetPackages,
-  addPackage as upAddPackage,
-  updatePackage as upUpdatePackage,
-  deletePackage as upDeletePackage,
-  getAgents as upGetAgents,
-  saveAgents as upSaveAgents,
-  getAgentById as upGetAgentById,
-  getAgentByUsername as upGetAgentByUsername,
-  addAgent as upAddAgent,
-  updateAgent as upUpdateAgent,
-  deleteAgent as upDeleteAgent,
-  getBookings as upGetBookings,
-  saveBookings as upSaveBookings,
-  addBooking as upAddBooking,
-  updateBookingStatus as upUpdateBookingStatus,
-  deleteBooking as upDeleteBooking,
-  getPromoCodes as upGetPromoCodes,
-  savePromoCodes as upSavePromoCodes,
-  addPromoCode as upAddPromoCode,
-  deletePromoCode as upDeletePromoCode,
-  validatePromoCode as upValidatePromoCode,
-  consumePromoCode as upConsumePromoCode,
-  getReviews as upGetReviews,
-  addReview as upAddReview,
-  deleteReview as upDeleteReview,
-  getSocialMedia as upGetSocialMedia,
-  saveSocialMedia as upSaveSocialMedia,
-  getSettings as upGetSettings,
-  saveSettings as upSaveSettings,
-  initializeDB as upInitializeDB,
+  getTrips as fbGetTrips,
+  addTrip as fbAddTrip,
+  updateTrip as fbUpdateTrip,
+  deleteTrip as fbDeleteTrip,
+  getPackages as fbGetPackages,
+  addPackage as fbAddPackage,
+  updatePackage as fbUpdatePackage,
+  deletePackage as fbDeletePackage,
+  getAgents as fbGetAgents,
+  saveAgents as fbSaveAgents,
+  getAgentById as fbGetAgentById,
+  getAgentByUsername as fbGetAgentByUsername,
+  addAgent as fbAddAgent,
+  updateAgent as fbUpdateAgent,
+  deleteAgent as fbDeleteAgent,
+  getBookings as fbGetBookings,
+  saveBookings as fbSaveBookings,
+  addBooking as fbAddBooking,
+  updateBookingStatus as fbUpdateBookingStatus,
+  deleteBooking as fbDeleteBooking,
+  getPromoCodes as fbGetPromoCodes,
+  savePromoCodes as fbSavePromoCodes,
+  addPromoCode as fbAddPromoCode,
+  deletePromoCode as fbDeletePromoCode,
+  validatePromoCode as fbValidatePromoCode,
+  consumePromoCode as fbConsumePromoCode,
+  getReviews as fbGetReviews,
+  addReview as fbAddReview,
+  deleteReview as fbDeleteReview,
+  getSocialMedia as fbGetSocialMedia,
+  saveSocialMedia as fbSaveSocialMedia,
+  getSettings as fbGetSettings,
+  saveSettings as fbSaveSettings,
+  initializeDB as fbInitializeDB,
   DEFAULT_AGENTS,
   DEFAULT_BOOKINGS,
   DEFAULT_PROMO_CODES,
   DEFAULT_REVIEWS,
   DEFAULT_SOCIAL,
   DEFAULT_SETTINGS,
-  isUpstashConfigured,
-} from './db.upstash';
+  isFirebaseConfigured,
+  subscribeToBookings,
+  subscribeToReviews,
+  subscribeToAgents
+} from './db.firebase';
 
 import { sampleTrips } from './data';
 
@@ -59,7 +62,7 @@ const isClient = typeof window !== 'undefined';
 const isProd = process.env.NODE_ENV === 'production';
 
 function lsGet(key, fallback = null) {
-  if (isProd || !isClient) return fallback;
+  if (!isClient) return fallback;
   try {
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : fallback;
@@ -67,7 +70,7 @@ function lsGet(key, fallback = null) {
 }
 
 function lsSet(key, value) {
-  if (isProd || !isClient) return false;
+  if (!isClient) return false;
   try { localStorage.setItem(key, JSON.stringify(value)); return true; }
   catch { return false; }
 }
@@ -228,57 +231,69 @@ async function apiCall(url, method = 'GET', body = null) {
 
 // -- TRIPS --
 export async function getTrips(slug, category) {
-  if (!isClient) return upGetTrips(slug, category);
+  if (!isClient) return fbGetTrips(slug, category);
+  if (isFirebaseConfigured()) return fbGetTrips(slug, category);
   const res = await apiCall(`/api/trips?slug=${slug}&category=${category}`);
   return res || sampleTrips[slug]?.[category] || [];
 }
 
 export async function addTrip(slug, category, tripData) {
-  if (!isClient) return upAddTrip(slug, category, tripData);
+  if (!isClient) return fbAddTrip(slug, category, tripData);
+  if (isFirebaseConfigured()) return fbAddTrip(slug, category, tripData);
   return await apiCall('/api/trips', 'POST', { slug, category, ...tripData });
 }
 
 export async function updateTrip(id, tripData) {
-  if (!isClient) return upUpdateTrip(id, tripData);
+  if (!isClient) return fbUpdateTrip(id, tripData);
+  if (isFirebaseConfigured()) return fbUpdateTrip(id, tripData);
   const res = await apiCall('/api/trips', 'PUT', { id, ...tripData });
   return res ? res.success : false;
 }
 
 export async function deleteTrip(slug, category, id) {
-  if (!isClient) return upDeleteTrip(slug, category, id);
+  if (!isClient) return fbDeleteTrip(slug, category, id);
+  if (isFirebaseConfigured()) return fbDeleteTrip(slug, category, id);
   const res = await apiCall('/api/trips', 'DELETE', { slug, category, id });
   return res ? res.success : false;
 }
 
 // -- PACKAGES --
 export async function getPackages(pkgId) {
-  if (!isClient) return upGetPackages(pkgId);
+  if (!isClient) return fbGetPackages(pkgId);
+  if (isFirebaseConfigured()) return fbGetPackages(pkgId);
   return await apiCall(`/api/packages?pkgId=${pkgId}`) || [];
 }
 
 export async function addPackage(pkgId, packageData) {
-  if (!isClient) return upAddPackage(pkgId, packageData);
+  if (!isClient) return fbAddPackage(pkgId, packageData);
+  if (isFirebaseConfigured()) return fbAddPackage(pkgId, packageData);
   return await apiCall('/api/packages', 'POST', { pkgId, ...packageData });
 }
 
-export async function updatePackage() {
-  return false;
+export async function updatePackage(pkgId, id, packageData) {
+  if (!isClient) return fbUpdatePackage(pkgId, id, packageData);
+  if (isFirebaseConfigured()) return fbUpdatePackage(pkgId, id, packageData);
+  const res = await apiCall('/api/packages', 'PUT', { pkgId, id, ...packageData });
+  return res ? res.success : false;
 }
 
 export async function deletePackage(pkgId, id) {
-  if (!isClient) return upDeletePackage(pkgId, id);
+  if (!isClient) return fbDeletePackage(pkgId, id);
+  if (isFirebaseConfigured()) return fbDeletePackage(pkgId, id);
   const res = await apiCall('/api/packages', 'DELETE', { pkgId, id });
   return res ? res.success : false;
 }
 
 // -- AGENTS --
 export async function getAgents() {
-  if (!isClient) return upGetAgents();
+  if (!isClient) return fbGetAgents();
+  if (isFirebaseConfigured()) return fbGetAgents();
   return await apiCall('/api/agents') || DEFAULT_AGENTS;
 }
 
 export async function saveAgents(agents) {
-  if (!isClient) return upSaveAgents(agents);
+  if (!isClient) return fbSaveAgents(agents);
+  if (isFirebaseConfigured()) return fbSaveAgents(agents);
   // We will call the PUT api/agents for updating statuses, but we also support bulk save
   const res = await apiCall('/api/agents', 'PUT', { bulk: true, agents });
   return res ? res.success : false;
@@ -315,7 +330,8 @@ export async function deleteAgent(id) {
 
 // -- BOOKINGS --
 export async function getBookings() {
-  if (!isClient) return upGetBookings();
+  if (!isClient) return fbGetBookings();
+  if (isFirebaseConfigured()) return fbGetBookings();
   return await apiCall('/api/bookings') || DEFAULT_BOOKINGS;
 }
 
@@ -419,7 +435,26 @@ export async function saveSettings(data) {
 
 // -- INIT --
 export async function initializeDB() {
-  if (!isClient) return upInitializeDB();
+  if (!isClient) return fbInitializeDB();
+  if (isFirebaseConfigured()) {
+    const result = await fbInitializeDB();
+    if (result) {
+      console.log('تم تهيئة قاعدة البيانات Firebase بنجاح');
+      return true;
+    } else {
+      console.error('فشل تهيئة قاعدة البيانات Firebase، سيتم استخدام localStorage بديلاً');
+    }
+  }
+  // تهيئة localStorage إذا لم تكن موجودة بالفعل
+  if (!isProd) {
+    if (!localStorage.getItem('agents_data')) lsSet('agents_data', DEFAULT_AGENTS);
+    if (!localStorage.getItem('promo_codes')) lsSet('promo_codes', DEFAULT_PROMO_CODES);
+    if (!localStorage.getItem('bookings_data')) lsSet('bookings_data', DEFAULT_BOOKINGS);
+    if (!localStorage.getItem('site_reviews')) lsSet('site_reviews', DEFAULT_REVIEWS);
+  }
   return true;
 }
+
+// تصدير الدوال المفقودة
+export { subscribeToBookings, subscribeToReviews, subscribeToAgents };
 

@@ -330,6 +330,22 @@ export async function initializeDB() {
 
 export async function updateTrip() { return false; }
 
+export async function updateTrip(id, tripData) {
+  if (!isUpstashConfigured()) return false;
+  // البحث عن الرحلة في جميع الفئات والمدينة
+  const allKeys = await redisCmd('KEYS', 'trips:*');
+  for (const key of allKeys) {
+    const trips = await kvGet(key) || [];
+    const idx = trips.findIndex(t => t.id === id);
+    if (idx !== -1) {
+      trips[idx] = { ...trips[idx], ...tripData };
+      await kvSet(key, trips);
+      return true;
+    }
+  }
+  return false;
+}
+
 export async function deleteTrip(slug, category, id) {
   if (!isUpstashConfigured()) return true;
   const existing = await kvGet(`trips:${slug}:${category}`) || [];
@@ -337,7 +353,14 @@ export async function deleteTrip(slug, category, id) {
   return await kvSet(`trips:${slug}:${category}`, filtered);
 }
 
-export async function updatePackage() { return false; }
+export async function updatePackage(pkgId, id, packageData) {
+  if (!isUpstashConfigured()) return false;
+  const packages = await kvGet(`packages:${pkgId}`) || [];
+  const idx = packages.findIndex(p => p.id === id);
+  if (idx === -1) return false;
+  packages[idx] = { ...packages[idx], ...packageData };
+  return await kvSet(`packages:${pkgId}`, packages);
+}
 
 export async function deletePackage(pkgId, id) {
   if (!isUpstashConfigured()) return true;
