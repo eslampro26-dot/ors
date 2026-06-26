@@ -260,10 +260,40 @@
   }
 }
 
+/* === DARK THEME FORM ELEMENTS === */
 .adminContainer select,
+.adminContainer select option,
+.adminContainer input,
+.adminContainer textarea {
+  background-color: #0c0f17 !important;
+  color: #f8fafc !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
 .adminContainer select option {
   background-color: #0c0f17 !important;
   color: #f8fafc !important;
+  padding: 8px 12px;
+}
+
+.adminContainer select option:hover,
+.adminContainer select option:focus,
+.adminContainer select option:checked {
+  background-color: #1a2035 !important;
+  color: #fbbf24 !important;
+}
+
+.adminContainer input::placeholder,
+.adminContainer textarea::placeholder {
+  color: rgba(248, 250, 252, 0.35) !important;
+}
+
+.adminContainer input:focus,
+.adminContainer select:focus,
+.adminContainer textarea:focus {
+  outline: none !important;
+  border-color: rgba(251, 191, 36, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1) !important;
 }
 
 @media (max-width: 768px) {

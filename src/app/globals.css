@@ -1268,3 +1268,199 @@ html[dir="rtl"] .luxury-experience-card:hover .explore-label-cta {
     min-height: 48px;
   }
 }
+
+/* ================================================
+   GLOBAL RESPONSIVE SYSTEM - Auto applies everywhere
+   ================================================ */
+
+/* === CONTAINER === */
+@media (max-width: 1200px) {
+  .container { max-width: 960px; }
+}
+@media (max-width: 992px) {
+  .container { max-width: 720px; padding: 0 1.5rem; }
+}
+@media (max-width: 768px) {
+  .container { max-width: 100%; padding: 0 1rem; }
+}
+@media (max-width: 480px) {
+  .container { padding: 0 0.75rem; }
+}
+
+/* === NAVBAR === */
+@media (max-width: 768px) {
+  nav .nav-links { display: none; }
+  nav .nav-mobile-toggle { display: flex; }
+  nav { padding: 0 1rem; }
+  nav .logo { font-size: 1.1rem; }
+}
+
+/* === HERO SECTION === */
+@media (max-width: 768px) {
+  .hero-section, [class*="hero"] {
+    padding-top: calc(var(--nav-height, 70px) + 2rem) !important;
+    padding-bottom: 2rem !important;
+    text-align: center !important;
+  }
+  .hero-section h1, [class*="hero"] h1 {
+    font-size: clamp(1.8rem, 7vw, 3rem) !important;
+    line-height: 1.2 !important;
+  }
+  .hero-section p, [class*="hero"] p {
+    font-size: clamp(0.9rem, 3.5vw, 1.1rem) !important;
+  }
+}
+@media (max-width: 480px) {
+  .hero-section h1, [class*="hero"] h1 {
+    font-size: clamp(1.5rem, 8vw, 2rem) !important;
+  }
+}
+
+/* === GRIDS === */
+@media (max-width: 1024px) {
+  .grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 640px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
+}
+
+/* === CARDS === */
+@media (max-width: 768px) {
+  .glass-card { padding: 1rem !important; border-radius: 12px !important; }
+  .glass-card h2, .glass-card h3 { font-size: 1.1rem !important; }
+}
+
+/* === BUTTONS === */
+@media (max-width: 480px) {
+  .btn { padding: 0.6rem 1rem !important; font-size: 0.9rem !important; }
+  .btn-lg { padding: 0.8rem 1.5rem !important; font-size: 1rem !important; }
+}
+
+/* === CITY PAGE === */
+@media (max-width: 768px) {
+  /* Category tabs - horizontal scroll on mobile */
+  [class*="cityTabs"], [class*="categories"] {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  [class*="cityTabs"]::-webkit-scrollbar { display: none; }
+
+  /* Trip cards grid */
+  [class*="tripsGrid"] {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}
+@media (min-width: 480px) and (max-width: 768px) {
+  [class*="tripsGrid"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* === CHECKOUT PAGE === */
+@media (max-width: 768px) {
+  [class*="checkoutGrid"], [class*="checkout-grid"] {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  [class*="checkoutForm"] { padding: 1rem !important; }
+}
+
+/* === ADMIN SERVICES PAGE === */
+@media (max-width: 768px) {
+  [class*="servicesPage"] [class*="header"] {
+    flex-direction: column !important;
+    gap: 1rem !important;
+    align-items: flex-start !important;
+  }
+  [class*="servicesPage"] [class*="header"] div:last-child {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+  }
+  [class*="servicesPage"] [class*="header"] button {
+    flex: 1;
+    font-size: 0.85rem !important;
+    padding: 0.5rem 0.75rem !important;
+    min-height: 40px !important;
+  }
+  [class*="modalCard"] {
+    width: calc(100vw - 2rem) !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    margin: 1rem !important;
+  }
+}
+
+/* === TYPOGRAPHY SCALE === */
+@media (max-width: 768px) {
+  h1 { font-size: clamp(1.6rem, 6vw, 2.5rem) !important; }
+  h2 { font-size: clamp(1.3rem, 5vw, 2rem) !important; }
+  h3 { font-size: clamp(1.1rem, 4vw, 1.5rem) !important; }
+}
+
+/* === SPACING === */
+@media (max-width: 768px) {
+  section { padding: 3rem 0 !important; }
+  .section-padding { padding: 2.5rem 0 !important; }
+}
+@media (max-width: 480px) {
+  section { padding: 2rem 0 !important; }
+}
+
+/* === IMAGES === */
+@media (max-width: 768px) {
+  img { max-width: 100%; height: auto; }
+}
+
+/* === MODALS === */
+@media (max-width: 640px) {
+  [class*="modal"] > div,
+  [class*="modalCard"] {
+    width: calc(100vw - 1.5rem) !important;
+    max-height: 88vh !important;
+    overflow-y: auto !important;
+    border-radius: 16px !important;
+  }
+}
+
+/* === FORM GRIDS === */
+@media (max-width: 640px) {
+  [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* === FLEX STACKING === */
+@media (max-width: 640px) {
+  [class*="btnGroup"],
+  [class*="actionGroup"] {
+    flex-direction: column !important;
+    width: 100%;
+  }
+  [class*="btnGroup"] button,
+  [class*="actionGroup"] button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* === SCROLLBAR STYLING === */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(201,162,39,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(201,162,39,0.6); }
+
+/* === TOUCH IMPROVEMENTS === */
+@media (hover: none) and (pointer: coarse) {
+  * { -webkit-tap-highlight-color: transparent; }
+  button:active { opacity: 0.8; transform: scale(0.98); }
+  a:active { opacity: 0.7; }
+}
+

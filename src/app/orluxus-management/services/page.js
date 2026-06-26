@@ -32,35 +32,73 @@ export default function AdminServices() {
     locationUrl: '',
   });
 
-  // Load persistent trips & packages
-  const loadData = async () => {
+  // Load data only for the selected city (lazy loading for performance)
+  const loadCityData = async (cityId) => {
+    // Skip if already loaded
+    if (tripsData[cityId]) return;
+    
     try {
-      // Load trips for all cities and categories
-      const allTrips = {};
-      for (const city of cities) {
-        allTrips[city.id] = {};
-        for (const cat of city.categories) {
-          const trips = await getTrips(city.id, cat.id);
-          allTrips[city.id][cat.id] = trips || [];
-        }
-      }
-      setTripsData(allTrips);
-
-      // Load packages
-      const allPkgs = {};
-      for (const pkg of internalPackages) {
-        const pkgs = await getPackages(pkg.id);
-        allPkgs[pkg.id] = pkgs || [];
-      }
-      setPackagesData(allPkgs);
+      const city = cities.find(c => c.id === cityId);
+      if (!city) return;
+      
+      const cityTrips = {};
+      // Load all categories for this city in parallel
+      await Promise.all(
+        city.categories.map(async (cat) => {
+          const trips = await getTrips(cityId, cat.id);
+          cityTrips[cat.id] = trips || [];
+        })
+      );
+      setTripsData(prev => ({ ...prev, [cityId]: cityTrips }));
     } catch (err) {
-      console.error('Error loading services data:', err);
+      console.error('Error loading city trips:', err);
     }
   };
 
+  const loadPackageData = async (pkgId) => {
+    if (packagesData[pkgId]) return;
+    try {
+      const pkgs = await getPackages(pkgId);
+      setPackagesData(prev => ({ ...prev, [pkgId]: pkgs || [] }));
+    } catch (err) {
+      console.error('Error loading packages:', err);
+    }
+  };
+
+  // Load data for initial selections on mount
   useEffect(() => {
-    loadData();
+    loadCityData(selectedCity);
+    loadPackageData(selectedPkgType);
   }, []);
+
+  // Load when switching city
+  useEffect(() => {
+    loadCityData(selectedCity);
+  }, [selectedCity]);
+
+  // Load when switching package type
+  useEffect(() => {
+    loadPackageData(selectedPkgType);
+  }, [selectedPkgType]);
+
+  // Force reload after add/delete
+  const reloadCurrentCity = async () => {
+    const city = cities.find(c => c.id === selectedCity);
+    if (!city) return;
+    const cityTrips = {};
+    await Promise.all(
+      city.categories.map(async (cat) => {
+        const trips = await getTrips(selectedCity, cat.id);
+        cityTrips[cat.id] = trips || [];
+      })
+    );
+    setTripsData(prev => ({ ...prev, [selectedCity]: cityTrips }));
+  };
+
+  const reloadCurrentPackage = async () => {
+    const pkgs = await getPackages(selectedPkgType);
+    setPackagesData(prev => ({ ...prev, [selectedPkgType]: pkgs || [] }));
+  };
 
   // Sync Category when Modal opens
   useEffect(() => {
@@ -109,20 +147,8 @@ export default function AdminServices() {
         if (success) {
           alert('تمت إضافة الرحلة بنجاح!');
           setModalOpen(false);
-          // Reset form
-          setFormData({
-            titleAr: '',
-            titleEn: '',
-            price: '',
-            duration: 'يوم كامل',
-            category: '',
-            city: '',
-            description: '',
-            icon: '✈️',
-            image: '',
-            locationUrl: '',
-          });
-          await loadData(); // Reload list
+          setFormData({ titleAr:'',titleEn:'',price:'',duration:'يوم كامل',category:'',city:'',description:'',icon:'✈️',image:'',locationUrl:'' });
+          await reloadCurrentCity();
         } else {
           alert('حدث خطأ أثناء حفظ الرحلة.');
         }
@@ -150,18 +176,8 @@ export default function AdminServices() {
         if (success) {
           alert('تمت إضافة الباكدج بنجاح!');
           setModalOpen(false);
-          setFormData({
-            titleAr: '',
-            titleEn: '',
-            price: '',
-            duration: 'يوم كامل',
-            category: '',
-            city: '',
-            description: '',
-            icon: '✈️',
-            image: '',
-          });
-          await loadData(); // Reload
+          setFormData({ titleAr:'',titleEn:'',price:'',duration:'يوم كامل',category:'',city:'',description:'',icon:'✈️',image:'' });
+          await reloadCurrentPackage();
         } else {
           alert('حدث خطأ أثناء حفظ الباكدج.');
         }
@@ -177,8 +193,7 @@ export default function AdminServices() {
       try {
         const success = await deleteTrip(cityId, catId, tripId);
         if (success) {
-          alert('تم حذف الخدمة بنجاح!');
-          await loadData();
+          await reloadCurrentCity();
         } else {
           alert('حدث خطأ أثناء حذف الخدمة.');
         }
@@ -194,8 +209,7 @@ export default function AdminServices() {
       try {
         const success = await deletePackage(pkgId, itemUniqueId);
         if (success) {
-          alert('تم حذف الباكدج بنجاح!');
-          await loadData();
+          await reloadCurrentPackage();
         } else {
           alert('حدث خطأ أثناء حذف الباكدج.');
         }
@@ -313,17 +327,15 @@ export default function AdminServices() {
 
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.6rem' }}>
                                 <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                                  النوع: {trip.id.toString().startsWith('custom') ? 'مضاف يدوياً' : 'افتراضي'}
+                                  {trip.id.toString().startsWith('custom') ? '✏️ مضاف يدوياً' : '📌 افتراضي'}
                                 </span>
-                                {trip.id.toString().startsWith('custom') && (
-                                  <button 
-                                    className="btn btn-secondary btn-sm" 
-                                    style={{ padding: '2px 8px', color: 'var(--coral-600)', borderColor: 'rgba(244, 63, 94, 0.2)' }}
-                                    onClick={() => handleDeleteTrip(city.id, cat.id, trip.id)}
-                                  >
-                                    🗑️ حذف
-                                  </button>
-                                )}
+                                <button 
+                                  className="btn btn-secondary btn-sm" 
+                                  style={{ padding: '2px 8px', color: 'var(--coral-600)', borderColor: 'rgba(244, 63, 94, 0.2)', fontSize: '0.8rem' }}
+                                  onClick={() => handleDeleteTrip(city.id, cat.id, trip.id)}
+                                >
+                                  🗑️ حذف
+                                </button>
                               </div>
                             </div>
                           ))}

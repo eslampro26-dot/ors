@@ -2,35 +2,47 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import styles from './layout.module.css';
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isChecking, setIsChecking] = useState(true);
 
-  // Check auth via server-side session (fixes C-3: client-side auth bypass)
+  // Check auth - instant render, redirect only if truly unauthenticated
   useEffect(() => {
     if (pathname === '/orluxus-management/login') {
-      setIsLoading(false);
+      setIsChecking(false);
+      setIsAuthenticated(true);
       return;
     }
 
-    // Verify session cookie on the server — cannot be faked from browser JS
-    fetch('/api/auth/verify-admin', { credentials: 'include' })
+    // Use AbortController for cleanup
+    const controller = new AbortController();
+
+    fetch('/api/auth/verify-admin', { 
+      credentials: 'include',
+      signal: controller.signal,
+      cache: 'no-store'
+    })
       .then((res) => {
         if (res.ok) {
           setIsAuthenticated(true);
         } else {
-          window.location.href = '/orluxus-management/login';
+          router.replace('/orluxus-management/login');
         }
       })
-      .catch(() => {
-        window.location.href = '/orluxus-management/login';
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          router.replace('/orluxus-management/login');
+        }
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => setIsChecking(false));
+
+    return () => controller.abort();
   }, [pathname]);
 
   const admin = {
@@ -54,9 +66,32 @@ export default function AdminLayout({ children }) {
     return <>{children}</>;
   }
 
-  if (isLoading || !isAuthenticated) {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>جاري التحميل...</div>;
+  // Show fast skeleton while checking auth (not a blank white screen)
+  if (isChecking) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#05070c',
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <div style={{ 
+          width: '48px', height: '48px', 
+          border: '3px solid rgba(201,162,39,0.2)',
+          borderTop: '3px solid #C9A227',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite'
+        }}></div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', fontFamily: 'sans-serif' }}>ORLUXUS Admin</p>
+      </div>
+    );
   }
+
+  if (!isAuthenticated) return null;
 
   return (
     <div className={styles.adminContainer}>
