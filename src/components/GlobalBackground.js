@@ -1,59 +1,75 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-// ✅ All images 100% verified Egyptian locations - NO foreign images
 const BG_IMAGES = [
-  // 1. Great Pyramid of Giza - Cairo, Egypt ✅
   'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80',
-  // 2. Red Sea coral reef beach - Hurghada, Egypt ✅
   'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1600&q=80',
-  // 3. Luxor Karnak Temple at night - Luxor, Egypt ✅
   'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1600&q=80',
-  // 4. Abu Simbel rock-cut temples - Aswan, Egypt ✅
   'https://images.unsplash.com/photo-1600016688773-bc18bf39aa3e?auto=format&fit=crop&w=1600&q=80',
-  // 5. Felucca sailboats on Nile River - Egypt ✅
   'https://images.unsplash.com/photo-1553913861-c0fddf2619ee?auto=format&fit=crop&w=1600&q=80',
-  // 6. Cairo mosque architecture - Egypt ✅
   'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?auto=format&fit=crop&w=1600&q=80',
-  // 7. Egyptian Sahara desert sand dunes - Egypt ✅
   'https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&w=1600&q=80',
-  // 8. Valley of the Kings / Pharaonic tomb entrance - Luxor, Egypt ✅
   'https://images.unsplash.com/photo-1608827434901-a8f0b86e2c06?auto=format&fit=crop&w=1600&q=80',
 ];
 
 export default function GlobalBackground() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [loadedImages, setLoadedImages] = useState(new Set([0]));
+  const [currentImg, setCurrentImg] = useState(BG_IMAGES[0]);
+  const [nextImg, setNextImg] = useState(null);
+  const [showNext, setShowNext] = useState(false);
+  const indexRef = useRef(0);
+  const preloadRef = useRef(null);
 
-  // Preload next image before switching
   useEffect(() => {
-    const nextIndex = (activeIndex + 1) % BG_IMAGES.length;
-    const img = new Image();
-    img.src = BG_IMAGES[nextIndex];
-    img.onload = () => {
-      setLoadedImages((prev) => new Set([...prev, nextIndex]));
+    // Silently preload the next image
+    const preloadNext = (idx) => {
+      const nextIdx = (idx + 1) % BG_IMAGES.length;
+      if (preloadRef.current) preloadRef.current.src = '';
+      const img = new window.Image();
+      img.src = BG_IMAGES[nextIdx];
+      preloadRef.current = img;
     };
-  }, [activeIndex]);
 
-  useEffect(() => {
+    // Start preloading image #2
+    preloadNext(0);
+
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % BG_IMAGES.length);
+      const nextIdx = (indexRef.current + 1) % BG_IMAGES.length;
+      indexRef.current = nextIdx;
+
+      // Mount next slide and fade it in
+      setNextImg(BG_IMAGES[nextIdx]);
+      setTimeout(() => setShowNext(true), 50);
+
+      // After fade completes, swap current and clean up
+      setTimeout(() => {
+        setCurrentImg(BG_IMAGES[nextIdx]);
+        setNextImg(null);
+        setShowNext(false);
+        preloadNext(nextIdx);
+      }, 2600);
     }, 10000);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearInterval(interval);
+      if (preloadRef.current) preloadRef.current.src = '';
+    };
   }, []);
 
   return (
     <div className="global-bg-container">
-      {BG_IMAGES.map((imgUrl, idx) => (
+      {/* Current image - always visible */}
+      <div
+        className="global-bg-slide active"
+        style={{ backgroundImage: `url(${currentImg})` }}
+      />
+      {/* Next image - fades in over current */}
+      {nextImg && (
         <div
-          key={idx}
-          className={`global-bg-slide ${idx === activeIndex ? 'active' : ''}`}
-          style={{
-            backgroundImage: loadedImages.has(idx) ? `url(${imgUrl})` : 'none'
-          }}
+          className={`global-bg-slide${showNext ? ' active' : ''}`}
+          style={{ backgroundImage: `url(${nextImg})` }}
         />
-      ))}
+      )}
       <div className="global-bg-overlay" />
 
       <style jsx global>{`
@@ -66,7 +82,6 @@ export default function GlobalBackground() {
           overflow: hidden;
           pointer-events: none;
           background-color: var(--bg-primary);
-          transition: background-color 0.5s ease;
         }
 
         .global-bg-slide {
@@ -76,15 +91,14 @@ export default function GlobalBackground() {
           background-position: center;
           background-repeat: no-repeat;
           opacity: 0;
-          transition: opacity 2.5s ease-in-out;
           pointer-events: none;
           transform: scale(1.02);
+          transition: opacity 2.5s ease-in-out, transform 10s linear;
         }
 
         .global-bg-slide.active {
           opacity: 0.22;
           transform: scale(1.06);
-          transition: opacity 2.5s ease-in-out, transform 10s linear;
         }
 
         [data-theme="dark"] .global-bg-slide.active {

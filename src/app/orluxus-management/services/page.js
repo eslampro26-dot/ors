@@ -477,9 +477,15 @@ export default function AdminServices() {
                   {/* Select City */}
                   <div className={styles.formGroup}>
                     <label>المدينة السياحية المستهدفة</label>
-                    <select name="city" value={formData.city} onChange={handleInputChange} className={styles.input}>
+                    <select
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                      style={{ backgroundColor: '#0c0f17', color: '#f8fafc', colorScheme: 'dark' }}
+                    >
                       {cities.map(c => (
-                        <option key={c.id} value={c.id}>{c.emoji} {c.nameAr}</option>
+                        <option key={c.id} value={c.id} style={{ backgroundColor: '#0c0f17', color: '#f8fafc' }}>{c.emoji} {c.nameAr}</option>
                       ))}
                     </select>
                   </div>
@@ -487,9 +493,15 @@ export default function AdminServices() {
                   {/* Select Category */}
                   <div className={styles.formGroup}>
                     <label>نوع الرحلة (القسم)</label>
-                    <select name="category" value={formData.category} onChange={handleInputChange} className={styles.input}>
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      className={styles.input}
+                      style={{ backgroundColor: '#0c0f17', color: '#f8fafc', colorScheme: 'dark' }}
+                    >
                       {cities.find(c => c.id === formData.city)?.categories.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.icon} {cat.nameAr}</option>
+                        <option key={cat.id} value={cat.id} style={{ backgroundColor: '#0c0f17', color: '#f8fafc' }}>{cat.icon} {cat.nameAr}</option>
                       ))}
                     </select>
                   </div>
@@ -498,9 +510,15 @@ export default function AdminServices() {
                 /* Select Package Category */
                 <div className={styles.formGroup}>
                   <label>نوع الباكدج</label>
-                  <select name="category" value={formData.category} onChange={handleInputChange} className={styles.input}>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    className={styles.input}
+                    style={{ backgroundColor: '#0c0f17', color: '#f8fafc', colorScheme: 'dark' }}
+                  >
                     {internalPackages.map(pkg => (
-                      <option key={pkg.id} value={pkg.id}>{pkg.icon} {pkg.nameAr}</option>
+                      <option key={pkg.id} value={pkg.id} style={{ backgroundColor: '#0c0f17', color: '#f8fafc' }}>{pkg.icon} {pkg.nameAr}</option>
                     ))}
                   </select>
                 </div>
