@@ -193,23 +193,19 @@ export default function Home() {
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Drone video background */}
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline 
+        {/* Luxury Yacht Background Image instead of video to prevent CORS blocks */}
+        <div 
           style={{
             position: 'absolute',
             inset: 0,
             width: '100%',
             height: '100%',
-            objectFit: 'cover',
+            backgroundImage: 'url("https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1600&q=80")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
             zIndex: 1
           }}
-        >
-          <source src="https://assets.mixkit.co/videos/preview/mixkit-luxury-yacht-cruising-on-deep-blue-water-43306-large.mp4" type="video/mp4" />
-        </video>
+        />
 
         {/* 40% Dark Overlay */}
         <div style={{

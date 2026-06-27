@@ -54,7 +54,7 @@ const _circuitBreaker = {
 };
 
 // Timeout helper for Firebase Firestore operations
-async function withTimeout(promise, timeoutMs = 5000) {
+async function withTimeout(promise, timeoutMs = 25000) {
   let timeoutId;
   const timeoutPromise = new Promise((_, reject) => {
     timeoutId = setTimeout(() => reject(new Error('Firebase operation timed out')), timeoutMs);
