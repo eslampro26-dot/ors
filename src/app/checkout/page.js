@@ -66,6 +66,14 @@ function CheckoutContent() {
         bankDetailsTitle: 'Company Bank Account Details',
         confirmBankBtn: 'Confirm Bank Transfer Booking',
         simulatingMsg: 'Securing transaction, please wait...',
+        childrenLabel: 'Children (2-12 years)',
+        infantsLabel: 'Infants (under 2 years)',
+        specialRequestsLabel: 'Special Requests / Comments',
+        specialRequestsPlaceholder: 'Any dietary requirements, wheelchair access, etc.',
+        termsCheckbox: 'I agree to the ',
+        termsAlert: 'You must agree to the terms to proceed.',
+        readTerms: 'Terms and Conditions',
+        readPolicy: 'Cancellation Policy',
       },
       ar: {
         title: 'بيانات الحجز والمسافرين',
@@ -116,6 +124,14 @@ function CheckoutContent() {
         bankDetailsTitle: 'تفاصيل الحساب البنكي للشركة',
         confirmBankBtn: 'تأكيد الحجز بالتحويل البنكي',
         simulatingMsg: 'جاري معالجة المعاملة بأمان، يرجى الانتظار...',
+        childrenLabel: 'أطفال (2-12 سنة)',
+        infantsLabel: 'رضع (أقل من سنتين)',
+        specialRequestsLabel: 'طلبات خاصة / تعليقات',
+        specialRequestsPlaceholder: 'أي متطلبات غذائية، أو احتياجات خاصة الخ...',
+        termsCheckbox: 'أوافق على ',
+        termsAlert: 'يجب الموافقة على الشروط والأحكام للمتابعة.',
+        readTerms: 'الشروط والأحكام',
+        readPolicy: 'سياسة الإلغاء',
       }
     };
     const activeDict = dict[locale] || dict.en;
@@ -131,6 +147,8 @@ function CheckoutContent() {
 
   // Customer State
   const [travelers, setTravelers] = useState(1);
+  const [children, setChildren] = useState(0);
+  const [infants, setInfants] = useState(0);
   const [customerName, setCustomerName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -143,6 +161,11 @@ function CheckoutContent() {
     transfer: false,
     photos: false
   });
+  const [specialRequests, setSpecialRequests] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+  const [modalTitle, setModalTitle] = useState('');
   
   // Promo Code State
   const [promoInput, setPromoInput] = useState('');
@@ -241,6 +264,10 @@ function CheckoutContent() {
       alert(translate('fillAlert'));
       return;
     }
+    if (!termsAccepted) {
+      alert(translate('termsAlert'));
+      return;
+    }
     setCheckoutStep('payment');
   };
 
@@ -266,6 +293,9 @@ function CheckoutContent() {
     url.searchParams.set('email', email);
     url.searchParams.set('pickupLocation', pickupLocation);
     url.searchParams.set('extras', getSelectedExtrasString());
+    url.searchParams.set('children', children.toString());
+    url.searchParams.set('infants', infants.toString());
+    url.searchParams.set('specialRequests', specialRequests);
     
     router.push(url.pathname + url.search);
   };
@@ -296,7 +326,10 @@ function CheckoutContent() {
           paymentType: walletName,
           txId: txId,
           pickupLocation: pickupLocation,
-          extras: getSelectedExtrasString()
+          extras: getSelectedExtrasString(),
+          children: children,
+          infants: infants,
+          specialRequests: specialRequests
         });
         
         setIsSimulatingPayment(false);
@@ -335,7 +368,10 @@ function CheckoutContent() {
           paymentType: 'bank_transfer',
           txId: txId,
           pickupLocation: pickupLocation,
-          extras: getSelectedExtrasString()
+          extras: getSelectedExtrasString(),
+          children: children,
+          infants: infants,
+          specialRequests: specialRequests
         });
         
         setIsSimulatingPayment(false);
@@ -372,7 +408,10 @@ function CheckoutContent() {
         paymentType: 'cash',
         txId: txId,
         pickupLocation: pickupLocation,
-        extras: getSelectedExtrasString()
+        extras: getSelectedExtrasString(),
+        children: children,
+        infants: infants,
+        specialRequests: specialRequests
       });
     } catch (err) {
       console.error('Error saving booking on cash payment:', err);
@@ -452,7 +491,10 @@ function CheckoutContent() {
               paymentType: 'paypal',
               txId: txId,
               pickupLocation: pickupLocation,
-              extras: getSelectedExtrasString()
+              extras: getSelectedExtrasString(),
+              children: children,
+              infants: infants,
+              specialRequests: specialRequests
             });
           } catch (err) {
             console.error('Error saving booking on PayPal approval:', err);
@@ -1521,6 +1563,26 @@ function CheckoutContent() {
                 </div>
               </div>
 
+              {/* Children count */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{translate('childrenLabel')}</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'flex-start', flexDirection: isAr ? 'row-reverse' : 'row' }}>
+                  <button type="button" onClick={() => setChildren(prev => Math.max(0, prev - 1))} style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--bg-tertiary)', border: '1px solid var(--border-medium)', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>-</button>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 'bold', width: '30px', textAlign: 'center', fontFamily: 'var(--font-en)' }}>{children}</span>
+                  <button type="button" onClick={() => setChildren(prev => prev + 1)} style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--bg-tertiary)', border: '1px solid var(--border-medium)', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>+</button>
+                </div>
+              </div>
+
+              {/* Infants count */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{translate('infantsLabel')}</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'flex-start', flexDirection: isAr ? 'row-reverse' : 'row' }}>
+                  <button type="button" onClick={() => setInfants(prev => Math.max(0, prev - 1))} style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--bg-tertiary)', border: '1px solid var(--border-medium)', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>-</button>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 'bold', width: '30px', textAlign: 'center', fontFamily: 'var(--font-en)' }}>{infants}</span>
+                  <button type="button" onClick={() => setInfants(prev => prev + 1)} style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--bg-tertiary)', border: '1px solid var(--border-medium)', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>+</button>
+                </div>
+              </div>
+
               {/* Hotel Pickup Location */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{translate('pickupLabel')}</label>
@@ -1599,6 +1661,28 @@ function CheckoutContent() {
                 </div>
               </div>
 
+              {/* Special Requests */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.2rem' }}>
+                <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{translate('specialRequestsLabel')}</label>
+                <textarea 
+                  value={specialRequests}
+                  onChange={(e) => setSpecialRequests(e.target.value)}
+                  placeholder={translate('specialRequestsPlaceholder')} 
+                  rows="3"
+                  style={{
+                    padding: '0.8rem 1rem',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-medium)',
+                    background: 'var(--bg-secondary)',
+                    outline: 'none',
+                    fontSize: '1rem',
+                    color: 'var(--text-primary)',
+                    textAlign: isAr ? 'right' : 'left',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
               {/* Promo Code Fields */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.2rem' }}>
                 <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{translate('promoQuestion')}</label>
@@ -1641,6 +1725,46 @@ function CheckoutContent() {
                     ✓ {promoSuccess}
                   </p>
                 )}
+              </div>
+
+              {/* Terms Checkbox */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.2rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                  />
+                  <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    {translate('termsCheckbox')}
+                    <a 
+                      href="#" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setModalTitle(translate('readTerms'));
+                        setModalContent(settings?.dataProtection || 'No terms provided.');
+                        setShowTermsModal(true);
+                      }} 
+                      style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}
+                    >
+                      {translate('readTerms')}
+                    </a>
+                    {' و '}
+                    <a 
+                      href="#" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setModalTitle(translate('readPolicy'));
+                        setModalContent(settings?.legalCancellation || 'No policy provided.');
+                        setShowTermsModal(true);
+                      }} 
+                      style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}
+                    >
+                      {translate('readPolicy')}
+                    </a>
+                  </span>
+                </label>
               </div>
 
               {/* Pay Button */}
@@ -1731,6 +1855,31 @@ function CheckoutContent() {
 
         </div>
       </div>
+
+      {/* Terms Modal Overlay */}
+      {showTermsModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
+          backdropFilter: 'blur(5px)'
+        }}>
+          <div className="glass-card animate-scale-up" style={{
+            background: 'var(--bg-primary)', width: '100%', maxWidth: '600px',
+            borderRadius: '12px', padding: '2rem', border: '1px solid var(--border-accent)',
+            boxShadow: 'var(--shadow-glow-gold)', textAlign: isAr ? 'right' : 'left'
+          }}>
+            <h3 style={{ color: 'var(--gold-400)', marginBottom: '1.5rem', fontSize: '1.3rem', fontWeight: 'bold' }}>{modalTitle}</h3>
+            <div style={{ color: 'var(--text-secondary)', lineHeight: '1.8', whiteSpace: 'pre-wrap', maxHeight: '60vh', overflowY: 'auto', marginBottom: '2rem' }}>
+              {modalContent}
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <button className="btn btn-primary" onClick={() => setShowTermsModal(false)} style={{ padding: '0.8rem 2.5rem' }}>
+                {isAr ? 'إغلاق' : 'Close'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

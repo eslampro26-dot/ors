@@ -28,6 +28,11 @@ export default function AdminAgents() {
   const [newAgentCountry, setNewAgentCountry] = useState('');
   const [newAgentPartnerId, setNewAgentPartnerId] = useState('');
   const [newAgentPhoto, setNewAgentPhoto] = useState('');
+  const [newAgentJoinDate, setNewAgentJoinDate] = useState(new Date().toISOString().split('T')[0]);
+  
+  // Details Modal State
+  const [selectedAgentDetails, setSelectedAgentDetails] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   const loadData = async () => {
     try {
@@ -90,7 +95,7 @@ export default function AdminAgents() {
         country: newAgentCountry,
         partnerId: newAgentPartnerId || `PRT-${Date.now().toString().slice(-6)}`,
         photo: newAgentPhoto,
-        joinDate: new Date().toISOString().split('T')[0],
+        joinDate: newAgentJoinDate,
       });
 
       // Create promo code in database if provided
@@ -123,6 +128,7 @@ export default function AdminAgents() {
       setNewAgentCountry('');
       setNewAgentPartnerId('');
       setNewAgentPhoto('');
+      setNewAgentJoinDate(new Date().toISOString().split('T')[0]);
 
       // Reload data
       await loadData();
@@ -219,6 +225,18 @@ export default function AdminAgents() {
           <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '6px', fontSize: '11px', display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
             <span>المبيعات: <strong>€{agent.sales.toLocaleString()}</strong></span>
           </div>
+
+          <button 
+            type="button" 
+            className="btn btn-secondary" 
+            style={{ marginTop: '8px', padding: '4px 12px', fontSize: '11px', width: '100%', cursor: 'pointer' }}
+            onClick={() => {
+              setSelectedAgentDetails(agent);
+              setShowDetailsModal(true);
+            }}
+          >
+            التفاصيل
+          </button>
 
           {children.length > 0 && (
             <button 
@@ -652,6 +670,17 @@ export default function AdminAgents() {
                 />
               </div>
 
+              {/* Date Joined */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>تاريخ الانضمام (Date Joined)</label>
+                <input
+                  type="date"
+                  value={newAgentJoinDate}
+                  onChange={(e) => setNewAgentJoinDate(e.target.value)}
+                  style={{ padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none', fontFamily: 'var(--font-en)' }}
+                />
+              </div>
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>إنشاء كود خصم ترويجي أولي للوكيل (اختياري)</label>
                 <input 
@@ -678,6 +707,73 @@ export default function AdminAgents() {
                 <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)} style={{ flex: 1, padding: '0.8rem' }}>إلغاء</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Agent Details Modal */}
+      {showDetailsModal && selectedAgentDetails && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999999, textAlign: 'right'
+        }}>
+          <div className="glass-card" style={{
+            width: '100%', maxWidth: '500px', background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-accent)', boxShadow: 'var(--shadow-xl)', padding: '2rem',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem' }}>
+              <button onClick={() => setShowDetailsModal(false)} style={{ fontSize: '1.5rem', color: 'var(--text-secondary)', cursor: 'pointer', background: 'none', border: 'none' }}>×</button>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', margin: 0 }}>تفاصيل الوكيل</h3>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+              {selectedAgentDetails.photo && (
+                <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+                  <img src={selectedAgentDetails.photo} alt="Profile" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--gold-400)' }} />
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 'bold' }}>الاسم:</span>
+                <span>{selectedAgentDetails.name}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 'bold' }}>رقم الشريك (Partner ID):</span>
+                <span style={{ fontFamily: 'var(--font-en)' }}>{selectedAgentDetails.partnerId || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 'bold' }}>البريد الإلكتروني:</span>
+                <span style={{ fontFamily: 'var(--font-en)' }}>{selectedAgentDetails.email}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 'bold' }}>رقم الهاتف:</span>
+                <span style={{ fontFamily: 'var(--font-en)' }}>{selectedAgentDetails.phone || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 'bold' }}>رقم الحساب البنكي:</span>
+                <span style={{ fontFamily: 'var(--font-en)' }}>{selectedAgentDetails.bankAccount || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 'bold' }}>الدولة / المدينة:</span>
+                <span>{selectedAgentDetails.country || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 'bold' }}>تاريخ الانضمام:</span>
+                <span style={{ fontFamily: 'var(--font-en)' }}>{selectedAgentDetails.joinDate || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 'bold' }}>المستوى:</span>
+                <span>{selectedAgentDetails.tier.toUpperCase()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 'bold' }}>إجمالي المبيعات:</span>
+                <span style={{ fontFamily: 'var(--font-en)', color: 'var(--gold-500)', fontWeight: 'bold' }}>€{selectedAgentDetails.sales?.toLocaleString() || 0}</span>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+              <button className="btn btn-primary" onClick={() => setShowDetailsModal(false)} style={{ padding: '0.8rem 2rem' }}>إغلاق</button>
+            </div>
           </div>
         </div>
       )}

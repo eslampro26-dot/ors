@@ -27,103 +27,122 @@ export default function AdminSettings() {
   const [legalCancellation, setLegalCancellation] = useState('يمكن إلغاء الحجز مجاناً قبل 48 ساعة من موعد الرحلة. في حال الإلغاء المتأخر أو عدم الحضور، يتم تطبيق رسوم إلغاء تعادل قيمة الليلة الأولى أو 50% من قيمة الرحلة حسب نوع البرنامج.');
   const [dataProtection, setDataProtection] = useState('نحن نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. لن يتم مشاركة معلوماتك أو تفاصيل حجزك مع أي أطراف ثالثة إلا لغرض إتمام الحجز وتقديم الخدمة.');
 
-  // Load from LocalStorage on mount
+  // Load from API on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedSiteName = localStorage.getItem('orluxus_site_name');
-      const savedWhatsapp = localStorage.getItem('orluxus_whatsapp');
-      const savedCurrency = localStorage.getItem('orluxus_currency');
-      const savedPaypalEmail = localStorage.getItem('orluxus_paypal_email');
-      
-      const savedAllowReg = localStorage.getItem('orluxus_allow_reg');
-      const savedAllowPromo = localStorage.getItem('orluxus_allow_promo');
-      const savedNotifyEmail = localStorage.getItem('orluxus_notify_email');
-      const savedCommission = localStorage.getItem('orluxus_commission');
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.siteName) setSiteName(data.siteName);
+          if (data.whatsapp) setWhatsapp(data.whatsapp);
+          if (data.currency) setCurrency(data.currency);
+          if (data.paypalEmail) setPaypalEmail(data.paypalEmail);
+          
+          if (data.allowReg !== undefined) setAllowReg(data.allowReg === true || data.allowReg === 'true');
+          if (data.allowPromo !== undefined) setAllowPromo(data.allowPromo === true || data.allowPromo === 'true');
+          if (data.notifyEmail !== undefined) setNotifyEmail(data.notifyEmail === true || data.notifyEmail === 'true');
+          if (data.commission) setCommission(data.commission);
 
-      // Load social media
-      const savedEmail = localStorage.getItem('orluxus_email');
-      const savedFacebook = localStorage.getItem('orluxus_facebook');
-      const savedTiktok = localStorage.getItem('orluxus_tiktok');
-      const savedInstagram = localStorage.getItem('orluxus_instagram');
+          if (data.email) setEmail(data.email);
+          if (data.facebook) setFacebook(data.facebook);
+          if (data.tiktok) setTiktok(data.tiktok);
+          if (data.instagram) setInstagram(data.instagram);
 
-      // Load policies
-      const savedVision = localStorage.getItem('orluxus_about_vision');
-      const savedGoals = localStorage.getItem('orluxus_about_goals');
-      const savedSustainability = localStorage.getItem('orluxus_about_sustainability');
-      const savedStaff = localStorage.getItem('orluxus_about_staff');
-      const savedLegalCompany = localStorage.getItem('orluxus_legal_company');
-      const savedLegalCancellation = localStorage.getItem('orluxus_legal_cancellation');
-      const savedDataProtection = localStorage.getItem('orluxus_data_protection');
-
-      if (savedSiteName) setSiteName(savedSiteName);
-      if (savedWhatsapp) setWhatsapp(savedWhatsapp);
-      if (savedCurrency) setCurrency(savedCurrency);
-      if (savedPaypalEmail) setPaypalEmail(savedPaypalEmail);
-      
-      if (savedAllowReg !== null) setAllowReg(savedAllowReg === 'true');
-      if (savedAllowPromo !== null) setAllowPromo(savedAllowPromo === 'true');
-      if (savedNotifyEmail !== null) setNotifyEmail(savedNotifyEmail === 'true');
-      if (savedCommission) setCommission(savedCommission);
-
-      if (savedEmail) setEmail(savedEmail);
-      if (savedFacebook) setFacebook(savedFacebook);
-      if (savedTiktok) setTiktok(savedTiktok);
-      if (savedInstagram) setInstagram(savedInstagram);
-
-      if (savedVision) setVision(savedVision);
-      if (savedGoals) setGoals(savedGoals);
-      if (savedSustainability) setSustainability(savedSustainability);
-      if (savedStaff) setStaff(savedStaff);
-      if (savedLegalCompany) setLegalCompany(savedLegalCompany);
-      if (savedLegalCancellation) setLegalCancellation(savedLegalCancellation);
-      if (savedDataProtection) setDataProtection(savedDataProtection);
-    }
+          if (data.vision) setVision(data.vision);
+          if (data.goals) setGoals(data.goals);
+          if (data.sustainability) setSustainability(data.sustainability);
+          if (data.staff) setStaff(data.staff);
+          if (data.legalCompany) setLegalCompany(data.legalCompany);
+          if (data.legalCancellation) setLegalCancellation(data.legalCancellation);
+          if (data.dataProtection) setDataProtection(data.dataProtection);
+        }
+      } catch (err) {
+        console.error('Error fetching settings:', err);
+      }
+    };
+    fetchSettings();
   }, []);
 
-  // Save Settings to LocalStorage
-  const handleSaveSettings = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('orluxus_site_name', siteName);
-      localStorage.setItem('orluxus_whatsapp', whatsapp);
-      localStorage.setItem('orluxus_currency', currency);
-      localStorage.setItem('orluxus_paypal_email', paypalEmail);
-      
-      localStorage.setItem('orluxus_allow_reg', allowReg.toString());
-      localStorage.setItem('orluxus_allow_promo', allowPromo.toString());
-      localStorage.setItem('orluxus_notify_email', notifyEmail.toString());
-      localStorage.setItem('orluxus_commission', commission);
-
-      alert('✅ تم حفظ جميع الإعدادات بنجاح في متصفحك!');
-      
-      // Proactively reload/update global page titles if necessary
-      window.location.reload();
+  // Save Settings to Database
+  const handleSaveSettings = async () => {
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          siteName,
+          whatsapp,
+          currency,
+          paypalEmail,
+          allowReg,
+          allowPromo,
+          notifyEmail,
+          commission
+        })
+      });
+      if (res.ok) {
+        alert('✅ تم حفظ جميع الإعدادات بنجاح في قاعدة البيانات!');
+      } else {
+        alert('❌ فشل حفظ الإعدادات!');
+      }
+    } catch (err) {
+      console.error('Error saving settings:', err);
+      alert('❌ فشل حفظ الإعدادات!');
     }
   };
 
   // Save Social Media
-  const handleSaveSocialMedia = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('orluxus_email', email);
-      localStorage.setItem('orluxus_facebook', facebook);
-      localStorage.setItem('orluxus_tiktok', tiktok);
-      localStorage.setItem('orluxus_instagram', instagram);
-
-      alert('✅ تم حفظ روابط وسائل التواصل الاجتماعي بنجاح!');
+  const handleSaveSocialMedia = async () => {
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'social',
+          data: {
+            email,
+            facebook,
+            tiktok,
+            instagram
+          }
+        })
+      });
+      if (res.ok) {
+        alert('✅ تم حفظ روابط وسائل التواصل الاجتماعي بنجاح!');
+      } else {
+        alert('❌ فشل حفظ روابط التواصل!');
+      }
+    } catch (err) {
+      console.error('Error saving social media settings:', err);
+      alert('❌ فشل حفظ روابط التواصل!');
     }
   };
 
   // Save Policy & About Contents
-  const handleSaveContent = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('orluxus_about_vision', vision);
-      localStorage.setItem('orluxus_about_goals', goals);
-      localStorage.setItem('orluxus_about_sustainability', sustainability);
-      localStorage.setItem('orluxus_about_staff', staff);
-      localStorage.setItem('orluxus_legal_company', legalCompany);
-      localStorage.setItem('orluxus_legal_cancellation', legalCancellation);
-      localStorage.setItem('orluxus_data_protection', dataProtection);
-
-      alert('✅ تم حفظ نصوص السياسات والتعريف بنجاح!');
+  const handleSaveContent = async () => {
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vision,
+          goals,
+          sustainability,
+          staff,
+          legalCompany,
+          legalCancellation,
+          dataProtection
+        })
+      });
+      if (res.ok) {
+        alert('✅ تم حفظ نصوص السياسات والتعريف بنجاح!');
+      } else {
+        alert('❌ فشل حفظ نصوص السياسات!');
+      }
+    } catch (err) {
+      console.error('Error saving policies:', err);
+      alert('❌ فشل حفظ نصوص السياسات!');
     }
   };
 

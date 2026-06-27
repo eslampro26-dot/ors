@@ -119,6 +119,45 @@ export default function AdminServices() {
     }
   }, [modalOpen, modalType, selectedCity, selectedPkgType]);
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% quality jpeg
+        setFormData(prev => ({ ...prev, image: dataUrl }));
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -611,18 +650,24 @@ export default function AdminServices() {
                 </>
               ) : (
                 <>
-                  {/* Image Url */}
+                  {/* Image Upload */}
                   <div className={styles.formGroup}>
-                    <label>رابط الصورة (اختياري)</label>
+                    <label>صورة الرحلة (يتم ضغطها وحفظها تلقائياً)</label>
                     <input 
-                      type="text" 
-                      name="image" 
-                      value={formData.image} 
-                      onChange={handleInputChange}
-                      placeholder="مثال: /images/trips/custom.jpg"
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleImageUpload}
                       className={styles.input}
                     />
+                    {formData.image && (
+                      <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <img src={formData.image} alt="Preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
+                        <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>تم إرفاق الصورة بنجاح ✓</span>
+                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, image: '' }))} style={{ background: 'none', border: 'none', color: 'var(--coral-500)', cursor: 'pointer', fontSize: '0.8rem' }}>إزالة</button>
+                      </div>
+                    )}
                   </div>
+
                   {/* Location URL */}
                   <div className={styles.formGroup}>
                     <label>رابط الموقع الجغرافي للمطعم/المكان (Google Maps URL) (اختياري)</label>
