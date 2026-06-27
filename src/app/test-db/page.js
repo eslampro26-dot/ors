@@ -65,7 +65,7 @@ export default function TestDatabasePage() {
           </div>
 
           <div className="text-sm text-gray-500">
-            <p>معرف قاعدة البيانات: 9Evrgg7IPODZgBc21XKQ</p>
+            <p>معرف قاعدة البيانات: {process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || '(default)'}</p>
             <p>يمكنك أيضاً اختبار الاتصال من وحدة تحكم المتصفح باستخدام:</p>
             <code className="bg-gray-100 px-2 py-1 rounded">testDatabaseConnection()</code>
           </div>

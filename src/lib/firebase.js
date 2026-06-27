@@ -12,15 +12,18 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// معرف قاعدة البيانات الجديد
-const databaseId = "9Evrgg7IPODZgBc21XKQ";
+// معرف قاعدة البيانات الافتراضي لمشروع Firebase المجاني
+const databaseId = "(default)";
 
 // Initialize Firebase (prevent re-initialization in dev hot reload)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 let db;
 try {
-  // استخدام معرف قاعدة البيانات الجديد إذا كان متاحاً
-  const customDbId = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || databaseId;
+  // استخدام معرف قاعدة البيانات الجديد إذا كان متاحاً (مع تصحيح التلقائي للمعرف القديم الخاطئ)
+  let customDbId = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || databaseId;
+  if (customDbId === "9Evrgg7IPODZgBc21XKQ") {
+    customDbId = "(default)";
+  }
   db = initializeFirestore(app, { 
     experimentalForceLongPolling: true,
     databaseId: customDbId

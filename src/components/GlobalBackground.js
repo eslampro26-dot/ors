@@ -24,7 +24,6 @@ export default function GlobalBackground() {
     // Silently preload the next image
     const preloadNext = (idx) => {
       const nextIdx = (idx + 1) % BG_IMAGES.length;
-      if (preloadRef.current) preloadRef.current.src = '';
       const img = new window.Image();
       img.src = BG_IMAGES[nextIdx];
       preloadRef.current = img;
@@ -52,7 +51,6 @@ export default function GlobalBackground() {
 
     return () => {
       clearInterval(interval);
-      if (preloadRef.current) preloadRef.current.src = '';
     };
   }, []);
 
