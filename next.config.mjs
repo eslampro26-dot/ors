@@ -48,6 +48,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://res.cloudinary.com https://*.googleusercontent.com https://firebasestorage.googleapis.com https://*.firebasestorage.app",
+              "media-src 'self' https://assets.mixkit.co",
               "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebasestorage.app https://www.paypal.com",
               "frame-src https://www.paypal.com",
               "object-src 'none'",

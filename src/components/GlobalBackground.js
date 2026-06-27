@@ -21,17 +21,6 @@ export default function GlobalBackground() {
   const preloadRef = useRef(null);
 
   useEffect(() => {
-    // Silently preload the next image
-    const preloadNext = (idx) => {
-      const nextIdx = (idx + 1) % BG_IMAGES.length;
-      const img = new window.Image();
-      img.src = BG_IMAGES[nextIdx];
-      preloadRef.current = img;
-    };
-
-    // Start preloading image #2
-    preloadNext(0);
-
     const interval = setInterval(() => {
       const nextIdx = (indexRef.current + 1) % BG_IMAGES.length;
       indexRef.current = nextIdx;
@@ -45,7 +34,6 @@ export default function GlobalBackground() {
         setCurrentImg(BG_IMAGES[nextIdx]);
         setNextImg(null);
         setShowNext(false);
-        preloadNext(nextIdx);
       }, 2600);
     }, 10000);
 
