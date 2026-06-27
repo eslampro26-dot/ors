@@ -240,7 +240,7 @@ export async function addTrip(slug, category, tripData) {
       currency: 'EUR',
       rating: 5.0,
       reviews: 1,
-      image: tripData.image || '/images/trips/glass-boat.jpg',
+      image: tripData.image || 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80',
       createdAt: new Date().toISOString(),
       ...tripData,
     };

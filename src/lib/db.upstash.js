@@ -107,7 +107,7 @@ export async function getTrips(slug, category) {
 }
 
 export async function addTrip(slug, category, tripData) {
-  const newTrip = { id: `custom-trip-${Date.now()}`, currency: 'EUR', rating: 5.0, reviews: 1, image: tripData.image || '/images/trips/glass-boat.jpg', ...tripData };
+  const newTrip = { id: `custom-trip-${Date.now()}`, currency: 'EUR', rating: 5.0, reviews: 1, image: tripData.image || 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80', ...tripData };
   if (!isUpstashConfigured()) return newTrip;
   const existing = await kvGet(`trips:${slug}:${category}`) || [];
   await kvSet(`trips:${slug}:${category}`, [...existing, newTrip]);

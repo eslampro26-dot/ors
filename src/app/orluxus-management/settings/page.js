@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 export default function AdminSettings() {
   const [siteName, setSiteName] = useState('ORLUXUS');
   const [whatsapp, setWhatsapp] = useState('+20100000000');
+  const [emergencyPhone, setEmergencyPhone] = useState('');
   const [currency, setCurrency] = useState('اليورو (€)');
   const [paypalEmail, setPaypalEmail] = useState('info@orluxus.com');
   
@@ -36,6 +37,7 @@ export default function AdminSettings() {
           const data = await res.json();
           if (data.siteName) setSiteName(data.siteName);
           if (data.whatsapp) setWhatsapp(data.whatsapp);
+          if (data.emergencyPhone !== undefined) setEmergencyPhone(data.emergencyPhone);
           if (data.currency) setCurrency(data.currency);
           if (data.paypalEmail) setPaypalEmail(data.paypalEmail);
           
@@ -73,6 +75,7 @@ export default function AdminSettings() {
         body: JSON.stringify({
           siteName,
           whatsapp,
+          emergencyPhone,
           currency,
           paypalEmail,
           allowReg,
@@ -186,6 +189,28 @@ export default function AdminSettings() {
                 type="text" 
                 value={whatsapp} 
                 onChange={(e) => setWhatsapp(e.target.value)}
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.04)', 
+                  color: 'white', 
+                  border: '1px solid var(--border-medium)', 
+                  borderRadius: '6px',
+                  outline: 'none',
+                  textAlign: 'left',
+                  fontFamily: 'var(--font-en)'
+                }} 
+              />
+            </div>
+
+            {/* Emergency Contact */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>رقم الطوارئ</label>
+              <input 
+                type="text" 
+                value={emergencyPhone} 
+                onChange={(e) => setEmergencyPhone(e.target.value)}
+                placeholder="+201..."
                 style={{ 
                   width: '100%', 
                   padding: '10px 14px', 

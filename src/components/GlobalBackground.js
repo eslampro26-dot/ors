@@ -21,6 +21,11 @@ export default function GlobalBackground() {
   const preloadRef = useRef(null);
 
   useEffect(() => {
+    // Only run the dynamic background interval on the home page
+    const isHome = window.location.pathname === '/' || window.location.pathname === '/ar' || window.location.pathname === '/en';
+    
+    if (!isHome) return;
+
     const interval = setInterval(() => {
       const nextIdx = (indexRef.current + 1) % BG_IMAGES.length;
       indexRef.current = nextIdx;

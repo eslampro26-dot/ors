@@ -104,6 +104,7 @@ export default function Home() {
     text: ''
   });
   const [hoverRating, setHoverRating] = useState(0);
+  const [emergencyPhone, setEmergencyPhone] = useState('');
 
   // Safely sync company details and reviews from LocalStorage after hydration
   useEffect(() => {
@@ -115,6 +116,13 @@ export default function Home() {
         if (savedPhone) setWhatsapp(savedPhone);
 
         try {
+          // Load settings for emergency phone
+          const { getSettings } = require('@/lib/db');
+          const settings = await getSettings();
+          if (settings?.emergencyPhone) {
+            setEmergencyPhone(settings.emergencyPhone);
+          }
+
           // Load dynamic reviews
           const dynamicReviews = await getReviews();
           setReviews(dynamicReviews || []);
@@ -813,27 +821,27 @@ export default function Home() {
           {/* Column 2: About Us (عننا) */}
           <div>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {locale === 'ar' ? 'عننا' : 'About Us'}
+              {t('footer.aboutUs')}
             </h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: 0, listStyle: 'none' }}>
               <li>
                 <button onClick={() => handleOpenContentModal('vision', 'رؤيتنا', 'Our Vision')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'رؤيتنا' : 'Our Vision'}
+                  {t('footer.ourVision')}
                 </button>
               </li>
               <li>
                 <button onClick={() => handleOpenContentModal('goals', 'أهدافنا', 'Our Goals')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'أهدافنا' : 'Our Goals'}
+                  {t('footer.ourGoals')}
                 </button>
               </li>
               <li>
                 <button onClick={() => handleOpenContentModal('sustainability', 'الاستدامة', 'Sustainability')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'الاستدامة' : 'Sustainability'}
+                  {t('footer.sustainability')}
                 </button>
               </li>
               <li>
                 <button onClick={() => handleOpenContentModal('staff', 'موظفونا', 'Our Staff')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'موظفونا' : 'Our Staff'}
+                  {t('footer.ourStaff')}
                 </button>
               </li>
             </ul>
@@ -842,22 +850,22 @@ export default function Home() {
           {/* Column 3: Legal (قانوني) & Data Protection */}
           <div>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {locale === 'ar' ? 'قانوني' : 'Legal'}
+              {t('footer.legal')}
             </h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: 0, listStyle: 'none' }}>
               <li>
                 <button onClick={() => handleOpenContentModal('legalCompany', 'الوضع القانوني للشركة', 'Company Legal Status')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'الوضع القانوني للشركة' : 'Company Legal Status'}
+                  {t('footer.companyLegalStatus')}
                 </button>
               </li>
               <li>
                 <button onClick={() => handleOpenContentModal('legalCancellation', 'سياسة الإلغاء', 'Cancellation Policy')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'سياسة الإلغاء' : 'Cancellation Policy'}
+                  {t('footer.cancellationPolicy')}
                 </button>
               </li>
               <li>
                 <button onClick={() => handleOpenContentModal('dataProtection', 'حماية البيانات', 'Data Protection')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'حماية البيانات' : 'Data Protection'}
+                  {t('footer.dataProtection')}
                 </button>
               </li>
             </ul>
@@ -866,21 +874,21 @@ export default function Home() {
           {/* Column 4: Join Us (وظائف) & Payment Methods */}
           <div>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {locale === 'ar' ? 'انضم إلينا' : 'Join Us'}
+              {t('footer.joinUs')}
             </h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: 0, listStyle: 'none', marginBottom: '1.5rem' }}>
               <li>
                 <Link href="/agent/login" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', textDecoration: 'none', transition: 'color var(--transition-fast)' }} className="footer-link">
-                  {locale === 'ar' ? 'شركاء والوكلاء (بروفايل الأرباح)' : 'Partners & Agents Profile'}
+                  {t('footer.partnersProfile')}
                 </Link>
               </li>
             </ul>
 
             <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {locale === 'ar' ? 'طرق الدفع' : 'Payment Methods'}
+              {t('footer.paymentMethods')}
             </h4>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', margin: 0 }}>
-              {locale === 'ar' ? 'فيزا، ماستركارد، باي بال، تحويل بنكي (سيتم تحديدها لاحقاً)' : 'Visa, Mastercard, PayPal, Bank Transfer (To be specified)'}
+              {t('footer.paymentMethodsDesc')}
             </p>
           </div>
 
@@ -910,6 +918,30 @@ export default function Home() {
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style={{ verticalAlign: 'middle' }}><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.247 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.313 1.592 5.528.002 10.026-4.495 10.028-10.024.001-2.678-1.043-5.197-2.939-7.094-1.896-1.897-4.417-2.94-7.098-2.94-5.529 0-10.026 4.497-10.028 10.026-.001 2.081.545 3.738 1.582 5.269l-.999 3.648 3.743-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.151-.174.2-.298.3-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
               <span style={{ marginInlineStart: '6px' }}>{t('common.whatsappBtn')}</span>
             </a>
+            
+            {emergencyPhone && (
+              <a 
+                href={`tel:${emergencyPhone.replace(/[^0-9+]/g, '')}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  background: '#ef4444',
+                  color: '#ffffff',
+                  padding: '8px 18px',
+                  borderRadius: '999px',
+                  fontWeight: 'bold',
+                  fontSize: '0.85rem',
+                  textDecoration: 'none',
+                  marginTop: '0.5rem'
+                }}
+              >
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{ verticalAlign: 'middle' }}>
+                  <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z"/>
+                </svg>
+                <span style={{ marginInlineStart: '6px' }}>{locale === 'ar' ? 'الطوارئ' : 'Emergency'}</span>
+              </a>
+            )}
           </div>
 
           {/* Column 6: Follow Us */}
