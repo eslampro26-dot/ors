@@ -9,6 +9,14 @@ export default function AdminSettings() {
   const [currency, setCurrency] = useState('اليورو (€)');
   const [paypalEmail, setPaypalEmail] = useState('info@orluxus.com');
   
+  const defaultAddons = [
+    { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25 },
+    { id: 'lunch', nameEn: 'Lunch & Soft Drinks / person', nameAr: 'وجبة غداء ومشروبات / للفرد', price: 15 },
+    { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 30 },
+    { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20 },
+  ];
+  const [checkoutAddons, setCheckoutAddons] = useState(defaultAddons);
+  
   const [allowReg, setAllowReg] = useState(true);
   const [allowPromo, setAllowPromo] = useState(true);
   const [notifyEmail, setNotifyEmail] = useState(true);
@@ -40,6 +48,7 @@ export default function AdminSettings() {
           if (data.emergencyPhone !== undefined) setEmergencyPhone(data.emergencyPhone);
           if (data.currency) setCurrency(data.currency);
           if (data.paypalEmail) setPaypalEmail(data.paypalEmail);
+          if (data.checkoutAddons) setCheckoutAddons(data.checkoutAddons);
           
           if (data.allowReg !== undefined) setAllowReg(data.allowReg === true || data.allowReg === 'true');
           if (data.allowPromo !== undefined) setAllowPromo(data.allowPromo === true || data.allowPromo === 'true');
@@ -81,7 +90,8 @@ export default function AdminSettings() {
           allowReg,
           allowPromo,
           notifyEmail,
-          commission
+          commission,
+          checkoutAddons
         })
       });
       if (res.ok) {
@@ -480,7 +490,84 @@ export default function AdminSettings() {
               <textarea value={dataProtection} onChange={(e) => setDataProtection(e.target.value)} rows="4" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
           </div>
+        </div>
 
+        {/* Section 6: Checkout Add-ons (الخدمات الإضافية في صفحة الدفع) */}
+        <div className="admin-card">
+          <div className="admin-card-header">
+            <h2 className="admin-card-title">الخدمات الإضافية في صفحة الدفع (Checkout Add-ons)</h2>
+          </div>
+          <div className="admin-card-body">
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+              هذه الإضافات ستظهر للعميل أثناء عملية الحجز ليتمكن من اختيارها. يمكنك تعديل أسعارها ومسمياتها بحرية.
+            </p>
+            {checkoutAddons.map((addon, index) => (
+              <div key={addon.id || index} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 100px 50px', gap: '1rem', marginBottom: '1rem', alignItems: 'center' }}>
+                <div>
+                  <label className="admin-label">الاسم بالإنجليزية</label>
+                  <input
+                    type="text"
+                    className="admin-input"
+                    value={addon.nameEn}
+                    onChange={(e) => {
+                      const newAddons = [...checkoutAddons];
+                      newAddons[index].nameEn = e.target.value;
+                      setCheckoutAddons(newAddons);
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="admin-label">الاسم بالعربية</label>
+                  <input
+                    type="text"
+                    className="admin-input"
+                    value={addon.nameAr}
+                    onChange={(e) => {
+                      const newAddons = [...checkoutAddons];
+                      newAddons[index].nameAr = e.target.value;
+                      setCheckoutAddons(newAddons);
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="admin-label">السعر (€)</label>
+                  <input
+                    type="number"
+                    className="admin-input"
+                    value={addon.price}
+                    onChange={(e) => {
+                      const newAddons = [...checkoutAddons];
+                      newAddons[index].price = Number(e.target.value);
+                      setCheckoutAddons(newAddons);
+                    }}
+                  />
+                </div>
+                <div style={{ paddingTop: '28px' }}>
+                  <button 
+                    className="btn btn-danger" 
+                    style={{ padding: '0.5rem', width: '100%' }}
+                    onClick={() => {
+                      const newAddons = checkoutAddons.filter((_, i) => i !== index);
+                      setCheckoutAddons(newAddons);
+                    }}
+                  >
+                    حذف
+                  </button>
+                </div>
+              </div>
+            ))}
+            <button 
+              className="btn btn-secondary"
+              onClick={() => {
+                setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: '', nameAr: '', price: 0 }]);
+              }}
+            >
+              + إضافة خدمة جديدة
+            </button>
+            <div style={{ marginTop: '1.5rem', textAlign: 'left' }}>
+              <button className="btn btn-primary" onClick={handleSaveSettings}>حفظ الخدمات الإضافية</button>
+            </div>
+          </div>
         </div>
 
         <button onClick={handleSaveContent} className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: 'linear-gradient(135deg, var(--gold-600), var(--gold-400))' }}>

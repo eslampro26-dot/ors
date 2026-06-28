@@ -20,6 +20,8 @@ export default function CategoryPage({ params }) {
   if (!catInfo) notFound();
 
   const [trips, setTrips] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState('');
   
   // State to track selected tier id for each trip
   // Format: { [tripId]: 'economy' | 'business' | 'vip' }
@@ -170,16 +172,13 @@ export default function CategoryPage({ params }) {
                     }}>
                       {tiers.map(tier => {
                         const isSelected = tier.id === currentTierId;
-                        let icon = '🥉';
                         let badgeColor = 'rgba(205, 127, 50, 0.15)';
                         let textColor = '#cd7f32';
                         
                         if (tier.id === 'business') {
-                          icon = '🥈';
                           badgeColor = 'rgba(149, 165, 166, 0.15)';
                           textColor = '#7f8c8d';
                         } else if (tier.id === 'vip') {
-                          icon = '🥇';
                           badgeColor = 'rgba(243, 156, 18, 0.15)';
                           textColor = '#f39c12';
                         }
@@ -206,19 +205,13 @@ export default function CategoryPage({ params }) {
                               boxShadow: isSelected ? 'var(--shadow-sm)' : 'none'
                             }}
                           >
-                            <span>{icon}</span>
                             <span>{tier.names[locale] || tier.names.en}</span>
                           </button>
                         );
                       })}
                     </div>
 
-                    {/* Active Tier Description */}
-                    <p style={{
-                      fontSize: '0.82rem',
-                      color: 'var(--text-secondary)',
-                      lineHeight: '1.4',
-                      minHeight: '40px',
+                    <div style={{
                       marginBottom: '1rem',
                       background: 'rgba(255,255,255,0.02)',
                       padding: '8px',
@@ -226,8 +219,38 @@ export default function CategoryPage({ params }) {
                       border: '1px solid var(--border-subtle)',
                       textAlign: locale === 'ar' ? 'right' : 'left'
                     }}>
-                      {activeTier.descriptions[locale] || activeTier.descriptions.en}
-                    </p>
+                      <p style={{
+                        fontSize: '0.82rem',
+                        color: 'var(--text-secondary)',
+                        lineHeight: '1.4',
+                        minHeight: '40px',
+                        margin: 0
+                      }}>
+                        {activeTier.descriptions[locale] || activeTier.descriptions.en}
+                      </p>
+                      
+                      {activeTier.richDesc && (
+                        <button 
+                          onClick={() => {
+                            setModalContent(activeTier.richDesc);
+                            setShowModal(true);
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--gold-500)',
+                            fontSize: '0.8rem',
+                            fontWeight: 'bold',
+                            marginTop: '0.5rem',
+                            cursor: 'pointer',
+                            padding: 0,
+                            textDecoration: 'underline'
+                          }}
+                        >
+                          {locale === 'ar' ? 'عرض المزيد عن هذه الفئة' : 'Show More Details'}
+                        </button>
+                      )}
+                    </div>
 
                     {/* Stats */}
                     <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: '1.5rem', marginTop: 'auto', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
@@ -268,13 +291,67 @@ export default function CategoryPage({ params }) {
               );
             })}
           </div>
-        ) : (
-          <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-            <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>{t('common.noTours')}</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{t('common.noToursDesc')}</p>
-          </div>
-        )}
+        ) : null}
       </div>
+
+      {/* Rich Description Modal */}
+      {showModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div className="glass-card animate-scale-in" style={{
+            background: 'var(--bg-primary)',
+            padding: '2rem',
+            borderRadius: '16px',
+            maxWidth: '600px',
+            width: '100%',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            border: '1px solid var(--gold-500)',
+            position: 'relative'
+          }}>
+            <button 
+              onClick={() => setShowModal(false)}
+              style={{
+                position: 'absolute',
+                top: '15px',
+                right: '15px',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                fontSize: '1.5rem',
+                cursor: 'pointer'
+              }}
+            >
+              ×
+            </button>
+            <h3 style={{ color: 'var(--gold-500)', marginBottom: '1.5rem', marginTop: 0, textAlign: locale === 'ar' ? 'right' : 'left' }}>
+              {locale === 'ar' ? 'تفاصيل فئة الرحلة' : 'Tier Details'}
+            </h3>
+            <div style={{ 
+              color: 'var(--text-primary)', 
+              lineHeight: '1.8', 
+              fontSize: '0.95rem',
+              textAlign: locale === 'ar' ? 'right' : 'left',
+              whiteSpace: 'pre-wrap'
+            }}>
+              {modalContent}
+            </div>
+            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+              <button className="btn btn-primary" onClick={() => setShowModal(false)}>
+                {locale === 'ar' ? 'إغلاق' : 'Close'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

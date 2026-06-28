@@ -30,6 +30,9 @@ export default function AdminServices() {
     icon: '✈️',
     image: '',
     locationUrl: '',
+    economyDesc: '',
+    businessDesc: '',
+    vipDesc: '',
   });
 
   // Load data only for the selected city (lazy loading for performance)
@@ -167,7 +170,7 @@ export default function AdminServices() {
     e.preventDefault();
     
     if (modalType === 'trip') {
-      const { city, category, titleAr, titleEn, price, duration, image, locationUrl } = formData;
+      const { city, category, titleAr, titleEn, price, duration, image, locationUrl, economyDesc, businessDesc, vipDesc } = formData;
       if (!titleAr || !titleEn || !price) {
         alert('يرجى ملء جميع الحقول المطلوبة!');
         return;
@@ -180,13 +183,16 @@ export default function AdminServices() {
           price: parseFloat(price),
           duration,
           image: image || '/images/trips/glass-boat.jpg',
-          locationUrl: locationUrl || ''
+          locationUrl: locationUrl || '',
+          economyDesc: economyDesc || '',
+          businessDesc: businessDesc || '',
+          vipDesc: vipDesc || ''
         });
 
         if (success) {
           alert('تمت إضافة الرحلة بنجاح!');
           setModalOpen(false);
-          setFormData({ titleAr:'',titleEn:'',price:'',duration:'يوم كامل',category:'',city:'',description:'',icon:'✈️',image:'',locationUrl:'' });
+          setFormData({ titleAr:'',titleEn:'',price:'',duration:'يوم كامل',category:'',city:'',description:'',icon:'✈️',image:'',locationUrl:'', economyDesc:'', businessDesc:'', vipDesc:'' });
           await reloadCurrentCity();
         } else {
           alert('حدث خطأ أثناء حفظ الرحلة.');
@@ -620,6 +626,48 @@ export default function AdminServices() {
                   />
                 </div>
               </div>
+
+              {modalType === 'trip' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                  <h4 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.05rem' }}>تفاصيل وتوصيف الفئات (Rich Descriptions)</h4>
+                  
+                  <div className={styles.formGroup}>
+                    <label style={{ color: 'var(--text-secondary)' }}>وصف فئة Economy (اقتصادي)</label>
+                    <textarea 
+                      name="economyDesc" 
+                      value={formData.economyDesc} 
+                      onChange={handleInputChange}
+                      placeholder="اكتب كل التفاصيل التي تقدمها فئة Economy هنا..."
+                      className={styles.input}
+                      rows="3"
+                    ></textarea>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label style={{ color: 'var(--gold-400)' }}>وصف فئة Business (أعمال)</label>
+                    <textarea 
+                      name="businessDesc" 
+                      value={formData.businessDesc} 
+                      onChange={handleInputChange}
+                      placeholder="اكتب كل التفاصيل التي تقدمها فئة Business هنا..."
+                      className={styles.input}
+                      rows="3"
+                    ></textarea>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label style={{ color: 'var(--coral-400)' }}>وصف فئة VIP (خاص)</label>
+                    <textarea 
+                      name="vipDesc" 
+                      value={formData.vipDesc} 
+                      onChange={handleInputChange}
+                      placeholder="اكتب كل التفاصيل التي تقدمها فئة VIP هنا..."
+                      className={styles.input}
+                      rows="3"
+                    ></textarea>
+                  </div>
+                </div>
+              )}
 
               {modalType === 'package' ? (
                 <>

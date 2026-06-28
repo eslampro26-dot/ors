@@ -165,8 +165,8 @@ export const cities = [
       it: "Costa d'Oro - Acque turchesi, splendide spiagge sabbiose e intrattenimento premium",
       ru: "Золотой берег - бирюзовая вода, песчаные пляжи и первоклассные развлечения",
       tr: "Altın Sahil - Turkuaz sular, güzel kumsallar ve birinci sınıf eğlence atmosferi",
-      zh: "黄金海岸 - 碧绿的海水、美丽的沙滩和高档...的娱乐氛围",
-      ja: "黄金海岸 - ターコイズブルー...の海、美しい砂浜、そしてプレミアムなエンターテインメント"
+      zh: "黄金海岸 - 碧绿的海水、美丽的沙滩和高档的娱乐氛围",
+      ja: "黄金海岸 - ターコイズブルーの海、美しい砂浜、そしてプレミアムなエンターテインメント"
     },
     categories: [
       { id: "sea-trips", slots: 20 },
@@ -191,9 +191,9 @@ export const internalPackages = [
       zh: "休闲度假套餐", ja: "リラクゼーションパック"
     },
     descriptions: {
-      en: "Hotel + Flight + Private Airport Transfer", ar: "فندق + طيران + ترانسفير خاص من المطار", de: "Hotel + Flug + Privater Flughafentransfer", fr: "Hôtel + Vol + Transfert Privé Aéroport",
-      es: "Hotel + Vuelo + Traslado Privado al Aeropuerto", it: "Hotel + Volo + Trasferimento Privato in Aeroporto", ru: "Отель + Авиаперелет + Индивидуальный трансфер", tr: "Otel + Uçuş + Özel Havalimanı Transferi",
-      zh: "酒店 + 机票 + 私人机场接送", ja: "ホテル + フライト + プライベート空港送迎"
+      en: "", ar: "", de: "", fr: "",
+      es: "", it: "", ru: "", tr: "",
+      zh: "", ja: ""
     },
     icon: "🧖", slots: 20
   },
@@ -205,9 +205,9 @@ export const internalPackages = [
       zh: "文化之旅套餐", ja: "文化歴史パッケージ"
     },
     descriptions: {
-      en: "Guided cultural tours, museum tickets, and historic sightseeing", ar: "جولات ثقافية وتاريخية برفقة مرشدين وتذاكر المتاحف والمعالم", de: "Geführte Kulturreisen, Museumstickets und historische Sehenswürdigkeiten", fr: "Visites culturelles guidées, billets de musée et visites historiques",
-      es: "Visitas culturales guiadas, entradas a museos y turismo histórico", it: "Tour culturali guidati, biglietti per i musei e visite storiche", ru: "Экскурсии с гидом, билеты в музеи и исторические достопримечательности", tr: "Rehberli kültür turları, müze biletleri ve tarihi geziler",
-      zh: "导游文化之旅、博物馆门票和历史古迹观光", ja: "ガイド付き文化ツアー、美術館のチケット、歴史的観光名所の見学"
+      en: "", ar: "", de: "", fr: "",
+      es: "", it: "", ru: "", tr: "",
+      zh: "", ja: ""
     },
     icon: "🏺", slots: 20
   },
@@ -219,9 +219,9 @@ export const internalPackages = [
       zh: "休闲与文化融合套餐", ja: "リラックス & カルチャー"
     },
     descriptions: {
-      en: "An elegant combination of resort luxury and historical explorations", ar: "مزيج فاخر من استجمام المنتجع واستكشاف المعالم التاريخية لمصر", de: "Eine elegante Kombination aus Resort-Luxus und historischen Entdeckungen", fr: "Une combinaison élégante de luxe balnéaire et d'explorations historiques",
-      es: "Una elegante combinación de lujo en complejos turísticos y exploraciones históricas", it: "Un elegante connubio tra resort di lusso ed esplorazioni storiche", ru: "Элегантное сочетание роскошного курорта и исторических исследований", tr: "Resort lüksü ve tarihi keşiflerin zarif bir kombinasyonu",
-      zh: "度假村奢华与历史探索的优雅结合", ja: "リゾートの贅沢さと歴史的な探検の優雅な組み合わせ"
+      en: "", ar: "", de: "", fr: "",
+      es: "", it: "", ru: "", tr: "",
+      zh: "", ja: ""
     },
     icon: "🌟", slots: 20
   },
@@ -233,9 +233,9 @@ export const internalPackages = [
       zh: "尼罗河游轮度假套餐", ja: "ナイル川クルーズツアー"
     },
     descriptions: {
-      en: "Full board cruise journey between Luxor and Aswan on a luxury ship", ar: "رحلة كروز كاملة الإقامة بين الأقصر وأسوان على متن سفينة فاخرة", de: "Nilkreuzfahrt mit Vollpension zwischen Luxor und Assuan auf einem Luxusschiff", fr: "Voyage en croisière pension complète entre Louxor et Assouan sur un bateau de luxe",
-      es: "Viaje de crucero con pensión completa entre Luxor y Asuán en un barco de lujo", it: "Crociera in pensione completa tra Luxor e Assuan su una nave di lusso", ru: "Круиз по Нилу с полным пансионом между Луксором и Асуаном на роскошном теплоходе", tr: "Lüks bir gemide Luksor ve Aswan arasında tam pansiyon gemi yolculuğu",
-      zh: "在豪华游轮上享受卢克索与阿斯旺之间的全包游轮之旅", ja: "豪華客船によるルクソールとアスワンの間のフルボードクルーズ旅行"
+      en: "", ar: "", de: "", fr: "",
+      es: "", it: "", ru: "", tr: "",
+      zh: "", ja: ""
     },
     icon: "🛳️", slots: 20
   },
@@ -247,9 +247,9 @@ export const internalPackages = [
       zh: "海滩度假套餐", ja: "ビーチパッケージ"
     },
     descriptions: {
-      en: "All-inclusive beach vacation at Egypt's top resorts", ar: "إجازة شاطئية شاملة كلياً في أرقى المنتجعات المصرية", de: "All-inclusive-Strandurlaub in den besten Resorts Ägyptens", fr: "Vacances à la plage tout compris dans les meilleurs complexes d'Égypte",
-      es: "Vacaciones de playa con todo incluido en los mejores complejos de Egipto", it: "Vacanze al mare tutto compreso nei migliori resort dell'Egitto", ru: "Пляжный отдых «все включено» на лучших курортах Египта", tr: "Mısır'ın en iyi tatil köylerinde her şey dahil plaj tatili",
-      zh: "埃及顶级度假村的全包海滩假期", ja: "エジプトのトップリゾートでのオールインクルーシブビーチバケーション"
+      en: "", ar: "", de: "", fr: "",
+      es: "", it: "", ru: "", tr: "",
+      zh: "", ja: ""
     },
     icon: "🏝️", slots: 20
   },
@@ -261,9 +261,9 @@ export const internalPackages = [
       zh: "娱乐观光套餐", ja: "エンターテイメントパック"
     },
     descriptions: {
-      en: "Event access, nightlife tickets, and family theme parks packages", ar: "حضور الفعاليات وتذاكر السهرات ومدن الألعاب الترفيهية العائلية", de: "Veranstaltungszugang, Tickets für das Nachtleben und Pakete für Familien-Freizeitparks", fr: "Accès aux événements, billets de discothèque et parcs à thèmes familiaux",
-      es: "Acceso a eventos, entradas a espectáculos nocturnos y parques temáticos familiares", it: "Accesso a eventi, biglietti per la vita notturna e parcs tematici per famiglie", ru: "Доступ к мероприятиям, билеты в ночные клубы и пакеты развлечений для всей семьи", tr: "Etkinlik girişleri, gece hayatı biletleri ve aile tema parkı paketleri",
-      zh: "包含活动门票、夜生活门票和家庭主题公园的套餐", ja: "イベント入場、ナイトライフチケット、家族向けテーマパークのパッケージ"
+      en: "", ar: "", de: "", fr: "",
+      es: "", it: "", ru: "", tr: "",
+      zh: "", ja: ""
     },
     icon: "🎉", slots: 20
   },
@@ -680,7 +680,8 @@ export function getTripTiers(trip) {
         tr: "Temel giriş ve rehberlik içeren standart grup gezisi.",
         zh: "标准团体游览，包含基础门票和导游服务。",
         ja: "基本的な入場とガイドが含まれる標準的なグループツアー。"
-      }
+      },
+      richDesc: trip.economyDesc || null
     },
     {
       id: "business",
@@ -701,7 +702,8 @@ export function getTripTiers(trip) {
         tr: "Yükseltilmiş olanaklar, premium öğle yemeği ve öncelikli erişim.",
         zh: "升级服务、高端午餐和优先入场通道。",
         ja: "アップグレードされたアメニティ、プレミアムランチ、優先入場。"
-      }
+      },
+      richDesc: trip.businessDesc || null
     },
     {
       id: "vip",
@@ -722,7 +724,8 @@ export function getTripTiers(trip) {
         tr: "Lüks özel transferler, size özel rehber ve seçkin olanaklar.",
         zh: "豪华私人接送、专属私人导游及顶级贵宾礼遇。",
         ja: "豪華なプライベート送迎、専属ガイド、一流のアメニティ。"
-      }
+      },
+      richDesc: trip.vipDesc || null
     }
   ];
 }

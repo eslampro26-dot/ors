@@ -73,16 +73,22 @@ export default function PackagePage({ params }) {
       
       {/* Package Hero */}
       <div style={{
-        paddingTop: 'calc(var(--nav-height) + 6rem)',
-        paddingBottom: '6rem',
+        minHeight: '70vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: 'var(--nav-height)',
+        paddingBottom: '2rem',
         textAlign: 'center',
-        backgroundImage: `linear-gradient(rgba(10, 14, 23, 0.75), rgba(10, 14, 23, 0.75)), url(${packageBackgrounds[pkg.id] || 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80'})`,
+        backgroundImage: `linear-gradient(rgba(10, 14, 23, 0.6), rgba(10, 14, 23, 0.6)), url(${packageBackgrounds[pkg.id] || 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80'})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
         borderBottom: '1px solid var(--border-subtle)'
       }}>
         <div className="container animate-fade-in-up">
-          <h1 className="section-title" style={{ fontSize: '2.8rem', color: '#fff', textShadow: '0 2px 4px rgba(0,0,0,0.5)', margin: 0 }}>{locPkg.name}</h1>
+          <h1 className="section-title" style={{ fontSize: '3.5rem', color: '#fff', textShadow: '0 4px 8px rgba(0,0,0,0.5)', margin: 0 }}>{locPkg.name}</h1>
         </div>
       </div>
 

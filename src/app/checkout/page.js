@@ -155,12 +155,7 @@ function CheckoutContent() {
   const [whatsapp, setWhatsapp] = useState('');
   const [bookingDate, setBookingDate] = useState('');
   const [pickupLocation, setPickupLocation] = useState('');
-  const [selectedExtras, setSelectedExtras] = useState({
-    guide: false,
-    lunch: false,
-    transfer: false,
-    photos: false
-  });
+  const [selectedExtras, setSelectedExtras] = useState({});
   const [specialRequests, setSpecialRequests] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -198,20 +193,25 @@ function CheckoutContent() {
 
   // Helpers to format selected extras
   const getSelectedExtrasString = () => {
+    if (!settings?.checkoutAddons) return '';
     const arr = [];
-    if (selectedExtras.guide) arr.push(locale === 'ar' ? 'مرشد سياحي خاص' : 'Private Guide');
-    if (selectedExtras.lunch) arr.push(locale === 'ar' ? 'وجبة غداء ومشروبات' : 'Lunch & Soft Drinks');
-    if (selectedExtras.transfer) arr.push(locale === 'ar' ? 'انتقالات خاصة ذهاب وعودة' : 'Round-trip Private Transfer');
-    if (selectedExtras.photos) arr.push(locale === 'ar' ? 'جلسة تصوير احترافية' : 'Professional Photography Session');
+    settings.checkoutAddons.forEach(addon => {
+      if (selectedExtras[addon.id]) {
+        arr.push(locale === 'ar' ? addon.nameAr : addon.nameEn);
+      }
+    });
     return arr.join(', ');
   };
 
   const getSelectedExtrasCost = () => {
+    if (!settings?.checkoutAddons) return 0;
     let cost = 0;
-    if (selectedExtras.guide) cost += 25;
-    if (selectedExtras.lunch) cost += 15 * travelers;
-    if (selectedExtras.transfer) cost += 30;
-    if (selectedExtras.photos) cost += 20;
+    settings.checkoutAddons.forEach(addon => {
+      if (selectedExtras[addon.id]) {
+        const isPerPerson = addon.nameEn.toLowerCase().includes('/ person') || addon.nameAr.includes('للفرد') || addon.id === 'lunch';
+        cost += isPerPerson ? (addon.price * travelers) : addon.price;
+      }
+    });
     return cost;
   };
 
@@ -1605,61 +1605,31 @@ function CheckoutContent() {
               </div>
 
               {/* PREMIUM EXTRAS & ADD-ONS */}
-              <div style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: '0.8rem', 
-                borderTop: '1px solid var(--border-subtle)', 
-                paddingTop: '1.2rem' 
-              }}>
-                <h4 style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem' }}>{translate('extrasTitle')}</h4>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                  {/* Extra 1: Guide */}
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={selectedExtras.guide}
-                      onChange={(e) => setSelectedExtras(prev => ({ ...prev, guide: e.target.checked }))}
-                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                    />
-                    <span>{translate('extraGuide')}</span>
-                  </label>
-
-                  {/* Extra 2: Lunch */}
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={selectedExtras.lunch}
-                      onChange={(e) => setSelectedExtras(prev => ({ ...prev, lunch: e.target.checked }))}
-                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                    />
-                    <span>{translate('extraLunch')}</span>
-                  </label>
-
-                  {/* Extra 3: Transfer */}
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={selectedExtras.transfer}
-                      onChange={(e) => setSelectedExtras(prev => ({ ...prev, transfer: e.target.checked }))}
-                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                    />
-                    <span>{translate('extraTransfer')}</span>
-                  </label>
-
-                  {/* Extra 4: Photos */}
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={selectedExtras.photos}
-                      onChange={(e) => setSelectedExtras(prev => ({ ...prev, photos: e.target.checked }))}
-                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                    />
-                    <span>{translate('extraPhotos')}</span>
-                  </label>
+              {settings?.checkoutAddons && settings.checkoutAddons.length > 0 && (
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '0.8rem', 
+                  borderTop: '1px solid var(--border-subtle)', 
+                  paddingTop: '1.2rem' 
+                }}>
+                  <h4 style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem' }}>{translate('extrasTitle')}</h4>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                    {settings.checkoutAddons.map(addon => (
+                      <label key={addon.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={!!selectedExtras[addon.id]}
+                          onChange={(e) => setSelectedExtras(prev => ({ ...prev, [addon.id]: e.target.checked }))}
+                          style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                        />
+                        <span>{locale === 'ar' ? addon.nameAr : addon.nameEn} (+€{addon.price})</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Special Requests */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.2rem' }}>

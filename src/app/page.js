@@ -46,6 +46,7 @@ export default function Home() {
   const [whatsapp, setWhatsapp] = useState('+20100000000');
   const [reviews, setReviews] = useState([]);
   const [socialMedia, setSocialMedia] = useState({});
+  const [destinationsOverride, setDestinationsOverride] = useState({});
   
   const { locale, t, isReady } = useLanguage();
 
@@ -116,11 +117,14 @@ export default function Home() {
         if (savedPhone) setWhatsapp(savedPhone);
 
         try {
-          // Load settings for emergency phone
+          // Load settings for emergency phone and destinations
           const { getSettings } = require('@/lib/db');
           const settings = await getSettings();
           if (settings?.emergencyPhone) {
             setEmergencyPhone(settings.emergencyPhone);
+          }
+          if (settings?.destinations) {
+            setDestinationsOverride(settings.destinations);
           }
 
           // Load dynamic reviews
@@ -321,7 +325,23 @@ export default function Home() {
             width: '100%'
           }}>
             {cities.map((city, idx) => {
-              const locCity = getLocalizedCity(city, locale);
+              const override = destinationsOverride[city.slug] || {};
+              // Build dynamic localized city
+              const dynamicCity = {
+                ...city,
+                image: override.image || city.image,
+                nameAr: override.nameAr || city.nameAr,
+                nameEn: override.nameEn || city.nameEn,
+                descriptionAr: override.descriptionAr || city.descriptionAr,
+                descriptionEn: override.descriptionEn || city.descriptionEn,
+                descriptions: {
+                  ...city.descriptions,
+                  ar: override.descriptionAr || city.descriptions.ar,
+                  en: override.descriptionEn || city.descriptions.en,
+                }
+              };
+              
+              const locCity = getLocalizedCity(dynamicCity, locale);
               return (
                 <Link 
                   href={`/city/${city.slug}`}

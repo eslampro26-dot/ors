@@ -53,6 +53,7 @@ export default function AdminLayout({ children }) {
   const navItems = [
     { name: 'الرئيسية', href: '/orluxus-management', icon: '◈' },
     { name: 'إدارة الخدمات', href: '/orluxus-management/services', icon: '◇' },
+    { name: 'إدارة المدن والوجهات', href: '/orluxus-management/destinations', icon: '🌍' },
     { name: 'إدارة الوكلاء', href: '/orluxus-management/agents', icon: '◉' },
     { name: 'أكواد الخصم', href: '/orluxus-management/promo-codes', icon: '◐' },
     { name: 'نظام الترقيات', href: '/orluxus-management/tiers', icon: '◆' },
