@@ -102,10 +102,49 @@ export default function Home() {
     name: '',
     country: '',
     rating: 0,
-    text: ''
+    text: '',
+    image: ''
   });
   const [hoverRating, setHoverRating] = useState(0);
   const [emergencyPhone, setEmergencyPhone] = useState('');
+
+  const handleReviewImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 200;
+        const MAX_HEIGHT = 200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        setReviewForm(prev => ({ ...prev, image: dataUrl }));
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Safely sync company details and reviews from LocalStorage after hydration
   useEffect(() => {
@@ -154,12 +193,13 @@ export default function Home() {
         name: reviewForm.name,
         country: reviewForm.country,
         rating: reviewForm.rating,
-        text: reviewForm.text
+        text: reviewForm.text,
+        image: reviewForm.image || ''
       });
 
       if (newReview) {
         setReviews(prev => [newReview, ...prev]);
-        setReviewForm({ name: '', country: '', rating: 0, text: '' });
+        setReviewForm({ name: '', country: '', rating: 0, text: '', image: '' });
         alert(t('reviews.success'));
       }
     } catch (err) {
@@ -758,6 +798,41 @@ export default function Home() {
                   }}
                 />
 
+                {/* Photo Upload */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                    {locale === 'ar' ? 'أضف صورتك الشخصية (اختياري)' : 'Add your profile photo (Optional)'}
+                  </label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleReviewImageUpload}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      background: 'rgba(255,255,255,0.04)',
+                      color: 'var(--text-secondary)',
+                      border: '1px solid var(--border-medium)',
+                      borderRadius: '6px',
+                      outline: 'none',
+                      fontSize: '0.85rem'
+                    }}
+                  />
+                  {reviewForm.image && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem' }}>
+                      <img src={reviewForm.image} alt="Preview" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                      <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>✓ تم تحميل الصورة</span>
+                      <button 
+                        type="button" 
+                        onClick={() => setReviewForm(prev => ({ ...prev, image: '' }))} 
+                        style={{ background: 'none', border: 'none', color: 'var(--coral-500)', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline' }}
+                      >
+                        إزالة
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <button
                   type="submit"
                   style={{
@@ -796,22 +871,46 @@ export default function Home() {
           }}>
             {reviews && reviews.length > 0 ? reviews.map((test, idx) => (
               <div key={test.id || idx} className="glass-card" style={{
-                textAlign: 'left',
-                padding: '2rem',
+                textAlign: locale === 'ar' ? 'right' : 'left',
+                padding: '1.5rem',
                 background: 'var(--bg-primary)',
                 border: '1px solid rgba(217, 119, 6, 0.08)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                gap: '1rem'
+                gap: '1rem',
+                borderRadius: '12px'
               }}>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontStyle: 'italic', lineHeight: '1.6' }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontStyle: 'italic', lineHeight: '1.6', margin: 0 }}>
                   &quot;{test.text}&quot;
                 </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.8rem' }}>
-                  <div>
-                    <h4 style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>{test.name}</h4>
-                    <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>{test.country}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.8rem', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
+                    {test.image ? (
+                      <img 
+                        src={test.image} 
+                        alt={test.name} 
+                        style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--gold-500)' }} 
+                      />
+                    ) : (
+                      <div style={{ 
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: '50%', 
+                        background: 'rgba(255,255,255,0.06)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        border: '1px solid var(--border-subtle)',
+                        fontSize: '1rem'
+                      }}>
+                        👤
+                      </div>
+                    )}
+                    <div style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-primary)', margin: 0 }}>{test.name}</h4>
+                      <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>{test.country}</span>
+                    </div>
                   </div>
                   <div style={{ color: 'var(--gold-400)', fontSize: '0.95rem' }}>
                     {'★'.repeat(Math.max(1, test.rating || 0))}

@@ -10,10 +10,10 @@ export default function AdminSettings() {
   const [paypalEmail, setPaypalEmail] = useState('info@orluxus.com');
   
   const defaultAddons = [
-    { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25 },
-    { id: 'lunch', nameEn: 'Lunch & Soft Drinks / person', nameAr: 'وجبة غداء ومشروبات / للفرد', price: 15 },
-    { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 30 },
-    { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20 },
+    { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking', descAr: 'مرشد سياحي مرخص يرافقكم طوال الرحلة لشرح المعالم وتسهيل الدخول.', descEn: 'A licensed tour guide to accompany you throughout the trip.' },
+    { id: 'lunch', nameEn: 'Lunch & Soft Drinks / person', nameAr: 'وجبة غداء ومشروبات / للفرد', price: 15, unit: 'person', descAr: 'وجبة غداء بوفيه مفتوح أو قائمة طعام محددة مع مشروبات غازية ومياه معدنية.', descEn: 'Buffet or set menu lunch with soft drinks and mineral water.' },
+    { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 30, unit: 'booking', descAr: 'سيارة خاصة حديثة ومكيفة تنقلكم من الفندق إلى مكان الرحلة وتعود بكم بعد الانتهاء.', descEn: 'Modern private air-conditioned vehicle to and from your hotel.' },
+    { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20, unit: 'booking', descAr: 'مصور محترف يرافقكم لالتقاط أجمل اللحظات وتسليمكم الصور بنظام رقمي عالي الجودة.', descEn: 'A professional photographer to capture your best memories.' },
   ];
   const [checkoutAddons, setCheckoutAddons] = useState(defaultAddons);
   
@@ -502,64 +502,114 @@ export default function AdminSettings() {
               هذه الإضافات ستظهر للعميل أثناء عملية الحجز ليتمكن من اختيارها. يمكنك تعديل أسعارها ومسمياتها بحرية.
             </p>
             {checkoutAddons.map((addon, index) => (
-              <div key={addon.id || index} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 100px 50px', gap: '1rem', marginBottom: '1rem', alignItems: 'center' }}>
-                <div>
-                  <label className="admin-label">الاسم بالإنجليزية</label>
-                  <input
-                    type="text"
-                    className="admin-input"
-                    value={addon.nameEn}
-                    onChange={(e) => {
-                      const newAddons = [...checkoutAddons];
-                      newAddons[index].nameEn = e.target.value;
-                      setCheckoutAddons(newAddons);
-                    }}
-                  />
+              <div key={addon.id || index} style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1.5fr auto', gap: '1rem', alignItems: 'center' }}>
+                  <div>
+                    <label className="admin-label">الاسم بالإنجليزية</label>
+                    <input
+                      type="text"
+                      className="admin-input"
+                      value={addon.nameEn}
+                      onChange={(e) => {
+                        const newAddons = [...checkoutAddons];
+                        newAddons[index].nameEn = e.target.value;
+                        setCheckoutAddons(newAddons);
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="admin-label">الاسم بالعربية</label>
+                    <input
+                      type="text"
+                      className="admin-input"
+                      value={addon.nameAr}
+                      onChange={(e) => {
+                        const newAddons = [...checkoutAddons];
+                        newAddons[index].nameAr = e.target.value;
+                        setCheckoutAddons(newAddons);
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="admin-label">السعر (€)</label>
+                    <input
+                      type="number"
+                      className="admin-input"
+                      value={addon.price}
+                      onChange={(e) => {
+                        const newAddons = [...checkoutAddons];
+                        newAddons[index].price = Number(e.target.value);
+                        setCheckoutAddons(newAddons);
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="admin-label">حساب السعر</label>
+                    <select
+                      className="admin-input"
+                      value={addon.unit || 'booking'}
+                      onChange={(e) => {
+                        const newAddons = [...checkoutAddons];
+                        newAddons[index].unit = e.target.value;
+                        setCheckoutAddons(newAddons);
+                      }}
+                      style={{ backgroundColor: '#0c0f17', color: 'white' }}
+                    >
+                      <option value="booking">للحجز بالكامل (Flat Rate)</option>
+                      <option value="person">لكل فرد (Per Person)</option>
+                    </select>
+                  </div>
+                  <div style={{ paddingTop: '28px' }}>
+                    <button 
+                      className="btn btn-danger" 
+                      style={{ padding: '0.5rem 1rem' }}
+                      onClick={() => {
+                        const newAddons = checkoutAddons.filter((_, i) => i !== index);
+                        setCheckoutAddons(newAddons);
+                      }}
+                    >
+                      حذف
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <label className="admin-label">الاسم بالعربية</label>
-                  <input
-                    type="text"
-                    className="admin-input"
-                    value={addon.nameAr}
-                    onChange={(e) => {
-                      const newAddons = [...checkoutAddons];
-                      newAddons[index].nameAr = e.target.value;
-                      setCheckoutAddons(newAddons);
-                    }}
-                  />
-                </div>
-                <div>
-                  <label className="admin-label">السعر (€)</label>
-                  <input
-                    type="number"
-                    className="admin-input"
-                    value={addon.price}
-                    onChange={(e) => {
-                      const newAddons = [...checkoutAddons];
-                      newAddons[index].price = Number(e.target.value);
-                      setCheckoutAddons(newAddons);
-                    }}
-                  />
-                </div>
-                <div style={{ paddingTop: '28px' }}>
-                  <button 
-                    className="btn btn-danger" 
-                    style={{ padding: '0.5rem', width: '100%' }}
-                    onClick={() => {
-                      const newAddons = checkoutAddons.filter((_, i) => i !== index);
-                      setCheckoutAddons(newAddons);
-                    }}
-                  >
-                    حذف
-                  </button>
+                
+                {/* Description Fields */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label className="admin-label">الوصف الإضافي للتأكيد (بالعربية)</label>
+                    <input
+                      type="text"
+                      className="admin-input"
+                      placeholder="وصف تفصيلي يظهر للعميل عند تحديد الخدمة..."
+                      value={addon.descAr || ''}
+                      onChange={(e) => {
+                        const newAddons = [...checkoutAddons];
+                        newAddons[index].descAr = e.target.value;
+                        setCheckoutAddons(newAddons);
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="admin-label">الوصف الإضافي للتأكيد (بالإنجليزية)</label>
+                    <input
+                      type="text"
+                      className="admin-input"
+                      placeholder="Detailed description shown to client..."
+                      value={addon.descEn || ''}
+                      onChange={(e) => {
+                        const newAddons = [...checkoutAddons];
+                        newAddons[index].descEn = e.target.value;
+                        setCheckoutAddons(newAddons);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             ))}
             <button 
               className="btn btn-secondary"
               onClick={() => {
-                setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: '', nameAr: '', price: 0 }]);
+                setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: '', nameAr: '', price: 0, unit: 'booking', descAr: '', descEn: '' }]);
               }}
             >
               + إضافة خدمة جديدة

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { cities } from '@/lib/data';
-import styles from './page.module.css'; // Will use same styles or generic if possible, let's create inline styles to avoid missing module errors or import from another page
 
 export default function AdminDestinations() {
   const [destinations, setDestinations] = useState({});

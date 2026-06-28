@@ -22,6 +22,7 @@ export default function CategoryPage({ params }) {
   const [trips, setTrips] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
+  const [activeVideoUrl, setActiveVideoUrl] = useState(null);
   
   // State to track selected tier id for each trip
   // Format: { [tripId]: 'economy' | 'business' | 'vip' }
@@ -121,7 +122,7 @@ export default function CategoryPage({ params }) {
                     <div style={{
                       width: '150px',
                       height: '150px',
-                      borderRadius: '50%',
+                      borderRadius: '16px',
                       overflow: 'hidden',
                       border: '4px solid var(--gold-500)',
                       boxShadow: 'var(--shadow-glow-gold), 0 8px 16px rgba(0,0,0,0.3)',
@@ -132,9 +133,28 @@ export default function CategoryPage({ params }) {
                       backgroundColor: 'var(--bg-tertiary)',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      position: 'relative'
                     }}>
                       {!trip.image && <span style={{ fontSize: '0.9rem', opacity: 0.3, letterSpacing: '1px', fontWeight: 'bold', color: 'var(--text-tertiary)' }}>ORLUXUS</span>}
+                      
+                      {trip.videoUrl && (
+                        <div 
+                          onClick={() => setActiveVideoUrl(trip.videoUrl)}
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'rgba(0,0,0,0.3)',
+                            cursor: 'pointer',
+                            transition: 'background 0.2s',
+                          }}
+                        >
+                          <span style={{ fontSize: '2.2rem', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.5)', userSelect: 'none' }}>▶️</span>
+                        </div>
+                      )}
                     </div>
                     
                     {trip.id.toString().startsWith('custom') && (
@@ -349,6 +369,84 @@ export default function CategoryPage({ params }) {
                 {locale === 'ar' ? 'إغلاق' : 'Close'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Video Modal */}
+      {activeVideoUrl && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.9)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: '800px',
+            aspectRatio: '16/9',
+            background: '#000',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            border: '2px solid var(--gold-500)'
+          }}>
+            <button 
+              onClick={() => setActiveVideoUrl(null)}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                background: 'rgba(0,0,0,0.6)',
+                border: 'none',
+                color: '#fff',
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                fontSize: '1.25rem',
+                cursor: 'pointer',
+                zIndex: 10
+              }}
+            >
+              ×
+            </button>
+            {(() => {
+              const embedUrl = (() => {
+                const url = activeVideoUrl;
+                if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                  let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                  let match = url.match(regExp);
+                  if (match && match[2].length === 11) {
+                    return `https://www.youtube.com/embed/${match[2]}?autoplay=1`;
+                  }
+                }
+                return null;
+              })();
+
+              if (embedUrl) {
+                return (
+                  <iframe 
+                    src={embedUrl}
+                    style={{ width: '100%', height: '100%', border: 'none' }}
+                    allow="autoplay; encrypted-media; picture-in-picture"
+                    allowFullScreen
+                  />
+                );
+              } else {
+                return (
+                  <video 
+                    src={activeVideoUrl}
+                    controls
+                    autoPlay
+                    style={{ width: '100%', height: '100%' }}
+                  />
+                );
+              }
+            })()}
           </div>
         </div>
       )}

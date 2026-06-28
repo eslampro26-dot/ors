@@ -56,6 +56,7 @@ export async function POST(request) {
       country: body.country ? String(body.country).trim().slice(0, 50) : '',
       text:    body.text.trim().slice(0, 1000),
       rating:  Math.round(body.rating),
+      image:   body.image ? String(body.image) : '',
     };
 
     const result = await addReview(sanitized);

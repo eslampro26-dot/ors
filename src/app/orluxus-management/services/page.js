@@ -30,6 +30,7 @@ export default function AdminServices() {
     icon: '✈️',
     image: '',
     locationUrl: '',
+    videoUrl: '',
     economyDesc: '',
     businessDesc: '',
     vipDesc: '',
@@ -170,7 +171,7 @@ export default function AdminServices() {
     e.preventDefault();
     
     if (modalType === 'trip') {
-      const { city, category, titleAr, titleEn, price, duration, image, locationUrl, economyDesc, businessDesc, vipDesc } = formData;
+      const { city, category, titleAr, titleEn, price, duration, image, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc } = formData;
       if (!titleAr || !titleEn || !price) {
         alert('يرجى ملء جميع الحقول المطلوبة!');
         return;
@@ -184,6 +185,7 @@ export default function AdminServices() {
           duration,
           image: image || '/images/trips/glass-boat.jpg',
           locationUrl: locationUrl || '',
+          videoUrl: videoUrl || '',
           economyDesc: economyDesc || '',
           businessDesc: businessDesc || '',
           vipDesc: vipDesc || ''
@@ -192,7 +194,7 @@ export default function AdminServices() {
         if (success) {
           alert('تمت إضافة الرحلة بنجاح!');
           setModalOpen(false);
-          setFormData({ titleAr:'',titleEn:'',price:'',duration:'يوم كامل',category:'',city:'',description:'',icon:'✈️',image:'',locationUrl:'', economyDesc:'', businessDesc:'', vipDesc:'' });
+          setFormData({ titleAr:'',titleEn:'',price:'',duration:'يوم كامل',category:'',city:'',description:'',icon:'✈️',image:'',locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'' });
           await reloadCurrentCity();
         } else {
           alert('حدث خطأ أثناء حفظ الرحلة.');
@@ -725,6 +727,19 @@ export default function AdminServices() {
                       value={formData.locationUrl} 
                       onChange={handleInputChange}
                       placeholder="مثال: https://maps.google.com/..."
+                      className={styles.input}
+                    />
+                  </div>
+
+                  {/* Video URL */}
+                  <div className={styles.formGroup}>
+                    <label>رابط فيديو الرحلة (فيديو اليوتيوب أو رابط مباشر) (اختياري)</label>
+                    <input 
+                      type="text" 
+                      name="videoUrl" 
+                      value={formData.videoUrl} 
+                      onChange={handleInputChange}
+                      placeholder="مثال: https://www.youtube.com/watch?v=... أو رابط mp4 مباشر"
                       className={styles.input}
                     />
                   </div>

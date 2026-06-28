@@ -208,7 +208,7 @@ function CheckoutContent() {
     let cost = 0;
     settings.checkoutAddons.forEach(addon => {
       if (selectedExtras[addon.id]) {
-        const isPerPerson = addon.nameEn.toLowerCase().includes('/ person') || addon.nameAr.includes('للفرد') || addon.id === 'lunch';
+        const isPerPerson = addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch';
         cost += isPerPerson ? (addon.price * travelers) : addon.price;
       }
     });
@@ -1616,17 +1616,42 @@ function CheckoutContent() {
                   <h4 style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem' }}>{translate('extrasTitle')}</h4>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                    {settings.checkoutAddons.map(addon => (
-                      <label key={addon.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                        <input 
-                          type="checkbox" 
-                          checked={!!selectedExtras[addon.id]}
-                          onChange={(e) => setSelectedExtras(prev => ({ ...prev, [addon.id]: e.target.checked }))}
-                          style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                        />
-                        <span>{locale === 'ar' ? addon.nameAr : addon.nameEn} (+€{addon.price})</span>
-                      </label>
-                    ))}
+                    {settings.checkoutAddons.map(addon => {
+                      const desc = locale === 'ar' ? addon.descAr : addon.descEn;
+                      return (
+                        <div key={addon.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', marginBottom: '0.4rem', textAlign: locale === 'ar' ? 'right' : 'left' }}>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-secondary)', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
+                            <input 
+                              type="checkbox" 
+                              checked={!!selectedExtras[addon.id]}
+                              onChange={(e) => setSelectedExtras(prev => ({ ...prev, [addon.id]: e.target.checked }))}
+                              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                            />
+                            <span style={{ flex: 1 }}>
+                              {locale === 'ar' ? addon.nameAr : addon.nameEn} 
+                              {' '}
+                              (+€{addon.price}
+                              {addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch'
+                                ? (locale === 'ar' ? ' / للفرد' : ' / person') 
+                                : ''}
+                              )
+                            </span>
+                          </label>
+                          {desc && (
+                            <span style={{ 
+                              fontSize: '0.8rem', 
+                              color: 'var(--text-tertiary)', 
+                              paddingLeft: locale === 'ar' ? '0' : '1.8rem', 
+                              paddingRight: locale === 'ar' ? '1.8rem' : '0',
+                              marginTop: '-2px',
+                              lineHeight: '1.4'
+                            }}>
+                              ℹ️ {desc}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
