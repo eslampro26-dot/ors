@@ -1,9 +1,38 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { cities, internalPackages } from '@/lib/data';
+import { cities, internalPackages, categoryTranslations } from '@/lib/data';
 import { getTrips, addTrip, deleteTrip, getPackages, addPackage, deletePackage } from '@/lib/db';
 import styles from './page.module.css';
+
+// أيقونات الفئات
+const categoryIcons = {
+  'sea-trips': '⛵',
+  'desert-trips': '🏜️',
+  'city-tours': '🏛️',
+  'internal-packages': '📦',
+  'restaurants': '🍽️',
+  'cafes': '☕',
+  'shopping': '🛍️',
+  'transfers': '🚌',
+  'entertainment': '🎭',
+};
+
+// الطلبات الخاصة المتاحة للاختيار
+const PRESET_SPECIAL_REQUESTS = [
+  { id: 'veg_food', labelAr: 'طعام نباتي', labelEn: 'Vegetarian Food' },
+  { id: 'halal_food', labelAr: 'طعام حلال', labelEn: 'Halal Food' },
+  { id: 'kids_menu', labelAr: 'قائمة أطفال', labelEn: 'Kids Menu' },
+  { id: 'wheelchair', labelAr: 'كرسي متحرك', labelEn: 'Wheelchair Access' },
+  { id: 'early_checkin', labelAr: 'تسجيل دخول مبكر', labelEn: 'Early Check-in' },
+  { id: 'late_checkout', labelAr: 'تسجيل خروج متأخر', labelEn: 'Late Check-out' },
+  { id: 'airport_pickup', labelAr: 'استقبال المطار', labelEn: 'Airport Pickup' },
+  { id: 'private_guide', labelAr: 'مرشد خاص', labelEn: 'Private Guide' },
+  { id: 'photography', labelAr: 'تصوير احترافي', labelEn: 'Professional Photography' },
+  { id: 'birthday_cake', labelAr: 'كيكة عيد ميلاد', labelEn: 'Birthday Cake' },
+  { id: 'romantic_setup', labelAr: 'ديكور رومانسي', labelEn: 'Romantic Setup' },
+  { id: 'snorkeling_gear', labelAr: 'معدات سنوركل', labelEn: 'Snorkeling Gear' },
+];
 
 export default function AdminServices() {
   const [activeTab, setActiveTab] = useState('cities'); // 'cities' or 'packages'
@@ -23,10 +52,14 @@ export default function AdminServices() {
     titleAr: '',
     titleEn: '',
     price: '',
+    economyPrice: '',
+    businessPrice: '',
+    vipPrice: '',
     duration: 'يوم كامل',
     category: '',
     city: '',
     description: '',
+    tripDescription: '',
     icon: '✈️',
     image: '',
     locationUrl: '',
@@ -34,7 +67,9 @@ export default function AdminServices() {
     economyDesc: '',
     businessDesc: '',
     vipDesc: '',
+    specialRequests: [],
   });
+  const [useTierPrices, setUseTierPrices] = useState(false);
 
   // Load data only for the selected city (lazy loading for performance)
   const loadCityData = async (cityId) => {
@@ -171,9 +206,10 @@ export default function AdminServices() {
     e.preventDefault();
     
     if (modalType === 'trip') {
-      const { city, category, titleAr, titleEn, price, duration, image, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc } = formData;
-      if (!titleAr || !titleEn || !price) {
-        alert('يرجى ملء جميع الحقول المطلوبة!');
+      const { city, category, titleAr, titleEn, price, economyPrice, businessPrice, vipPrice, duration, image, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, specialRequests } = formData;
+      const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
+      if (!titleAr || !titleEn || basePrice <= 0) {
+        alert('يرجى ملء جميع الحقول المطلوبة (العنوان والسعر)!');
         return;
       }
       
@@ -181,20 +217,26 @@ export default function AdminServices() {
         const success = await addTrip(city, category, {
           titleAr,
           titleEn,
-          price: parseFloat(price),
+          price: basePrice,
+          economyPrice: useTierPrices ? (parseFloat(economyPrice) || basePrice) : basePrice,
+          businessPrice: useTierPrices ? (parseFloat(businessPrice) || basePrice * 1.5) : basePrice * 1.5,
+          vipPrice: useTierPrices ? (parseFloat(vipPrice) || basePrice * 2) : basePrice * 2,
           duration,
           image: image || '/images/trips/glass-boat.jpg',
           locationUrl: locationUrl || '',
           videoUrl: videoUrl || '',
+          tripDescription: tripDescription || '',
           economyDesc: economyDesc || '',
           businessDesc: businessDesc || '',
-          vipDesc: vipDesc || ''
+          vipDesc: vipDesc || '',
+          specialRequests: specialRequests || [],
         });
 
         if (success) {
           alert('تمت إضافة الرحلة بنجاح!');
           setModalOpen(false);
-          setFormData({ titleAr:'',titleEn:'',price:'',duration:'يوم كامل',category:'',city:'',description:'',icon:'✈️',image:'',locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'' });
+          setFormData({ titleAr:'',titleEn:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',duration:'يوم كامل',category:'',city:'',description:'',tripDescription:'',icon:'✈️',image:'',locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
+          setUseTierPrices(false);
           await reloadCurrentCity();
         } else {
           alert('حدث خطأ أثناء حفظ الرحلة.');
@@ -547,9 +589,16 @@ export default function AdminServices() {
                       className={styles.input}
                       style={{ backgroundColor: '#0c0f17', color: '#f8fafc', colorScheme: 'dark' }}
                     >
-                      {cities.find(c => c.id === formData.city)?.categories.map(cat => (
-                        <option key={cat.id} value={cat.id} style={{ backgroundColor: '#0c0f17', color: '#f8fafc' }}>{cat.icon} {cat.nameAr}</option>
-                      ))}
+                      {cities.find(c => c.id === formData.city)?.categories.map(cat => {
+                        const icon = categoryIcons[cat.id] || '📍';
+                        const nameAr = categoryTranslations[cat.id]?.ar || cat.id;
+                        const nameEn = categoryTranslations[cat.id]?.en || cat.id;
+                        return (
+                          <option key={cat.id} value={cat.id} style={{ backgroundColor: '#0c0f17', color: '#f8fafc' }}>
+                            {icon} {nameAr} ({nameEn})
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 </>
@@ -599,22 +648,23 @@ export default function AdminServices() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                {/* Price */}
+              {/* Trip Description */}
+              {modalType === 'trip' && (
                 <div className={styles.formGroup}>
-                  <label>السعر باليورو (€) *</label>
-                  <input 
-                    type="number" 
-                    name="price" 
-                    value={formData.price} 
+                  <label>وصف الرحلة التفصيلي (يظهر للعملاء)</label>
+                  <textarea
+                    name="tripDescription"
+                    value={formData.tripDescription}
                     onChange={handleInputChange}
-                    placeholder="مثال: 45"
+                    placeholder="اكتب وصفاً شاملاً للرحلة: ما الذي يتضمنه البرنامج، أبرز المعالم، ما المميزات..."
                     className={styles.input}
-                    min="1"
-                    required
+                    rows="3"
+                    style={{ resize: 'vertical' }}
                   />
                 </div>
+              )}
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 {/* Duration */}
                 <div className={styles.formGroup}>
                   <label>المدة الزمنية</label>
@@ -627,7 +677,79 @@ export default function AdminServices() {
                     className={styles.input}
                   />
                 </div>
+
+                {/* Base Price */}
+                {!useTierPrices && (
+                  <div className={styles.formGroup}>
+                    <label>السعر الأساسي (€) *</label>
+                    <input 
+                      type="number" 
+                      name="price" 
+                      value={formData.price} 
+                      onChange={handleInputChange}
+                      placeholder="مثال: 45"
+                      className={styles.input}
+                      min="1"
+                    />
+                  </div>
+                )}
               </div>
+
+              {/* Tier Prices Toggle */}
+              {modalType === 'trip' && (
+                <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', marginBottom: useTierPrices ? '1rem' : 0 }}>
+                    <input
+                      type="checkbox"
+                      checked={useTierPrices}
+                      onChange={(e) => setUseTierPrices(e.target.checked)}
+                      style={{ width: '18px', height: '18px' }}
+                    />
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>تفعيل أسعار منفصلة لكل فئة (Economy / Business / VIP)</span>
+                  </label>
+
+                  {useTierPrices && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem' }}>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>💰 Economy (€)</label>
+                        <input
+                          type="number"
+                          name="economyPrice"
+                          value={formData.economyPrice}
+                          onChange={handleInputChange}
+                          placeholder="مثال: 45"
+                          className={styles.input}
+                          min="1"
+                        />
+                      </div>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--gold-400)', fontSize: '0.85rem' }}>💼 Business (€)</label>
+                        <input
+                          type="number"
+                          name="businessPrice"
+                          value={formData.businessPrice}
+                          onChange={handleInputChange}
+                          placeholder="مثال: 75"
+                          className={styles.input}
+                          min="1"
+                        />
+                      </div>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--coral-400)', fontSize: '0.85rem' }}>👑 VIP (€)</label>
+                        <input
+                          type="number"
+                          name="vipPrice"
+                          value={formData.vipPrice}
+                          onChange={handleInputChange}
+                          placeholder="مثال: 120"
+                          className={styles.input}
+                          min="1"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {modalType === 'trip' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
@@ -667,6 +789,33 @@ export default function AdminServices() {
                       className={styles.input}
                       rows="3"
                     ></textarea>
+                  </div>
+                </div>
+              )}
+
+              {/* Special Requests */}
+              {modalType === 'trip' && (
+                <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                  <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--text-primary)', fontSize: '0.95rem' }}>🎯 الطلبات الخاصة المتاحة للعملاء (اختر ما ينطبق على رحلتك)</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.5rem' }}>
+                    {PRESET_SPECIAL_REQUESTS.map(req => (
+                      <label key={req.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '0.85rem', padding: '0.4rem 0.5rem', borderRadius: '6px', background: formData.specialRequests.includes(req.id) ? 'rgba(217,119,6,0.1)' : 'transparent', border: formData.specialRequests.includes(req.id) ? '1px solid var(--gold-500)' : '1px solid transparent', transition: 'all 0.15s' }}>
+                        <input
+                          type="checkbox"
+                          checked={formData.specialRequests.includes(req.id)}
+                          onChange={(e) => {
+                            setFormData(prev => ({
+                              ...prev,
+                              specialRequests: e.target.checked
+                                ? [...prev.specialRequests, req.id]
+                                : prev.specialRequests.filter(r => r !== req.id)
+                            }));
+                          }}
+                          style={{ width: '15px', height: '15px', cursor: 'pointer' }}
+                        />
+                        <span>{req.labelAr}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
               )}
