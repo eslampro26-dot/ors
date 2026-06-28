@@ -1,30 +1,99 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import styles from './page.module.css';
+import { getAgents, getBookings } from '@/lib/db';
 
 export default function AdminDashboard() {
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    totalBookings: 0,
+    activeAgents: 0,
+    confirmedBookings: 0,
+    monthRevenue: 0,
+  });
+  const [topAgents, setTopAgents] = useState([]);
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        const [agents, bookings] = await Promise.all([
+          getAgents(),
+          getBookings(),
+        ]);
+
+        const allAgents = agents || [];
+        const allBookings = bookings || [];
+
+        // Compute real KPIs
+        const totalRevenue = allBookings.reduce((sum, b) => sum + (parseFloat(b.totalPrice) || parseFloat(b.price) || 0), 0);
+        const totalBookings = allBookings.length;
+        const activeAgents = allAgents.filter(a => a.status === 'نشط' || a.status === 'active').length;
+        const confirmedBookings = allBookings.filter(b => b.status === 'مؤكد' || b.status === 'confirmed').length;
+
+        // This month revenue
+        const now = new Date();
+        const monthRevenue = allBookings
+          .filter(b => {
+            const d = new Date(b.createdAt || b.date || 0);
+            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+          })
+          .reduce((sum, b) => sum + (parseFloat(b.totalPrice) || parseFloat(b.price) || 0), 0);
+
+        setStats({ totalRevenue, totalBookings, activeAgents, confirmedBookings, monthRevenue });
+
+        // Top agents by sales
+        const agentMap = {};
+        allBookings.forEach(b => {
+          if (b.agentId) {
+            if (!agentMap[b.agentId]) agentMap[b.agentId] = { revenue: 0, bookings: 0 };
+            agentMap[b.agentId].revenue += parseFloat(b.totalPrice) || parseFloat(b.price) || 0;
+            agentMap[b.agentId].bookings += 1;
+          }
+        });
+
+        const sortedAgents = allAgents
+          .map(a => ({
+            ...a,
+            totalSales: agentMap[a.id]?.revenue || 0,
+            totalBookings: agentMap[a.id]?.bookings || 0,
+          }))
+          .sort((a, b) => b.totalSales - a.totalSales)
+          .slice(0, 5);
+
+        setTopAgents(sortedAgents);
+
+        // Recent bookings (last 5)
+        const sorted = [...allBookings].sort((a, b) => {
+          return new Date(b.createdAt || b.date || 0) - new Date(a.createdAt || a.date || 0);
+        });
+        setRecentBookings(sorted.slice(0, 5));
+
+      } catch (err) {
+        console.error('Dashboard load error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboard();
+  }, []);
+
+  const formatCurrency = (val) => {
+    if (val >= 1_000_000) return `€${(val / 1_000_000).toFixed(1)}M`;
+    if (val >= 1_000) return `€${(val / 1_000).toFixed(1)}K`;
+    return `€${val.toFixed(0)}`;
+  };
+
   const kpis = [
-    { label: 'إجمالي الإيرادات', value: '€2.4M', trend: '+15%', icon: '◆', color: 'gold' },
-    { label: 'إجمالي الحجوزات', value: '45,200', trend: '+8%', icon: '▣', color: 'ocean' },
-    { label: 'وكلاء نشطين', value: '342', trend: '+12%', icon: '◉', color: 'emerald' },
-    { label: 'رحلات متاحة', value: '185', trend: '+2%', icon: '▲', color: 'coral' },
-    { label: 'إيرادات الشهر الحالي', value: '€185K', trend: '+5%', icon: '◈', color: 'gold' },
-    { label: 'نسبة النمو السنوي', value: '24%', trend: '+4%', icon: '◐', color: 'emerald' },
-  ];
-
-  const topAgents = [
-    { id: 1, name: 'أحمد محمود', tier: 'silver', sales: '€105,000', bookings: 1250 },
-    { id: 2, name: 'سارة إبراهيم', tier: 'gold', sales: '€98,500', bookings: 1100 },
-    { id: 3, name: 'خالد عبد الرحمن', tier: 'silver', sales: '€85,200', bookings: 980 },
-    { id: 4, name: 'منى جمال', tier: 'bronze', sales: '€75,000', bookings: 850 },
-    { id: 5, name: 'طارق زياد', tier: 'platinum', sales: '€250,000', bookings: 3200 },
-  ];
-
-  const recentBookings = [
-    { id: 'BK-1001', service: 'رحلة رأس محمد', agent: 'أحمد محمود', amount: '€60', status: 'مؤكد', time: 'منذ 5 دقائق' },
-    { id: 'BK-1002', service: 'باكدج الأقصر', agent: 'سارة إبراهيم', amount: '€350', status: 'قيد الانتظار', time: 'منذ 15 دقيقة' },
-    { id: 'BK-1003', service: 'سفاري رباعي الدفع', agent: 'مباشر', amount: '€40', status: 'مكتمل', time: 'منذ ساعة' },
-    { id: 'BK-1004', service: 'عشاء رومانسي', agent: 'خالد عبد الرحمن', amount: '€80', status: 'مؤكد', time: 'منذ ساعتين' },
+    { label: 'إجمالي الإيرادات', value: loading ? '---' : formatCurrency(stats.totalRevenue), trend: '', icon: '◆', color: 'gold' },
+    { label: 'إجمالي الحجوزات', value: loading ? '---' : stats.totalBookings.toLocaleString(), trend: '', icon: '▣', color: 'ocean' },
+    { label: 'وكلاء نشطين', value: loading ? '---' : stats.activeAgents.toString(), trend: '', icon: '◉', color: 'emerald' },
+    { label: 'حجوزات مؤكدة', value: loading ? '---' : stats.confirmedBookings.toString(), trend: '', icon: '▲', color: 'coral' },
+    { label: 'إيرادات الشهر الحالي', value: loading ? '---' : formatCurrency(stats.monthRevenue), trend: '', icon: '◈', color: 'gold' },
+    { label: 'إجمالي الوكلاء المسجلين', value: loading ? '---' : topAgents.length > 0 ? topAgents.length.toString() : '0', trend: '', icon: '◐', color: 'emerald' },
   ];
 
   return (
@@ -40,8 +109,9 @@ export default function AdminDashboard() {
             </div>
             <div className={styles.kpiValue}>{kpi.value}</div>
             <div className={styles.kpiTrend}>
-              <span className={styles.trendUp}>↗ {kpi.trend}</span>
-              <span className={styles.trendText}>مقارنة بالشهر الماضي</span>
+              <span className={styles.trendText}>
+                {loading ? 'جاري التحميل...' : 'محسوب من قاعدة البيانات'}
+              </span>
             </div>
           </div>
         ))}
@@ -78,6 +148,12 @@ export default function AdminDashboard() {
               <h3>أفضل الوكلاء مبيعاً</h3>
             </div>
             <div className={styles.agentsList}>
+              {loading && <div style={{ padding: '1rem', color: 'var(--text-tertiary)', textAlign: 'center' }}>جاري التحميل...</div>}
+              {!loading && topAgents.length === 0 && (
+                <div style={{ padding: '1rem', color: 'var(--text-tertiary)', textAlign: 'center' }}>
+                  لا توجد بيانات مبيعات حتى الآن
+                </div>
+              )}
               {topAgents.map((agent, idx) => (
                 <div key={agent.id} className={styles.agentRow}>
                   <div className={styles.agentRank}>#{idx + 1}</div>
@@ -88,8 +164,8 @@ export default function AdminDashboard() {
                     </span>
                   </div>
                   <div className={styles.agentSales}>
-                    <div className={styles.salesAmount}>{agent.sales}</div>
-                    <div className={styles.salesCount}>{agent.bookings} حجز</div>
+                    <div className={styles.salesAmount}>{formatCurrency(agent.totalSales)}</div>
+                    <div className={styles.salesCount}>{agent.totalBookings} حجز</div>
                   </div>
                 </div>
               ))}
@@ -99,23 +175,29 @@ export default function AdminDashboard() {
           <div className={`${styles.tableCard} glass-card animate-fade-in-up`} style={{ animationDelay: '0.2s' }}>
             <div className={styles.cardHeader}>
               <h3>أحدث الحجوزات</h3>
-              <a href="/admin/bookings" className="btn btn-secondary btn-sm">عرض الكل</a>
+              <a href="/orluxus-management/bookings" className="btn btn-secondary btn-sm">عرض الكل</a>
             </div>
             <div className={styles.bookingsFeed}>
+              {loading && <div style={{ padding: '1rem', color: 'var(--text-tertiary)', textAlign: 'center' }}>جاري التحميل...</div>}
+              {!loading && recentBookings.length === 0 && (
+                <div style={{ padding: '1rem', color: 'var(--text-tertiary)', textAlign: 'center' }}>
+                  لا توجد حجوزات حتى الآن
+                </div>
+              )}
               {recentBookings.map((booking, idx) => (
                 <div key={idx} className={styles.bookingItem}>
                   <div className={styles.bookingIcon}>◎</div>
                   <div className={styles.bookingDetails}>
                     <div className={styles.bookingHeader}>
-                      <span className={styles.bookingService}>{booking.service}</span>
-                      <span className={styles.bookingAmount}>{booking.amount}</span>
+                      <span className={styles.bookingService}>{booking.tripTitle || booking.service || 'حجز'}</span>
+                      <span className={styles.bookingAmount}>€{(parseFloat(booking.totalPrice) || parseFloat(booking.price) || 0).toFixed(0)}</span>
                     </div>
                     <div className={styles.bookingMeta}>
-                      <span>{booking.agent}</span>
+                      <span>{booking.customerName || booking.agent || 'عميل'}</span>
                       <span>•</span>
-                      <span>{booking.time}</span>
-                      <span className={`badge badge-${booking.status === 'مؤكد' ? 'emerald' : booking.status === 'مكتمل' ? 'ocean' : 'gold'}`} style={{ transform: 'scale(0.8)', marginInlineStart: 'auto' }}>
-                        {booking.status}
+                      <span>{booking.createdAt ? new Date(booking.createdAt).toLocaleDateString('ar') : ''}</span>
+                      <span className={`badge badge-${booking.status === 'مؤكد' || booking.status === 'confirmed' ? 'emerald' : booking.status === 'مكتمل' || booking.status === 'completed' ? 'ocean' : 'gold'}`} style={{ transform: 'scale(0.8)', marginInlineStart: 'auto' }}>
+                        {booking.status || 'جديد'}
                       </span>
                     </div>
                   </div>

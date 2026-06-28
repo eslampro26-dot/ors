@@ -91,11 +91,12 @@ export default function Home() {
         dataProtection: 'orluxus_data_protection'
       }[type];
       
-      const fallback = CONTENT_FALLBACKS[type]?.[isAr ? 'ar' : 'en'] || '';
+      const title = t(`footer.${type}Title`) || (isAr ? titleAr : titleEn);
+      const fallback = t(`footer.${type}Body`) || CONTENT_FALLBACKS[type]?.[isAr ? 'ar' : 'en'] || '';
       const content = localStorage.getItem(storageKey) || fallback;
-      setModalConfig({ isOpen: true, title: isAr ? titleAr : titleEn, content });
+      setModalConfig({ isOpen: true, title, content });
     }
-  }, [locale]);
+  }, [locale, t]);
 
   // Review Form States
   const [reviewForm, setReviewForm] = useState({
@@ -1015,7 +1016,7 @@ export default function Home() {
           <div>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('common.customSupport')}</h4>
             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', marginBottom: '1rem' }}>
-              {locale === 'ar' ? `تواصل معنا عبر البريد: ${socialMedia.email || 'info@orluxus.com'}` : `Contact us via email: ${socialMedia.email || 'info@orluxus.com'}`}
+              {t('footer.contactEmail') ? t('footer.contactEmail').replace('{email}', socialMedia.email || 'info@orluxus.com') : `Contact us via email: ${socialMedia.email || 'info@orluxus.com'}`}
             </p>
             <a 
               href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`} 

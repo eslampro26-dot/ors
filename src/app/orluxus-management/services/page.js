@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { cities, internalPackages, categoryTranslations } from '@/lib/data';
-import { getTrips, addTrip, deleteTrip, getPackages, addPackage, deletePackage } from '@/lib/db';
+import { getTrips, addTrip, updateTrip, deleteTrip, getPackages, addPackage, deletePackage } from '@/lib/db';
 import styles from './page.module.css';
 
 // أيقونات الفئات
@@ -46,6 +46,8 @@ export default function AdminServices() {
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('trip'); // 'trip' or 'package'
+  const [editingTrip, setEditingTrip] = useState(null); // {cityId, catId, tripId}
+
   
   // Form State
   const [formData, setFormData] = useState({
@@ -202,6 +204,36 @@ export default function AdminServices() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Handle Edit Trip Click
+  const handleEditTripClick = (cityId, catId, trip) => {
+    setEditingTrip({ cityId, catId, tripId: trip.id });
+    setModalType('trip');
+    const hasTiers = !!(trip.economyPrice && trip.businessPrice && trip.vipPrice);
+    setUseTierPrices(hasTiers);
+    setFormData({
+      titleAr: trip.titleAr || '',
+      titleEn: trip.titleEn || '',
+      price: String(trip.price || ''),
+      economyPrice: String(trip.economyPrice || trip.price || ''),
+      businessPrice: String(trip.businessPrice || ''),
+      vipPrice: String(trip.vipPrice || ''),
+      duration: trip.duration || 'يوم كامل',
+      category: catId,
+      city: cityId,
+      description: trip.description || '',
+      tripDescription: trip.tripDescription || '',
+      icon: trip.icon || '✈️',
+      image: trip.image || '',
+      locationUrl: trip.locationUrl || '',
+      videoUrl: trip.videoUrl || '',
+      economyDesc: trip.economyDesc || '',
+      businessDesc: trip.businessDesc || '',
+      vipDesc: trip.vipDesc || '',
+      specialRequests: trip.specialRequests || [],
+    });
+    setModalOpen(true);
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     
@@ -213,36 +245,53 @@ export default function AdminServices() {
         return;
       }
       
+      const tripPayload = {
+        titleAr,
+        titleEn,
+        price: basePrice,
+        economyPrice: useTierPrices ? (parseFloat(economyPrice) || basePrice) : basePrice,
+        businessPrice: useTierPrices ? (parseFloat(businessPrice) || basePrice * 1.5) : basePrice * 1.5,
+        vipPrice: useTierPrices ? (parseFloat(vipPrice) || basePrice * 2) : basePrice * 2,
+        duration,
+        image: image || '/images/trips/glass-boat.jpg',
+        locationUrl: locationUrl || '',
+        videoUrl: videoUrl || '',
+        tripDescription: tripDescription || '',
+        economyDesc: economyDesc || '',
+        businessDesc: businessDesc || '',
+        vipDesc: vipDesc || '',
+        specialRequests: specialRequests || [],
+      };
+      
       try {
-        const success = await addTrip(city, category, {
-          titleAr,
-          titleEn,
-          price: basePrice,
-          economyPrice: useTierPrices ? (parseFloat(economyPrice) || basePrice) : basePrice,
-          businessPrice: useTierPrices ? (parseFloat(businessPrice) || basePrice * 1.5) : basePrice * 1.5,
-          vipPrice: useTierPrices ? (parseFloat(vipPrice) || basePrice * 2) : basePrice * 2,
-          duration,
-          image: image || '/images/trips/glass-boat.jpg',
-          locationUrl: locationUrl || '',
-          videoUrl: videoUrl || '',
-          tripDescription: tripDescription || '',
-          economyDesc: economyDesc || '',
-          businessDesc: businessDesc || '',
-          vipDesc: vipDesc || '',
-          specialRequests: specialRequests || [],
-        });
+        let success;
+        if (editingTrip) {
+          // Update mode
+          success = await updateTrip(editingTrip.cityId, editingTrip.catId, editingTrip.tripId, tripPayload);
+          if (success) {
+            alert('تم تحديث الرحلة بنجاح!');
+          } else {
+            alert('حدث خطأ أثناء تحديث الرحلة.');
+          }
+        } else {
+          // Add mode
+          success = await addTrip(city, category, tripPayload);
+          if (success) {
+            alert('تمت إضافة الرحلة بنجاح!');
+          } else {
+            alert('حدث خطأ أثناء حفظ الرحلة.');
+          }
+        }
 
         if (success) {
-          alert('تمت إضافة الرحلة بنجاح!');
           setModalOpen(false);
+          setEditingTrip(null);
           setFormData({ titleAr:'',titleEn:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',duration:'يوم كامل',category:'',city:'',description:'',tripDescription:'',icon:'✈️',image:'',locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
           setUseTierPrices(false);
           await reloadCurrentCity();
-        } else {
-          alert('حدث خطأ أثناء حفظ الرحلة.');
         }
       } catch (err) {
-        console.error('Error adding trip:', err);
+        console.error('Error saving trip:', err);
         alert('حدث خطأ أثناء حفظ الرحلة.');
       }
     } else {
@@ -418,13 +467,22 @@ export default function AdminServices() {
                                 <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
                                   {trip.id.toString().startsWith('custom') ? '✏️ مضاف يدوياً' : '📌 افتراضي'}
                                 </span>
-                                <button 
-                                  className="btn btn-secondary btn-sm" 
-                                  style={{ padding: '2px 8px', color: 'var(--coral-600)', borderColor: 'rgba(244, 63, 94, 0.2)', fontSize: '0.8rem' }}
-                                  onClick={() => handleDeleteTrip(city.id, cat.id, trip.id)}
-                                >
-                                  🗑️ حذف
-                                </button>
+                                <div style={{ display: 'flex', gap: '6px' }}>
+                                  <button 
+                                    className="btn btn-secondary btn-sm" 
+                                    style={{ padding: '2px 8px', color: 'var(--gold-400)', borderColor: 'rgba(251,191,36,0.3)', fontSize: '0.8rem' }}
+                                    onClick={() => handleEditTripClick(city.id, cat.id, trip)}
+                                  >
+                                    ✏️ تعديل
+                                  </button>
+                                  <button 
+                                    className="btn btn-secondary btn-sm" 
+                                    style={{ padding: '2px 8px', color: 'var(--coral-600)', borderColor: 'rgba(244, 63, 94, 0.2)', fontSize: '0.8rem' }}
+                                    onClick={() => handleDeleteTrip(city.id, cat.id, trip.id)}
+                                  >
+                                    🗑️ حذف
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -555,9 +613,11 @@ export default function AdminServices() {
           <div className={`${styles.modalCard} glass-card animate-scale-in`}>
             <div className={styles.modalHeader}>
               <h3>
-                {modalType === 'trip' ? '➕ إضافة رحلة سياحية جديدة' : '✈️ إضافة باكدج سياحي جديد'}
+                {modalType === 'trip' 
+                  ? (editingTrip ? '✏️ تعديل بيانات الرحلة' : '➕ إضافة رحلة سياحية جديدة') 
+                  : '✈️ إضافة باكدج سياحي جديد'}
               </h3>
-              <button className={styles.closeBtn} onClick={() => setModalOpen(false)}>×</button>
+              <button className={styles.closeBtn} onClick={() => { setModalOpen(false); setEditingTrip(null); }}>×</button>
             </div>
             
             <form onSubmit={handleFormSubmit} className={styles.modalForm}>

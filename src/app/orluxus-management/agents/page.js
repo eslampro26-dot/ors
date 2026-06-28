@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from './page.module.css';
-import { getAgents, addAgent, updateAgent, getBookings, addPromoCode } from '@/lib/db';
+import { getAgents, addAgent, updateAgent, deleteAgent, getBookings, addPromoCode } from '@/lib/db';
 import { tierConfig } from '@/lib/data';
 
 export default function AdminAgents() {
@@ -15,6 +15,7 @@ export default function AdminAgents() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAgent, setEditingAgent] = useState(null);
   const [newAgentName, setNewAgentName] = useState('');
   const [newAgentEmail, setNewAgentEmail] = useState('');
   const [newAgentUsername, setNewAgentUsername] = useState('');
@@ -63,7 +64,43 @@ export default function AdminAgents() {
     loadData();
   }, []);
 
-  // Handle Add Agent Submission
+  // Handle Edit Click
+  const handleEditAgentClick = (agent) => {
+    setEditingAgent(agent);
+    setNewAgentName(agent.name || '');
+    setNewAgentEmail(agent.email || '');
+    setNewAgentUsername(agent.username || '');
+    setNewAgentPassword(agent.password || '');
+    setNewAgentTier(agent.tier || 'bronze');
+    setNewAgentPromo(agent.promoCodes?.[0] || '');
+    setParentAgentId(agent.parentId ? String(agent.parentId) : '');
+    setNewAgentPhone(agent.phone || '');
+    setNewAgentBank(agent.bankAccount || '');
+    setNewAgentCountry(agent.country || '');
+    setNewAgentPartnerId(agent.partnerId || '');
+    setNewAgentPhoto(agent.photo || '');
+    setNewAgentJoinDate(agent.joinDate || new Date().toISOString().split('T')[0]);
+    setIsModalOpen(true);
+  };
+
+  // Handle Delete Agent
+  const handleDeleteAgent = async (id) => {
+    if (!confirm('⚠️ هل أنت متأكد من رغبتك في حذف هذا الوكيل نهائياً؟')) return;
+    try {
+      const success = await deleteAgent(id);
+      if (success) {
+        alert('تم حذف الوكيل بنجاح!');
+        await loadData();
+      } else {
+        alert('❌ فشل حذف الوكيل من السيرفر.');
+      }
+    } catch (e) {
+      console.error('Error deleting agent:', e);
+      alert('❌ فشل حذف الوكيل!');
+    }
+  };
+
+  // Handle Add / Edit Agent Submission
   const handleAddAgent = async (e) => {
     e.preventDefault();
     if (!newAgentName || !newAgentEmail || !newAgentUsername || !newAgentPassword) {
@@ -72,8 +109,11 @@ export default function AdminAgents() {
     }
 
     try {
-      // Verify username is unique
-      const isTaken = agents.some(a => a.username.toLowerCase() === newAgentUsername.trim().toLowerCase());
+      // Verify username is unique (excluding the agent itself if editing)
+      const isTaken = agents.some(a => 
+        a.username.toLowerCase() === newAgentUsername.trim().toLowerCase() && 
+        (!editingAgent || String(a.id) !== String(editingAgent.id))
+      );
       if (isTaken) {
         alert('اسم المستخدم هذا محجوز مسبقاً! الرجاء اختيار اسم مستخدم آخر.');
         return;
@@ -82,7 +122,7 @@ export default function AdminAgents() {
       const parentIdParsed = parentAgentId ? parseInt(parentAgentId, 10) : null;
       const cleanPromo = newAgentPromo.trim().toUpperCase();
 
-      const createdAgent = await addAgent({
+      const agentData = {
         name: newAgentName,
         email: newAgentEmail,
         username: newAgentUsername.trim().toLowerCase(),
@@ -96,24 +136,38 @@ export default function AdminAgents() {
         partnerId: newAgentPartnerId || `PRT-${Date.now().toString().slice(-6)}`,
         photo: newAgentPhoto,
         joinDate: newAgentJoinDate,
-      });
+      };
 
-      // Create promo code in database if provided
-      if (cleanPromo && createdAgent) {
-        await addPromoCode({
-          code: cleanPromo,
-          agentId: createdAgent.id,
-          discountType: 'percentage',
-          discountValue: newAgentTier === 'platinum' ? 20 : newAgentTier === 'gold' ? 15 : 10, // higher tier, better discount potential
-          maxUses: 100,
-          isActive: true,
-          expiryDate: '2026-12-31',
-          createdBy: 'admin'
-        });
+      if (editingAgent) {
+        // Mode: Edit existing agent
+        const success = await updateAgent(editingAgent.id, agentData);
+        if (success) {
+          alert(`تم تعديل الوكيل ${newAgentName} بنجاح!`);
+        } else {
+          alert('❌ فشل تعديل الوكيل.');
+        }
+      } else {
+        // Mode: Add new agent
+        const createdAgent = await addAgent(agentData);
+
+        // Create promo code in database if provided
+        if (cleanPromo && createdAgent) {
+          await addPromoCode({
+            code: cleanPromo,
+            agentId: createdAgent.id,
+            discountType: 'percentage',
+            discountValue: newAgentTier === 'platinum' ? 20 : newAgentTier === 'gold' ? 15 : 10,
+            maxUses: 100,
+            isActive: true,
+            expiryDate: '2026-12-31',
+            createdBy: 'admin'
+          });
+        }
+        alert(`تمت إضافة الوكيل ${newAgentName} بنجاح!`);
       }
 
-      alert(`تمت إضافة الوكيل ${newAgentName} بنجاح!`);
       setIsModalOpen(false);
+      setEditingAgent(null);
 
       // Reset Form
       setNewAgentName('');
@@ -133,8 +187,8 @@ export default function AdminAgents() {
       // Reload data
       await loadData();
     } catch (err) {
-      console.error('Error adding agent:', err);
-      alert('❌ فشل إضافة الوكيل!');
+      console.error('Error saving agent:', err);
+      alert('❌ فشل حفظ بيانات الوكيل!');
     }
   };
 
@@ -424,13 +478,30 @@ export default function AdminAgents() {
                         </span>
                       </td>
                       <td>
-                        <div className={styles.actionsCell}>
+                        <div className={styles.actionsCell} style={{ display: 'flex', gap: '6px' }}>
                           <button 
                             className={styles.actionBtn} 
                             onClick={() => handleToggleStatus(agent.id)}
                             title={agent.status === 'نشط' ? 'تجميد الحساب' : 'تفعيل الحساب'}
+                            style={{ padding: '2px 6px', fontSize: '0.75rem' }}
                           >
-                            {agent.status === 'نشط' ? '■' : '▶'}
+                            {agent.status === 'نشط' ? '🔒 تجميد' : '🔓 تفعيل'}
+                          </button>
+                          <button 
+                            className={styles.actionBtn} 
+                            onClick={() => handleEditAgentClick(agent)}
+                            title="تعديل بيانات الوكيل"
+                            style={{ padding: '2px 6px', fontSize: '0.75rem', color: 'var(--gold-400)', borderColor: 'rgba(251,191,36,0.3)' }}
+                          >
+                            ✏️ تعديل
+                          </button>
+                          <button 
+                            className={styles.actionBtn} 
+                            onClick={() => handleDeleteAgent(agent.id)}
+                            title="حذف الوكيل"
+                            style={{ padding: '2px 6px', fontSize: '0.75rem', color: 'var(--coral-500)', borderColor: 'rgba(244,63,94,0.3)' }}
+                          >
+                            🗑️ حذف
                           </button>
                         </div>
                       </td>
@@ -479,10 +550,14 @@ export default function AdminAgents() {
             border: '1px solid var(--border-accent)',
             boxShadow: 'var(--shadow-xl)',
             padding: '2.5rem',
+            maxHeight: '85vh',
+            overflowY: 'auto'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem' }}>
-              <button onClick={() => setIsModalOpen(false)} style={{ fontSize: '1.5rem', color: 'var(--text-secondary)', cursor: 'pointer', background: 'none', border: 'none' }}>×</button>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>➕ إضافة وكيل معتمد جديد</h3>
+              <button onClick={() => { setIsModalOpen(false); setEditingAgent(null); }} style={{ fontSize: '1.5rem', color: 'var(--text-secondary)', cursor: 'pointer', background: 'none', border: 'none' }}>×</button>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
+                {editingAgent ? '✏️ تعديل بيانات الوكيل المعتمد' : '➕ إضافة وكيل معتمد جديد'}
+              </h3>
             </div>
 
             <form onSubmit={handleAddAgent} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
@@ -703,8 +778,12 @@ export default function AdminAgents() {
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                <button type="submit" className="btn btn-primary" style={{ flex: 1, padding: '0.8rem' }}>إضافة الوكيل</button>
-                <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)} style={{ flex: 1, padding: '0.8rem' }}>إلغاء</button>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1, padding: '0.8rem' }}>
+                  {editingAgent ? '💾 حفظ التعديلات' : 'إضافة الوكيل'}
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={() => { setIsModalOpen(false); setEditingAgent(null); }} style={{ flex: 1, padding: '0.8rem' }}>
+                  إلغاء
+                </button>
               </div>
             </form>
           </div>

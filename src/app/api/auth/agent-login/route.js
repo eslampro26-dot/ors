@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAgentByUsername } from '@/lib/db.firebase';
+import { getAgentByUsername } from '@/lib/db';
 import { generateAgentToken, buildAgentCookieHeader } from '@/lib/auth';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limiter';
 
