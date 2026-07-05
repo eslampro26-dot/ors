@@ -109,6 +109,10 @@
 
 .tableResponsive {
   overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {

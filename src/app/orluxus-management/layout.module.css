@@ -4,6 +4,9 @@
   background: transparent;
   direction: rtl;
   font-family: var(--font-ar);
+  max-width: 100vw;
+  width: 100%;
+  overflow-x: hidden;
   
   /* Luxury Dark Mode overrides for Admin Panel */
   --bg-primary: #05070c;
@@ -132,6 +135,9 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .topbar {
@@ -194,6 +200,10 @@
 .contentArea {
   padding: var(--space-xl);
   flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Mobile */
