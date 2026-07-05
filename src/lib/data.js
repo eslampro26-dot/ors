@@ -286,12 +286,12 @@ export const categoryTranslations = {
     zh: "城市观光", ja: "市内観光ツアー"
   },
   "internal-packages": {
-    en: "Internal Packages", ar: "رحلات باكدج داخلية", de: "Inlands-Pauschalreisen", fr: "Formules Internes",
-    es: "Paquetes Internos", it: "Pacchetti Interni", ru: "Внутренние пакеты", tr: "Dahili Paketler",
-    zh: "国内度假套餐", ja: "国内パッケージ"
+    en: "Internal Packages", ar: "باكدج داخلي متكامل", de: "Inlands-Pauschalreisen", fr: "Formules Internes",
+    es: "Paquetes Internos", it: "Pacchetti Interni", ru: "Внутренние Пакеты", tr: "Dahili Paketler",
+    zh: "国内套餐", ja: "国内パッケージ"
   },
   "restaurants": {
-    en: "Restaurants", ar: "مطاعم", de: "Restaurants", fr: "Restaurants",
+    en: "Restaurants", ar: "المطاعم", de: "Restaurants", fr: "Restaurants",
     es: "Restaurantes", it: "Ristoranti", ru: "Рестораны", tr: "Restoranlar",
     zh: "餐厅", ja: "レストラン"
   },

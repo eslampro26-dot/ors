@@ -519,15 +519,13 @@ export default function Home() {
         <div className="container" style={{ maxWidth: '1100px' }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
             <span style={{ color: 'var(--gold-500)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', fontSize: 'var(--font-size-xs)' }}>
-              {locale === 'ar' ? 'الفخامة المخصصة' : 'EXCLUSIVE EXPERIENCE'}
+              {t('concierge.badge')}
             </span>
             <h2 style={{ fontFamily: 'var(--font-title)', fontSize: 'clamp(2rem, 4vw, 2.5rem)', color: 'var(--text-primary)', marginBottom: '1rem' }}>
-              {locale === 'ar' ? 'خدمة الكونسيرج الشخصية الخاصة بك' : 'Your Personal Concierge Service'}
+              {t('concierge.title')}
             </h2>
             <p style={{ fontSize: '18px', color: 'var(--text-secondary)', maxWidth: '650px', margin: '0 auto', lineHeight: '1.6' }}>
-              {locale === 'ar' 
-                ? 'نقدم لك تجارب سياحية وخدمات خاصة متكاملة بإشراف خبراء متخصصين لتنعم بالراحة والفخامة التامة.'
-                : 'Our bespoke concierge services provide elite access to private aviation, island dining, tailor-made itineraries, and luxury transportation.'}
+              {t('concierge.desc')}
             </p>
           </div>
 
@@ -546,10 +544,10 @@ export default function Home() {
                 </svg>
               </div>
               <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
-                {locale === 'ar' ? 'الطيران الخاص' : 'Private Jets'}
+                {t('concierge.jet')}
               </h3>
               <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
-                {locale === 'ar' ? 'حجز طائرات خاصة للتنقل بحرية وخصوصية تامة بين المعالم.' : 'Bespoke charter services connecting you directly to key global and local airports.'}
+                {t('concierge.jetDesc')}
               </p>
             </div>
 
@@ -562,10 +560,10 @@ export default function Home() {
                 </svg>
               </div>
               <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
-                {locale === 'ar' ? 'عشاء الجزر الخاصة' : 'Island Dining'}
+                {t('concierge.dining')}
               </h3>
               <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
-                {locale === 'ar' ? 'تجربة وجبات العشاء الفاخرة المحضرة بواسطة طهاة عالميين على شواطئ الجزر.' : 'Exquisite culinary experiences set on secluded shores, curated by top private chefs.'}
+                {t('concierge.diningDesc')}
               </p>
             </div>
 
@@ -578,10 +576,10 @@ export default function Home() {
                 </svg>
               </div>
               <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
-                {locale === 'ar' ? 'مسارات رحلات مخصصة' : 'Bespoke Itineraries'}
+                {t('concierge.itinerary')}
               </h3>
               <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
-                {locale === 'ar' ? 'تنظيم وتصميم مسارات يومية تناسب ذوقك وتطلعاتك الشخصية.' : 'Tailor-made itineraries crafted by local guides to meet your precise desires.'}
+                {t('concierge.itineraryDesc')}
               </p>
             </div>
 
@@ -593,10 +591,10 @@ export default function Home() {
                 </svg>
               </div>
               <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
-                {locale === 'ar' ? 'رحلات ومغامرات سفاري' : 'Safaris & Adventures'}
+                {t('concierge.safari')}
               </h3>
               <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
-                {locale === 'ar' ? 'استكشاف الكثبان الرملية والوديان والواحات المخفية بسيارات دفع رباعية فاخرة.' : 'Venture deep into desert terrains, dunes, and hidden oases with private luxury guides.'}
+                {t('concierge.safariDesc')}
               </p>
             </div>
 
@@ -609,10 +607,10 @@ export default function Home() {
                 </svg>
               </div>
               <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
-                {locale === 'ar' ? 'جلسات مقهى VIP' : 'Premium Cafe Lounges'}
+                {t('concierge.cafe')}
               </h3>
               <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
-                {locale === 'ar' ? 'حجز مساحات خاصة في أرقى المقاهي الشاطئية وأماكن الراحة الهادئة.' : 'Relax in handpicked seaside cafes and exclusive lounges with high-end dining.'}
+                {t('concierge.cafeDesc')}
               </p>
             </div>
 

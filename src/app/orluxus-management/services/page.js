@@ -155,6 +155,7 @@ export default function AdminServices() {
         setFormData(prev => ({
           ...prev,
           category: selectedPkgType,
+          duration: '3 ليالي / 4 أيام',
         }));
       }
     }

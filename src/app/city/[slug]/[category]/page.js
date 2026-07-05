@@ -95,7 +95,9 @@ export default function CategoryPage({ params }) {
       <div className="container" style={{ marginTop: '3rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
           <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '800' }}>{t('common.availableOffers')}</h2>
-          <span className="badge badge-ocean">{t('common.activeSlots', { active: trips.length })}</span>
+          <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '5px 12px' }}>
+            {t('common.activeSlots', { active: trips.length })}
+          </span>
         </div>
 
         {trips.length > 0 ? (
@@ -111,54 +113,50 @@ export default function CategoryPage({ params }) {
               
               return (
                 <div key={trip.id} className="glass-card stagger-children" style={{ padding: 0, overflow: 'hidden', animationDelay: `${idx * 0.1}s`, display: 'flex', flexDirection: 'column' }}>
-                  {/* Circular Trip Card Image */}
+                  {/* Full-width Trip Card Banner Image */}
                   <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    paddingTop: '2rem',
-                    position: 'relative'
+                    position: 'relative',
+                    width: '100%',
+                    height: '200px',
+                    overflow: 'hidden',
+                    borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
+                    flexShrink: 0
                   }}>
                     <div style={{
-                      width: '150px',
-                      height: '150px',
-                      borderRadius: '16px',
-                      overflow: 'hidden',
-                      border: '4px solid var(--gold-500)',
-                      boxShadow: 'var(--shadow-glow-gold), 0 8px 16px rgba(0,0,0,0.3)',
-                      backgroundImage: `url(${trip.image || '/images/default.jpg'})`,
+                      width: '100%',
+                      height: '100%',
+                      backgroundImage: `url(${trip.image || '/images/trips/glass-boat.jpg'})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                       backgroundRepeat: 'no-repeat',
                       backgroundColor: 'var(--bg-tertiary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      position: 'relative'
-                    }}>
-                      {!trip.image && <span style={{ fontSize: '0.9rem', opacity: 0.3, letterSpacing: '1px', fontWeight: 'bold', color: 'var(--text-tertiary)' }}>ORLUXUS</span>}
-                      
-                      {trip.videoUrl && (
-                        <div 
-                          onClick={() => setActiveVideoUrl(trip.videoUrl)}
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: 'rgba(0,0,0,0.3)',
-                            cursor: 'pointer',
-                            transition: 'background 0.2s',
-                          }}
-                        >
-                          <span style={{ fontSize: '2.2rem', color: '#fff', textShadow: '0 2px 10px rgba(0,0,0,0.5)', userSelect: 'none' }}>▶️</span>
+                      transition: 'transform 0.4s ease',
+                    }} />
+                    {/* Gradient overlay at bottom */}
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }} />
+
+                    {/* Video play button overlay */}
+                    {trip.videoUrl && (
+                      <div
+                        onClick={() => setActiveVideoUrl(trip.videoUrl)}
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.5)' }}>
+                          <span style={{ fontSize: '1.4rem', color: '#fff', userSelect: 'none', paddingLeft: '3px' }}>&#9654;</span>
                         </div>
-                      )}
-                    </div>
-                    
+                      </div>
+                    )}
+
+                    {/* NEW badge */}
                     {trip.id.toString().startsWith('custom') && (
-                      <span className="badge badge-gold" style={{ position: 'absolute', top: '15px', right: '15px', transform: 'scale(0.85)' }}>
+                      <span className="badge badge-gold" style={{ position: 'absolute', top: '12px', right: locale === 'ar' ? 'auto' : '12px', left: locale === 'ar' ? '12px' : 'auto', transform: 'scale(0.9)' }}>
                         {t('common.newBadge')}
                       </span>
                     )}

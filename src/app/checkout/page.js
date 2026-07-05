@@ -37,7 +37,7 @@ function CheckoutContent() {
         extraTransfer: 'Round-trip Private Transfer (+€30)',
         extraPhotos: 'Professional Photography Session (+€20)',
         promoQuestion: 'Do you have a discount code?',
-        promoPlaceholder: 'Enter discount code (e.g. AHMED10)',
+        promoPlaceholder: 'Discount code (optional)',
         applyBtn: 'Apply',
         submitBtn: '🔒 Proceed to Secure Payment Options',
         secureGateways: '💳 Secure Payment Options',
@@ -83,8 +83,9 @@ function CheckoutContent() {
         emailLabel: 'البريد الإلكتروني *',
         emailPlaceholder: 'name@example.com (لتسليم الفاتورة)',
         phoneLabel: 'رقم الهاتف للتواصل *',
+        phonePlaceholder: '01000000000',
         whatsappLabel: 'رقم الواتساب (اختياري)',
-        whatsappPlaceholder: 'نفس الرقم أو رقم آخر',
+        whatsappPlaceholder: '01000000000',
         dateLabel: 'تاريخ انطلاق الرحلة *',
         travelersLabel: 'عدد المسافرين (الأشخاص)',
         pickupLabel: 'موقع الاستلام من الفندق (اختياري)',
@@ -1397,10 +1398,10 @@ function CheckoutContent() {
       <Navbar />
 
       <div className="container" style={{ paddingTop: 'calc(var(--nav-height) + 3rem)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-2xl)', alignItems: 'start' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap-reverse', gap: 'var(--space-2xl)', alignItems: 'flex-start' }}>
           
           {/* Form */}
-          <div className="glass-card animate-fade-in-up" style={{ padding: '2.5rem', textAlign: isAr ? 'right' : 'left' }}>
+          <div className="glass-card animate-fade-in-up" style={{ flex: '1 1 500px', textAlign: isAr ? 'right' : 'left' }}>
             <h2 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: '800', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{translate('title')}</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>{translate('subtitle')}</p>
 
@@ -1452,48 +1453,48 @@ function CheckoutContent() {
               </div>
 
               {/* Phone & WhatsApp Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
                 {/* Phone */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: '1 1 200px' }}>
                   <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{translate('phoneLabel')}</label>
                   <input 
                     type="tel" 
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+20 1000..." 
+                    required
+                    placeholder="+20 1000..."
                     style={{
                       padding: '0.8rem 1rem',
                       borderRadius: 'var(--radius-md)',
                       border: '1px solid var(--border-medium)',
                       background: 'var(--bg-secondary)',
-                      outline: 'none',
-                      fontSize: '1rem',
                       color: 'var(--text-primary)',
-                      textAlign: 'left',
-                      fontFamily: 'var(--font-en)'
+                      fontFamily: 'var(--font-en)',
+                      outline: 'none',
+                      direction: 'ltr',
+                      textAlign: isAr ? 'right' : 'left'
                     }}
-                    required
                   />
                 </div>
 
                 {/* WhatsApp */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: '1 1 200px' }}>
                   <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{translate('whatsappLabel')}</label>
                   <input 
                     type="tel" 
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
-                    placeholder={translate('whatsappPlaceholder')} 
+                    placeholder={translate('whatsappPlaceholder')}
                     style={{
                       padding: '0.8rem 1rem',
                       borderRadius: 'var(--radius-md)',
                       border: '1px solid var(--border-medium)',
                       background: 'var(--bg-secondary)',
-                      outline: 'none',
-                      fontSize: '1rem',
                       color: 'var(--text-primary)',
-                      textAlign: 'left',
-                      fontFamily: 'var(--font-en)'
+                      fontFamily: 'var(--font-en)',
+                      outline: 'none',
+                      direction: 'ltr',
+                      textAlign: isAr ? 'right' : 'left'
                     }}
                   />
                 </div>
@@ -1775,7 +1776,7 @@ function CheckoutContent() {
           </div>
 
           {/* Order Summary */}
-          <div className="glass-card animate-fade-in-up" style={{ padding: '2.5rem', border: '1px solid var(--border-accent)', boxShadow: 'var(--shadow-glow-gold)', textAlign: 'left' }}>
+          <div className="glass-card animate-fade-in-up" style={{ flex: '1 1 320px', padding: '2.5rem', border: '1px solid var(--border-accent)', boxShadow: 'var(--shadow-glow-gold)', textAlign: 'left' }}>
             <h3 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '700', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem', color: 'var(--text-primary)' }}>{translate('summary')}</h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>

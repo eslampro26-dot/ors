@@ -42,7 +42,7 @@ export default function AdminTiers() {
                     <li key={i}>{crit}</li>
                   ))}
                 </ul>
-                <button className="btn btn-secondary btn-sm" style={{marginTop: '1rem', width: '100%'}}>تعديل الشروط</button>
+                <button className="btn btn-secondary btn-sm" style={{marginTop: '1rem', width: '100%'}} onClick={() => alert('هذه الخاصية سيتم تفعيلها في التحديث القادم')}>تعديل الشروط</button>
               </div>
             )}
           </div>
@@ -71,7 +71,7 @@ export default function AdminTiers() {
               <option>بلاتيني</option>
             </select>
           </div>
-          <button className="btn btn-primary" style={{alignSelf: 'flex-end'}}>تنفيذ الترقية</button>
+          <button className="btn btn-primary" style={{alignSelf: 'flex-end'}} onClick={() => alert('سيتم تفعيل هذه الخاصية قريباً')}>تنفيذ الترقية</button>
         </div>
       </div>
     </div>

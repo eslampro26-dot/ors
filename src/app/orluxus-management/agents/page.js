@@ -150,20 +150,24 @@ export default function AdminAgents() {
         // Mode: Add new agent
         const createdAgent = await addAgent(agentData);
 
-        // Create promo code in database if provided
-        if (cleanPromo && createdAgent) {
-          await addPromoCode({
-            code: cleanPromo,
-            agentId: createdAgent.id,
-            discountType: 'percentage',
-            discountValue: newAgentTier === 'platinum' ? 20 : newAgentTier === 'gold' ? 15 : 10,
-            maxUses: 100,
-            isActive: true,
-            expiryDate: '2026-12-31',
-            createdBy: 'admin'
-          });
+        if (createdAgent) {
+          // Create promo code in database if provided
+          if (cleanPromo) {
+            await addPromoCode({
+              code: cleanPromo,
+              agentId: createdAgent.id,
+              discountType: 'percentage',
+              discountValue: newAgentTier === 'platinum' ? 20 : newAgentTier === 'gold' ? 15 : 10,
+              maxUses: 100,
+              isActive: true,
+              expiryDate: '2026-12-31',
+              createdBy: 'admin'
+            });
+          }
+          alert(`تمت إضافة الوكيل ${newAgentName} بنجاح!`);
+        } else {
+          alert('❌ فشل إضافة الوكيل. قد يكون هناك مشكلة في قاعدة البيانات أو في الصلاحيات.');
         }
-        alert(`تمت إضافة الوكيل ${newAgentName} بنجاح!`);
       }
 
       setIsModalOpen(false);
@@ -373,7 +377,22 @@ export default function AdminAgents() {
               شجرة الشبكة
             </button>
           </div>
-          <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
+          <button className="btn btn-primary" onClick={() => {
+            setNewAgentName('');
+            setNewAgentEmail('');
+            setNewAgentUsername('');
+            setNewAgentPassword('');
+            setNewAgentTier('bronze');
+            setNewAgentPromo('');
+            setParentAgentId('');
+            setNewAgentPhone('');
+            setNewAgentBank('');
+            setNewAgentCountry('');
+            setNewAgentPartnerId('');
+            setNewAgentPhoto('');
+            setNewAgentJoinDate(new Date().toISOString().split('T')[0]);
+            setIsModalOpen(true);
+          }}>
             <span>+</span> إضافة وكيل مباشر جديد
           </button>
         </div>
@@ -551,7 +570,8 @@ export default function AdminAgents() {
             boxShadow: 'var(--shadow-xl)',
             padding: '2.5rem',
             maxHeight: '85vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            margin: '1rem'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem' }}>
               <button onClick={() => { setIsModalOpen(false); setEditingAgent(null); }} style={{ fontSize: '1.5rem', color: 'var(--text-secondary)', cursor: 'pointer', background: 'none', border: 'none' }}>×</button>
