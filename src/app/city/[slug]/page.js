@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { cities, getLocalizedCity, getCategoryName } from '@/lib/data';
 import { cityArticles } from '@/lib/cityArticles';
 import Link from 'next/link';
@@ -11,6 +12,7 @@ export default function CityPage() {
   const { slug } = useParams();
   const city = cities.find(c => c.slug === slug);
   const { locale, t, isReady } = useLanguage();
+  const [showGuideModal, setShowGuideModal] = useState(false);
 
   if (!city) {
     notFound();
@@ -90,6 +92,138 @@ export default function CityPage() {
         </div>
       </div>
 
+      {/* City Guide Button — Compact & Clickable */}
+      {article && (
+        <div className="container animate-fade-in-up" style={{ marginTop: '3rem' }}>
+          <div
+            onClick={() => setShowGuideModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1.5rem',
+              background: 'linear-gradient(135deg, rgba(201,162,39,0.08) 0%, rgba(201,162,39,0.03) 100%)',
+              border: '1px solid rgba(201,162,39,0.3)',
+              borderRadius: '16px',
+              padding: '1.2rem 2rem',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              flexDirection: locale === 'ar' ? 'row-reverse' : 'row',
+              boxShadow: '0 4px 20px rgba(201,162,39,0.08)',
+            }}
+            className="guide-btn-card"
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
+              <div style={{
+                width: '42px', height: '42px', borderRadius: '50%',
+                background: 'linear-gradient(135deg, var(--gold-500), var(--gold-600))',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '1.2rem', flexShrink: 0
+              }}>📖</div>
+              <div style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--gold-500)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '2px' }}>
+                  {locale === 'ar' ? 'دليل المدينة' : 'CITY GUIDE'}
+                </div>
+                <div style={{ fontSize: '1rem', color: 'var(--text-primary)', fontWeight: '700' }}>
+                  {locale === 'ar' ? `دليل السفر الشامل لـ ${locCity.name}` : `Complete Travel Guide — ${locCity.name}`}
+                </div>
+              </div>
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: 'var(--gold-500)', color: '#fff',
+              padding: '8px 20px', borderRadius: '999px',
+              fontWeight: '700', fontSize: '0.85rem', flexShrink: 0,
+              flexDirection: locale === 'ar' ? 'row-reverse' : 'row'
+            }}>
+              <span>{locale === 'ar' ? 'اقرأ الدليل' : 'Read Guide'}</span>
+              <span style={{ fontSize: '1rem', transform: locale === 'ar' ? 'rotate(180deg)' : 'none' }}>→</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* City Guide Modal */}
+      {showGuideModal && article && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(5, 7, 12, 0.9)',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-accent)',
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '850px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            padding: '2.5rem',
+            position: 'relative',
+            direction: locale === 'ar' ? 'rtl' : 'ltr',
+            textAlign: locale === 'ar' ? 'right' : 'left'
+          }}>
+            <button 
+              onClick={() => setShowGuideModal(false)}
+              style={{
+                position: 'absolute',
+                top: '1.5rem',
+                [locale === 'ar' ? 'left' : 'right']: '1.5rem',
+                fontSize: '1.8rem',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                background: 'none',
+                border: 'none',
+                lineHeight: 1
+              }}
+            >
+              ×
+            </button>
+            <h2 style={{ fontSize: '2rem', color: 'var(--gold-400)', fontWeight: '900', marginBottom: '0.5rem' }}>
+              {article.title}
+            </h2>
+            <h4 style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', fontWeight: '500', marginBottom: '2rem' }}>
+              {article.subtitle}
+            </h4>
+            <p style={{ fontSize: '1.05rem', lineHeight: '1.8', color: 'var(--text-primary)', marginBottom: '2rem' }}>
+              {article.introduction}
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              {article.chapters.map((ch, idx) => (
+                <div key={idx} style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '1.5rem' }}>
+                  <h3 style={{ fontSize: '1.25rem', color: 'var(--gold-500)', fontWeight: '800', marginBottom: '1rem' }}>
+                    {ch.title}
+                  </h3>
+                  <p style={{ fontSize: '1rem', lineHeight: '1.7', color: 'var(--text-secondary)', whiteSpace: 'pre-line' }}>
+                    {ch.content}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {article.conclusion && (
+              <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '1.5rem', marginTop: '2rem' }}>
+                <p style={{ fontSize: '1.05rem', lineHeight: '1.8', color: 'var(--text-primary)', fontWeight: 'bold' }}>
+                  {article.conclusion}
+                </p>
+              </div>
+            )}
+            
+            {article.sources && (
+              <div style={{ marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+                {article.sources}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 2. SERVICES GRID */}
       <div className="container" style={{ marginTop: '4rem' }}>

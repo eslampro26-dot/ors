@@ -95,9 +95,6 @@ export default function CategoryPage({ params }) {
       <div className="container" style={{ marginTop: '3rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
           <h2 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '800' }}>{t('common.availableOffers')}</h2>
-          <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)', background: 'var(--bg-tertiary)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '5px 12px' }}>
-            {t('common.activeSlots', { active: trips.length })}
-          </span>
         </div>
 
         {trips.length > 0 ? (

@@ -46,7 +46,6 @@ export default function EntertainmentPage() {
           flexDirection: isAr ? 'row-reverse' : 'row'
         }}>
           <h2 style={{ fontSize: 'var(--font-size-xl)' }}>{isAr ? 'الفعاليات المتاحة' : 'Available Events'}</h2>
-          <span className="badge badge-ocean">{isAr ? 'المتاح: 0 من أصل 20 خانة' : 'Available: 0 out of 20 slots'}</span>
         </div>
 
         <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
