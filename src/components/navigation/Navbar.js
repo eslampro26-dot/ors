@@ -131,7 +131,6 @@ export default function Navbar() {
                   <div className={styles.megaHeader}>
                     <div>
                       <h3 className={styles.megaTitle}>{locCity.name}</h3>
-                      <p className={styles.megaDesc}>{locCity.description}</p>
                     </div>
                   </div>
                   <div className={styles.megaGrid}>

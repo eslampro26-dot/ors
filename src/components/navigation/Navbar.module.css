@@ -482,9 +482,13 @@
   }
 
   .megaGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    padding: 0 var(--space-md);
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 0 var(--space-md) var(--space-sm);
+  }
+
+  .megaHeader {
+    padding: var(--space-sm) var(--space-md);
   }
 
   .megaItem:hover {
