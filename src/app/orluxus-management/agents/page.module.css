@@ -63,7 +63,7 @@
 .searchBox {
   position: relative;
   flex: 1;
-  min-width: 300px;
+  min-width: 200px;
 }
 
 .searchIcon {
@@ -113,7 +113,7 @@
 
 .table {
   width: 100%;
-  min-width: 1350px;
+  min-width: 950px;
   border-collapse: collapse;
   text-align: right;
 }
@@ -257,7 +257,19 @@
   }
 
   .table {
-    min-width: 700px;
+    min-width: 600px;
+  }
+
+  .actionsCell {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+/* Hide secondary columns on mid-size screens (1024px–1280px with sidebar) */
+@media (min-width: 769px) and (max-width: 1280px) {
+  .table {
+    min-width: 800px;
   }
 }
 

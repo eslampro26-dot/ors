@@ -295,3 +295,45 @@ textarea.input {
   resize: vertical;
   min-height: 100px;
 }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+  .categoriesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tripsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cityTabs {
+    padding-bottom: var(--space-sm);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modalOverlay {
+    padding: 0.5rem;
+    align-items: flex-end;
+  }
+
+  .modalCard {
+    max-width: 100%;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    padding: var(--space-lg) !important;
+    margin: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .categoryCard {
+    padding: var(--space-lg);
+  }
+}

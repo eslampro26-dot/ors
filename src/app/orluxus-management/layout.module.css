@@ -311,3 +311,20 @@
     padding: 0 var(--space-sm);
   }
 }
+
+/* =============================================
+   TABLET (768px - 1024px) IMPROVEMENTS
+   ============================================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 240px;
+  }
+
+  .mainContent {
+    margin-right: 240px;
+  }
+
+  .contentArea {
+    padding: var(--space-lg);
+  }
+}
