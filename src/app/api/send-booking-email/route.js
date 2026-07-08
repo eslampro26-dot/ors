@@ -234,6 +234,7 @@ export async function POST(request) {
           port: parseInt(smtpPort || '587', 10),
           secure: parseInt(smtpPort, 10) === 465,
           auth: { user: smtpUser, pass: smtpPass },
+          tls: { rejectUnauthorized: false }
         });
         await testTransporter.sendMail({
           from: `"ORLUXUS Test" <${smtpUser}>`,
@@ -300,6 +301,7 @@ export async function POST(request) {
         port: activeSmtpPort,
         secure: activeSmtpPort === 465,
         auth: { user: activeSmtpUser, pass: activeSmtpPass },
+        tls: { rejectUnauthorized: false }
       });
 
       // Send to customer
