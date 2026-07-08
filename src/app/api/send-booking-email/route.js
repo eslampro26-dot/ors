@@ -226,27 +226,29 @@ export async function POST(request) {
     if (body.action === 'test') {
       const { smtpHost, smtpPort, smtpUser, smtpPass, companyEmail } = body;
       if (!smtpUser || !smtpPass) {
-        return Response.json({ error: 'Missing SMTP credentials' }, { status: 400 });
+        return Response.json({ success: false, error: 'يرجى إدخال إيميل وكلمة مرور SMTP أولاً' });
       }
-
-      const testTransporter = nodemailer.createTransport({
-        host: smtpHost || 'smtp.gmail.com',
-        port: parseInt(smtpPort || '587', 10),
-        secure: parseInt(smtpPort, 10) === 465,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-      });
-
-      await testTransporter.sendMail({
-        from: `"ORLUXUS Test" <${smtpUser}>`,
-        to: companyEmail || 'info@orluxus.com',
-        subject: '[ORLUXUS] SMTP Connection Test Successful',
-        html: `<h3>Connection Successful!</h3><p>Your SMTP configuration on ORLUXUS platform is working correctly.</p><p>Time: ${new Date().toLocaleString()}</p>`,
-      });
-
-      return Response.json({ success: true, message: 'Test email sent successfully' });
+      try {
+        const testTransporter = nodemailer.createTransport({
+          host: smtpHost || 'smtp.gmail.com',
+          port: parseInt(smtpPort || '587', 10),
+          secure: parseInt(smtpPort, 10) === 465,
+          auth: { user: smtpUser, pass: smtpPass },
+        });
+        await testTransporter.sendMail({
+          from: `"ORLUXUS Test" <${smtpUser}>`,
+          to: companyEmail || smtpUser,
+          subject: '[ORLUXUS] SMTP Connection Test ✔️',
+          html: `<h3 style="color:#10b981">✅ Connection Successful!</h3><p>Your SMTP configuration is working correctly on the ORLUXUS platform.</p><p><small>Time: ${new Date().toLocaleString()}</small></p>`,
+        });
+        return Response.json({ success: true, message: 'Test email sent successfully' });
+      } catch (smtpErr) {
+        console.error('[send-booking-email] SMTP test failed:', smtpErr.message);
+        return Response.json({
+          success: false,
+          error: `فشل الاتصال: ${smtpErr.message || 'تحقق من بيانات SMTP وكلمة مرور التطبيق'}`
+        });
+      }
     }
 
     const {
@@ -289,39 +291,42 @@ export async function POST(request) {
     // If no SMTP credentials, skip actually sending (log only)
     if (!activeSmtpUser || !activeSmtpPass) {
       console.log('[send-booking-email] SMTP credentials missing. Email logging fallback:', email, activeCompanyEmail);
-      return Response.json({ success: true, message: 'Email logged (SMTP credentials not configured)' });
+      return Response.json({ success: true, message: 'Booking saved (SMTP not configured — email not sent)' });
     }
 
-    const transporter = nodemailer.createTransport({
-      host: activeSmtpHost,
-      port: activeSmtpPort,
-      secure: activeSmtpPort === 465,
-      auth: {
-        user: activeSmtpUser,
-        pass: activeSmtpPass,
-      },
-    });
+    try {
+      const transporter = nodemailer.createTransport({
+        host: activeSmtpHost,
+        port: activeSmtpPort,
+        secure: activeSmtpPort === 465,
+        auth: { user: activeSmtpUser, pass: activeSmtpPass },
+      });
 
-    // Send to customer
-    await transporter.sendMail({
-      from: `"ORLUXUS" <${activeSmtpUser}>`,
-      to: email,
-      subject,
-      html: htmlContent,
-    });
+      // Send to customer
+      await transporter.sendMail({
+        from: `"ORLUXUS" <${activeSmtpUser}>`,
+        to: email,
+        subject,
+        html: htmlContent,
+      });
 
-    // Send to company email
-    await transporter.sendMail({
-      from: `"ORLUXUS Booking System" <${activeSmtpUser}>`,
-      to: activeCompanyEmail,
-      subject: `[NEW BOOKING] ${customerName} — ${serviceName} | €${finalAmount.toFixed(2)}`,
-      html: htmlContent,
-    });
+      // Send to company email
+      await transporter.sendMail({
+        from: `"ORLUXUS Booking System" <${activeSmtpUser}>`,
+        to: activeCompanyEmail,
+        subject: `[NEW BOOKING] ${customerName} — ${serviceName} | €${finalAmount.toFixed(2)}`,
+        html: htmlContent,
+      });
 
-    return Response.json({ success: true, message: 'Emails sent successfully' });
+      return Response.json({ success: true, message: 'Emails sent successfully' });
+    } catch (mailErr) {
+      // Email failed but booking was already saved — return success so checkout doesn't break
+      console.error('[send-booking-email] Mail send failed:', mailErr.message);
+      return Response.json({ success: true, message: 'Booking confirmed (email delivery failed)', emailError: mailErr.message });
+    }
 
   } catch (error) {
-    console.error('[send-booking-email] Error:', error);
-    return Response.json({ error: error.message || 'Failed to send email' }, { status: 500 });
+    console.error('[send-booking-email] Unexpected error:', error);
+    return Response.json({ success: false, error: error.message || 'Server error' }, { status: 500 });
   }
 }

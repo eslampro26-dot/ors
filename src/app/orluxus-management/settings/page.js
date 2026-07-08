@@ -772,115 +772,84 @@ export default function AdminSettings() {
               هذه الإضافات ستظهر للعميل أثناء عملية الحجز ليتمكن من اختيارها. يمكنك تعديل أسعارها ومسمياتها بحرية.
             </p>
             {checkoutAddons.map((addon, index) => (
-              <div key={addon.id || index} style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1.5fr auto', gap: '1rem', alignItems: 'center' }}>
+              <div key={addon.id || index} style={{ marginBottom: '1.2rem', padding: '1.2rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+
+                {/* Header: title + delete */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <span style={{ fontWeight: '700', color: 'var(--gold-400)', fontSize: '0.9rem' }}>
+                    #{index + 1} — {addon.nameAr || addon.nameEn || 'خدمة جديدة'}
+                  </span>
+                  <button
+                    onClick={() => setCheckoutAddons(checkoutAddons.filter((_, i) => i !== index))}
+                    style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: '6px', padding: '4px 14px', cursor: 'pointer', fontSize: '0.8rem' }}
+                  >
+                    🗑️ حذف
+                  </button>
+                </div>
+
+                {/* Row 1: Names */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '0.8rem' }}>
                   <div>
-                    <label className="admin-label">الاسم بالإنجليزية</label>
-                    <input
-                      type="text"
-                      className="admin-input"
-                      value={addon.nameEn}
-                      onChange={(e) => {
-                        const newAddons = [...checkoutAddons];
-                        newAddons[index].nameEn = e.target.value;
-                        setCheckoutAddons(newAddons);
-                      }}
+                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الاسم بالعربية</label>
+                    <input type="text" value={addon.nameAr}
+                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],nameAr:e.target.value}; setCheckoutAddons(n); }}
+                      style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', boxSizing:'border-box' }}
                     />
                   </div>
                   <div>
-                    <label className="admin-label">الاسم بالعربية</label>
-                    <input
-                      type="text"
-                      className="admin-input"
-                      value={addon.nameAr}
-                      onChange={(e) => {
-                        const newAddons = [...checkoutAddons];
-                        newAddons[index].nameAr = e.target.value;
-                        setCheckoutAddons(newAddons);
-                      }}
+                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الاسم بالإنجليزية</label>
+                    <input type="text" value={addon.nameEn}
+                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],nameEn:e.target.value}; setCheckoutAddons(n); }}
+                      style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Price + Unit */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '0.8rem' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>السعر (€)</label>
+                    <input type="number" value={addon.price}
+                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],price:Number(e.target.value)}; setCheckoutAddons(n); }}
+                      style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
                     />
                   </div>
                   <div>
-                    <label className="admin-label">السعر (€)</label>
-                    <input
-                      type="number"
-                      className="admin-input"
-                      value={addon.price}
-                      onChange={(e) => {
-                        const newAddons = [...checkoutAddons];
-                        newAddons[index].price = Number(e.target.value);
-                        setCheckoutAddons(newAddons);
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label className="admin-label">حساب السعر</label>
-                    <select
-                      className="admin-input"
-                      value={addon.unit || 'booking'}
-                      onChange={(e) => {
-                        const newAddons = [...checkoutAddons];
-                        newAddons[index].unit = e.target.value;
-                        setCheckoutAddons(newAddons);
-                      }}
-                      style={{ backgroundColor: '#0c0f17', color: 'white' }}
+                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>حساب السعر</label>
+                    <select value={addon.unit || 'booking'}
+                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],unit:e.target.value}; setCheckoutAddons(n); }}
+                      style={{ width:'100%', padding:'8px 12px', background:'#0c0f17', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', cursor:'pointer', boxSizing:'border-box' }}
                     >
                       <option value="booking">للحجز بالكامل (Flat Rate)</option>
                       <option value="person">لكل فرد (Per Person)</option>
                     </select>
                   </div>
-                  <div style={{ paddingTop: '28px' }}>
-                    <button 
-                      className="btn btn-danger" 
-                      style={{ padding: '0.5rem 1rem' }}
-                      onClick={() => {
-                        const newAddons = checkoutAddons.filter((_, i) => i !== index);
-                        setCheckoutAddons(newAddons);
-                      }}
-                    >
-                      حذف
-                    </button>
-                  </div>
                 </div>
-                
-                {/* Description Fields */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+
+                {/* Row 3: Descriptions */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
                   <div>
-                    <label className="admin-label">الوصف الإضافي للتأكيد (بالعربية)</label>
-                    <input
-                      type="text"
-                      className="admin-input"
-                      placeholder="وصف تفصيلي يظهر للعميل عند تحديد الخدمة..."
-                      value={addon.descAr || ''}
-                      onChange={(e) => {
-                        const newAddons = [...checkoutAddons];
-                        newAddons[index].descAr = e.target.value;
-                        setCheckoutAddons(newAddons);
-                      }}
+                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الوصف (بالعربية)</label>
+                    <input type="text" placeholder="وصف تفصيلي يظهر للعميل..." value={addon.descAr || ''}
+                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],descAr:e.target.value}; setCheckoutAddons(n); }}
+                      style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontSize:'0.85rem', boxSizing:'border-box' }}
                     />
                   </div>
                   <div>
-                    <label className="admin-label">الوصف الإضافي للتأكيد (بالإنجليزية)</label>
-                    <input
-                      type="text"
-                      className="admin-input"
-                      placeholder="Detailed description shown to client..."
-                      value={addon.descEn || ''}
-                      onChange={(e) => {
-                        const newAddons = [...checkoutAddons];
-                        newAddons[index].descEn = e.target.value;
-                        setCheckoutAddons(newAddons);
-                      }}
+                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الوصف (بالإنجليزية)</label>
+                    <input type="text" placeholder="Detailed description shown to client..." value={addon.descEn || ''}
+                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],descEn:e.target.value}; setCheckoutAddons(n); }}
+                      style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontSize:'0.85rem', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
                     />
                   </div>
                 </div>
+
               </div>
             ))}
-            <button 
+            <button
               className="btn btn-secondary"
-              onClick={() => {
-                setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: '', nameAr: '', price: 0, unit: 'booking', descAr: '', descEn: '' }]);
-              }}
+              style={{ marginTop: '0.5rem' }}
+              onClick={() => setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: '', nameAr: '', price: 0, unit: 'booking', descAr: '', descEn: '' }])}
             >
               + إضافة خدمة جديدة
             </button>
