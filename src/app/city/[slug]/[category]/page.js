@@ -295,7 +295,7 @@ export default function CategoryPage({ params }) {
                     )}
                     
                     <Link 
-                      href={`/checkout?tripId=${trip.id}&price=${activeTier.price}&titleAr=${encodeURIComponent(trip.titleAr + ' - ' + activeTier.names.ar)}&titleEn=${encodeURIComponent((trip.titleEn || trip.titleAr) + ' - ' + activeTier.names.en)}&type=trip&city=${encodeURIComponent(city.nameAr)}`} 
+                      href={`/checkout?tripId=${trip.id}&price=${activeTier.price}&titleAr=${encodeURIComponent(trip.titleAr + ' - ' + activeTier.names.ar)}&titleEn=${encodeURIComponent((trip.titleEn || trip.titleAr) + ' - ' + activeTier.names.en)}&type=trip&city=${encodeURIComponent(city.nameAr)}&category=${category}&tier=${activeTier.id}`} 
                       className="btn btn-primary" 
                       style={{ width: '100%', display: 'inline-flex', justifyContent: 'center' }}
                     >

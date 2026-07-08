@@ -145,6 +145,8 @@ function CheckoutContent() {
   const titleAr = searchParams.get('titleAr') || '';
   const titleEn = searchParams.get('titleEn') || '';
   const type = searchParams.get('type') || 'trip';
+  const category = searchParams.get('category') || '';
+  const tier = searchParams.get('tier') || 'economy';
 
   // Customer State
   const [travelers, setTravelers] = useState(1);
@@ -218,7 +220,38 @@ function CheckoutContent() {
 
   // Price Calculations
   const extrasTotal = getSelectedExtrasCost();
-  const originalTotal = (basePrice * travelers) + extrasTotal;
+
+  // Helper: Send booking confirmation email
+  const sendBookingEmail = async (bookingData) => {
+    try {
+      await fetch('/api/send-booking-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingData),
+      });
+    } catch (err) {
+      console.error('[checkout] Email send error (non-blocking):', err);
+    }
+  };
+
+  
+  // Resolve additional person price from settings or fallback to basePrice
+  let additionalPersonPrice = basePrice;
+  if (settings?.additionalPrices) {
+    const resolvedCategory = category || (type === 'package' ? 'packages' : '');
+    if (resolvedCategory && settings.additionalPrices[resolvedCategory]) {
+      const tierPrices = settings.additionalPrices[resolvedCategory];
+      const configuredPrice = parseFloat(tierPrices[tier]);
+      if (!isNaN(configuredPrice) && configuredPrice > 0) {
+        additionalPersonPrice = configuredPrice;
+      }
+    }
+  }
+
+  // Calculate total: first person pays basePrice, others pay additionalPersonPrice
+  const originalTotal = travelers <= 1
+    ? basePrice + extrasTotal
+    : basePrice + (additionalPersonPrice * (travelers - 1)) + extrasTotal;
   let discountAmount = 0;
   if (promoDetails) {
     if (promoDetails.discountType === 'percentage') {
@@ -332,6 +365,19 @@ function CheckoutContent() {
           infants: infants,
           specialRequests: specialRequests
         });
+
+        // Send invoice email (non-blocking)
+        sendBookingEmail({
+          customerName, email, phone, whatsapp: whatsapp || phone,
+          date: bookingDate, travelers,
+          serviceName: titleEn || titleAr || 'Travel Excursion',
+          originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
+          paymentType: walletName, txId,
+          extras: getSelectedExtrasString(), pickupLocation,
+          promoCode: promoDetails?.code || '',
+          agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
+          children, infants, specialRequests,
+        });
         
         setIsSimulatingPayment(false);
         const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)')}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=${walletName}&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}`;
@@ -374,6 +420,19 @@ function CheckoutContent() {
           infants: infants,
           specialRequests: specialRequests
         });
+
+        // Send invoice email (non-blocking)
+        sendBookingEmail({
+          customerName, email, phone, whatsapp: whatsapp || phone,
+          date: bookingDate, travelers,
+          serviceName: titleEn || titleAr || 'Travel Excursion',
+          originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
+          paymentType: 'bank_transfer', txId,
+          extras: getSelectedExtrasString(), pickupLocation,
+          promoCode: promoDetails?.code || '',
+          agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
+          children, infants, specialRequests,
+        });
         
         setIsSimulatingPayment(false);
         const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)')}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=bank_transfer&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}`;
@@ -413,6 +472,19 @@ function CheckoutContent() {
         children: children,
         infants: infants,
         specialRequests: specialRequests
+      });
+
+      // Send invoice email (non-blocking)
+      sendBookingEmail({
+        customerName, email, phone, whatsapp: whatsapp || phone,
+        date: bookingDate, travelers,
+        serviceName: titleEn || titleAr || 'Travel Excursion',
+        originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
+        paymentType: 'onsite', txId,
+        extras: getSelectedExtrasString(), pickupLocation,
+        promoCode: promoDetails?.code || '',
+        agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
+        children, infants, specialRequests,
       });
     } catch (err) {
       console.error('Error saving booking on cash payment:', err);
@@ -496,6 +568,19 @@ function CheckoutContent() {
               children: children,
               infants: infants,
               specialRequests: specialRequests
+            });
+
+            // Send invoice email (non-blocking)
+            sendBookingEmail({
+              customerName, email, phone, whatsapp: whatsapp || phone,
+              date: bookingDate, travelers,
+              serviceName: titleEn || titleAr || 'Travel Excursion',
+              originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
+              paymentType: 'paypal', txId,
+              extras: getSelectedExtrasString(), pickupLocation,
+              promoCode: promoDetails?.code || '',
+              agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
+              children, infants, specialRequests,
             });
           } catch (err) {
             console.error('Error saving booking on PayPal approval:', err);
@@ -683,12 +768,18 @@ function CheckoutContent() {
             {/* Invoice Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #f1f5f9', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
               <div style={{ textAlign: 'left' }}>
-                <h2 style={{ fontSize: '2rem', fontWeight: '900', color: '#b45309', margin: 0, letterSpacing: '2px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
-                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>With A Family Spirit 🇪🇬</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'linear-gradient(135deg, #b45309, #c9a227)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <span style={{ color: '#fff', fontWeight: '900', fontSize: '1rem', letterSpacing: '-1px', fontFamily: 'var(--font-en)' }}>OX</span>
+                  </div>
+                  <h2 style={{ fontSize: '2rem', fontWeight: '900', color: '#b45309', margin: 0, letterSpacing: '2px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
+                </div>
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase' }}>Premium Egypt Travel & Tourism</span>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', color: '#0f172a' }}>Booking Invoice</h3>
-                <span style={{ fontSize: '0.85rem', color: '#64748b', fontFamily: 'var(--font-en)' }}>Invoice #{txParam.replace('pp-tx-', '').replace('cash-tx-', '').replace('dafah-tx-', '').replace('bank-tx-', '').replace('apple_pay-tx-', '').replace('google_pay-tx-', '').slice(0, 8)}</span>
+                <span style={{ fontSize: '0.85rem', color: '#64748b', fontFamily: 'var(--font-en)' }}>Invoice #{txParam.replace('pp-tx-', '').replace('cash-tx-', '').replace('dafah-tx-', '').replace('bank-tx-', '').replace('apple_pay-tx-', '').replace('google_pay-tx-', '').slice(0, 8).toUpperCase()}</span>
+                <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#94a3b8' }}>{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
               </div>
             </div>
 
@@ -788,9 +879,39 @@ function CheckoutContent() {
               </div>
             </div>
 
+            {/* Contact Numbers */}
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.2rem 1.5rem', marginTop: '2rem' }}>
+              <h4 style={{ margin: '0 0 10px', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>📞 ORLUXUS Contact Numbers</h4>
+              <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ background: '#dc2626', color: '#fff', padding: '2px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '700' }}>EMERGENCY</span>
+                  <a href="tel:+201038820014" style={{ color: '#dc2626', fontWeight: '800', textDecoration: 'none', fontFamily: 'var(--font-en)', fontSize: '1rem' }}>+201038820014</a>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ background: '#10b981', color: '#fff', padding: '2px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '700' }}>CUSTOMER SERVICE</span>
+                  <a href="tel:+201038820019" style={{ color: '#10b981', fontWeight: '800', textDecoration: 'none', fontFamily: 'var(--font-en)', fontSize: '1rem' }}>+201038820019</a>
+                </div>
+              </div>
+            </div>
+
+            {/* Digital Signature & Terms Agreement */}
+            <div style={{ border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '1.2rem 1.5rem', marginTop: '1.5rem' }}>
+              <h4 style={{ margin: '0 0 8px', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>📋 Terms & Conditions — Electronic Agreement</h4>
+              <p style={{ margin: '0 0 10px', fontSize: '0.82rem', color: '#475569', lineHeight: '1.6' }}>
+                By completing this booking, <strong>{nameParam}</strong> hereby electronically confirms acceptance of ORLUXUS Terms &amp; Conditions,
+                Cancellation Policy (cancellations must be made 24+ hours in advance), and Data Protection Policy (GDPR compliant).
+                This document constitutes a valid digital contract between the traveler and ORLUXUS GROUP Ltd. (Reg. No. 7291-B).
+              </p>
+              <div style={{ background: '#f1f5f9', borderRadius: '8px', padding: '10px 14px', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', fontSize: '0.78rem', color: '#64748b' }}>
+                <span>✍️ <strong>Digitally agreed by:</strong> {nameParam}</span>
+                <span>🕐 <strong>Booking Time:</strong> {new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                <span>🔑 <strong>Booking Ref:</strong> {txParam.slice(0, 12).toUpperCase()}</span>
+              </div>
+            </div>
+
             {/* Verification Footer text */}
-            <div style={{ textAlign: 'center', marginTop: '3rem', fontSize: '0.8rem', color: '#94a3b8', borderTop: '1px dashed #e2e8f0', paddingTop: '1.5rem' }}>
-              Thank you for choosing ORLUXUS. We wish you an amazing family trip.
+            <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.8rem', color: '#94a3b8', borderTop: '1px dashed #e2e8f0', paddingTop: '1.5rem' }}>
+              Thank you for choosing ORLUXUS. We wish you an amazing family trip. 🌟
             </div>
           </div>
 
@@ -1502,11 +1623,15 @@ function CheckoutContent() {
 
               {/* Date selection */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{translate('dateLabel')}</label>
+                <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                  {category === 'restaurants'
+                    ? (isAr ? 'تاريخ ووقت حجز الطاولة *' : 'Table Reservation Date & Time *')
+                    : translate('dateLabel')}
+                </label>
                 <input 
-                  type="date" 
+                  type={category === 'restaurants' ? 'datetime-local' : 'date'} 
                   value={bookingDate}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={category === 'restaurants' ? new Date().toISOString().slice(0, 16) : new Date().toISOString().split('T')[0]}
                   onChange={(e) => setBookingDate(e.target.value)}
                   style={{
                     padding: '0.8rem 1rem',

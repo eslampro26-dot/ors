@@ -178,8 +178,8 @@ const ls = {
   },
   getSocialMedia: () => DEFAULT_SOCIAL,
   saveSocialMedia: () => false,
-  getSettings: () => DEFAULT_SETTINGS,
-  saveSettings: () => false,
+  getSettings: () => lsGet('settings_data', DEFAULT_SETTINGS),
+  saveSettings: (settingsData) => lsSet('settings_data', settingsData),
   initializeDB: () => {
     if (!isClient || isProd) return;
     if (!localStorage.getItem('agents_data')) lsSet('agents_data', DEFAULT_AGENTS);

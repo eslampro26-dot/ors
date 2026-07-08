@@ -8,6 +8,23 @@ export default function AdminSettings() {
   const [emergencyPhone, setEmergencyPhone] = useState('');
   const [currency, setCurrency] = useState('اليورو (€)');
   const [paypalEmail, setPaypalEmail] = useState('info@orluxus.com');
+
+  // SMTP Email Settings
+  const [smtpHost, setSmtpHost] = useState('smtp.gmail.com');
+  const [smtpPort, setSmtpPort] = useState('587');
+  const [smtpUser, setSmtpUser] = useState('');
+  const [smtpPass, setSmtpPass] = useState('');
+  const [companyEmail, setCompanyEmail] = useState('info@orluxus.com');
+  const [smtpTestStatus, setSmtpTestStatus] = useState(''); // '', 'testing', 'ok', 'fail'
+
+  const [additionalPrices, setAdditionalPrices] = useState({
+    'sea-trips': { economy: '', business: '', vip: '' },
+    'desert-trips': { economy: '', business: '', vip: '' },
+    'city-tours': { economy: '', business: '', vip: '' },
+    'packages': { economy: '', business: '', vip: '' },
+    'restaurants': { economy: '', business: '', vip: '' },
+    'entertainment': { economy: '', business: '', vip: '' }
+  });
   
   const defaultAddons = [
     { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking', descAr: 'مرشد سياحي مرخص يرافقكم طوال الرحلة لشرح المعالم وتسهيل الدخول.', descEn: 'A licensed tour guide to accompany you throughout the trip.' },
@@ -49,6 +66,14 @@ export default function AdminSettings() {
           if (data.currency) setCurrency(data.currency);
           if (data.paypalEmail) setPaypalEmail(data.paypalEmail);
           if (data.checkoutAddons) setCheckoutAddons(data.checkoutAddons);
+          if (data.additionalPrices) setAdditionalPrices(data.additionalPrices);
+
+          // SMTP Settings
+          if (data.smtpHost) setSmtpHost(data.smtpHost);
+          if (data.smtpPort) setSmtpPort(data.smtpPort);
+          if (data.smtpUser) setSmtpUser(data.smtpUser);
+          if (data.smtpPass) setSmtpPass(data.smtpPass);
+          if (data.companyEmail) setCompanyEmail(data.companyEmail);
           
           if (data.allowReg !== undefined) setAllowReg(data.allowReg === true || data.allowReg === 'true');
           if (data.allowPromo !== undefined) setAllowPromo(data.allowPromo === true || data.allowPromo === 'true');
@@ -91,7 +116,13 @@ export default function AdminSettings() {
           allowPromo,
           notifyEmail,
           commission,
-          checkoutAddons
+          checkoutAddons,
+          additionalPrices,
+          smtpHost,
+          smtpPort,
+          smtpUser,
+          smtpPass,
+          companyEmail,
         })
       });
       if (res.ok) {
@@ -156,6 +187,45 @@ export default function AdminSettings() {
     } catch (err) {
       console.error('Error saving policies:', err);
       alert('❌ فشل حفظ نصوص السياسات!');
+    }
+  };
+
+  const handleTestSmtp = async () => {
+    if (!smtpUser || !smtpPass) {
+      alert('الرجاء إدخال الإيميل وكلمة المرور أولاً لتجربة الاتصال!');
+      return;
+    }
+    setSmtpTestStatus('testing');
+    try {
+      const res = await fetch('/api/send-booking-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'test',
+          smtpHost,
+          smtpPort,
+          smtpUser,
+          smtpPass,
+          companyEmail,
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setSmtpTestStatus('ok');
+          alert('✅ تم الاتصال وإرسال إيميل التجربة بنجاح إلى: ' + companyEmail);
+        } else {
+          setSmtpTestStatus('fail');
+          alert('❌ فشل الاتصال: ' + (data.error || 'خطأ غير معروف'));
+        }
+      } else {
+        setSmtpTestStatus('fail');
+        alert('❌ فشل الاتصال بالخادم!');
+      }
+    } catch (err) {
+      console.error(err);
+      setSmtpTestStatus('fail');
+      alert('❌ حدث خطأ غير متوقع أثناء الاتصال!');
     }
   };
 
@@ -349,6 +419,146 @@ export default function AdminSettings() {
           </div>
         </div>
 
+        {/* SMTP Email Settings Card */}
+        <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📧 إعدادات البريد الإلكتروني (SMTP)</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+            
+            {/* SMTP Host */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>خادم SMTP (SMTP Host)</label>
+              <input 
+                type="text" 
+                value={smtpHost} 
+                onChange={(e) => setSmtpHost(e.target.value)}
+                placeholder="smtp.gmail.com"
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.04)', 
+                  color: 'white', 
+                  border: '1px solid var(--border-medium)', 
+                  borderRadius: '6px',
+                  outline: 'none',
+                  textAlign: 'left',
+                  fontFamily: 'var(--font-en)'
+                }} 
+              />
+            </div>
+
+            {/* SMTP Port */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>منفذ SMTP (SMTP Port)</label>
+              <input 
+                type="text" 
+                value={smtpPort} 
+                onChange={(e) => setSmtpPort(e.target.value)}
+                placeholder="587"
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.04)', 
+                  color: 'white', 
+                  border: '1px solid var(--border-medium)', 
+                  borderRadius: '6px',
+                  outline: 'none',
+                  textAlign: 'left',
+                  fontFamily: 'var(--font-en)'
+                }} 
+              />
+            </div>
+
+            {/* SMTP User */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>إيميل المُرسِل (SMTP User)</label>
+              <input 
+                type="email" 
+                value={smtpUser} 
+                onChange={(e) => setSmtpUser(e.target.value)}
+                placeholder="example@gmail.com"
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.04)', 
+                  color: 'white', 
+                  border: '1px solid var(--border-medium)', 
+                  borderRadius: '6px',
+                  outline: 'none',
+                  textAlign: 'left',
+                  fontFamily: 'var(--font-en)'
+                }} 
+              />
+            </div>
+
+            {/* SMTP Password */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>كلمة مرور التطبيق (App Password)</label>
+              <input 
+                type="password" 
+                value={smtpPass} 
+                onChange={(e) => setSmtpPass(e.target.value)}
+                placeholder="••••••••••••••••"
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.04)', 
+                  color: 'white', 
+                  border: '1px solid var(--border-medium)', 
+                  borderRadius: '6px',
+                  outline: 'none',
+                  textAlign: 'left',
+                  fontFamily: 'var(--font-en)'
+                }} 
+              />
+            </div>
+
+            {/* Company Notification Email */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>إيميل الشركة المستلم للفواتير</label>
+              <input 
+                type="email" 
+                value={companyEmail} 
+                onChange={(e) => setCompanyEmail(e.target.value)}
+                placeholder="info@orluxus.com"
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.04)', 
+                  color: 'white', 
+                  border: '1px solid var(--border-medium)', 
+                  borderRadius: '6px',
+                  outline: 'none',
+                  textAlign: 'left',
+                  fontFamily: 'var(--font-en)'
+                }} 
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+              <button 
+                onClick={handleSaveSettings} 
+                className="btn btn-primary" 
+                style={{ flex: 1, padding: '0.8rem' }}
+              >
+                💾 حفظ الإعدادات
+              </button>
+              <button 
+                onClick={handleTestSmtp} 
+                className="btn btn-secondary" 
+                style={{ 
+                  padding: '0.8rem 1.2rem', 
+                  background: smtpTestStatus === 'ok' ? '#10b981' : smtpTestStatus === 'fail' ? '#ef4444' : 'transparent',
+                  color: smtpTestStatus === 'ok' || smtpTestStatus === 'fail' ? 'white' : 'var(--text-primary)'
+                }}
+                disabled={smtpTestStatus === 'testing'}
+              >
+                {smtpTestStatus === 'testing' ? '⏳ جاري الفحص...' : '⚡ تجربة الاتصال'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+
         {/* Social Media Settings */}
         <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.2s', gridColumn: 'span 1' }}>
           <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📱 وسائل التواصل الاجتماعي</h3>
@@ -437,6 +647,66 @@ export default function AdminSettings() {
               💾 حفظ وسائل التواصل
             </button>
           </div>
+        </div>
+
+        {/* أسعار الأشخاص الإضافيين حسب فئة الخدمة والدرجة */}
+        <div className="glass-card animate-fade-in-up" style={{ gridColumn: 'span 2', animationDelay: '0.25s' }}>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>💰 أسعار الأشخاص الإضافيين حسب القسم والفئة</h3>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+            حدد سعر الفرد الإضافي (من الشخص الثاني فما فوق) لكل قسم وفئة خدمة. إذا تُرِك فارغاً، سيتم احتساب السعر الكامل للشخص الإضافي.
+          </p>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+            {[
+              { id: 'sea-trips', name: '⛵ الرحلات البحرية (Sea Trips)' },
+              { id: 'desert-trips', name: '🏜️ الرحلات الصحراوية (Desert Trips)' },
+              { id: 'city-tours', name: '🏛️ جولات المدينة (City Tours)' },
+              { id: 'packages', name: '📦 باكدجات مصر الشاملة (Packages)' },
+              { id: 'restaurants', name: '🍽️ حجوزات المطاعم (Restaurants)' },
+              { id: 'entertainment', name: '🎭 العروض والترفيه (Entertainment)' }
+            ].map(cat => (
+              <div key={cat.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                <h4 style={{ color: 'var(--gold-400)', marginBottom: '0.8rem', borderBottom: '1px dashed rgba(255,255,255,0.05)', paddingBottom: '0.4rem' }}>{cat.name}</h4>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  {['economy', 'business', 'vip'].map(tier => (
+                    <div key={tier} style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'capitalize' }}>
+                        {tier === 'economy' ? 'اقتصادي' : tier === 'business' ? 'بيزنس' : 'VIP'}
+                      </label>
+                      <input
+                        type="number"
+                        style={{ 
+                          width: '100%', 
+                          padding: '6px 10px', 
+                          background: 'rgba(255,255,255,0.04)', 
+                          color: 'white', 
+                          border: '1px solid var(--border-medium)', 
+                          borderRadius: '4px',
+                          outline: 'none',
+                          fontSize: '0.85rem'
+                        }}
+                        value={additionalPrices[cat.id]?.[tier] || ''}
+                        onChange={(e) => {
+                          const val = e.target.value === '' ? '' : Number(e.target.value);
+                          setAdditionalPrices(prev => ({
+                            ...prev,
+                            [cat.id]: {
+                              ...prev[cat.id],
+                              [tier]: val
+                            }
+                          }));
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <button onClick={handleSaveSettings} className="btn btn-primary" style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem' }}>
+            💾 حفظ أسعار الأشخاص الإضافيين
+          </button>
         </div>
       </div>
 

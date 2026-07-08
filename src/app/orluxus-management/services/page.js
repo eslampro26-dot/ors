@@ -376,7 +376,11 @@ export default function AdminServices() {
           </button>
           <button 
             className="btn btn-ocean" 
-            onClick={() => { setModalType('package'); setModalOpen(true); }}
+            onClick={() => { 
+              setModalType('package'); 
+              setFormData(prev => ({ ...prev, category: selectedPkgType }));
+              setModalOpen(true); 
+            }}
           >
             <span>✈️</span> إضافة باكدج جديد
           </button>
@@ -524,7 +528,7 @@ export default function AdminServices() {
                 className={`${styles.cityTab} ${selectedPkgType === pkg.id ? styles.activeTab : ''}`}
                 onClick={() => setSelectedPkgType(pkg.id)}
               >
-                {pkg.icon} {pkg.nameAr}
+                {pkg.icon} {pkg.names?.ar || pkg.id}
               </button>
             ))}
           </div>
@@ -538,10 +542,23 @@ export default function AdminServices() {
               <div key={pkg.id} className="animate-fade-in-up" style={{ marginTop: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                   <div>
-                    <h3 style={{ color: 'var(--text-primary)' }}>{pkg.nameAr}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{pkg.description}</p>
+                    <h3 style={{ color: 'var(--text-primary)' }}>{pkg.names?.ar || pkg.id}</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{pkg.descriptions?.ar || ''}</p>
                   </div>
-                  <span className="badge badge-ocean">{items.length} / 20 باكدج مفعّل</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <span className="badge badge-ocean">{items.length} / 20 باكدج مفعّل</span>
+                    <button
+                      className="btn btn-primary"
+                      style={{ padding: '0.4rem 0.9rem', fontSize: '0.85rem' }}
+                      onClick={() => {
+                        setModalType('package');
+                        setFormData(prev => ({ ...prev, category: pkg.id }));
+                        setModalOpen(true);
+                      }}
+                    >
+                      ➕ إضافة
+                    </button>
+                  </div>
                 </div>
 
                 {items.length > 0 ? (
@@ -675,7 +692,7 @@ export default function AdminServices() {
                     style={{ backgroundColor: '#0c0f17', color: '#f8fafc', colorScheme: 'dark' }}
                   >
                     {internalPackages.map(pkg => (
-                      <option key={pkg.id} value={pkg.id} style={{ backgroundColor: '#0c0f17', color: '#f8fafc' }}>{pkg.icon} {pkg.nameAr}</option>
+                      <option key={pkg.id} value={pkg.id} style={{ backgroundColor: '#0c0f17', color: '#f8fafc' }}>{pkg.icon} {pkg.names?.ar || pkg.id}</option>
                     ))}
                   </select>
                 </div>

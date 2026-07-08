@@ -156,6 +156,14 @@ const DEFAULT_SETTINGS = {
   siteName: 'ORLUXUS',
   whatsapp: '+20100000000',
   paypalEmail: 'info@orluxus.com',
+  additionalPrices: {
+    'sea-trips': { economy: 20, business: 35, vip: 50 },
+    'desert-trips': { economy: 15, business: 25, vip: 40 },
+    'city-tours': { economy: 10, business: 20, vip: 30 },
+    'packages': { economy: 50, business: 100, vip: 150 },
+    'restaurants': { economy: 10, business: 20, vip: 35 },
+    'entertainment': { economy: 15, business: 30, vip: 50 }
+  }
 };
 
 export async function initializeDB() {
