@@ -1,12 +1,41 @@
 import nodemailer from 'nodemailer';
-import { getSettings } from '@/lib/db';
 
-// Company contact info (Default Fallbacks)
+// Company contact info (Default Fallbacks from .env)
 const COMPANY_EMAIL_DEFAULT = process.env.COMPANY_EMAIL || 'info@orluxus.com';
 const SMTP_HOST_DEFAULT = process.env.SMTP_HOST || 'smtp.gmail.com';
 const SMTP_PORT_DEFAULT = parseInt(process.env.SMTP_PORT || '587');
 const SMTP_USER_DEFAULT = process.env.SMTP_USER || '';
 const SMTP_PASS_DEFAULT = process.env.SMTP_PASS || '';
+
+// Fetch SMTP settings from Firestore via the internal settings API
+// This avoids importing Firebase Client SDK in a server-side API route
+async function loadSmtpSettings(request) {
+  try {
+    const baseUrl = request
+      ? `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('host')}`
+      : (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000');
+    const res = await fetch(`${baseUrl}/api/settings`, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        smtpHost: data.smtpHost || SMTP_HOST_DEFAULT,
+        smtpPort: parseInt(data.smtpPort || SMTP_PORT_DEFAULT.toString(), 10),
+        smtpUser: data.smtpUser || SMTP_USER_DEFAULT,
+        smtpPass: data.smtpPass || SMTP_PASS_DEFAULT,
+        companyEmail: data.companyEmail || COMPANY_EMAIL_DEFAULT,
+      };
+    }
+  } catch (err) {
+    console.warn('[send-booking-email] Could not load settings from DB, using .env fallbacks:', err.message);
+  }
+  return {
+    smtpHost: SMTP_HOST_DEFAULT,
+    smtpPort: SMTP_PORT_DEFAULT,
+    smtpUser: SMTP_USER_DEFAULT,
+    smtpPass: SMTP_PASS_DEFAULT,
+    companyEmail: COMPANY_EMAIL_DEFAULT,
+  };
+}
 
 const EMERGENCY_PHONE = '+201038820014';
 const CUSTOMER_SERVICE_PHONE = '+201038820019';
@@ -232,19 +261,14 @@ export async function POST(request) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // 2. Fetch dynamic SMTP settings from database
-    let dbSettings = null;
-    try {
-      dbSettings = await getSettings();
-    } catch (dbErr) {
-      console.warn('[send-booking-email] Database settings load failed, using env fallbacks:', dbErr);
-    }
-
-    const activeSmtpHost = dbSettings?.smtpHost || SMTP_HOST_DEFAULT;
-    const activeSmtpPort = parseInt(dbSettings?.smtpPort || SMTP_PORT_DEFAULT.toString(), 10);
-    const activeSmtpUser = dbSettings?.smtpUser || SMTP_USER_DEFAULT;
-    const activeSmtpPass = dbSettings?.smtpPass || SMTP_PASS_DEFAULT;
-    const activeCompanyEmail = dbSettings?.companyEmail || COMPANY_EMAIL_DEFAULT;
+    // 2. Fetch SMTP settings via internal API (avoids Firebase Client SDK issues on server)
+    const {
+      smtpHost: activeSmtpHost,
+      smtpPort: activeSmtpPort,
+      smtpUser: activeSmtpUser,
+      smtpPass: activeSmtpPass,
+      companyEmail: activeCompanyEmail,
+    } = await loadSmtpSettings(request);
 
     // Build booking datetime string
     const bookingDateTime = new Date().toLocaleString('en-GB', {

@@ -425,7 +425,6 @@ export default function AdminServices() {
               <div key={city.id} className={`${styles.categoriesList} animate-fade-in-up`}>
                 {city.categories.map(cat => {
                   const trips = (tripsData[city.id] && tripsData[city.id][cat.id]) || [];
-                  const slotPercent = (trips.length / 20) * 100;
                   
                   return (
                     <div key={cat.id} className={styles.categorySection} style={{ marginBottom: '2.5rem' }}>
@@ -437,13 +436,10 @@ export default function AdminServices() {
                           </h3>
                         </div>
                         
-                        {/* Slots Progress bar */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                          <div style={{ width: '120px', height: '6px', background: 'rgba(0,0,0,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: `${slotPercent}%`, background: slotPercent > 80 ? 'var(--coral-500)' : 'var(--gold-500)' }}></div>
-                          </div>
-                          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                            {trips.length} / 20 خانة مشغولة
+                        {/* Active count */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span className="badge badge-gold" style={{ fontSize: '0.75rem' }}>
+                            {trips.length} خدمة نشطة
                           </span>
                         </div>
                       </div>
@@ -546,7 +542,7 @@ export default function AdminServices() {
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{pkg.descriptions?.ar || ''}</p>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    <span className="badge badge-ocean">{items.length} / 20 باكدج مفعّل</span>
+                    <span className="badge badge-ocean">{items.length} باكدج مفعّل</span>
                     <button
                       className="btn btn-primary"
                       style={{ padding: '0.4rem 0.9rem', fontSize: '0.85rem' }}
