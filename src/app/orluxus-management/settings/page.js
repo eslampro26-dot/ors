@@ -432,6 +432,7 @@ export default function AdminSettings() {
                 value={smtpHost} 
                 onChange={(e) => setSmtpHost(e.target.value)}
                 placeholder="smtp.gmail.com"
+                autoComplete="off"
                 style={{ 
                   width: '100%', 
                   padding: '10px 14px', 
@@ -454,6 +455,7 @@ export default function AdminSettings() {
                 value={smtpPort} 
                 onChange={(e) => setSmtpPort(e.target.value)}
                 placeholder="587"
+                autoComplete="off"
                 style={{ 
                   width: '100%', 
                   padding: '10px 14px', 
@@ -476,6 +478,7 @@ export default function AdminSettings() {
                 value={smtpUser} 
                 onChange={(e) => setSmtpUser(e.target.value)}
                 placeholder="example@gmail.com"
+                autoComplete="off"
                 style={{ 
                   width: '100%', 
                   padding: '10px 14px', 
@@ -498,6 +501,7 @@ export default function AdminSettings() {
                 value={smtpPass} 
                 onChange={(e) => setSmtpPass(e.target.value)}
                 placeholder="••••••••••••••••"
+                autoComplete="new-password"
                 style={{ 
                   width: '100%', 
                   padding: '10px 14px', 
@@ -518,6 +522,7 @@ export default function AdminSettings() {
               <input 
                 type="email" 
                 value={companyEmail} 
+                autoComplete="off"
                 onChange={(e) => setCompanyEmail(e.target.value)}
                 placeholder="info@orluxus.com"
                 style={{ 
