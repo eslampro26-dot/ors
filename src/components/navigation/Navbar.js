@@ -162,11 +162,6 @@ export default function Navbar() {
 
           {/* Theme Toggle */}
           <ThemeToggle />
-
-          {/* Book Now Gold CTA */}
-          <Link href="/city/sharm-el-sheikh" className={styles.bookNowCTA} onClick={() => setMobileOpen(false)}>
-            {locale === 'ar' ? 'احجز الآن' : 'Book Now'}
-          </Link>
         </div>
 
         {/* Mobile Toggle */}
