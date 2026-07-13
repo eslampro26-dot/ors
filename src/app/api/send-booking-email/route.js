@@ -69,8 +69,11 @@ function buildInvoiceHTML(data) {
     
     <!-- HEADER -->
     <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);padding:40px 40px 30px;text-align:center;">
+      <div style="margin:0 auto 20px;width:80px;height:80px;background:rgba(201,162,39,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #c9a227;">
+        <span style="font-size:2rem;font-weight:900;color:#c9a227;">O</span>
+      </div>
       <h1 style="margin:0;font-size:2.2rem;font-weight:900;color:#c9a227;letter-spacing:4px;">ORLUXUS</h1>
-      <p style="margin:6px 0 0;color:rgba(255,255,255,0.6);font-size:0.85rem;letter-spacing:1px;">WITH A FAMILY SPIRIT — Premium Egypt Travel</p>
+      <p style="margin:6px 0 0;color:rgba(255,255,255,0.6);font-size:0.85rem;letter-spacing:1px;">WITH A FAMILY SPIRIT — Luxury Services & Experiences</p>
       <div style="margin:20px auto 0;display:inline-block;background:rgba(201,162,39,0.15);border:1px solid #c9a227;border-radius:8px;padding:8px 24px;">
         <span style="color:#c9a227;font-size:0.8rem;font-weight:700;letter-spacing:2px;">BOOKING INVOICE #${invoiceNo}</span>
       </div>
@@ -80,7 +83,7 @@ function buildInvoiceHTML(data) {
     <div style="background:${(isBank || isOnsite) ? '#fffbeb' : '#f0fdf4'};border-bottom:3px solid ${paymentColor};padding:20px 40px;text-align:center;">
       <div style="font-size:1.8rem;margin-bottom:6px;">${(isBank || isOnsite) ? '⏳' : '✅'}</div>
       <h2 style="margin:0;color:${paymentColor};font-size:1.3rem;font-weight:800;">
-        ${isBank ? 'Booking Registered — Awaiting Bank Transfer' : isOnsite ? 'Booking Confirmed — Pay on Arrival' : 'Payment Confirmed — Booking Active!'}
+        ${isBank ? 'تم تسجيل الحجز بنجاح — في انتظار التحويل البنكي' : isOnsite ? 'تم استلام طلبك — الدفع نقداً عند انطلاق الرحلة' : 'تم تأكيد الدفع والحجز بنجاح!'}
       </h2>
       <p style="margin:6px 0 0;color:#64748b;font-size:0.9rem;">
         Issued: ${bookingDateTime}
@@ -204,6 +207,12 @@ function buildInvoiceHTML(data) {
           Transaction ID: ${txId} | Booking Time: ${bookingDateTime} | Agreed by: ${customerName} (${email || phone})
         </span>
       </div>
+
+      <!-- PARTNER DISCLAIMER -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:20px;font-size:0.8rem;color:#64748b;line-height:1.6;">
+        <strong style="color:#334155;display:block;margin-bottom:6px;">🌟 About Your Experience</strong>
+        At ORLUXUS, we curate exceptional experiences through our network of trusted partners. Your selected experience is delivered by an authorized ORLUXUS partner, while we ensure a seamless booking journey, quality coordination, and dedicated guest support from reservation to completion.
+      </div>
     </div>
 
     <!-- FOOTER -->
@@ -277,7 +286,7 @@ export async function POST(request) {
     const bookingDateTime = new Date().toLocaleString('en-GB', {
       day: '2-digit', month: 'long', year: 'numeric',
       hour: '2-digit', minute: '2-digit', hour12: true
-    });
+    }).replace('2006', '2026');
 
     const invoiceData = {
       customerName, email, phone, whatsapp, date, travelers,
@@ -291,8 +300,9 @@ export async function POST(request) {
 
     // If no SMTP credentials, skip actually sending (log only)
     if (!activeSmtpUser || !activeSmtpPass) {
-      console.log('[send-booking-email] SMTP credentials missing. Email logging fallback:', email, activeCompanyEmail);
-      return Response.json({ success: true, message: 'Booking saved (SMTP not configured — email not sent)' });
+      console.error('[send-booking-email] SMTP credentials missing. Email cannot be sent.');
+      console.error('[send-booking-email] SMTP Host:', activeSmtpHost, 'Port:', activeSmtpPort, 'User:', activeSmtpUser ? 'SET' : 'NOT SET');
+      return Response.json({ success: false, error: 'SMTP credentials not configured. Please configure SMTP settings in admin panel.' }, { status: 400 });
     }
 
     try {
@@ -301,9 +311,13 @@ export async function POST(request) {
         port: activeSmtpPort,
         secure: activeSmtpPort === 465,
         auth: { user: activeSmtpUser, pass: activeSmtpPass },
-        tls: { rejectUnauthorized: false }
+        tls: { rejectUnauthorized: false },
+        debug: true,
+        logger: true
       });
 
+      console.log('[send-booking-email] Attempting to send email to customer:', email);
+      
       // Send to customer
       await transporter.sendMail({
         from: `"ORLUXUS" <${activeSmtpUser}>`,
@@ -311,7 +325,10 @@ export async function POST(request) {
         subject,
         html: htmlContent,
       });
+      console.log('[send-booking-email] Customer email sent successfully');
 
+      console.log('[send-booking-email] Attempting to send email to company:', activeCompanyEmail);
+      
       // Send to company email
       await transporter.sendMail({
         from: `"ORLUXUS Booking System" <${activeSmtpUser}>`,
@@ -319,12 +336,14 @@ export async function POST(request) {
         subject: `[NEW BOOKING] ${customerName} — ${serviceName} | €${finalAmount.toFixed(2)}`,
         html: htmlContent,
       });
+      console.log('[send-booking-email] Company email sent successfully');
 
       return Response.json({ success: true, message: 'Emails sent successfully' });
     } catch (mailErr) {
       // Email failed but booking was already saved — return success so checkout doesn't break
       console.error('[send-booking-email] Mail send failed:', mailErr.message);
-      return Response.json({ success: true, message: 'Booking confirmed (email delivery failed)', emailError: mailErr.message });
+      console.error('[send-booking-email] Full error:', mailErr);
+      return Response.json({ success: false, error: 'Email delivery failed: ' + mailErr.message, emailError: mailErr.message }, { status: 500 });
     }
 
   } catch (error) {

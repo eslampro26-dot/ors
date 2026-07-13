@@ -8,15 +8,16 @@ const LanguageContext = createContext(null);
 
 /**
  * Detects the best locale for the user on first visit.
- * Priority: URL path segment → saved cookie → saved localStorage → browser language → 'en'
+ * Priority: saved localStorage → saved cookie → URL path segment → browser language → 'en'
+ * Modified to prioritize user's explicit choice over automatic detection
  */
 function detectInitialLocale() {
   if (typeof window === 'undefined') return 'en';
 
-  // 1. Check URL path segment (e.g., /ar/packages → 'ar')
-  const segments = window.location.pathname.split('/').filter(Boolean);
-  if (segments.length > 0 && SUPPORTED_LOCALES.includes(segments[0])) {
-    return segments[0];
+  // 1. Check localStorage first (user's explicit previous choice - highest priority)
+  const savedLocale = localStorage.getItem('orluxus_locale');
+  if (savedLocale && SUPPORTED_LOCALES.includes(savedLocale)) {
+    return savedLocale;
   }
 
   // 2. Check NEXT_LOCALE cookie
@@ -25,13 +26,13 @@ function detectInitialLocale() {
     return cookieMatch[1];
   }
 
-  // 3. Check localStorage (user's explicit previous choice)
-  const savedLocale = localStorage.getItem('orluxus_locale');
-  if (savedLocale && SUPPORTED_LOCALES.includes(savedLocale)) {
-    return savedLocale;
+  // 3. Check URL path segment (e.g., /ar/packages → 'ar')
+  const segments = window.location.pathname.split('/').filter(Boolean);
+  if (segments.length > 0 && SUPPORTED_LOCALES.includes(segments[0])) {
+    return segments[0];
   }
 
-  // 4. Detect browser/device language (important for mobile users)
+  // 4. Detect browser/device language (important for mobile users) - only if no explicit choice
   const browserLangs = navigator.languages || [navigator.language || 'en'];
   for (const lang of browserLangs) {
     const base = lang.split('-')[0].toLowerCase(); // e.g., "ar-EG" → "ar"

@@ -76,17 +76,113 @@ export default function AdminBookings() {
     }
   };
 
+  // Print Digital Agreement
+  const handlePrintAgreement = (booking) => {
+    const printWindow = window.open('', '_blank');
+    const agreementHTML = `
+      <!DOCTYPE html>
+      <html dir="rtl" lang="ar">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>اتفاقية الحجز - ORLUXUS</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; }
+          .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #c9a227; padding-bottom: 20px; }
+          .logo { font-size: 2.5rem; font-weight: 900; color: #c9a227; letter-spacing: 4px; }
+          .title { font-size: 1.8rem; font-weight: bold; margin-top: 10px; }
+          .section { margin-bottom: 25px; }
+          .section-title { font-weight: bold; color: #0f172a; font-size: 1.1rem; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+          .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+          .info-item { display: flex; justify-content: space-between; }
+          .label { color: #64748b; }
+          .value { font-weight: bold; color: #0f172a; }
+          .terms { background: #f8fafc; padding: 20px; border-radius: 8px; margin-top: 20px; }
+          .signature-section { margin-top: 40px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 50px; }
+          .signature-box { border: 1px solid #e2e8f0; padding: 20px; text-align: center; height: 150px; }
+          .footer { margin-top: 30px; text-align: center; color: #64748b; font-size: 0.9rem; }
+          @media print { body { padding: 20px; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="logo">ORLUXUS</div>
+          <div class="title">اتفاقية الحجز الرقمية</div>
+          <div style="color: #64748b; margin-top: 5px;">رقم الحجز: ${booking.id}</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">معلومات العميل</div>
+          <div class="info-grid">
+            <div class="info-item"><span class="label">الاسم:</span><span class="value">${booking.customer}</span></div>
+            <div class="info-item"><span class="label">رقم الهاتف:</span><span class="value">${booking.phone}</span></div>
+            <div class="info-item"><span class="label">البريد الإلكتروني:</span><span class="value">${booking.email || '-'}</span></div>
+            <div class="info-item"><span class="label">الواتساب:</span><span class="value">${booking.whatsapp || booking.phone}</span></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">تفاصيل الحجز</div>
+          <div class="info-grid">
+            <div class="info-item"><span class="label">الخدمة:</span><span class="value">${booking.service}</span></div>
+            <div class="info-item"><span class="label">المدينة:</span><span class="value">${booking.city}</span></div>
+            <div class="info-item"><span class="label">التاريخ:</span><span class="value">${booking.date}</span></div>
+            <div class="info-item"><span class="label">عدد المسافرين:</span><span class="value">${booking.travelers}</span></div>
+            <div class="info-item"><span class="label">المبلغ الأصلي:</span><span class="value">€${booking.originalAmount || booking.finalAmount}</span></div>
+            <div class="info-item"><span class="label">الخصم:</span><span class="value">€${booking.discountAmount || 0}</span></div>
+            <div class="info-item"><span class="label">المبلغ النهائي:</span><span class="value">€${booking.finalAmount}</span></div>
+            <div class="info-item"><span class="label">طريقة الدفع:</span><span class="value">${booking.paymentType}</span></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">الشروط والأحكام</div>
+          <div class="terms">
+            <ol style="margin: 0; padding-right: 20px;">
+              <li>الحجز ملزم وغير قابل للإلغاء إلا قبل 48 ساعة من موعد الرحلة.</li>
+              <li>الدفع نقداً عند انطلاق الرحلة أو عبر التحويل البنكي.</li>
+              <li>الشركة غير مسؤولة عن التأخير الناتج عن ظروف قاهرة.</li>
+              <li>يجب احترام مواعيد الانطلاق المحددة.</li>
+              <li>يحق للشركة تعديل البرنامج في حالات الطوارئ.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="signature-section">
+          <div class="signature-box">
+            <div style="margin-bottom: 10px; font-weight: bold;">توقيع العميل</div>
+            <div style="border-top: 1px solid #e2e8f0; margin-top: 60px; padding-top: 10px;">التاريخ: ____________</div>
+          </div>
+          <div class="signature-box">
+            <div style="margin-bottom: 10px; font-weight: bold;">توقيع ORLUXUS</div>
+            <div style="border-top: 1px solid #e2e8f0; margin-top: 60px; padding-top: 10px;">التاريخ: ____________</div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p>هذه الاتفاقية صالحة قانونياً وتعتبر إقراراً بالشروط والأحكام المذكورة أعلاه.</p>
+          <p style="margin-top: 10px;">ORLUXUS - Luxury Services & Experiences | info@orluxus.com</p>
+        </div>
+      </body>
+      </html>
+    `;
+    printWindow.document.write(agreementHTML);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   // Filters
   const filteredBookings = bookings.filter(b => {
     const matchesSearch = b.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           b.customer.includes(searchTerm) ||
                           b.phone.includes(searchTerm) ||
-                          b.service.includes(searchTerm);
+                          b.service.includes(searchTerm) ||
+                          (b.txId && b.txId.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesCity = cityFilter === 'جميع المدن' || b.city === cityFilter;
-    
+
     const matchesStatus = statusFilter === 'جميع الحالات' || b.status === statusFilter;
-    
+
     let matchesAgent = true;
     if (agentFilter !== 'جميع الوكلاء') {
       if (agentFilter === 'مباشر (بدون وكيل)') {
@@ -120,7 +216,7 @@ export default function AdminBookings() {
         <div style={{ position: 'relative', flex: 1, minWidth: '280px' }}>
           <input 
             type="text" 
-            placeholder="البحث برقم الحجز، العميل، رقم الهاتف أو الخدمة..." 
+            placeholder="البحث برقم الفاتورة/الحجز، العميل، رقم الهاتف أو الخدمة..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -209,7 +305,7 @@ export default function AdminBookings() {
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>الحساب المالي (€)</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>الدفع</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>الحالة</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold', textAlign: 'center' }}>إجراءات وتحديث الحالة</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold', textAlign: 'center' }}>إجراءات</th>
               </tr>
             </thead>
             <tbody>
@@ -287,7 +383,26 @@ export default function AdminBookings() {
                     </span>
                   </td>
                   <td style={{ padding: '1.2rem 1rem', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', alignItems: 'center' }}>
+                      <button
+                        onClick={() => handlePrintAgreement(booking)}
+                        title="طباعة الاتفاقية الرقمية"
+                        style={{
+                          padding: '6px 12px',
+                          background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '0.85rem',
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        📄 طباعة
+                      </button>
                       <select 
                         value={booking.status} 
                         onChange={(e) => handleStatusChange(booking.id, e.target.value)}

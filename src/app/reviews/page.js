@@ -52,10 +52,10 @@ export default function ReviewsPage() {
     country: '',
     rating: 0,
     text: '',
-    image: null
+    images: []
   });
   const [hoverRating, setHoverRating] = useState(0);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleOpenContentModal = useCallback((type, titleAr, titleEn) => {
@@ -100,17 +100,31 @@ export default function ReviewsPage() {
   }, []);
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-        // Store base64 image in form data
-        setFormData({ ...formData, image: reader.result });
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      // Limit to 5 images max
+      const filesToProcess = files.slice(0, 5);
+      
+      filesToProcess.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreviews(prev => [...prev, reader.result]);
+          setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, reader.result]
+          }));
+        };
+        reader.readAsDataURL(file);
+      });
     }
+  };
+
+  const handleRemoveImage = (index) => {
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmitReview = async (e) => {
@@ -341,7 +355,7 @@ export default function ReviewsPage() {
                       textAlign: 'center',
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
-                      background: imagePreview ? 'rgba(251, 191, 36, 0.05)' : 'rgba(255,255,255,0.02)'
+                      background: imagePreviews.length > 0 ? 'rgba(251, 191, 36, 0.05)' : 'rgba(255,255,255,0.02)'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.borderColor = 'var(--gold-400)';
@@ -349,35 +363,64 @@ export default function ReviewsPage() {
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.borderColor = 'var(--border-medium)';
-                      e.currentTarget.style.background = imagePreview ? 'rgba(251, 191, 36, 0.05)' : 'rgba(255,255,255,0.02)';
+                      e.currentTarget.style.background = imagePreviews.length > 0 ? 'rgba(251, 191, 36, 0.05)' : 'rgba(255,255,255,0.02)';
                     }}>
                       <input
                         type="file"
                         accept="image/*"
+                        multiple
                         onChange={handleImageChange}
                         style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
                       />
-                      {imagePreview ? (
+                      {imagePreviews.length > 0 ? (
                         <div>
-                          <div style={{
-                            width: '120px',
-                            height: '120px',
-                            margin: '0 auto 1rem',
-                            borderRadius: '8px',
-                            backgroundImage: `url(${imagePreview})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            border: '2px solid var(--gold-400)',
-                            boxShadow: '0 0 20px rgba(251, 191, 36, 0.3)'
-                          }}></div>
-                          <p style={{ color: 'var(--gold-400)', fontSize: '0.9rem' }}>✓ تم تحديد الصورة</p>
-                          <p style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>اضغط لتغيير الصورة</p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginBottom: '1rem' }}>
+                            {imagePreviews.map((preview, index) => (
+                              <div key={index} style={{ position: 'relative' }}>
+                                <div style={{
+                                  width: '80px',
+                                  height: '80px',
+                                  borderRadius: '8px',
+                                  backgroundImage: `url(${preview})`,
+                                  backgroundSize: 'cover',
+                                  backgroundPosition: 'center',
+                                  border: '2px solid var(--gold-400)',
+                                  boxShadow: '0 0 15px rgba(251, 191, 36, 0.2)'
+                                }}></div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveImage(index)}
+                                  style={{
+                                    position: 'absolute',
+                                    top: '-8px',
+                                    right: '-8px',
+                                    width: '24px',
+                                    height: '24px',
+                                    borderRadius: '50%',
+                                    background: 'rgba(239, 68, 68, 0.9)',
+                                    color: 'white',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                  }}
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          <p style={{ color: 'var(--gold-400)', fontSize: '0.9rem' }}>✓ تم تحديد {imagePreviews.length} صور</p>
+                          <p style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>اضغط لإضافة المزيد (حد أقصى 5 صور)</p>
                         </div>
                       ) : (
                         <div>
                           <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📸</div>
-                          <p style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>اسحب صورة أو اضغط للاختيار</p>
-                          <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>JPG, PNG - أقل من 5MB</p>
+                          <p style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>اسحب صور أو اضغط للاختيار</p>
+                          <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>JPG, PNG - أقل من 5MB (حد أقصى 5 صور)</p>
                         </div>
                       )}
                     </div>

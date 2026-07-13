@@ -53,6 +53,10 @@ export default function AdminSettings() {
   const [legalCancellation, setLegalCancellation] = useState('يمكن إلغاء الحجز مجاناً قبل 48 ساعة من موعد الرحلة. في حال الإلغاء المتأخر أو عدم الحضور، يتم تطبيق رسوم إلغاء تعادل قيمة الليلة الأولى أو 50% من قيمة الرحلة حسب نوع البرنامج.');
   const [dataProtection, setDataProtection] = useState('نحن نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. لن يتم مشاركة معلوماتك أو تفاصيل حجزك مع أي أطراف ثالثة إلا لغرض إتمام الحجز وتقديم الخدمة.');
 
+  // Terms & Conditions
+  const [termsAr, setTermsAr] = useState('1. الحجز ملزم وغير قابل للإلغاء إلا قبل 48 ساعة من موعد الرحلة.\n2. الدفع نقداً عند انطلاق الرحلة أو عبر التحويل البنكي.\n3. الشركة غير مسؤولة عن التأخير الناتج عن ظروف قاهرة.\n4. يجب احترام مواعيد الانطلاق المحددة.\n5. يحق للشركة تعديل البرنامج في حالات الطوارئ.');
+  const [termsEn, setTermsEn] = useState('1. Booking is binding and non-refundable unless cancelled 48 hours before the trip.\n2. Payment is cash on arrival or via bank transfer.\n3. Company is not responsible for delays due to force majeure.\n4. Scheduled departure times must be respected.\n5. Company reserves the right to modify the program in emergencies.');
+
   // Load from API on mount
   useEffect(() => {
     const fetchSettings = async () => {
@@ -92,6 +96,8 @@ export default function AdminSettings() {
           if (data.legalCompany) setLegalCompany(data.legalCompany);
           if (data.legalCancellation) setLegalCancellation(data.legalCancellation);
           if (data.dataProtection) setDataProtection(data.dataProtection);
+          if (data.termsAr) setTermsAr(data.termsAr);
+          if (data.termsEn) setTermsEn(data.termsEn);
         }
       } catch (err) {
         console.error('Error fetching settings:', err);
@@ -176,7 +182,9 @@ export default function AdminSettings() {
           staff,
           legalCompany,
           legalCancellation,
-          dataProtection
+          dataProtection,
+          termsAr,
+          termsEn
         })
       });
       if (res.ok) {
@@ -765,108 +773,122 @@ export default function AdminSettings() {
               <textarea value={dataProtection} onChange={(e) => setDataProtection(e.target.value)} rows="4" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
           </div>
-        </div>
 
-        {/* Section 6: Checkout Add-ons (الخدمات الإضافية في صفحة الدفع) */}
-        <div className="admin-card">
-          <div className="admin-card-header">
-            <h2 className="admin-card-title">الخدمات الإضافية في صفحة الدفع (Checkout Add-ons)</h2>
-          </div>
-          <div className="admin-card-body">
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-              هذه الإضافات ستظهر للعميل أثناء عملية الحجز ليتمكن من اختيارها. يمكنك تعديل أسعارها ومسمياتها بحرية.
-            </p>
-            {checkoutAddons.map((addon, index) => (
-              <div key={addon.id || index} style={{ marginBottom: '1.2rem', padding: '1.2rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+          {/* Column 3: Terms & Conditions */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <h4 style={{ color: 'var(--gold-400)', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.3rem' }}>الشروط والأحكام (تظهر في الفاتورة)</h4>
+            
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>الشروط بالعربية 🇸🇦</label>
+              <textarea value={termsAr} onChange={(e) => setTermsAr(e.target.value)} rows="6" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} placeholder="اكتب الشروط والأحكام بالعربية..." />
+            </div>
 
-                {/* Header: title + delete */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <span style={{ fontWeight: '700', color: 'var(--gold-400)', fontSize: '0.9rem' }}>
-                    #{index + 1} — {addon.nameAr || addon.nameEn || 'خدمة جديدة'}
-                  </span>
-                  <button
-                    onClick={() => setCheckoutAddons(checkoutAddons.filter((_, i) => i !== index))}
-                    style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: '6px', padding: '4px 14px', cursor: 'pointer', fontSize: '0.8rem' }}
-                  >
-                    🗑️ حذف
-                  </button>
-                </div>
-
-                {/* Row 1: Names */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '0.8rem' }}>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الاسم بالعربية</label>
-                    <input type="text" value={addon.nameAr}
-                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],nameAr:e.target.value}; setCheckoutAddons(n); }}
-                      style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', boxSizing:'border-box' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الاسم بالإنجليزية</label>
-                    <input type="text" value={addon.nameEn}
-                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],nameEn:e.target.value}; setCheckoutAddons(n); }}
-                      style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
-                    />
-                  </div>
-                </div>
-
-                {/* Row 2: Price + Unit */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '0.8rem' }}>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>السعر (€)</label>
-                    <input type="number" value={addon.price}
-                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],price:Number(e.target.value)}; setCheckoutAddons(n); }}
-                      style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>حساب السعر</label>
-                    <select value={addon.unit || 'booking'}
-                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],unit:e.target.value}; setCheckoutAddons(n); }}
-                      style={{ width:'100%', padding:'8px 12px', background:'#0c0f17', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', cursor:'pointer', boxSizing:'border-box' }}
-                    >
-                      <option value="booking">للحجز بالكامل (Flat Rate)</option>
-                      <option value="person">لكل فرد (Per Person)</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Row 3: Descriptions */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الوصف (بالعربية)</label>
-                    <input type="text" placeholder="وصف تفصيلي يظهر للعميل..." value={addon.descAr || ''}
-                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],descAr:e.target.value}; setCheckoutAddons(n); }}
-                      style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontSize:'0.85rem', boxSizing:'border-box' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الوصف (بالإنجليزية)</label>
-                    <input type="text" placeholder="Detailed description shown to client..." value={addon.descEn || ''}
-                      onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],descEn:e.target.value}; setCheckoutAddons(n); }}
-                      style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontSize:'0.85rem', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
-                    />
-                  </div>
-                </div>
-
-              </div>
-            ))}
-            <button
-              className="btn btn-secondary"
-              style={{ marginTop: '0.5rem' }}
-              onClick={() => setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: '', nameAr: '', price: 0, unit: 'booking', descAr: '', descEn: '' }])}
-            >
-              + إضافة خدمة جديدة
-            </button>
-            <div style={{ marginTop: '1.5rem', textAlign: 'left' }}>
-              <button className="btn btn-primary" onClick={handleSaveSettings}>حفظ الخدمات الإضافية</button>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>الشروط بالإنجليزية 🇬🇧</label>
+              <textarea value={termsEn} onChange={(e) => setTermsEn(e.target.value)} rows="6" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} placeholder="Write terms and conditions in English..." />
             </div>
           </div>
         </div>
 
-        <button onClick={handleSaveContent} className="btn btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: 'linear-gradient(135deg, var(--gold-600), var(--gold-400))' }}>
+        <button onClick={handleSaveContent} className="btn btn-primary" style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #10b981, #059669)' }}>
           💾 حفظ نصوص السياسات والتعريف
         </button>
+      </div>
+
+      {/* Section 6: Checkout Add-ons (الخدمات الإضافية في صفحة الدفع) */}
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <h2 className="admin-card-title">الخدمات الإضافية في صفحة الدفع (Checkout Add-ons)</h2>
+        </div>
+        <div className="admin-card-body">
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+            هذه الإضافات ستظهر للعميل أثناء عملية الحجز ليتمكن من اختيارها. يمكنك تعديل أسعارها ومسمياتها بحرية.
+          </p>
+          {checkoutAddons.map((addon, index) => (
+            <div key={addon.id || index} style={{ marginBottom: '1.2rem', padding: '1.2rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+
+              {/* Header: title + delete */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <span style={{ fontWeight: '700', color: 'var(--gold-400)', fontSize: '0.9rem' }}>
+                  #{index + 1} — {addon.nameAr || addon.nameEn || 'خدمة جديدة'}
+                </span>
+                <button
+                  onClick={() => setCheckoutAddons(checkoutAddons.filter((_, i) => i !== index))}
+                  style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: '6px', padding: '4px 14px', cursor: 'pointer', fontSize: '0.8rem' }}
+                >
+                  🗑️ حذف
+                </button>
+              </div>
+
+              {/* Row 1: Names */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '0.8rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الاسم بالعربية</label>
+                  <input type="text" value={addon.nameAr}
+                    onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],nameAr:e.target.value}; setCheckoutAddons(n); }}
+                    style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', boxSizing:'border-box' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الاسم بالإنجليزية</label>
+                  <input type="text" value={addon.nameEn}
+                    onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],nameEn:e.target.value}; setCheckoutAddons(n); }}
+                    style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
+                  />
+                </div>
+              </div>
+
+              {/* Row 2: Price + Unit */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '0.8rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>السعر (€)</label>
+                  <input type="number" value={addon.price}
+                    onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],price:Number(e.target.value)}; setCheckoutAddons(n); }}
+                    style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>حساب السعر</label>
+                  <select value={addon.unit || 'booking'}
+                    onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],unit:e.target.value}; setCheckoutAddons(n); }}
+                    style={{ width:'100%', padding:'8px 12px', background:'#0c0f17', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', cursor:'pointer', boxSizing:'border-box' }}
+                  >
+                    <option value="booking">للحجز بالكامل (Flat Rate)</option>
+                    <option value="person">لكل فرد (Per Person)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 3: Descriptions */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الوصف (بالعربية)</label>
+                  <input type="text" placeholder="وصف تفصيلي يظهر للعميل..." value={addon.descAr || ''}
+                    onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],descAr:e.target.value}; setCheckoutAddons(n); }}
+                    style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontSize:'0.85rem', boxSizing:'border-box' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الوصف (بالإنجليزية)</label>
+                  <input type="text" placeholder="Detailed description shown to client..." value={addon.descEn || ''}
+                    onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],descEn:e.target.value}; setCheckoutAddons(n); }}
+                    style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontSize:'0.85rem', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+          <button
+            className="btn btn-secondary"
+            style={{ marginTop: '0.5rem' }}
+            onClick={() => setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: '', nameAr: '', price: 0, unit: 'booking', descAr: '', descEn: '' }])}
+          >
+            + إضافة خدمة جديدة
+          </button>
+          <div style={{ marginTop: '1.5rem', textAlign: 'left' }}>
+            <button className="btn btn-primary" onClick={handleSaveSettings}>حفظ الخدمات الإضافية</button>
+          </div>
+        </div>
       </div>
     </div>
   );

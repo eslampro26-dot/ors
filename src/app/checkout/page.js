@@ -30,6 +30,7 @@ function CheckoutContent() {
         dateLabel: 'Excursion Start Date *',
         travelersLabel: 'Number of Travelers (persons)',
         pickupLabel: 'Hotel Pickup Location (Optional)',
+        languageLabel: 'Preferred Language *',
         pickupPlaceholder: 'Hotel name, room number, or address',
         extrasTitle: 'Add-ons & Premium Extras',
         extraGuide: 'Private Tour Guide (+€25)',
@@ -89,6 +90,7 @@ function CheckoutContent() {
         dateLabel: 'تاريخ انطلاق الرحلة *',
         travelersLabel: 'عدد المسافرين (الأشخاص)',
         pickupLabel: 'موقع الاستلام من الفندق (اختياري)',
+        languageLabel: 'اللغة المفضلة *',
         pickupPlaceholder: 'اسم الفندق، رقم الغرفة، أو العنوان',
         extrasTitle: 'الخدمات والإضافات الاختيارية',
         extraGuide: 'مرشد سياحي خاص (+€25)',
@@ -164,6 +166,7 @@ function CheckoutContent() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
   const [modalTitle, setModalTitle] = useState('');
+  const [customerLanguage, setCustomerLanguage] = useState(locale || 'ar');
   
   // Promo Code State
   const [promoInput, setPromoInput] = useState('');
@@ -211,7 +214,9 @@ function CheckoutContent() {
     let cost = 0;
     settings.checkoutAddons.forEach(addon => {
       if (selectedExtras[addon.id]) {
-        const isPerPerson = addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch';
+        // Transfer should be per booking, not per person
+        const isTransfer = addon.id === 'transfer' || addon.nameEn?.toLowerCase().includes('transfer') || addon.nameAr?.includes('انتقال');
+        const isPerPerson = !isTransfer && (addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch');
         cost += isPerPerson ? (addon.price * travelers) : addon.price;
       }
     });
@@ -363,7 +368,8 @@ function CheckoutContent() {
           extras: getSelectedExtrasString(),
           children: children,
           infants: infants,
-          specialRequests: specialRequests
+          specialRequests: specialRequests,
+          customerLanguage: customerLanguage
         });
 
         // Send invoice email (non-blocking)
@@ -418,7 +424,8 @@ function CheckoutContent() {
           extras: getSelectedExtrasString(),
           children: children,
           infants: infants,
-          specialRequests: specialRequests
+          specialRequests: specialRequests,
+          customerLanguage: customerLanguage
         });
 
         // Send invoice email (non-blocking)
@@ -471,7 +478,8 @@ function CheckoutContent() {
         extras: getSelectedExtrasString(),
         children: children,
         infants: infants,
-        specialRequests: specialRequests
+        specialRequests: specialRequests,
+        customerLanguage: customerLanguage
       });
 
       // Send invoice email (non-blocking)
@@ -567,7 +575,8 @@ function CheckoutContent() {
               extras: getSelectedExtrasString(),
               children: children,
               infants: infants,
-              specialRequests: specialRequests
+              specialRequests: specialRequests,
+              customerLanguage: customerLanguage
             });
 
             // Send invoice email (non-blocking)
@@ -1645,6 +1654,32 @@ function CheckoutContent() {
                   }}
                   required
                 />
+              </div>
+
+              {/* Language Selection */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{translate('languageLabel')}</label>
+                <select
+                  value={customerLanguage}
+                  onChange={(e) => setCustomerLanguage(e.target.value)}
+                  style={{
+                    padding: '0.8rem 1rem',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-medium)',
+                    background: 'var(--bg-secondary)',
+                    outline: 'none',
+                    fontSize: '1rem',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer'
+                  }}
+                  required
+                >
+                  <option value="ar">🇸🇦 العربية (Arabic)</option>
+                  <option value="en">🇬🇧 English (الإنجليزية)</option>
+                </select>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', margin: '0.2rem 0 0' }}>
+                  {isAr ? 'اختيار اللغة يساعدنا في توفير خدمة أفضل أثناء الرحلة' : 'Selecting your language helps us provide better service during your trip'}
+                </p>
               </div>
 
               {/* Travelers count */}
