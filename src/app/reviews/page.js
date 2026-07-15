@@ -48,6 +48,18 @@ export default function ReviewsPage() {
   const { locale, t, isReady } = useLanguage();
   const { settings: siteSettings } = useSettings();
 
+  // Form states
+  const [formData, setFormData] = useState({
+    name: '',
+    country: '',
+    rating: 0,
+    text: '',
+    images: []
+  });
+  const [hoverRating, setHoverRating] = useState(0);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const POLICY_FIELDS = {
     vision:            { arField: 'vision',            enField: 'visionEn',            msgKey: 'footer.visionBody' },
     goals:             { arField: 'goals',              enField: 'goalsEn',              msgKey: 'footer.goalsBody' },
