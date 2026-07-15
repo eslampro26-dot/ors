@@ -979,7 +979,6 @@ export default function AdminServices() {
                       className={styles.input}
                     />
                   </div>
-                </>
                   {/* Main Image Upload for Package */}
                   <div className={styles.formGroup}>
                     <label>صورة الباكدج الرئيسية (يتم ضغطها وحفظها تلقائياً)</label>
