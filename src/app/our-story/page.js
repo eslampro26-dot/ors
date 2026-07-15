@@ -6,6 +6,7 @@ import Navbar from '@/components/navigation/Navbar';
 import { getMessages, messages } from '@/lib/messages';
 import { useLanguage } from '@/context/LanguageContext';
 import { getSocialMedia } from '@/lib/db';
+import { useSettings, getPolicyText } from '@/hooks/useSettings';
 
 const CONTENT_FALLBACKS = {
   vision: {
@@ -45,6 +46,7 @@ export default function OurStoryPage() {
   const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', content: '' });
 
   const { locale, t, isReady } = useLanguage();
+  const { settings: siteSettings } = useSettings();
 
   const storyParagraphs = useMemo(() => {
     const msgs = getMessages(locale);
@@ -56,24 +58,24 @@ export default function OurStoryPage() {
     return msgs.whyChooseUs?.storyTitle || messages.en.whyChooseUs.storyTitle;
   }, [locale]);
 
-  const handleOpenContentModal = useCallback((type, titleAr, titleEn) => {
-    if (typeof window !== 'undefined') {
-      const isAr = locale === 'ar';
-      const storageKey = {
-        vision: 'orluxus_about_vision',
-        goals: 'orluxus_about_goals',
-        sustainability: 'orluxus_about_sustainability',
-        staff: 'orluxus_about_staff',
-        legalCompany: 'orluxus_legal_company',
-        legalCancellation: 'orluxus_legal_cancellation',
-        dataProtection: 'orluxus_data_protection'
-      }[type];
-      
-      const fallback = CONTENT_FALLBACKS[type]?.[isAr ? 'ar' : 'en'] || '';
-      const content = localStorage.getItem(storageKey) || fallback;
-      setModalConfig({ isOpen: true, title: isAr ? titleAr : titleEn, content });
-    }
-  }, [locale]);
+  const POLICY_FIELDS = {
+    vision:            { arField: 'vision',            enField: 'visionEn',            msgKey: 'footer.visionBody' },
+    goals:             { arField: 'goals',              enField: 'goalsEn',              msgKey: 'footer.goalsBody' },
+    sustainability:    { arField: 'sustainability',    enField: 'sustainabilityEn',    msgKey: 'footer.sustainabilityBody' },
+    staff:             { arField: 'staff',              enField: 'staffEn',              msgKey: 'footer.staffBody' },
+    legalCompany:      { arField: 'legalCompany',      enField: 'legalCompanyEn',      msgKey: 'footer.legalCompanyBody' },
+    legalCancellation: { arField: 'legalCancellation', enField: 'legalCancellationEn', msgKey: 'footer.legalCancellationBody' },
+    dataProtection:    { arField: 'dataProtection',    enField: 'dataProtectionEn',    msgKey: 'footer.dataProtectionBody' },
+  };
+
+  const handleOpenContentModal = useCallback((type) => {
+    const fields = POLICY_FIELDS[type];
+    if (!fields) return;
+    const title = t(`footer.${type}Title`);
+    const content = getPolicyText(siteSettings, fields.arField, fields.enField, locale, t, fields.msgKey);
+    setModalConfig({ isOpen: true, title, content });
+  }, [locale, t, siteSettings]);
+
 
   useEffect(() => {
     const loadData = async () => {

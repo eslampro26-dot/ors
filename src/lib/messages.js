@@ -10,6 +10,7 @@ export const messages = {
       reviews: 'Reviews',
       cities: 'Cities',
       egyptPackages: 'Egypt Packages',
+      egyptPackagesDesc: 'Complete vacation packages including hotel accommodations, flights, and private transfers.',
     },
     hero: {
       title: 'Discover the Wonders of Egypt with',
@@ -165,6 +166,7 @@ export const messages = {
       reviews: 'التقييمات',
       cities: 'المدن',
       egyptPackages: 'مصر',
+      egyptPackagesDesc: 'باقات عطلات متكاملة تشمل الإقامة الفندقية، الطيران الداخلي، والانتقالات الخاصة.',
     },
     hero: {
       title: 'اكتشف روائع مصر مع',
@@ -320,6 +322,7 @@ export const messages = {
       reviews: 'Bewertungen',
       cities: 'Städte',
       egyptPackages: 'Ägypten Pauschalen',
+      egyptPackagesDesc: 'Komplette Pauschalreisen inklusive Hotelunterkünften, Inlandsflügen und privaten Transfers.',
     },
     hero: {
       title: 'Entdecken Sie die Wunder Ägyptens mit',
@@ -456,6 +459,7 @@ export const messages = {
       reviews: 'Avis',
       cities: 'Villes',
       egyptPackages: 'Packs Égypte',
+      egyptPackagesDesc: 'Formules de vacances complètes comprenant l\'hébergement à l\'hôtel, les vols intérieurs et les transferts privés.',
     },
     hero: {
       title: 'Découvrez les merveilles de l\'Égypte avec',
@@ -592,6 +596,7 @@ export const messages = {
       reviews: 'Reseñas',
       cities: 'Ciudades',
       egyptPackages: 'Paquetes Egipto',
+      egyptPackagesDesc: 'Paquetes de vacaciones completos que incluyen alojamiento en hotel, vuelos nacionales y traslados privados.',
     },
     hero: {
       title: 'Descubra las maravillas de Egipto con',
@@ -728,6 +733,7 @@ export const messages = {
       reviews: 'Recensioni',
       cities: 'Città',
       egyptPackages: 'Pacchetti Egitto',
+      egyptPackagesDesc: 'Pacchetti vacanza completi comprensivi di sistemazione in hotel, voli interni e trasferimenti privati.',
     },
     hero: {
       title: 'Scopri le meraviglie dell\'Egitto con',
@@ -864,6 +870,7 @@ export const messages = {
       reviews: 'Отзывы',
       cities: 'Города',
       egyptPackages: 'Пакеты Египта',
+      egyptPackagesDesc: 'Полные туристические пакеты, включающие проживание в отеле, внутренние перелеты и частные трансферы.',
     },
     hero: {
       title: 'Откройте для себя чудеса Египта с',
@@ -1000,6 +1007,7 @@ export const messages = {
       reviews: 'Değerlendirmeler',
       cities: 'Şehirler',
       egyptPackages: 'Mısır Paketleri',
+      egyptPackagesDesc: 'Otel konaklaması, iç hat uçuşları ve özel transferleri içeren eksiksiz tatil paketleri.',
     },
     hero: {
       title: 'Mısır\'ın Harikalarını Keşfedin',
@@ -1136,6 +1144,7 @@ export const messages = {
       reviews: '客户评价',
       cities: '城市目的地',
       egyptPackages: '埃及度假套餐',
+      egyptPackagesDesc: '完整的度假套餐，包括酒店住宿、国内航班和私人接送。',
     },
     hero: {
       title: '与我们一起探索埃及的奇迹',
@@ -1272,6 +1281,7 @@ export const messages = {
       reviews: 'レビュー',
       cities: '都市',
       egyptPackages: 'エジプトパック',
+      egyptPackagesDesc: 'ホテルの宿泊、国内線、およびプライベート送迎を含む完全なバケーションパッケージ。',
     },
     hero: {
       title: 'エジプトの奇跡を体験する',

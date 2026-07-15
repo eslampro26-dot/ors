@@ -1899,20 +1899,28 @@ function CheckoutContent() {
                       onClick={(e) => {
                         e.preventDefault();
                         setModalTitle(translate('readTerms'));
-                        setModalContent(settings?.dataProtection || 'No terms provided.');
+                        const isAr = locale === 'ar';
+                        const text = isAr 
+                          ? (settings?.dataProtection || settings?.dataProtectionEn || 'لا توجد شروط.')
+                          : (settings?.dataProtectionEn || settings?.dataProtection || 'No terms provided.');
+                        setModalContent(text);
                         setShowTermsModal(true);
                       }} 
                       style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}
                     >
                       {translate('readTerms')}
                     </a>
-                    {' و '}
+                    {locale === 'ar' ? ' و ' : ' and '}
                     <a 
                       href="#" 
                       onClick={(e) => {
                         e.preventDefault();
                         setModalTitle(translate('readPolicy'));
-                        setModalContent(settings?.legalCancellation || 'No policy provided.');
+                        const isAr = locale === 'ar';
+                        const text = isAr 
+                          ? (settings?.legalCancellation || settings?.legalCancellationEn || 'لا توجد سياسة.')
+                          : (settings?.legalCancellationEn || settings?.legalCancellation || 'No policy provided.');
+                        setModalContent(text);
                         setShowTermsModal(true);
                       }} 
                       style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}

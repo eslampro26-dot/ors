@@ -90,7 +90,7 @@ export default function Navbar() {
               <div className={styles.megaHeader}>
                 <div>
                   <h3 className={styles.megaTitle}>{t('nav.egyptPackages')}</h3>
-                  <p className={styles.megaDesc}>Complete internal vacation packages including hotel accommodations, flights, and transfers.</p>
+                  <p className={styles.megaDesc}>{t('nav.egyptPackagesDesc')}</p>
                 </div>
               </div>
               <div className={styles.megaGrid}>

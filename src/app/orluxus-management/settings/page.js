@@ -44,14 +44,27 @@ export default function AdminSettings() {
   const [tiktok, setTiktok] = useState('https://www.tiktok.com/@orluxus?_r=1&_t=ZS-979ayAlnRlV');
   const [instagram, setInstagram] = useState('https://www.instagram.com/orluxus?igsh=N2lmbmg2eGJzNmVx');
 
-  // Policy & Content States
+  // Policy & Content States (Bilingual)
   const [vision, setVision] = useState('رؤيتنا هي تقديم أرقى مستويات الخدمة السياحية الفاخرة في مصر بروح عائلية دافئة، لتكون كل رحلة قصة لا تُنسى لضيوفنا.');
+  const [visionEn, setVisionEn] = useState('Our vision is to provide the highest levels of luxury tourism in Egypt with a warm family spirit, making every journey an unforgettable story.');
+  
   const [goals, setGoals] = useState('نهدف إلى توفير حجز فوري آمن، وتنظيم رحلات استثنائية ذات جودة عالية، وتوفير أقصى درجات الراحة والأمان لعملائنا.');
+  const [goalsEn, setGoalsEn] = useState('We aim to provide secure instant bookings, organize exceptional high-quality tours, and deliver the utmost comfort and safety.');
+  
   const [sustainability, setSustainability] = useState('نلتزم في أورلوكسوس بحماية البيئة البحرية والشواطئ المصرية، ودعم المجتمعات المحلية عبر توفير فرص عمل مستدامة وتطبيق أعلى معايير السياحة الخضراء.');
+  const [sustainabilityEn, setSustainabilityEn] = useState('We are committed to protecting the marine environment, supporting local communities through sustainable employment, and applying green tourism standards.');
+  
   const [staff, setStaff] = useState('فريقنا يتكون من مرشدين سياحيين محترفين وخبراء محليين مدربين على أعلى معايير الضيافة والسلامة لضمان خدمة استثنائية على مدار الساعة.');
+  const [staffEn, setStaffEn] = useState('Our team consists of professional tour guides and local experts trained to the highest hospitality standards.');
+  
   const [legalCompany, setLegalCompany] = useState('أورلوكسوس هي شركة سياحية مسجلة ومرخصة رسمياً من وزارة السياحة المصرية، وتخضع للقوانين المصرية المنظمة للنشاط السياحي.');
+  const [legalCompanyEn, setLegalCompanyEn] = useState('ORLUXUS is a fully registered and licensed tourism company operating under the regulations of the Egyptian Ministry of Tourism.');
+  
   const [legalCancellation, setLegalCancellation] = useState('يمكن إلغاء الحجز مجاناً قبل 48 ساعة من موعد الرحلة. في حال الإلغاء المتأخر أو عدم الحضور، يتم تطبيق رسوم إلغاء تعادل قيمة الليلة الأولى أو 50% من قيمة الرحلة حسب نوع البرنامج.');
+  const [legalCancellationEn, setLegalCancellationEn] = useState('Cancellations made 48 hours prior to the trip are free. Late cancellations or no-shows are subject to fees up to 50% depending on the program.');
+  
   const [dataProtection, setDataProtection] = useState('نحن نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. لن يتم مشاركة معلوماتك أو تفاصيل حجزك مع أي أطراف ثالثة إلا لغرض إتمام الحجز وتقديم الخدمة.');
+  const [dataProtectionEn, setDataProtectionEn] = useState('We respect your privacy and commit to protecting your personal data. We do not share your information with third parties except for bookings.');
 
   // Terms & Conditions
   const [termsAr, setTermsAr] = useState('1. الحجز ملزم وغير قابل للإلغاء إلا قبل 48 ساعة من موعد الرحلة.\n2. الدفع نقداً عند انطلاق الرحلة أو عبر التحويل البنكي.\n3. الشركة غير مسؤولة عن التأخير الناتج عن ظروف قاهرة.\n4. يجب احترام مواعيد الانطلاق المحددة.\n5. يحق للشركة تعديل البرنامج في حالات الطوارئ.');
@@ -89,13 +102,20 @@ export default function AdminSettings() {
           if (data.tiktok) setTiktok(data.tiktok);
           if (data.instagram) setInstagram(data.instagram);
 
-          if (data.vision) setVision(data.vision);
+           if (data.vision) setVision(data.vision);
+          if (data.visionEn) setVisionEn(data.visionEn);
           if (data.goals) setGoals(data.goals);
+          if (data.goalsEn) setGoalsEn(data.goalsEn);
           if (data.sustainability) setSustainability(data.sustainability);
+          if (data.sustainabilityEn) setSustainabilityEn(data.sustainabilityEn);
           if (data.staff) setStaff(data.staff);
+          if (data.staffEn) setStaffEn(data.staffEn);
           if (data.legalCompany) setLegalCompany(data.legalCompany);
+          if (data.legalCompanyEn) setLegalCompanyEn(data.legalCompanyEn);
           if (data.legalCancellation) setLegalCancellation(data.legalCancellation);
+          if (data.legalCancellationEn) setLegalCancellationEn(data.legalCancellationEn);
           if (data.dataProtection) setDataProtection(data.dataProtection);
+          if (data.dataProtectionEn) setDataProtectionEn(data.dataProtectionEn);
           if (data.termsAr) setTermsAr(data.termsAr);
           if (data.termsEn) setTermsEn(data.termsEn);
         }
@@ -177,12 +197,19 @@ export default function AdminSettings() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           vision,
+          visionEn,
           goals,
+          goalsEn,
           sustainability,
+          sustainabilityEn,
           staff,
+          staffEn,
           legalCompany,
+          legalCompanyEn,
           legalCancellation,
+          legalCancellationEn,
           dataProtection,
+          dataProtectionEn,
           termsAr,
           termsEn
         })
@@ -733,24 +760,36 @@ export default function AdminSettings() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <h4 style={{ color: 'var(--gold-400)', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.3rem' }}>عن أورلوكسوس</h4>
             
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>رؤيتنا</label>
-              <textarea value={vision} onChange={(e) => setVision(e.target.value)} rows="3" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>رؤيتنا (Vision)</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <textarea value={vision} onChange={(e) => setVision(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <textarea value={visionEn} onChange={(e) => setVisionEn(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>أهدافنا</label>
-              <textarea value={goals} onChange={(e) => setGoals(e.target.value)} rows="3" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>أهدافنا (Goals)</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <textarea value={goals} onChange={(e) => setGoals(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <textarea value={goalsEn} onChange={(e) => setGoalsEn(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>الاستدامة</label>
-              <textarea value={sustainability} onChange={(e) => setSustainability(e.target.value)} rows="3" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>الاستدامة (Sustainability)</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <textarea value={sustainability} onChange={(e) => setSustainability(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <textarea value={sustainabilityEn} onChange={(e) => setSustainabilityEn(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>موظفونا</label>
-              <textarea value={staff} onChange={(e) => setStaff(e.target.value)} rows="3" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>موظفونا (Staff)</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <textarea value={staff} onChange={(e) => setStaff(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <textarea value={staffEn} onChange={(e) => setStaffEn(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
           </div>
 
@@ -758,19 +797,28 @@ export default function AdminSettings() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <h4 style={{ color: 'var(--gold-400)', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.3rem' }}>السياسات والقانونية</h4>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>الوضع القانوني للشركة</label>
-              <textarea value={legalCompany} onChange={(e) => setLegalCompany(e.target.value)} rows="3" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>الوضع القانوني للشركة (Legal Status)</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <textarea value={legalCompany} onChange={(e) => setLegalCompany(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <textarea value={legalCompanyEn} onChange={(e) => setLegalCompanyEn(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>سياسة الإلغاء</label>
-              <textarea value={legalCancellation} onChange={(e) => setLegalCancellation(e.target.value)} rows="4" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>سياسة الإلغاء (Cancellation Policy)</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <textarea value={legalCancellation} onChange={(e) => setLegalCancellation(e.target.value)} rows="3" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <textarea value={legalCancellationEn} onChange={(e) => setLegalCancellationEn(e.target.value)} rows="3" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>حماية البيانات والخصوصية</label>
-              <textarea value={dataProtection} onChange={(e) => setDataProtection(e.target.value)} rows="4" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+            <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>حماية البيانات والخصوصية (Data Protection)</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <textarea value={dataProtection} onChange={(e) => setDataProtection(e.target.value)} rows="3" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <textarea value={dataProtectionEn} onChange={(e) => setDataProtectionEn(e.target.value)} rows="3" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
           </div>
 

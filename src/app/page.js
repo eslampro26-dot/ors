@@ -9,6 +9,7 @@ import { cities, getLocalizedCity } from '@/lib/data';
 import { getReviews, addReview, getSocialMedia } from '@/lib/db';
 import { useLanguage } from '@/context/LanguageContext';
 import { getMessages, messages } from '@/lib/messages';
+import { useSettings, getPolicyText } from '@/hooks/useSettings';
 
 const CONTENT_FALLBACKS = {
   vision: {
@@ -49,14 +50,15 @@ export default function Home() {
   const [destinationsOverride, setDestinationsOverride] = useState({});
   
   const { locale, t, isReady } = useLanguage();
+  const { settings: siteSettings } = useSettings();
 
   const [heroActiveIndex, setHeroActiveIndex] = useState(0);
 
   const HERO_IMAGES = useMemo(() => [
-    'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80', // Pyramids
-    'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1600&q=80', // Hurghada
-    'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1600&q=80', // Luxor
-    'https://images.unsplash.com/photo-1600016688773-bc18bf39aa3e?auto=format&fit=crop&w=1600&q=80'  // Abu Simbel (Aswan)
+    'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1600016688773-bc18bf39aa3e?auto=format&fit=crop&w=1600&q=80'
   ], []);
 
   useEffect(() => {
@@ -78,25 +80,25 @@ export default function Home() {
 
   const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', content: '' });
 
-  const handleOpenContentModal = useCallback((type, titleAr, titleEn) => {
-    if (typeof window !== 'undefined') {
-      const isAr = locale === 'ar';
-      const storageKey = {
-        vision: 'orluxus_about_vision',
-        goals: 'orluxus_about_goals',
-        sustainability: 'orluxus_about_sustainability',
-        staff: 'orluxus_about_staff',
-        legalCompany: 'orluxus_legal_company',
-        legalCancellation: 'orluxus_legal_cancellation',
-        dataProtection: 'orluxus_data_protection'
-      }[type];
-      
-      const title = t(`footer.${type}Title`) || (isAr ? titleAr : titleEn);
-      const fallback = t(`footer.${type}Body`) || CONTENT_FALLBACKS[type]?.[isAr ? 'ar' : 'en'] || '';
-      const content = localStorage.getItem(storageKey) || fallback;
-      setModalConfig({ isOpen: true, title, content });
-    }
-  }, [locale, t]);
+  // DB field map: arField, enField for each policy type
+  const POLICY_FIELDS = {
+    vision:           { arField: 'vision',           enField: 'visionEn',           msgKey: 'footer.visionBody' },
+    goals:            { arField: 'goals',             enField: 'goalsEn',             msgKey: 'footer.goalsBody' },
+    sustainability:   { arField: 'sustainability',   enField: 'sustainabilityEn',   msgKey: 'footer.sustainabilityBody' },
+    staff:            { arField: 'staff',             enField: 'staffEn',             msgKey: 'footer.staffBody' },
+    legalCompany:     { arField: 'legalCompany',     enField: 'legalCompanyEn',     msgKey: 'footer.legalCompanyBody' },
+    legalCancellation:{ arField: 'legalCancellation',enField: 'legalCancellationEn',msgKey: 'footer.legalCancellationBody' },
+    dataProtection:   { arField: 'dataProtection',   enField: 'dataProtectionEn',   msgKey: 'footer.dataProtectionBody' },
+  };
+
+  const handleOpenContentModal = useCallback((type) => {
+    const fields = POLICY_FIELDS[type];
+    if (!fields) return;
+    const title = t(`footer.${type}Title`);
+    const content = getPolicyText(siteSettings, fields.arField, fields.enField, locale, t, fields.msgKey);
+    setModalConfig({ isOpen: true, title, content });
+  }, [locale, t, siteSettings]);
+
 
   // Review Form States
   const [reviewForm, setReviewForm] = useState({
