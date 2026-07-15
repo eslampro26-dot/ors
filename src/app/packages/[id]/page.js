@@ -8,6 +8,8 @@ import Navbar from '@/components/navigation/Navbar';
 import { notFound } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 
+import TranslatedText from '@/components/TranslatedText';
+
 const packageBackgrounds = {
   'relaxation': 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1600&q=80',
   'cultural': 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80',
@@ -31,8 +33,7 @@ export default function PackagePage({ params }) {
   
   // Track selected tier per package item
   const [selectedTiers, setSelectedTiers] = useState({});
-  const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState('');
+  const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', richDesc: '', images: [] });
 
   useEffect(() => {
     const loadPackages = async () => {
@@ -125,7 +126,7 @@ export default function PackagePage({ params }) {
                   {/* Title */}
                   <div style={{ flex: 1, textAlign: locale === 'ar' ? 'right' : 'left' }}>
                     <h3 style={{ fontSize: 'var(--font-size-xl)', color: 'var(--text-primary)', fontWeight: '800', marginBottom: '4px' }}>
-                      {locale === 'ar' ? item.titleAr : (item.titleEn || item.titleAr)}
+                      <TranslatedText text={item.titleEn || item.titleAr} />
                     </h3>
                     <span style={{ color: 'var(--text-tertiary)', fontSize: 'var(--font-size-sm)' }}>
                       {locale === 'ar' ? (item.titleEn || '') : item.titleAr}
@@ -135,7 +136,7 @@ export default function PackagePage({ params }) {
                   {/* Description */}
                   {item.description && (
                     <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', lineHeight: 1.7, textAlign: locale === 'ar' ? 'right' : 'left' }}>
-                      {item.description}
+                      <TranslatedText text={item.description} />
                     </p>
                   )}
 
@@ -208,8 +209,14 @@ export default function PackagePage({ params }) {
                     {activeTier.richDesc && (
                       <button 
                         onClick={() => {
-                          setModalContent(activeTier.richDesc);
-                          setShowModal(true);
+                          setModalConfig({
+                            isOpen: true,
+                            title: locale === 'ar' 
+                              ? (item.titleAr + ' - ' + activeTier.names.ar) 
+                              : ((item.titleEn || item.titleAr) + ' - ' + activeTier.names.en),
+                            richDesc: activeTier.richDesc,
+                            images: item.images && item.images.length > 0 ? item.images : [item.image || '/images/trips/glass-boat.jpg']
+                          });
                         }}
                         style={{
                           background: 'none',
@@ -273,7 +280,7 @@ export default function PackagePage({ params }) {
       </div>
 
       {/* Rich Description Modal */}
-      {showModal && (
+      {modalConfig.isOpen && (
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
@@ -296,7 +303,7 @@ export default function PackagePage({ params }) {
             position: 'relative'
           }}>
             <button 
-              onClick={() => setShowModal(false)}
+              onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
               style={{
                 position: 'absolute',
                 top: '15px',
@@ -305,14 +312,44 @@ export default function PackagePage({ params }) {
                 border: 'none',
                 color: 'var(--text-secondary)',
                 fontSize: '1.5rem',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                zIndex: 10
               }}
             >
               ×
             </button>
-            <h3 style={{ color: 'var(--gold-500)', marginBottom: '1.5rem', marginTop: 0, textAlign: locale === 'ar' ? 'right' : 'left' }}>
-              {locale === 'ar' ? 'تفاصيل فئة الباكدج' : 'Tier Details'}
+            <h3 style={{ color: 'var(--gold-500)', marginBottom: '1.5rem', marginTop: 0, paddingRight: '20px', textAlign: locale === 'ar' ? 'right' : 'left' }}>
+              {modalConfig.title}
             </h3>
+
+            {/* Gallery Images */}
+            {modalConfig.images && modalConfig.images.length > 0 && (
+              <div style={{ 
+                display: 'flex', 
+                gap: '0.8rem', 
+                overflowX: 'auto', 
+                paddingBottom: '1rem', 
+                marginBottom: '1.5rem',
+                borderRadius: '8px'
+              }}>
+                {modalConfig.images.map((imgSrc, idx) => (
+                  <img 
+                    key={idx} 
+                    src={imgSrc} 
+                    alt={`Preview ${idx}`} 
+                    style={{ 
+                      width: '280px', 
+                      height: '180px', 
+                      objectFit: 'cover', 
+                      borderRadius: '8px', 
+                      border: '1px solid var(--border-subtle)',
+                      flexShrink: 0 
+                    }} 
+                  />
+                ))}
+              </div>
+            )}
+
             <div style={{ 
               color: 'var(--text-primary)', 
               lineHeight: '1.8', 
@@ -320,10 +357,10 @@ export default function PackagePage({ params }) {
               textAlign: locale === 'ar' ? 'right' : 'left',
               whiteSpace: 'pre-wrap'
             }}>
-              {modalContent}
+              <TranslatedText text={modalConfig.richDesc} />
             </div>
             <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-              <button className="btn btn-primary" onClick={() => setShowModal(false)}>
+              <button className="btn btn-primary" onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}>
                 {locale === 'ar' ? 'إغلاق' : 'Close'}
               </button>
             </div>

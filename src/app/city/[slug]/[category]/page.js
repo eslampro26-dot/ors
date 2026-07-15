@@ -8,6 +8,8 @@ import Navbar from '@/components/navigation/Navbar';
 import { notFound } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 
+import TranslatedText from '@/components/TranslatedText';
+
 export default function CategoryPage({ params }) {
   const resolvedParams = use(params);
   const { slug, category } = resolvedParams;
@@ -20,8 +22,7 @@ export default function CategoryPage({ params }) {
   if (!catInfo) notFound();
 
   const [trips, setTrips] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState('');
+  const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', richDesc: '', images: [] });
   const [activeVideoUrl, setActiveVideoUrl] = useState(null);
   
   // State to track selected tier id for each trip
@@ -166,9 +167,11 @@ export default function CategoryPage({ params }) {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', gap: '0.5rem', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
                       <div style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
                         <h3 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: '700', marginBottom: '4px' }}>
-                          {locale === 'ar' ? trip.titleAr : (trip.titleEn || trip.titleAr)}
+                          <TranslatedText text={trip.titleEn || trip.titleAr} />
                         </h3>
-                        <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>{locale === 'ar' ? (trip.titleEn || '') : trip.titleAr}</span>
+                        <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>
+                          {locale === 'ar' ? (trip.titleEn || '') : trip.titleAr}
+                        </span>
                       </div>
                       <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', color: 'var(--gold-600)', fontSize: '1.35rem', whiteSpace: 'nowrap', textShadow: '0 0 1px rgba(217, 119, 6, 0.1)' }}>
                         {trip.currency || '€'}{activeTier.price}
@@ -247,8 +250,14 @@ export default function CategoryPage({ params }) {
                       {activeTier.richDesc && (
                         <button 
                           onClick={() => {
-                            setModalContent(activeTier.richDesc);
-                            setShowModal(true);
+                            setModalConfig({
+                              isOpen: true,
+                              title: locale === 'ar' 
+                                ? (trip.titleAr + ' - ' + activeTier.names.ar) 
+                                : ((trip.titleEn || trip.titleAr) + ' - ' + activeTier.names.en),
+                              richDesc: activeTier.richDesc,
+                              images: trip.images && trip.images.length > 0 ? trip.images : [trip.image || '/images/trips/glass-boat.jpg']
+                            });
                           }}
                           style={{
                             background: 'none',
@@ -310,7 +319,7 @@ export default function CategoryPage({ params }) {
       </div>
 
       {/* Rich Description Modal */}
-      {showModal && (
+      {modalConfig.isOpen && (
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
@@ -333,7 +342,7 @@ export default function CategoryPage({ params }) {
             position: 'relative'
           }}>
             <button 
-              onClick={() => setShowModal(false)}
+              onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
               style={{
                 position: 'absolute',
                 top: '15px',
@@ -342,14 +351,44 @@ export default function CategoryPage({ params }) {
                 border: 'none',
                 color: 'var(--text-secondary)',
                 fontSize: '1.5rem',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                zIndex: 10
               }}
             >
               ×
             </button>
-            <h3 style={{ color: 'var(--gold-500)', marginBottom: '1.5rem', marginTop: 0, textAlign: locale === 'ar' ? 'right' : 'left' }}>
-              {locale === 'ar' ? 'تفاصيل فئة الرحلة' : 'Tier Details'}
+            <h3 style={{ color: 'var(--gold-500)', marginBottom: '1.5rem', marginTop: 0, paddingRight: '20px', textAlign: locale === 'ar' ? 'right' : 'left' }}>
+              {modalConfig.title}
             </h3>
+
+            {/* Gallery Images */}
+            {modalConfig.images && modalConfig.images.length > 0 && (
+              <div style={{ 
+                display: 'flex', 
+                gap: '0.8rem', 
+                overflowX: 'auto', 
+                paddingBottom: '1rem', 
+                marginBottom: '1.5rem',
+                borderRadius: '8px'
+              }}>
+                {modalConfig.images.map((imgSrc, idx) => (
+                  <img 
+                    key={idx} 
+                    src={imgSrc} 
+                    alt={`Preview ${idx}`} 
+                    style={{ 
+                      width: '280px', 
+                      height: '180px', 
+                      objectFit: 'cover', 
+                      borderRadius: '8px', 
+                      border: '1px solid var(--border-subtle)',
+                      flexShrink: 0 
+                    }} 
+                  />
+                ))}
+              </div>
+            )}
+
             <div style={{ 
               color: 'var(--text-primary)', 
               lineHeight: '1.8', 
@@ -357,10 +396,10 @@ export default function CategoryPage({ params }) {
               textAlign: locale === 'ar' ? 'right' : 'left',
               whiteSpace: 'pre-wrap'
             }}>
-              {modalContent}
+              <TranslatedText text={modalConfig.richDesc} />
             </div>
             <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-              <button className="btn btn-primary" onClick={() => setShowModal(false)}>
+              <button className="btn btn-primary" onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}>
                 {locale === 'ar' ? 'إغلاق' : 'Close'}
               </button>
             </div>

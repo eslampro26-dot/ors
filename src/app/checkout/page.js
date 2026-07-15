@@ -8,6 +8,7 @@ import { validatePromoCode, addBooking, getSettings } from '@/lib/db';
 import { createDafahCheckoutSession } from '@/lib/dafah';
 import { useLanguage } from '@/context/LanguageContext';
 import DafahSimulatedGateway from '@/components/DafahSimulatedGateway';
+import TranslatedText from '@/components/TranslatedText';
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -1778,7 +1779,8 @@ function CheckoutContent() {
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                     {settings.checkoutAddons.map(addon => {
-                      const desc = locale === 'ar' ? addon.descAr : addon.descEn;
+                      const name = addon.nameEn || addon.nameAr;
+                      const desc = addon.descEn || addon.descAr;
                       return (
                         <div key={addon.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', marginBottom: '0.4rem', textAlign: locale === 'ar' ? 'right' : 'left' }}>
                           <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-secondary)', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
@@ -1789,7 +1791,7 @@ function CheckoutContent() {
                               style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                             />
                             <span style={{ flex: 1 }}>
-                              {locale === 'ar' ? addon.nameAr : addon.nameEn} 
+                              <TranslatedText text={name} /> 
                               {' '}
                               (+€{addon.price}
                               {addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch'
@@ -1807,7 +1809,7 @@ function CheckoutContent() {
                               marginTop: '-2px',
                               lineHeight: '1.4'
                             }}>
-                              ℹ️ {desc}
+                              ℹ️ <TranslatedText text={desc} />
                             </span>
                           )}
                         </div>
@@ -1950,7 +1952,9 @@ function CheckoutContent() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
               <div>
                 <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{translate('serviceRequested')}</span>
-                <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '0.2rem' }}>{titleEn || titleAr || 'Travel Excursion'}</h4>
+                <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '0.2rem' }}>
+                  <TranslatedText text={titleEn || titleAr} fallback="Travel Excursion" />
+                </h4>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontFamily: 'var(--font-en)' }}>{titleAr}</p>
               </div>
 

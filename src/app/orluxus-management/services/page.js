@@ -64,6 +64,7 @@ export default function AdminServices() {
     tripDescription: '',
     icon: '✈️',
     image: '',
+    images: [],
     locationUrl: '',
     videoUrl: '',
     economyDesc: '',
@@ -200,6 +201,60 @@ export default function AdminServices() {
     reader.readAsDataURL(file);
   };
 
+  const handleMultipleImagesUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    for (const file of files) {
+      await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            const MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+            setFormData(prev => ({
+              ...prev,
+              images: [...(prev.images || []), dataUrl]
+            }));
+            resolve();
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const handleRemoveGalleryImage = (idxToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      images: (prev.images || []).filter((_, idx) => idx !== idxToRemove)
+    }));
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -225,6 +280,7 @@ export default function AdminServices() {
       tripDescription: trip.tripDescription || '',
       icon: trip.icon || '✈️',
       image: trip.image || '',
+      images: trip.images || [],
       locationUrl: trip.locationUrl || '',
       videoUrl: trip.videoUrl || '',
       economyDesc: trip.economyDesc || '',
@@ -239,7 +295,7 @@ export default function AdminServices() {
     e.preventDefault();
     
     if (modalType === 'trip') {
-      const { city, category, titleAr, titleEn, price, economyPrice, businessPrice, vipPrice, duration, image, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, specialRequests } = formData;
+      const { city, category, titleAr, titleEn, price, economyPrice, businessPrice, vipPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, specialRequests } = formData;
       const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
       if (!titleAr || !titleEn || basePrice <= 0) {
         alert('يرجى ملء جميع الحقول المطلوبة (العنوان والسعر)!');
@@ -255,6 +311,7 @@ export default function AdminServices() {
         vipPrice: useTierPrices ? (parseFloat(vipPrice) || basePrice * 2) : basePrice * 2,
         duration,
         image: image || '/images/trips/glass-boat.jpg',
+        images: images || [],
         locationUrl: locationUrl || '',
         videoUrl: videoUrl || '',
         tripDescription: tripDescription || '',
@@ -287,7 +344,7 @@ export default function AdminServices() {
         if (success) {
           setModalOpen(false);
           setEditingTrip(null);
-          setFormData({ titleAr:'',titleEn:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',duration:'يوم كامل',category:'',city:'',description:'',tripDescription:'',icon:'✈️',image:'',locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
+          setFormData({ titleAr:'',titleEn:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',duration:'يوم كامل',category:'',city:'',description:'',tripDescription:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
           setUseTierPrices(false);
           await reloadCurrentCity();
         }
@@ -296,7 +353,7 @@ export default function AdminServices() {
         alert('حدث خطأ أثناء حفظ الرحلة.');
       }
     } else {
-      const { category, titleAr, titleEn, price, duration, description, icon } = formData;
+      const { category, titleAr, titleEn, price, duration, description, icon, image, images } = formData;
       if (!titleAr || !titleEn || !price) {
         alert('يرجى ملء جميع الحقول المطلوبة!');
         return;
@@ -309,13 +366,15 @@ export default function AdminServices() {
           price: parseFloat(price),
           duration: duration || '3 ليالي / 4 أيام',
           description,
-          icon: icon || '✈️'
+          icon: icon || '✈️',
+          image: image || '',
+          images: images || []
         });
 
         if (success) {
           alert('تمت إضافة الباكدج بنجاح!');
           setModalOpen(false);
-          setFormData({ titleAr:'',titleEn:'',price:'',duration:'يوم كامل',category:'',city:'',description:'',icon:'✈️',image:'' });
+          setFormData({ titleAr:'',titleEn:'',price:'',duration:'يوم كامل',category:'',city:'',description:'',icon:'✈️',image:'',images:[] });
           await reloadCurrentPackage();
         } else {
           alert('حدث خطأ أثناء حفظ الباكدج.');
@@ -921,11 +980,9 @@ export default function AdminServices() {
                     />
                   </div>
                 </>
-              ) : (
-                <>
-                  {/* Image Upload */}
+                  {/* Main Image Upload for Package */}
                   <div className={styles.formGroup}>
-                    <label>صورة الرحلة (يتم ضغطها وحفظها تلقائياً)</label>
+                    <label>صورة الباكدج الرئيسية (يتم ضغطها وحفظها تلقائياً)</label>
                     <input 
                       type="file" 
                       accept="image/*"
@@ -935,7 +992,27 @@ export default function AdminServices() {
                     {formData.image && (
                       <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <img src={formData.image} alt="Preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>تم إرفاق الصورة بنجاح ✓</span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>تم إرفاق الصورة الرئيسية بنجاح ✓</span>
+                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, image: '' }))} style={{ background: 'none', border: 'none', color: 'var(--coral-500)', cursor: 'pointer', fontSize: '0.8rem' }}>إزالة</button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Image Upload for Trip */}
+                  <div className={styles.formGroup}>
+                    <label>صورة الرحلة الرئيسية (يتم ضغطها وحفظها تلقائياً)</label>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className={styles.input}
+                    />
+                    {formData.image && (
+                      <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <img src={formData.image} alt="Preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
+                        <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>تم إرفاق الصورة الرئيسية بنجاح ✓</span>
                         <button type="button" onClick={() => setFormData(prev => ({ ...prev, image: '' }))} style={{ background: 'none', border: 'none', color: 'var(--coral-500)', cursor: 'pointer', fontSize: '0.8rem' }}>إزالة</button>
                       </div>
                     )}
@@ -969,7 +1046,36 @@ export default function AdminServices() {
                 </>
               )}
 
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+              {/* Multiple Images Gallery for both Trip and Package */}
+              <div className={styles.formGroup} style={{ width: '100%', marginTop: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px dashed var(--border-medium)', boxSizing: 'border-box' }}>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--gold-400)' }}>📷 معرض الصور الإضافية (يمكن رفع أكثر من صورة)</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  multiple
+                  onChange={handleMultipleImagesUpload}
+                  className={styles.input}
+                  style={{ marginBottom: '1rem' }}
+                />
+                {formData.images && formData.images.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem' }}>
+                    {formData.images.map((imgSrc, idx) => (
+                      <div key={idx} style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
+                        <img src={imgSrc} alt={`Gallery ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <button 
+                          type="button" 
+                          onClick={() => handleRemoveGalleryImage(idx)} 
+                          style={{ position: 'absolute', top: '2px', right: '2px', width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(239,68,68,0.85)', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 'bold' }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'flex-end', width: '100%' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>إلغاء</button>
                 <button type="submit" className="btn btn-primary">➕ تأكيد الإضافة</button>
               </div>
