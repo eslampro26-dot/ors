@@ -776,39 +776,53 @@ function CheckoutContent() {
             color: '#1e293b'
           }}>
             {/* Invoice Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #f1f5f9', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #f1f5f9', paddingBottom: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div style={{ textAlign: 'left' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'linear-gradient(135deg, #b45309, #c9a227)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <span style={{ color: '#fff', fontWeight: '900', fontSize: '1rem', letterSpacing: '-1px', fontFamily: 'var(--font-en)' }}>OX</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+                  <img src="/logo_gold.png" alt="Orluxus" style={{ height: '52px', width: 'auto', objectFit: 'contain' }} onError={(e) => { e.target.style.display='none'; }} />
+                  <div>
+                    <h2 style={{ fontSize: '1.6rem', fontWeight: '900', color: '#b45309', margin: 0, letterSpacing: '2px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
+                    <span style={{ fontSize: '0.72rem', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', display: 'block' }}>Premium Egypt Travel &amp; Tourism</span>
                   </div>
-                  <h2 style={{ fontSize: '2rem', fontWeight: '900', color: '#b45309', margin: 0, letterSpacing: '2px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
                 </div>
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase' }}>Premium Egypt Travel & Tourism</span>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', color: '#0f172a' }}>Booking Invoice</h3>
-                <span style={{ fontSize: '0.85rem', color: '#64748b', fontFamily: 'var(--font-en)' }}>Invoice #{txParam.replace('pp-tx-', '').replace('cash-tx-', '').replace('dafah-tx-', '').replace('bank-tx-', '').replace('apple_pay-tx-', '').replace('google_pay-tx-', '').slice(0, 8).toUpperCase()}</span>
-                <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#94a3b8' }}>{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', color: '#0f172a' }}>
+                  {locale === 'ar' ? 'فاتورة الحجز' : locale === 'fr' ? 'Facture de reservation' : locale === 'de' ? 'Buchungsrechnung' : locale === 'es' ? 'Factura de reserva' : 'Booking Invoice'}
+                </h3>
+                <span style={{ fontSize: '0.85rem', color: '#64748b', fontFamily: 'var(--font-en)' }}>
+                  #{txParam.replace('pp-tx-', '').replace('cash-tx-', '').replace('dafah-tx-', '').replace('bank-tx-', '').replace('apple_pay-tx-', '').replace('google_pay-tx-', '').slice(0, 8).toUpperCase()}
+                </span>
+                <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#94a3b8' }}>
+                  {new Date().toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+                </p>
               </div>
             </div>
 
             {/* Customer & Date Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', marginBottom: '2.5rem', textAlign: locale === 'ar' ? 'right' : 'left' }}>
               <div>
-                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase' }}>Traveler Details</h4>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase' }}>
+                  {locale === 'ar' ? 'بيانات المسافر' : locale === 'fr' ? 'Détails du voyageur' : locale === 'de' ? 'Reisendaten' : locale === 'es' ? 'Datos del viajero' : locale === 'it' ? 'Dettagli viaggiatore' : locale === 'ru' ? 'Данные путешественника' : locale === 'zh' ? '旅客详情' : locale === 'ja' ? '旅行者詳細' : locale === 'tr' ? 'Yolcu Bilgileri' : 'Traveler Details'}
+                </h4>
                 <p style={{ margin: '0 0 0.3rem 0', fontWeight: 'bold', fontSize: '1.05rem' }}>{nameParam}</p>
                 {emailParam && <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>✉ {emailParam}</p>}
                 <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>📞 {phoneParam}</p>
                 <p style={{ margin: 0, fontSize: '0.9rem', color: '#475569' }}>💬 {whatsappParam}</p>
               </div>
               <div>
-                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase' }}>Booking Info</h4>
-                <p style={{ margin: '0 0 0.3rem 0', fontWeight: 'bold' }}>Scheduled Date: {dateParam}</p>
-                <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>Travelers: {travelersParam} Persons</p>
-                {pickupParam && <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>📍 Pickup: {pickupParam}</p>}
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase' }}>
+                  {locale === 'ar' ? 'معلومات الحجز' : locale === 'fr' ? 'Infos de réservation' : locale === 'de' ? 'Buchungsinfo' : locale === 'es' ? 'Info de reserva' : locale === 'it' ? 'Info prenotazione' : locale === 'ru' ? 'Информация о бронировании' : locale === 'zh' ? '预订信息' : locale === 'ja' ? '予約情報' : locale === 'tr' ? 'Rezervasyon Bilgisi' : 'Booking Info'}
+                </h4>
+                <p style={{ margin: '0 0 0.3rem 0', fontWeight: 'bold' }}>
+                  {locale === 'ar' ? 'تاريخ الرحلة' : locale === 'fr' ? 'Date prévue' : locale === 'de' ? 'Geplantes Datum' : locale === 'es' ? 'Fecha programada' : 'Scheduled Date'}: {dateParam}
+                </p>
+                <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>
+                  {locale === 'ar' ? 'عدد المسافرين' : locale === 'fr' ? 'Voyageurs' : locale === 'de' ? 'Reisende' : locale === 'es' ? 'Viajeros' : 'Travelers'}: {travelersParam} {locale === 'ar' ? 'أشخاص' : locale === 'fr' ? 'personnes' : locale === 'de' ? 'Personen' : locale === 'es' ? 'personas' : 'Persons'}
+                </p>
+                {pickupParam && <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>📍 {locale === 'ar' ? 'نقطة الالتقاط' : 'Pickup'}: {pickupParam}</p>}
                 <p style={{ margin: 0, fontSize: '0.9rem', color: (isBank || isOnsite) ? '#f59e0b' : '#10b981', fontWeight: 'bold' }}>
-                  Gateway: {isBank ? 'Bank Transfer' : (isOnsite ? 'Cash on Site' : (paymentTypeParam === 'card' ? 'Dafah Credit Card' : paymentTypeParam.toUpperCase()))}
+                  {locale === 'ar' ? 'طريقة الدفع' : 'Gateway'}: {isBank ? (locale === 'ar' ? 'تحويل بنكي' : 'Bank Transfer') : (isOnsite ? (locale === 'ar' ? 'دفع عند الوصول' : 'Cash on Site') : (paymentTypeParam === 'card' ? 'Dafah Credit Card' : paymentTypeParam.toUpperCase()))}
                 </p>
               </div>
             </div>
@@ -817,10 +831,18 @@ function CheckoutContent() {
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2.5rem' }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                  <th style={{ padding: '1rem', textAlign: locale === 'ar' ? 'right' : 'left', fontWeight: 'bold', fontSize: '0.9rem', color: '#475569' }}>Service Description</th>
-                  <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem', color: '#475569' }}>Qty</th>
-                  <th style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold', fontSize: '0.9rem', color: '#475569' }}>Rate</th>
-                  <th style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold', fontSize: '0.9rem', color: '#475569' }}>Total</th>
+                  <th style={{ padding: '1rem', textAlign: locale === 'ar' ? 'right' : 'left', fontWeight: 'bold', fontSize: '0.9rem', color: '#475569' }}>
+                    {locale === 'ar' ? 'الخدمة' : locale === 'fr' ? 'Description' : locale === 'de' ? 'Leistung' : locale === 'es' ? 'Servicio' : locale === 'ru' ? 'Услуга' : locale === 'zh' ? '服务' : locale === 'ja' ? 'サービス' : locale === 'tr' ? 'Hizmet' : 'Service Description'}
+                  </th>
+                  <th style={{ padding: '1rem', textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem', color: '#475569' }}>
+                    {locale === 'ar' ? 'الكمية' : locale === 'fr' ? 'Qté' : locale === 'de' ? 'Menge' : locale === 'es' ? 'Cant.' : locale === 'ru' ? 'Кол-во' : locale === 'zh' ? '数量' : locale === 'ja' ? '数量' : locale === 'tr' ? 'Adet' : 'Qty'}
+                  </th>
+                  <th style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold', fontSize: '0.9rem', color: '#475569' }}>
+                    {locale === 'ar' ? 'السعر' : locale === 'fr' ? 'Tarif' : locale === 'de' ? 'Preis' : locale === 'es' ? 'Tarifa' : locale === 'ru' ? 'Цена' : locale === 'zh' ? '单价' : locale === 'ja' ? '単価' : locale === 'tr' ? 'Ücret' : 'Rate'}
+                  </th>
+                  <th style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold', fontSize: '0.9rem', color: '#475569' }}>
+                    {locale === 'ar' ? 'الإجمالي' : locale === 'fr' ? 'Total' : locale === 'de' ? 'Gesamt' : locale === 'es' ? 'Total' : locale === 'ru' ? 'Итого' : locale === 'zh' ? '总计' : locale === 'ja' ? '合計' : locale === 'tr' ? 'Toplam' : 'Total'}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -833,19 +855,19 @@ function CheckoutContent() {
                 {extrasParam && (
                   <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafb' }}>
                     <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#475569', textAlign: locale === 'ar' ? 'right' : 'left' }}>
-                      🎁 Extras: {extrasParam}
+                      🎁 {locale === 'ar' ? 'إضافات' : locale === 'fr' ? 'Suppléments' : locale === 'de' ? 'Extras' : 'Extras'}: {extrasParam}
                     </td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'center' }}>-</td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'right' }}>-</td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', color: '#475569', fontWeight: 'bold' }}>
-                      Included
+                      {locale === 'ar' ? 'مشمول' : locale === 'fr' ? 'Inclus' : locale === 'de' ? 'Inklusive' : locale === 'es' ? 'Incluido' : locale === 'ru' ? 'Включено' : locale === 'zh' ? '已包含' : 'Included'}
                     </td>
                   </tr>
                 )}
                 {discountParam > 0 && (
                   <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fef2f2' }}>
                     <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#dc2626', textAlign: locale === 'ar' ? 'right' : 'left', fontWeight: 'bold' }}>
-                      Promo Code Discount (Code: {promoParam})
+                      {locale === 'ar' ? `خصم الكود الترويجي (الكود: ${promoParam})` : `Promo Code Discount (Code: ${promoParam})`}
                     </td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'center' }}>-</td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'right' }}>-</td>
@@ -857,7 +879,7 @@ function CheckoutContent() {
                 {agentNameParam && agentNameParam !== 'مباشر (بدون وكيل)' && (
                   <tr style={{ background: '#f8fafc' }}>
                     <td colSpan="4" style={{ padding: '0.6rem 1rem', fontSize: '0.85rem', color: '#475569', textAlign: locale === 'ar' ? 'left' : 'right', fontStyle: 'italic' }}>
-                      Referred by Agent: <strong>{agentNameParam}</strong>
+                      {locale === 'ar' ? 'عن طريق وكيل:' : 'Referred by Agent:'} <strong>{agentNameParam}</strong>
                     </td>
                   </tr>
                 )}
@@ -865,9 +887,11 @@ function CheckoutContent() {
             </table>
 
             {/* Total Block */}
-            <div style={{ borderTop: '2px solid #e2e8f0', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ borderTop: '2px solid #e2e8f0', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
               <div style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
-                <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>Payment Status</span>
+                <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>
+                  {locale === 'ar' ? 'حالة الدفع' : locale === 'fr' ? 'Statut paiement' : locale === 'de' ? 'Zahlungsstatus' : locale === 'es' ? 'Estado de pago' : locale === 'ru' ? 'Статус оплаты' : locale === 'zh' ? '付款状态' : locale === 'ja' ? '支払状況' : locale === 'tr' ? 'Ödeme durumu' : 'Payment Status'}
+                </span>
                 <span style={{ 
                   color: (isBank || isOnsite) ? '#b45309' : '#10b981', 
                   fontWeight: 'bold', 
@@ -878,11 +902,17 @@ function CheckoutContent() {
                   display: 'inline-block', 
                   marginTop: '0.3rem' 
                 }}>
-                  {isBank ? 'PENDING TRANSFER' : (isOnsite ? 'PAY ON ARRIVAL' : 'PAID IN FULL')}
+                  {isBank 
+                    ? (locale === 'ar' ? 'في انتظار التحويل' : locale === 'fr' ? 'TRANSFERT EN ATTENTE' : locale === 'de' ? 'AUSSTEHEND' : 'PENDING TRANSFER') 
+                    : (isOnsite 
+                      ? (locale === 'ar' ? 'الدفع عند الوصول' : locale === 'fr' ? 'PAIEMENT A L\'ARRIVEE' : locale === 'de' ? 'ZAHLUNG VOR ORT' : locale === 'es' ? 'PAGO AL LLEGAR' : locale === 'ru' ? 'ОПЛАТА ПО ПРИБЫТИИ' : locale === 'zh' ? '到达付款' : locale === 'ja' ? '現地払い' : locale === 'tr' ? 'VARISTA ODEME' : 'PAY ON ARRIVAL') 
+                      : (locale === 'ar' ? 'تم الدفع بالكامل' : locale === 'fr' ? 'PAYE INTEGRALEMENT' : locale === 'de' ? 'VOLLSTAENDIG BEZAHLT' : locale === 'es' ? 'PAGADO' : locale === 'ru' ? 'ПОЛНОСТЬЮ ОПЛАЧЕНО' : locale === 'zh' ? '全额付款' : locale === 'ja' ? '支払済み' : locale === 'tr' ? 'TAM ODENDI' : 'PAID IN FULL'))}
                 </span>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '0.9rem', color: '#64748b' }}>Total Booking Value</span>
+              <div style={{ textAlign: locale === 'ar' ? 'left' : 'right' }}>
+                <span style={{ fontSize: '0.9rem', color: '#64748b' }}>
+                  {locale === 'ar' ? 'إجمالي قيمة الحجز' : locale === 'fr' ? 'Valeur totale' : locale === 'de' ? 'Gesamtbuchungswert' : locale === 'es' ? 'Valor total de reserva' : locale === 'ru' ? 'Общая стоимость' : locale === 'zh' ? '预订总价' : locale === 'ja' ? '予約合計金額' : locale === 'tr' ? 'Toplam rezervasyon' : 'Total Booking Value'}
+                </span>
                 <div style={{ fontSize: '2.2rem', fontWeight: '900', color: '#b45309', fontFamily: 'var(--font-en)', marginTop: '0.2rem' }}>
                   €{amountParam.toFixed(2)}
                 </div>
@@ -891,7 +921,9 @@ function CheckoutContent() {
 
             {/* Contact Numbers */}
             <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.2rem 1.5rem', marginTop: '2rem' }}>
-              <h4 style={{ margin: '0 0 10px', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>📞 ORLUXUS Contact Numbers</h4>
+              <h4 style={{ margin: '0 0 10px', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                📞 {locale === 'ar' ? 'أرقام تواصل ORLUXUS' : 'ORLUXUS Contact Numbers'}
+              </h4>
               <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ background: '#dc2626', color: '#fff', padding: '2px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '700' }}>EMERGENCY</span>
@@ -906,22 +938,24 @@ function CheckoutContent() {
 
             {/* Digital Signature & Terms Agreement */}
             <div style={{ border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '1.2rem 1.5rem', marginTop: '1.5rem' }}>
-              <h4 style={{ margin: '0 0 8px', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>📋 Terms & Conditions — Electronic Agreement</h4>
+              <h4 style={{ margin: '0 0 8px', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                📋 {locale === 'ar' ? 'الشروط والأحكام — الاتفاقية الإلكترونية' : locale === 'fr' ? 'Conditions — Accord Électronique' : locale === 'de' ? 'AGB — Elektronische Vereinbarung' : locale === 'es' ? 'Términos — Acuerdo Electrónico' : 'Terms & Conditions — Electronic Agreement'}
+              </h4>
               <p style={{ margin: '0 0 10px', fontSize: '0.82rem', color: '#475569', lineHeight: '1.6' }}>
-                By completing this booking, <strong>{nameParam}</strong> hereby electronically confirms acceptance of ORLUXUS Terms &amp; Conditions,
-                Cancellation Policy (cancellations must be made 24+ hours in advance), and Data Protection Policy (GDPR compliant).
-                This document constitutes a valid digital contract between the traveler and ORLUXUS GROUP Ltd. (Reg. No. 7291-B).
+                {locale === 'ar' 
+                  ? <>باستكمال هذا الحجز، يؤكد <strong>{nameParam}</strong> إلكترونياً قبوله لشروط وأحكام ORLUXUS وسياسة الإلغاء (يجب الإلغاء قبل 24 ساعة) وسياسة حماية البيانات (GDPR). يُعدّ هذا المستند عقداً رقمياً صالحاً مع ORLUXUS GROUP Ltd. (رقم السجل: 7291-B).</>
+                  : <>By completing this booking, <strong>{nameParam}</strong> hereby electronically confirms acceptance of ORLUXUS Terms &amp; Conditions, Cancellation Policy (cancellations must be made 24+ hours in advance), and Data Protection Policy (GDPR compliant). This document constitutes a valid digital contract between the traveler and ORLUXUS GROUP Ltd. (Reg. No. 7291-B).</>}
               </p>
               <div style={{ background: '#f1f5f9', borderRadius: '8px', padding: '10px 14px', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', fontSize: '0.78rem', color: '#64748b' }}>
-                <span>✍️ <strong>Digitally agreed by:</strong> {nameParam}</span>
-                <span>🕐 <strong>Booking Time:</strong> {new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span>
-                <span>🔑 <strong>Booking Ref:</strong> {txParam.slice(0, 12).toUpperCase()}</span>
+                <span>✍️ <strong>{locale === 'ar' ? 'وافق إلكترونياً:' : 'Digitally agreed by:'}</strong> {nameParam}</span>
+                <span>🕐 <strong>{locale === 'ar' ? 'وقت الحجز:' : 'Booking Time:'}</strong> {new Date().toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                <span>🔑 <strong>{locale === 'ar' ? 'رقم المرجع:' : 'Booking Ref:'}</strong> {txParam.slice(0, 12).toUpperCase()}</span>
               </div>
             </div>
 
             {/* Verification Footer text */}
             <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.8rem', color: '#94a3b8', borderTop: '1px dashed #e2e8f0', paddingTop: '1.5rem' }}>
-              Thank you for choosing ORLUXUS. We wish you an amazing family trip. 🌟
+              {locale === 'ar' ? 'شكراً لاختيارك ORLUXUS. نتمنى لك رحلة رائعة. 🌟' : locale === 'fr' ? 'Merci de choisir ORLUXUS. Bon voyage ! 🌟' : locale === 'de' ? 'Danke für Ihre Wahl. Gute Reise! 🌟' : locale === 'es' ? 'Gracias por elegir ORLUXUS. ¡Buen viaje! 🌟' : locale === 'it' ? 'Grazie per aver scelto ORLUXUS. Buon viaggio! 🌟' : locale === 'ru' ? 'Спасибо за выбор ORLUXUS. Приятного путешествия! 🌟' : locale === 'zh' ? '感谢选择ORLUXUS。祝旅途愉快！🌟' : locale === 'ja' ? 'ORLUXUSをご利用ありがとうございます。良い旅を！🌟' : locale === 'tr' ? 'ORLUXUS\'u seçtiğiniz için teşekkürler. İyi yolculuklar! 🌟' : 'Thank you for choosing ORLUXUS. We wish you an amazing trip. 🌟'}
             </div>
           </div>
 
@@ -930,12 +964,18 @@ function CheckoutContent() {
             <button 
               onClick={() => window.print()} 
               className="btn btn-primary"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem', cursor: 'pointer' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.8rem', cursor: 'pointer', fontSize: '0.95rem' }}
             >
-              🖨️ Print Invoice / Save as PDF
+              🖨️ {locale === 'ar' ? 'طباعة الفاتورة' : locale === 'fr' ? 'Imprimer la facture' : locale === 'de' ? 'Rechnung drucken' : locale === 'es' ? 'Imprimir factura' : locale === 'ru' ? 'Распечатать' : locale === 'zh' ? '打印发票' : locale === 'ja' ? '請求書を印刷' : locale === 'tr' ? 'Faturayı yazdır' : 'Print Invoice'}
             </button>
-            <Link href="/" className="btn btn-secondary" style={{ padding: '0.8rem 1.5rem' }}>
-              Return to Home
+            <button 
+              onClick={() => window.print()}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.8rem', cursor: 'pointer', background: 'linear-gradient(135deg, #1e3a5f, #2d5986)', color: 'white', border: 'none', borderRadius: '9999px', fontWeight: '700', fontSize: '0.95rem', boxShadow: '0 4px 15px rgba(30,58,95,0.3)' }}
+            >
+              💾 {locale === 'ar' ? 'حفظ كـ PDF' : locale === 'fr' ? 'Enregistrer en PDF' : locale === 'de' ? 'Als PDF speichern' : locale === 'es' ? 'Guardar como PDF' : locale === 'it' ? 'Salva come PDF' : locale === 'ru' ? 'Сохранить PDF' : locale === 'zh' ? '保存PDF' : locale === 'ja' ? 'PDFとして保存' : locale === 'tr' ? 'PDF kaydet' : 'Save as PDF'}
+            </button>
+            <Link href="/" className="btn btn-secondary" style={{ padding: '0.8rem 1.8rem', fontSize: '0.95rem' }}>
+              {locale === 'ar' ? '🏠 العودة للرئيسية' : locale === 'fr' ? '🏠 Retour à l\'accueil' : locale === 'de' ? '🏠 Zur Startseite' : locale === 'es' ? '🏠 Volver al inicio' : locale === 'ru' ? '🏠 На главную' : locale === 'zh' ? '🏠 返回首页' : locale === 'ja' ? '🏠 ホームへ' : locale === 'tr' ? '🏠 Ana sayfa' : '🏠 Return to Home'}
             </Link>
           </div>
         </div>
