@@ -196,6 +196,12 @@ function CheckoutContent() {
     loadSettings();
   }, []);
 
+  useEffect(() => {
+    if (locale) {
+      setCustomerLanguage(locale);
+    }
+  }, [locale]);
+
   const paypalEmail = settings?.paypalEmail || 'info@orluxus.com';
 
   // Helpers to format selected extras
@@ -945,6 +951,11 @@ function CheckoutContent() {
                 {locale === 'ar' 
                   ? <>باستكمال هذا الحجز، يؤكد <strong>{nameParam}</strong> إلكترونياً قبوله لشروط وأحكام ORLUXUS وسياسة الإلغاء (يجب الإلغاء قبل 24 ساعة) وسياسة حماية البيانات (GDPR). يُعدّ هذا المستند عقداً رقمياً صالحاً مع ORLUXUS GROUP Ltd. (رقم السجل: 7291-B).</>
                   : <>By completing this booking, <strong>{nameParam}</strong> hereby electronically confirms acceptance of ORLUXUS Terms &amp; Conditions, Cancellation Policy (cancellations must be made 24+ hours in advance), and Data Protection Policy (GDPR compliant). This document constitutes a valid digital contract between the traveler and ORLUXUS GROUP Ltd. (Reg. No. 7291-B).</>}
+              </p>
+              <p style={{ margin: '0 0 12px', fontSize: '0.82rem', color: '#475569', lineHeight: '1.6', fontStyle: 'italic', borderTop: '1px solid #e2e8f0', paddingTop: '8px' }}>
+                {locale === 'ar'
+                  ? <>في ORLUXUS، نقوم بتنظيم تجارب استثنائية من خلال شبكتنا من الشركاء الموثوقين. يتم تقديم تجربتك المختارة من قبل شريك ORLUXUS المعتمد، بينما نضمن لك رحلة حجز سلسة، وتنسيقاً متميزاً، ودعماً مخصصاً للضيوف من الحجز وحتى إتمام الرحلة.</>
+                  : <>At ORLUXUS, we curate exceptional experiences through our network of trusted partners. Your selected experience is delivered by an authorized ORLUXUS partner, while we ensure a seamless booking journey, quality coordination, and dedicated guest support from reservation to completion.</>}
               </p>
               <div style={{ background: '#f1f5f9', borderRadius: '8px', padding: '10px 14px', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', fontSize: '0.78rem', color: '#64748b' }}>
                 <span>✍️ <strong>{locale === 'ar' ? 'وافق إلكترونياً:' : 'Digitally agreed by:'}</strong> {nameParam}</span>
@@ -1711,15 +1722,24 @@ function CheckoutContent() {
                     outline: 'none',
                     fontSize: '1rem',
                     color: 'var(--text-primary)',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    textAlign: isAr ? 'right' : 'left'
                   }}
                   required
                 >
                   <option value="ar">🇸🇦 العربية (Arabic)</option>
-                  <option value="en">🇬🇧 English (الإنجليزية)</option>
+                  <option value="en">🇬🇧 English</option>
+                  <option value="de">🇩🇪 Deutsch (German)</option>
+                  <option value="fr">🇫🇷 Français (French)</option>
+                  <option value="it">🇮🇹 Italiano (Italian)</option>
+                  <option value="ru">🇷🇺 Русский (Russian)</option>
+                  <option value="es">🇪🇸 Español (Spanish)</option>
+                  <option value="zh">🇨🇳 中文 (Chinese)</option>
+                  <option value="ja">🇯🇵 日本語 (Japanese)</option>
+                  <option value="tr">🇹🇷 Türkçe (Turkish)</option>
                 </select>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', margin: '0.2rem 0 0' }}>
-                  {isAr ? 'اختيار اللغة يساعدنا في توفير خدمة أفضل أثناء الرحلة' : 'Selecting your language helps us provide better service during your trip'}
+                  {isAr ? 'اختيار اللغة يساعدنا في توفير خدمة أفضل وتنسيق الرحلة بلغتك المفضلة' : 'Selecting your preferred language helps us coordinate the tour in your language'}
                 </p>
               </div>
 

@@ -79,89 +79,323 @@ export default function AdminBookings() {
   // Print Digital Agreement
   const handlePrintAgreement = (booking) => {
     const printWindow = window.open('', '_blank');
+    const bLang = booking.customerLanguage || 'ar';
+    const isAr = bLang === 'ar';
+    const txId = (booking.txId || booking.id || '').toUpperCase();
+    const dateFormatted = new Date(booking.createdAt || Date.now()).toLocaleDateString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    const bookingTimeFormatted = new Date(booking.createdAt || Date.now()).toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+
+    const t = {
+      title: isAr ? 'فاتورة الحجز الإلكترونية' : 'Booking Invoice',
+      ref: isAr ? 'رقم المرجع' : 'Booking Ref',
+      traveler: isAr ? 'بيانات المسافر' : 'Traveler Details',
+      name: isAr ? 'الاسم بالكامل' : 'Full Name',
+      phone: isAr ? 'رقم الجوال' : 'Phone Number',
+      email: isAr ? 'البريد الإلكتروني' : 'Email Address',
+      whatsapp: isAr ? 'الواتساب' : 'WhatsApp',
+      info: isAr ? 'معلومات الحجز' : 'Booking Info',
+      service: isAr ? 'الخدمة المطلوبة' : 'Service Requested',
+      city: isAr ? 'الوجهة / المدينة' : 'City',
+      date: isAr ? 'التاريخ المجدول' : 'Scheduled Date',
+      travelersCount: isAr ? 'عدد المسافرين' : 'Travelers Count',
+      pickup: isAr ? 'موقع الالتقاط' : 'Pickup Location',
+      payment: isAr ? 'طريقة الدفع' : 'Payment Method',
+      payStatus: isAr ? 'حالة الدفع' : 'Payment Status',
+      originalPrice: isAr ? 'السعر الأصلي' : 'Original Price',
+      discount: isAr ? 'قيمة الخصم' : 'Discount',
+      finalPrice: isAr ? 'إجمالي الحساب' : 'Total Invoice Value',
+      agent: isAr ? 'الوكيل المحيل' : 'Referred Agent',
+      emergency: isAr ? 'خط طوارئ' : 'EMERGENCY',
+      custService: isAr ? 'خدمة العملاء' : 'CUSTOMER SERVICE',
+      termsTitle: isAr ? 'الشروط والأحكام — الاتفاقية الإلكترونية' : 'Terms & Conditions — Electronic Agreement',
+      termsText: isAr 
+        ? `باستكمال هذا الحجز، يؤكد ${booking.customer} إلكترونياً قبوله لشروط وأحكام ORLUXUS وسياسة الإلغاء (يجب الإلغاء قبل 24 ساعة) وسياسة حماية البيانات (GDPR). يُعدّ هذا المستند عقداً رقمياً صالحاً مع ORLUXUS GROUP Ltd. (رقم السجل: 7291-B).`
+        : `By completing this booking, ${booking.customer} hereby electronically confirms acceptance of ORLUXUS Terms & Conditions, Cancellation Policy (cancellations must be made 24+ hours in advance), and Data Protection Policy (GDPR compliant). This document constitutes a valid digital contract between the traveler and ORLUXUS GROUP Ltd. (Reg. No. 7291-B).`,
+      disclaimer: isAr
+        ? `في ORLUXUS، نقوم بتنظيم تجارب استثنائية من خلال شبكتنا من الشركاء الموثوقين. يتم تقديم تجربتك المختارة من قبل شريك ORLUXUS المعتمد، بينما نضمن لك رحلة حجز سلسة، وتنسيقاً متميزاً، ودعماً مخصصاً للضيوف من الحجز وحتى إتمام الرحلة.`
+        : `At ORLUXUS, we curate exceptional experiences through our network of trusted partners. Your selected experience is delivered by an authorized ORLUXUS partner, while we ensure a seamless booking journey, quality coordination, and dedicated guest support from reservation to completion.`,
+      agreedBy: isAr ? 'تمت الموافقة إلكترونياً بواسطة' : 'Digitally agreed by',
+      timeLabel: isAr ? 'وقت التوقيع' : 'Signing Time',
+      refLabel: isAr ? 'رمز التوقيع' : 'Signature Key',
+      footerText: isAr ? 'شكراً لاختيارك ORLUXUS. نتمنى لك رحلة عائلية رائعة. 🌟' : 'Thank you for choosing ORLUXUS. We wish you an amazing family trip. 🌟',
+      statusLabel: {
+        'مؤكد': isAr ? 'مؤكد' : 'CONFIRMED',
+        'قيد الانتظار': isAr ? 'في الانتظار' : 'PENDING',
+        'مكتمل': isAr ? 'مكتمل' : 'COMPLETED',
+        'ملغي': isAr ? 'ملغي' : 'CANCELLED'
+      }[booking.status] || booking.status,
+      methodLabel: {
+        'cash': isAr ? 'كاش (💵)' : 'Cash (💵)',
+        'onsite': isAr ? 'نقداً عند الوصول' : 'Cash on Site',
+        'card': 'Dafah Credit Card',
+        'bank_transfer': isAr ? 'تحويل بنكي' : 'Bank Transfer'
+      }[booking.paymentType] || booking.paymentType || '—'
+    };
+
     const agreementHTML = `
       <!DOCTYPE html>
-      <html dir="rtl" lang="ar">
+      <html dir="${isAr ? 'rtl' : 'ltr'}" lang="${bLang}">
       <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>اتفاقية الحجز - ORLUXUS</title>
+        <title>${t.title} - ${txId}</title>
         <style>
-          body { font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; }
-          .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #c9a227; padding-bottom: 20px; }
-          .logo { font-size: 2.5rem; font-weight: 900; color: #c9a227; letter-spacing: 4px; }
-          .title { font-size: 1.8rem; font-weight: bold; margin-top: 10px; }
-          .section { margin-bottom: 25px; }
-          .section-title { font-weight: bold; color: #0f172a; font-size: 1.1rem; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
-          .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-          .info-item { display: flex; justify-content: space-between; }
-          .label { color: #64748b; }
-          .value { font-weight: bold; color: #0f172a; }
-          .terms { background: #f8fafc; padding: 20px; border-radius: 8px; margin-top: 20px; }
-          .signature-section { margin-top: 40px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 50px; }
-          .signature-box { border: 1px solid #e2e8f0; padding: 20px; text-align: center; height: 150px; }
-          .footer { margin-top: 30px; text-align: center; color: #64748b; font-size: 0.9rem; }
-          @media print { body { padding: 20px; } }
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            color: #1e293b;
+            background: #ffffff;
+            line-height: 1.6;
+            margin: 0;
+          }
+          .invoice-card {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #e2e8f0;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+          }
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+          }
+          .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          .logo-text h2 {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #b45309;
+            margin: 0;
+            letter-spacing: 1px;
+          }
+          .logo-text span {
+            font-size: 0.68rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+          }
+          .ref-area {
+            text-align: ${isAr ? 'left' : 'right'};
+          }
+          .ref-area h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #0f172a;
+          }
+          .ref-area p {
+            margin: 4px 0 0;
+            font-size: 0.8rem;
+            color: #94a3b8;
+          }
+          .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+          }
+          .info-block h4 {
+            margin: 0 0 10px 0;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 6px;
+          }
+          .info-block p {
+            margin: 6px 0;
+            font-size: 0.92rem;
+          }
+          .info-block strong {
+            color: #0f172a;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+          }
+          th {
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 12px;
+            font-weight: bold;
+            font-size: 0.88rem;
+            color: #475569;
+            text-align: ${isAr ? 'right' : 'left'};
+          }
+          td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95rem;
+          }
+          .total-block {
+            border-top: 2px solid #e2e8f0;
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .total-amount {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #b45309;
+          }
+          .badge {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            display: inline-block;
+          }
+          .badge-green { background: #ecfdf5; color: #10b981; }
+          .badge-orange { background: #fef3c7; color: #b45309; }
+          .badge-red { background: #fef2f2; color: #ef4444; }
+          .contacts {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-top: 30px;
+          }
+          .contacts h4 { margin: 0 0 10px; font-size: 0.78rem; color: #64748b; text-transform: uppercase; }
+          .contacts-list { display: flex; gap: 20px; flex-wrap: wrap; }
+          .contact-item { font-size: 0.9rem; }
+          .contact-item a { color: #b45309; text-decoration: none; font-weight: bold; }
+          .agreement {
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-top: 20px;
+            font-size: 0.82rem;
+            color: #475569;
+          }
+          .agreement h4 { margin: 0 0 8px; text-transform: uppercase; font-size: 0.8rem; color: #64748b; }
+          .signature-box {
+            background: #f1f5f9;
+            border-radius: 6px;
+            padding: 10px 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 12px;
+            color: #64748b;
+            font-size: 0.78rem;
+          }
+          .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+          }
+          @media print {
+            body { padding: 0; }
+            .invoice-card { border: none; box-shadow: none; padding: 0; }
+          }
         </style>
       </head>
       <body>
-        <div class="header">
-          <div class="logo">ORLUXUS</div>
-          <div class="title">اتفاقية الحجز الرقمية</div>
-          <div style="color: #64748b; margin-top: 5px;">رقم الحجز: ${booking.id}</div>
-        </div>
+        <div class="invoice-card">
+          <div class="header">
+            <div class="logo-area">
+              <img src="/logo_gold.png" alt="Orluxus" style="height: 48px; width: auto;" onerror="this.style.display='none';" />
+              <div class="logo-text">
+                <h2>ORLUXUS</h2>
+                <span>Premium Egypt Travel &amp; Tourism</span>
+              </div>
+            </div>
+            <div class="ref-area">
+              <h3>${t.title}</h3>
+              <p>${t.ref}: <strong>${txId}</strong></p>
+              <p>${dateFormatted}</p>
+            </div>
+          </div>
 
-        <div class="section">
-          <div class="section-title">معلومات العميل</div>
           <div class="info-grid">
-            <div class="info-item"><span class="label">الاسم:</span><span class="value">${booking.customer}</span></div>
-            <div class="info-item"><span class="label">رقم الهاتف:</span><span class="value">${booking.phone}</span></div>
-            <div class="info-item"><span class="label">البريد الإلكتروني:</span><span class="value">${booking.email || '-'}</span></div>
-            <div class="info-item"><span class="label">الواتساب:</span><span class="value">${booking.whatsapp || booking.phone}</span></div>
+            <div class="info-block">
+              <h4>${t.traveler}</h4>
+              <p><strong>${t.name}:</strong> ${booking.customer}</p>
+              <p><strong>${t.phone}:</strong> ${booking.phone}</p>
+              ${booking.email ? `<p><strong>${t.email}:</strong> ${booking.email}</p>` : ''}
+              <p><strong>${t.whatsapp}:</strong> ${booking.whatsapp || booking.phone}</p>
+            </div>
+            <div class="info-block">
+              <h4>${t.info}</h4>
+              <p><strong>${t.date}:</strong> ${booking.date}</p>
+              <p><strong>${t.travelersCount}:</strong> ${booking.travelers}</p>
+              ${booking.pickupLocation ? `<p><strong>${t.pickup}:</strong> ${booking.pickupLocation}</p>` : ''}
+              <p><strong>${t.payment}:</strong> ${t.methodLabel}</p>
+            </div>
           </div>
-        </div>
 
-        <div class="section">
-          <div class="section-title">تفاصيل الحجز</div>
-          <div class="info-grid">
-            <div class="info-item"><span class="label">الخدمة:</span><span class="value">${booking.service}</span></div>
-            <div class="info-item"><span class="label">المدينة:</span><span class="value">${booking.city}</span></div>
-            <div class="info-item"><span class="label">التاريخ:</span><span class="value">${booking.date}</span></div>
-            <div class="info-item"><span class="label">عدد المسافرين:</span><span class="value">${booking.travelers}</span></div>
-            <div class="info-item"><span class="label">المبلغ الأصلي:</span><span class="value">€${booking.originalAmount || booking.finalAmount}</span></div>
-            <div class="info-item"><span class="label">الخصم:</span><span class="value">€${booking.discountAmount || 0}</span></div>
-            <div class="info-item"><span class="label">المبلغ النهائي:</span><span class="value">€${booking.finalAmount}</span></div>
-            <div class="info-item"><span class="label">طريقة الدفع:</span><span class="value">${booking.paymentType}</span></div>
-          </div>
-        </div>
+          <table>
+            <thead>
+              <tr>
+                <th>${t.service}</th>
+                <th style="text-align: center; width: 80px;">${isAr ? 'الكمية' : 'Qty'}</th>
+                <th style="text-align: right; width: 100px;">${isAr ? 'السعر' : 'Rate'}</th>
+                <th style="text-align: right; width: 100px;">${isAr ? 'الإجمالي' : 'Total'}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>${booking.service}</strong> (${booking.city})</td>
+                <td style="text-align: center;">${booking.travelers}</td>
+                <td style="text-align: right;">€${(Number(booking.originalAmount || booking.finalAmount) / Number(booking.travelers)).toFixed(2)}</td>
+                <td style="text-align: right; font-weight: bold;">€${Number(booking.originalAmount || booking.finalAmount).toFixed(2)}</td>
+              </tr>
+              ${booking.discountAmount > 0 ? `
+                <tr style="color: #dc2626; background: #fef2f2;">
+                  <td><strong>${isAr ? 'خصم الكود الترويجي' : 'Promo Discount'}</strong> ${booking.promoCode ? `(${booking.promoCode})` : ''}</td>
+                  <td style="text-align: center;">-</td>
+                  <td style="text-align: right;">-</td>
+                  <td style="text-align: right; font-weight: bold;">-€${Number(booking.discountAmount).toFixed(2)}</td>
+                </tr>
+              ` : ''}
+            </tbody>
+          </table>
 
-        <div class="section">
-          <div class="section-title">الشروط والأحكام</div>
-          <div class="terms">
-            <ol style="margin: 0; padding-right: 20px;">
-              <li>الحجز ملزم وغير قابل للإلغاء إلا قبل 48 ساعة من موعد الرحلة.</li>
-              <li>الدفع نقداً عند انطلاق الرحلة أو عبر التحويل البنكي.</li>
-              <li>الشركة غير مسؤولة عن التأخير الناتج عن ظروف قاهرة.</li>
-              <li>يجب احترام مواعيد الانطلاق المحددة.</li>
-              <li>يحق للشركة تعديل البرنامج في حالات الطوارئ.</li>
-            </ol>
+          <div class="total-block">
+            <div>
+              <span style="font-size: 0.85rem; color: #64748b; display: block; margin-bottom: 4px;">${t.payStatus}</span>
+              <span class="badge ${booking.status === 'مؤكد' || booking.status === 'مكتمل' ? 'badge-green' : booking.status === 'ملغي' ? 'badge-red' : 'badge-orange'}">
+                ${t.statusLabel}
+              </span>
+            </div>
+            <div style="text-align: ${isAr ? 'left' : 'right'};">
+              <span style="font-size: 0.85rem; color: #64748b; display: block; margin-bottom: 4px;">${t.finalPrice}</span>
+              <span class="total-amount">€${Number(booking.finalAmount).toFixed(2)}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="signature-section">
-          <div class="signature-box">
-            <div style="margin-bottom: 10px; font-weight: bold;">توقيع العميل</div>
-            <div style="border-top: 1px solid #e2e8f0; margin-top: 60px; padding-top: 10px;">التاريخ: ____________</div>
+          <div class="contacts">
+            <h4>📞 ${t.emergency} / ${t.custService}</h4>
+            <div class="contacts-list">
+              <div class="contact-item">🚨 ${isAr ? 'طوارئ' : 'EMERGENCY'}: <a href="tel:+201038820014">+201038820014</a></div>
+              <div class="contact-item">💬 ${isAr ? 'خدمة العملاء' : 'CUSTOMER SERVICE'}: <a href="tel:+201038820019">+201038820019</a></div>
+            </div>
           </div>
-          <div class="signature-box">
-            <div style="margin-bottom: 10px; font-weight: bold;">توقيع ORLUXUS</div>
-            <div style="border-top: 1px solid #e2e8f0; margin-top: 60px; padding-top: 10px;">التاريخ: ____________</div>
-          </div>
-        </div>
 
-        <div class="footer">
-          <p>هذه الاتفاقية صالحة قانونياً وتعتبر إقراراً بالشروط والأحكام المذكورة أعلاه.</p>
-          <p style="margin-top: 10px;">ORLUXUS - Luxury Services & Experiences | info@orluxus.com</p>
+          <div class="agreement">
+            <h4>📋 ${t.termsTitle}</h4>
+            <p style="margin: 0 0 10px 0; line-height: 1.6;">${t.termsText}</p>
+            <p style="margin: 0 0 12px 0; font-style: italic; border-top: 1px solid #e2e8f0; padding-top: 8px; line-height: 1.6;">${t.disclaimer}</p>
+            <div class="signature-box">
+              <span>✍️ <strong>${t.agreedBy}:</strong> ${booking.customer}</span>
+              <span>🕐 <strong>${t.timeLabel}:</strong> ${bookingTimeFormatted}</span>
+              <span>🔑 <strong>${t.refLabel}:</strong> ${txId}</span>
+            </div>
+          </div>
+
+          <div class="footer">
+            ${t.footerText}
+          </div>
         </div>
       </body>
       </html>
@@ -173,11 +407,14 @@ export default function AdminBookings() {
 
   // Filters
   const filteredBookings = bookings.filter(b => {
-    const matchesSearch = b.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          b.customer.includes(searchTerm) ||
-                          b.phone.includes(searchTerm) ||
-                          b.service.includes(searchTerm) ||
-                          (b.txId && b.txId.toLowerCase().includes(searchTerm.toLowerCase()));
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = 
+      (b.id || '').toLowerCase().includes(searchLower) ||
+      (b.customer || '').toLowerCase().includes(searchLower) ||
+      (b.phone || '').includes(searchTerm) ||
+      (b.service || '').toLowerCase().includes(searchLower) ||
+      (b.txId || '').toLowerCase().includes(searchLower) ||
+      (b.customerLanguage || '').toLowerCase().includes(searchLower);
 
     const matchesCity = cityFilter === 'جميع المدن' || b.city === cityFilter;
 
@@ -316,6 +553,11 @@ export default function AdminBookings() {
                   <td style={{ padding: '1.2rem 1rem' }}>
                     <div style={{ fontWeight: '600' }}>{booking.customer}</div>
                     <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-en)', marginTop: '2px' }}>{booking.phone}</div>
+                    {booking.customerLanguage && (
+                      <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.06)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginTop: '4px', color: 'var(--gold-400)', fontWeight: 'bold' }}>
+                        🌐 {booking.customerLanguage === 'ar' ? 'العربية' : booking.customerLanguage === 'de' ? 'Deutsch' : booking.customerLanguage === 'fr' ? 'Français' : booking.customerLanguage === 'it' ? 'Italiano' : booking.customerLanguage === 'ru' ? 'Русский' : booking.customerLanguage === 'es' ? 'Español' : booking.customerLanguage === 'zh' ? 'Chinese' : booking.customerLanguage === 'ja' ? 'Japanese' : booking.customerLanguage === 'tr' ? 'Türkçe' : booking.customerLanguage.toUpperCase()}
+                      </span>
+                    )}
                   </td>
                   <td style={{ padding: '1.2rem 1rem' }}>
                     <strong>{booking.service}</strong>

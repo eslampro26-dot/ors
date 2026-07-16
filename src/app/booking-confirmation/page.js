@@ -181,6 +181,28 @@ export default function BookingConfirmationPage() {
               ))}
             </div>
 
+            {/* Digital Signature & Terms Agreement */}
+            <div style={{ border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '1.2rem 1.5rem', marginTop: '1.5rem' }}>
+              <h4 style={{ margin: '0 0 8px', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', textAlign: isAr ? 'right' : 'left' }}>
+                📋 {isAr ? 'الشروط والأحكام — الاتفاقية الإلكترونية' : 'Terms & Conditions — Electronic Agreement'}
+              </h4>
+              <p style={{ margin: '0 0 10px', fontSize: '0.82rem', color: '#475569', lineHeight: '1.6', textAlign: isAr ? 'right' : 'left' }}>
+                {isAr 
+                  ? <>باستكمال هذا الحجز، يؤكد <strong>{booking.customerName}</strong> إلكترونياً قبوله لشروط وأحكام ORLUXUS وسياسة الإلغاء (يجب الإلغاء قبل 24 ساعة) وسياسة حماية البيانات (GDPR). يُعدّ هذا المستند عقداً رقمياً صالحاً مع ORLUXUS GROUP Ltd. (رقم السجل: 7291-B).</>
+                  : <>By completing this booking, <strong>{booking.customerName}</strong> hereby electronically confirms acceptance of ORLUXUS Terms &amp; Conditions, Cancellation Policy (cancellations must be made 24+ hours in advance), and Data Protection Policy (GDPR compliant). This document constitutes a valid digital contract between the traveler and ORLUXUS GROUP Ltd. (Reg. No. 7291-B).</>}
+              </p>
+              <p style={{ margin: '0 0 12px', fontSize: '0.82rem', color: '#475569', lineHeight: '1.6', fontStyle: 'italic', borderTop: '1px solid #e2e8f0', paddingTop: '8px', textAlign: isAr ? 'right' : 'left' }}>
+                {isAr
+                  ? <>في ORLUXUS، نقوم بتنظيم تجارب استثنائية من خلال شبكتنا من الشركاء الموثوقين. يتم تقديم تجربتك المختارة من قبل شريك ORLUXUS المعتمد، بينما نضمن لك رحلة حجز سلسة، وتنسيقاً متميزاً، ودعماً مخصصاً للضيوف من الحجز وحتى إتمام الرحلة.</>
+                  : <>At ORLUXUS, we curate exceptional experiences through our network of trusted partners. Your selected experience is delivered by an authorized ORLUXUS partner, while we ensure a seamless booking journey, quality coordination, and dedicated guest support from reservation to completion.</>}
+              </p>
+              <div style={{ background: '#f1f5f9', borderRadius: '8px', padding: '10px 14px', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', fontSize: '0.78rem', color: '#64748b' }}>
+                <span>✍️ <strong>{isAr ? 'وافق إلكترونياً:' : 'Digitally agreed by:'}</strong> {booking.customerName}</span>
+                {booking.createdAt && <span>🕐 <strong>{isAr ? 'وقت الحجز:' : 'Booking Time:'}</strong> {new Date(booking.createdAt).toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span>}
+                <span>🔑 <strong>{isAr ? 'رقم المرجع:' : 'Booking Ref:'}</strong> {booking.ref}</span>
+              </div>
+            </div>
+
             <div style={{ textAlign: 'center', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px dashed #e2e8f0', fontSize: '0.8rem', color: '#94a3b8' }}>
               {isAr ? 'شكراً لاختيارك ORLUXUS. نتمنى لك رحلة رائعة. 🌟' : 'Thank you for choosing ORLUXUS. We wish you an amazing trip. 🌟'}
             </div>

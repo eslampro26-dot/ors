@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Navbar from '@/components/navigation/Navbar';
 import { notFound, useParams } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
+import TranslatedText from '@/components/TranslatedText';
 
 export default function CityPage() {
   const { slug } = useParams();
@@ -122,10 +123,10 @@ export default function CityPage() {
               }}>📖</div>
               <div style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
                 <div style={{ fontSize: '0.75rem', color: 'var(--gold-500)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '2px' }}>
-                  {locale === 'ar' ? 'دليل المدينة' : 'CITY GUIDE'}
+                  <TranslatedText text="CITY GUIDE" />
                 </div>
                 <div style={{ fontSize: '1rem', color: 'var(--text-primary)', fontWeight: '700' }}>
-                  {locale === 'ar' ? `دليل السفر الشامل لـ ${locCity.name}` : `Complete Travel Guide — ${locCity.name}`}
+                  <TranslatedText text="Complete Travel Guide" /> — {locCity.name}
                 </div>
               </div>
             </div>
@@ -136,7 +137,7 @@ export default function CityPage() {
               fontWeight: '700', fontSize: '0.85rem', flexShrink: 0,
               flexDirection: locale === 'ar' ? 'row-reverse' : 'row'
             }}>
-              <span>{locale === 'ar' ? 'اقرأ الدليل' : 'Read Guide'}</span>
+              <span><TranslatedText text="Read Guide" /></span>
               <span style={{ fontSize: '1rem', transform: locale === 'ar' ? 'rotate(180deg)' : 'none' }}>→</span>
             </div>
           </div>
@@ -186,23 +187,23 @@ export default function CityPage() {
               ×
             </button>
             <h2 style={{ fontSize: '2rem', color: 'var(--gold-400)', fontWeight: '900', marginBottom: '0.5rem' }}>
-              {article.title}
+              <TranslatedText text={article.title} />
             </h2>
             <h4 style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', fontWeight: '500', marginBottom: '2rem' }}>
-              {article.subtitle}
+              <TranslatedText text={article.subtitle} />
             </h4>
             <p style={{ fontSize: '1.05rem', lineHeight: '1.8', color: 'var(--text-primary)', marginBottom: '2rem' }}>
-              {article.introduction}
+              <TranslatedText text={article.introduction} />
             </p>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               {article.chapters.map((ch, idx) => (
                 <div key={idx} style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '1.5rem' }}>
                   <h3 style={{ fontSize: '1.25rem', color: 'var(--gold-500)', fontWeight: '800', marginBottom: '1rem' }}>
-                    {ch.title}
+                    <TranslatedText text={ch.title} />
                   </h3>
                   <p style={{ fontSize: '1rem', lineHeight: '1.7', color: 'var(--text-secondary)', whiteSpace: 'pre-line' }}>
-                    {ch.content}
+                    <TranslatedText text={ch.content} />
                   </p>
                 </div>
               ))}
