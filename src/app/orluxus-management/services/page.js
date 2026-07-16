@@ -325,7 +325,7 @@ export default function AdminServices() {
         let success;
         if (editingTrip) {
           // Update mode
-          success = await updateTrip(editingTrip.cityId, editingTrip.catId, editingTrip.tripId, tripPayload);
+          success = await updateTrip(editingTrip.tripId, tripPayload);
           if (success) {
             alert('تم تحديث الرحلة بنجاح!');
           } else {
