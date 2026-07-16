@@ -13,46 +13,13 @@ const STATUS_BG = {
 };
 
 export default function BookingConfirmationPage() {
-  const { locale } = useLanguage();
+  const { locale, t, isReady } = useLanguage();
   const [refInput, setRefInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [booking, setBooking] = useState(null);
   const [error, setError] = useState('');
 
   const isAr = locale === 'ar';
-
-  const labels = {
-    pageTitle: isAr ? 'تأكيد الحجز' : 'Booking Confirmation',
-    subtitle: isAr ? 'ابحث عن حجزك برقم المرجع لمعاينة تفاصيله' : 'Search your booking by reference number to view its details',
-    placeholder: isAr ? 'أدخل رقم المرجع — مثال: CASH-TX-1784' : 'Enter booking reference — e.g. CASH-TX-1784',
-    searchBtn: isAr ? '🔍 بحث عن الحجز' : '🔍 Search Booking',
-    notFound: isAr ? 'لم يتم العثور على حجز بهذا الرقم. تحقق من الرقم وحاول مرة أخرى.' : 'No booking found with this reference. Please check and try again.',
-    ref: isAr ? 'رقم المرجع' : 'Booking Ref',
-    customer: isAr ? 'اسم العميل' : 'Customer Name',
-    service: isAr ? 'الخدمة' : 'Service',
-    date: isAr ? 'تاريخ الرحلة' : 'Scheduled Date',
-    travelers: isAr ? 'عدد المسافرين' : 'Travelers',
-    amount: isAr ? 'إجمالي المبلغ' : 'Total Amount',
-    payStatus: isAr ? 'حالة الدفع' : 'Payment Status',
-    payMethod: isAr ? 'طريقة الدفع' : 'Payment Method',
-    agent: isAr ? 'الوكيل' : 'Agent',
-    pickup: isAr ? 'نقطة الالتقاط' : 'Pickup Location',
-    printBtn: isAr ? '🖨️ طباعة التأكيد' : '🖨️ Print Confirmation',
-    homeBtn: isAr ? '🏠 العودة للرئيسية' : '🏠 Return to Home',
-    persons: isAr ? 'أشخاص' : 'Persons',
-    hint: isAr ? 'رقم المرجع موجود في إيميل التأكيد أو الفاتورة المطبوعة.' : 'Your reference is in your confirmation email or printed invoice.',
-    statuses: {
-      confirmed: isAr ? 'مؤكد' : 'CONFIRMED',
-      pending: isAr ? 'في الانتظار' : 'PENDING',
-      cancelled: isAr ? 'ملغي' : 'CANCELLED',
-      completed: isAr ? 'مكتمل' : 'COMPLETED',
-    },
-    payMethods: {
-      bank_transfer: isAr ? 'تحويل بنكي' : 'Bank Transfer',
-      onsite: isAr ? 'دفع عند الوصول' : 'Cash on Site',
-      card: 'Dafah Credit Card',
-    },
-  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -64,26 +31,57 @@ export default function BookingConfirmationPage() {
     try {
       const res = await fetch('/api/booking-lookup?ref=' + encodeURIComponent(ref));
       const data = await res.json();
-      if (!res.ok) { setError(data.error || labels.notFound); }
-      else { setBooking(data); }
-    } catch { setError(labels.notFound); }
-    finally { setLoading(false); }
+      if (!res.ok) { 
+        setError(data.error || t('booking.notFound')); 
+      } else { 
+        setBooking(data); 
+      }
+    } catch { 
+      setError(t('booking.notFound')); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
+  if (!isReady) {
+    return (
+      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div>Loading...</div>
+      </main>
+    );
+  }
+
   const statusKey = (booking?.status || 'pending').toLowerCase();
-  const statusLabel = labels.statuses[statusKey] || (booking?.status || '').toUpperCase();
-  const payLabel = labels.payMethods[booking?.paymentType] || (booking?.paymentType || '—').toUpperCase();
+  
+  const getStatusLabel = (status) => {
+    const key = (status || 'pending').toLowerCase();
+    if (key === 'confirmed') return t('booking.statusConfirmed');
+    if (key === 'pending') return t('booking.statusPending');
+    if (key === 'cancelled') return t('booking.statusCancelled');
+    if (key === 'completed') return t('booking.statusCompleted');
+    return status?.toUpperCase() || '';
+  };
+
+  const getPayMethodLabel = (type) => {
+    if (type === 'bank_transfer') return t('booking.payBankTransfer');
+    if (type === 'onsite') return t('booking.payOnsite');
+    if (type === 'card') return 'Dafah Credit Card';
+    return type?.toUpperCase() || '—';
+  };
+
+  const statusLabel = getStatusLabel(booking?.status);
+  const payLabel = getPayMethodLabel(booking?.paymentType);
 
   const rows = booking ? [
-    { label: labels.customer, value: booking.customerName },
-    { label: labels.service, value: booking.service },
-    { label: labels.date, value: booking.date },
-    { label: labels.travelers, value: booking.travelers + ' ' + labels.persons },
-    { label: labels.amount, value: '€' + Number(booking.amount).toFixed(2) },
-    { label: labels.payStatus, value: statusLabel },
-    { label: labels.payMethod, value: payLabel },
-    ...(booking.agentName ? [{ label: labels.agent, value: booking.agentName }] : []),
-    ...(booking.pickup ? [{ label: labels.pickup, value: booking.pickup }] : []),
+    { label: t('booking.customer'), value: booking.customerName },
+    { label: t('booking.service'), value: booking.service },
+    { label: t('booking.date'), value: booking.date },
+    { label: t('booking.travelers'), value: booking.travelers + ' ' + t('booking.persons') },
+    { label: t('booking.amount'), value: '€' + Number(booking.amount).toFixed(2) },
+    { label: t('booking.payStatus'), value: statusLabel },
+    { label: t('booking.payMethod'), value: payLabel },
+    ...(booking.agentName ? [{ label: t('booking.agent'), value: booking.agentName }] : []),
+    ...(booking.pickup ? [{ label: t('booking.pickup'), value: booking.pickup }] : []),
   ] : [];
 
   const statusEmoji = { confirmed: '✅', pending: '⏳', cancelled: '❌', completed: '✔️' }[statusKey] || '📋';
@@ -107,8 +105,8 @@ export default function BookingConfirmationPage() {
             margin: '0 auto 1.5rem auto', boxShadow: '0 8px 30px rgba(180,83,9,0.25)',
             fontSize: '2rem',
           }}>🔑</div>
-          <h1 className="section-title" style={{ marginBottom: '0.75rem', fontSize: '2.2rem' }}>{labels.pageTitle}</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', maxWidth: '500px', margin: '0 auto' }}>{labels.subtitle}</p>
+          <h1 className="section-title" style={{ marginBottom: '0.75rem', fontSize: '2.2rem' }}>{t('booking.pageTitle')}</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', maxWidth: '500px', margin: '0 auto' }}>{t('booking.subtitle')}</p>
         </div>
       </div>
 
@@ -118,7 +116,7 @@ export default function BookingConfirmationPage() {
             <input
               type="text" value={refInput}
               onChange={e => setRefInput(e.target.value)}
-              placeholder={labels.placeholder}
+              placeholder={t('booking.placeholder')}
               style={{
                 flex: 1, minWidth: '200px', padding: '0.9rem 1.2rem',
                 borderRadius: '9999px', border: '1.5px solid var(--border-medium)',
@@ -130,7 +128,7 @@ export default function BookingConfirmationPage() {
             />
             <button type="submit" disabled={loading} className="btn btn-primary"
               style={{ padding: '0.9rem 1.8rem', fontSize: '0.95rem', borderRadius: '9999px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
-              {loading ? '⏳' : labels.searchBtn}
+              {loading ? '⏳' : t('booking.searchBtn')}
             </button>
           </div>
         </form>
@@ -155,7 +153,7 @@ export default function BookingConfirmationPage() {
                 </div>
               </div>
               <div style={{ textAlign: isAr ? 'left' : 'right' }}>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>{labels.ref}</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>{t('booking.ref')}</div>
                 <div style={{ fontFamily: 'var(--font-en)', fontWeight: '900', fontSize: '1.1rem', color: '#0f172a', letterSpacing: '1px' }}>{booking.ref}</div>
               </div>
             </div>
@@ -184,27 +182,23 @@ export default function BookingConfirmationPage() {
             {/* Digital Signature & Terms Agreement */}
             <div style={{ border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '1.2rem 1.5rem', marginTop: '1.5rem' }}>
               <h4 style={{ margin: '0 0 8px', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', textAlign: isAr ? 'right' : 'left' }}>
-                📋 {isAr ? 'الشروط والأحكام — الاتفاقية الإلكترونية' : 'Terms & Conditions — Electronic Agreement'}
+                📋 {t('booking.termsTitle')}
               </h4>
               <p style={{ margin: '0 0 10px', fontSize: '0.82rem', color: '#475569', lineHeight: '1.6', textAlign: isAr ? 'right' : 'left' }}>
-                {isAr 
-                  ? <>باستكمال هذا الحجز، يؤكد <strong>{booking.customerName}</strong> إلكترونياً قبوله لشروط وأحكام ORLUXUS وسياسة الإلغاء (يجب الإلغاء قبل 24 ساعة) وسياسة حماية البيانات (GDPR). يُعدّ هذا المستند عقداً رقمياً صالحاً مع ORLUXUS GROUP Ltd. (رقم السجل: 7291-B).</>
-                  : <>By completing this booking, <strong>{booking.customerName}</strong> hereby electronically confirms acceptance of ORLUXUS Terms &amp; Conditions, Cancellation Policy (cancellations must be made 24+ hours in advance), and Data Protection Policy (GDPR compliant). This document constitutes a valid digital contract between the traveler and ORLUXUS GROUP Ltd. (Reg. No. 7291-B).</>}
+                {t('booking.termsBody', { name: booking.customerName })}
               </p>
               <p style={{ margin: '0 0 12px', fontSize: '0.82rem', color: '#475569', lineHeight: '1.6', fontStyle: 'italic', borderTop: '1px solid #e2e8f0', paddingTop: '8px', textAlign: isAr ? 'right' : 'left' }}>
-                {isAr
-                  ? <>في ORLUXUS، نقوم بتنظيم تجارب استثنائية من خلال شبكتنا من الشركاء الموثوقين. يتم تقديم تجربتك المختارة من قبل شريك ORLUXUS المعتمد، بينما نضمن لك رحلة حجز سلسة، وتنسيقاً متميزاً، ودعماً مخصصاً للضيوف من الحجز وحتى إتمام الرحلة.</>
-                  : <>At ORLUXUS, we curate exceptional experiences through our network of trusted partners. Your selected experience is delivered by an authorized ORLUXUS partner, while we ensure a seamless booking journey, quality coordination, and dedicated guest support from reservation to completion.</>}
+                {t('booking.termsNote')}
               </p>
               <div style={{ background: '#f1f5f9', borderRadius: '8px', padding: '10px 14px', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', fontSize: '0.78rem', color: '#64748b' }}>
-                <span>✍️ <strong>{isAr ? 'وافق إلكترونياً:' : 'Digitally agreed by:'}</strong> {booking.customerName}</span>
-                {booking.createdAt && <span>🕐 <strong>{isAr ? 'وقت الحجز:' : 'Booking Time:'}</strong> {new Date(booking.createdAt).toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span>}
-                <span>🔑 <strong>{isAr ? 'رقم المرجع:' : 'Booking Ref:'}</strong> {booking.ref}</span>
+                <span>✍️ <strong>{t('booking.digitallyAgreed')}</strong> {booking.customerName}</span>
+                {booking.createdAt && <span>🕐 <strong>{t('booking.bookingTime')}</strong> {new Date(booking.createdAt).toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span>}
+                <span>🔑 <strong>{t('booking.bookingRef')}</strong> {booking.ref}</span>
               </div>
             </div>
 
             <div style={{ textAlign: 'center', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px dashed #e2e8f0', fontSize: '0.8rem', color: '#94a3b8' }}>
-              {isAr ? 'شكراً لاختيارك ORLUXUS. نتمنى لك رحلة رائعة. 🌟' : 'Thank you for choosing ORLUXUS. We wish you an amazing trip. 🌟'}
+              {t('booking.thankYou')}
             </div>
           </div>
         )}
@@ -212,15 +206,15 @@ export default function BookingConfirmationPage() {
         {booking && (
           <div className="hide-print" style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem', flexWrap: 'wrap' }}>
             <button onClick={() => window.print()} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.8rem', cursor: 'pointer' }}>
-              {labels.printBtn}
+              {t('booking.printBtn')}
             </button>
-            <Link href="/" className="btn btn-secondary" style={{ padding: '0.8rem 1.8rem' }}>{labels.homeBtn}</Link>
+            <Link href="/" className="btn btn-secondary" style={{ padding: '0.8rem 1.8rem' }}>{t('booking.homeBtn')}</Link>
           </div>
         )}
 
         {!booking && !error && (
           <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-            💡 {labels.hint}
+            💡 {t('booking.hint')}
           </div>
         )}
       </div>
