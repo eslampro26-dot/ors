@@ -22,34 +22,34 @@ export default function BookingConfirmationPage() {
   const isAr = locale === 'ar';
 
   const labels = {
-    pageTitle: isAr ? '????? ?????' : 'Booking Confirmation',
-    subtitle: isAr ? '???? ?? ???? ???? ?????? ??????? ???????' : 'Search your booking by reference number to view its details',
-    placeholder: isAr ? '???? ??? ?????? � ????: CASH-TX-1784' : 'Enter booking reference � e.g. CASH-TX-1784',
-    searchBtn: isAr ? '?? ??? ?? ?????' : '?? Search Booking',
-    notFound: isAr ? '?? ??? ?????? ??? ??? ???? ?????. ???? ?? ????? ????? ??? ????.' : 'No booking found with this reference. Please check and try again.',
-    ref: isAr ? '??? ??????' : 'Booking Ref',
-    customer: isAr ? '??? ??????' : 'Customer Name',
-    service: isAr ? '??????' : 'Service',
-    date: isAr ? '????? ??????' : 'Scheduled Date',
-    travelers: isAr ? '??? ?????????' : 'Travelers',
-    amount: isAr ? '?????? ??????' : 'Total Amount',
-    payStatus: isAr ? '???? ?????' : 'Payment Status',
-    payMethod: isAr ? '????? ?????' : 'Payment Method',
-    agent: isAr ? '??????' : 'Agent',
-    pickup: isAr ? '???? ????????' : 'Pickup Location',
-    printBtn: isAr ? '??? ????? ???????' : '??? Print Confirmation',
-    homeBtn: isAr ? '?? ?????? ????????' : '?? Return to Home',
-    persons: isAr ? '?????' : 'Persons',
-    hint: isAr ? '??? ?????? ????? ?? ????? ??????? ?? ???????? ????????.' : 'Your reference is in your confirmation email or printed invoice.',
+    pageTitle: isAr ? 'تأكيد الحجز' : 'Booking Confirmation',
+    subtitle: isAr ? 'ابحث عن حجزك برقم المرجع لمعاينة تفاصيله' : 'Search your booking by reference number to view its details',
+    placeholder: isAr ? 'أدخل رقم المرجع — مثال: CASH-TX-1784' : 'Enter booking reference — e.g. CASH-TX-1784',
+    searchBtn: isAr ? '🔍 بحث عن الحجز' : '🔍 Search Booking',
+    notFound: isAr ? 'لم يتم العثور على حجز بهذا الرقم. تحقق من الرقم وحاول مرة أخرى.' : 'No booking found with this reference. Please check and try again.',
+    ref: isAr ? 'رقم المرجع' : 'Booking Ref',
+    customer: isAr ? 'اسم العميل' : 'Customer Name',
+    service: isAr ? 'الخدمة' : 'Service',
+    date: isAr ? 'تاريخ الرحلة' : 'Scheduled Date',
+    travelers: isAr ? 'عدد المسافرين' : 'Travelers',
+    amount: isAr ? 'إجمالي المبلغ' : 'Total Amount',
+    payStatus: isAr ? 'حالة الدفع' : 'Payment Status',
+    payMethod: isAr ? 'طريقة الدفع' : 'Payment Method',
+    agent: isAr ? 'الوكيل' : 'Agent',
+    pickup: isAr ? 'نقطة الالتقاط' : 'Pickup Location',
+    printBtn: isAr ? '🖨️ طباعة التأكيد' : '🖨️ Print Confirmation',
+    homeBtn: isAr ? '🏠 العودة للرئيسية' : '🏠 Return to Home',
+    persons: isAr ? 'أشخاص' : 'Persons',
+    hint: isAr ? 'رقم المرجع موجود في إيميل التأكيد أو الفاتورة المطبوعة.' : 'Your reference is in your confirmation email or printed invoice.',
     statuses: {
-      confirmed: isAr ? '????' : 'CONFIRMED',
-      pending: isAr ? '?? ????????' : 'PENDING',
-      cancelled: isAr ? '????' : 'CANCELLED',
-      completed: isAr ? '?????' : 'COMPLETED',
+      confirmed: isAr ? 'مؤكد' : 'CONFIRMED',
+      pending: isAr ? 'في الانتظار' : 'PENDING',
+      cancelled: isAr ? 'ملغي' : 'CANCELLED',
+      completed: isAr ? 'مكتمل' : 'COMPLETED',
     },
     payMethods: {
-      bank_transfer: isAr ? '????? ????' : 'Bank Transfer',
-      onsite: isAr ? '??? ??? ??????' : 'Cash on Site',
+      bank_transfer: isAr ? 'تحويل بنكي' : 'Bank Transfer',
+      onsite: isAr ? 'دفع عند الوصول' : 'Cash on Site',
       card: 'Dafah Credit Card',
     },
   };
@@ -72,21 +72,21 @@ export default function BookingConfirmationPage() {
 
   const statusKey = (booking?.status || 'pending').toLowerCase();
   const statusLabel = labels.statuses[statusKey] || (booking?.status || '').toUpperCase();
-  const payLabel = labels.payMethods[booking?.paymentType] || (booking?.paymentType || '�').toUpperCase();
+  const payLabel = labels.payMethods[booking?.paymentType] || (booking?.paymentType || '—').toUpperCase();
 
   const rows = booking ? [
     { label: labels.customer, value: booking.customerName },
     { label: labels.service, value: booking.service },
     { label: labels.date, value: booking.date },
     { label: labels.travelers, value: booking.travelers + ' ' + labels.persons },
-    { label: labels.amount, value: '�' + Number(booking.amount).toFixed(2) },
+    { label: labels.amount, value: '€' + Number(booking.amount).toFixed(2) },
     { label: labels.payStatus, value: statusLabel },
     { label: labels.payMethod, value: payLabel },
     ...(booking.agentName ? [{ label: labels.agent, value: booking.agentName }] : []),
     ...(booking.pickup ? [{ label: labels.pickup, value: booking.pickup }] : []),
   ] : [];
 
-  const statusEmoji = { confirmed: '?', pending: '?', cancelled: '?', completed: '??' }[statusKey] || '??';
+  const statusEmoji = { confirmed: '✅', pending: '⏳', cancelled: '❌', completed: '✔️' }[statusKey] || '📋';
 
   return (
     <main style={{ minHeight: '100vh', paddingBottom: '5rem', background: 'transparent' }}>
@@ -106,7 +106,7 @@ export default function BookingConfirmationPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 1.5rem auto', boxShadow: '0 8px 30px rgba(180,83,9,0.25)',
             fontSize: '2rem',
-          }}>??</div>
+          }}>🔑</div>
           <h1 className="section-title" style={{ marginBottom: '0.75rem', fontSize: '2.2rem' }}>{labels.pageTitle}</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', maxWidth: '500px', margin: '0 auto' }}>{labels.subtitle}</p>
         </div>
@@ -130,14 +130,14 @@ export default function BookingConfirmationPage() {
             />
             <button type="submit" disabled={loading} className="btn btn-primary"
               style={{ padding: '0.9rem 1.8rem', fontSize: '0.95rem', borderRadius: '9999px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
-              {loading ? '?' : labels.searchBtn}
+              {loading ? '⏳' : labels.searchBtn}
             </button>
           </div>
         </form>
 
         {error && (
           <div className="glass-card animate-fade-in-up" style={{ padding: '1.2rem 1.5rem', border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.05)', borderRadius: '12px', textAlign: 'center', color: '#ef4444', marginBottom: '2rem' }}>
-            ? {error}
+            ❌ {error}
           </div>
         )}
 
@@ -176,13 +176,13 @@ export default function BookingConfirmationPage() {
               {rows.map(({ label, value }, i) => (
                 <div key={i} style={{ background: '#f8fafc', borderRadius: '10px', padding: '0.9rem 1.1rem', border: '1px solid #e2e8f0', textAlign: isAr ? 'right' : 'left' }}>
                   <div style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>{label}</div>
-                  <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '0.95rem', wordBreak: 'break-word' }}>{value || '�'}</div>
+                  <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '0.95rem', wordBreak: 'break-word' }}>{value || '—'}</div>
                 </div>
               ))}
             </div>
 
             <div style={{ textAlign: 'center', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px dashed #e2e8f0', fontSize: '0.8rem', color: '#94a3b8' }}>
-              {isAr ? '????? ???????? ORLUXUS. ????? ?? ???? ?????. ??' : 'Thank you for choosing ORLUXUS. We wish you an amazing trip. ??'}
+              {isAr ? 'شكراً لاختيارك ORLUXUS. نتمنى لك رحلة رائعة. 🌟' : 'Thank you for choosing ORLUXUS. We wish you an amazing trip. 🌟'}
             </div>
           </div>
         )}
@@ -198,7 +198,7 @@ export default function BookingConfirmationPage() {
 
         {!booking && !error && (
           <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-            ?? {labels.hint}
+            💡 {labels.hint}
           </div>
         )}
       </div>
