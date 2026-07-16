@@ -10,6 +10,7 @@ import { getReviews, addReview, getSocialMedia } from '@/lib/db';
 import { useLanguage } from '@/context/LanguageContext';
 import { getMessages, messages } from '@/lib/messages';
 import { useSettings, getPolicyText } from '@/hooks/useSettings';
+import TranslatedText from '@/components/TranslatedText';
 
 const CONTENT_FALLBACKS = {
   vision: {
@@ -283,7 +284,7 @@ export default function Home() {
               textShadow: '0 4px 20px rgba(0,0,0,0.6)',
               textTransform: 'uppercase',
             }}>
-              {locale === 'ar' ? 'أورلوكسوس | كشف النقاب عن الفخامة الحصرية' : 'ORLUXUS | UNVEIL EXCLUSIVE LUXURY'}
+              <TranslatedText text="ORLUXUS | UNVEIL EXCLUSIVE LUXURY" />
             </h1>
             
             <p style={{ 
@@ -296,9 +297,7 @@ export default function Home() {
               maxWidth: '650px',
               margin: '0 auto'
             }}>
-              {locale === 'ar' 
-                ? 'تجارب سياحية منتقاة للمسافر الشغوف، حيث تلتقي الرفاهية والمغامرة في أجمل الوجهات المصرية.' 
-                : 'Curated experiences for the discerning traveler, where sophistication meets unparalleled adventure.'}
+              <TranslatedText text="Curated experiences for the discerning traveler, where sophistication meets unparalleled adventure." />
             </p>
             
             <div style={{ marginTop: '2rem' }}>
@@ -308,7 +307,7 @@ export default function Home() {
                 borderRadius: '999px',
                 fontWeight: '700',
                 background: 'var(--gold-500)',
-                color: locale === 'ar' ? '#FFFFFF' : '#FFFFFF', // Keep it white for premium visibility
+                color: '#FFFFFF', // Keep it white for premium visibility
                 boxShadow: '0 8px 30px rgba(201, 162, 39, 0.4)', 
                 transition: 'all 0.3s ease',
                 textTransform: 'uppercase',
@@ -325,7 +324,7 @@ export default function Home() {
                 e.target.style.background = 'var(--gold-500)';
               }}
               >
-                {locale === 'ar' ? 'اكتشف رحلتك' : 'DISCOVER YOUR JOURNEY'}
+                <TranslatedText text="DISCOVER YOUR JOURNEY" />
               </a>
             </div>
           </div>
@@ -447,7 +446,7 @@ export default function Home() {
                       fontFamily: 'var(--font-en)',
                       zIndex: 2,
                     }}>
-                      {locale === 'ar' ? 'تبدأ من €45' : 'from €45'}
+                      {t('common.fromPrice')}
                     </div>
                   </div>
 
@@ -465,7 +464,7 @@ export default function Home() {
                         ★★★★★
                       </div>
                       <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        {locale === 'ar' ? 'وجهة فاخرة' : 'LUXURY DESTINATION'}
+                        {t('common.luxuryDest')}
                       </span>
                     </div>
 
@@ -484,7 +483,7 @@ export default function Home() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-secondary)', fontSize: '13px' }}>
                       <span>📍</span>
                       <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                        {locale === 'ar' ? 'مصر' : 'Egypt'} • {locCity.description.split(' ').slice(0, 4).join(' ')}...
+                        {t('common.egypt')} • {locCity.description.split(' ').slice(0, 4).join(' ')}...
                       </span>
                     </div>
 
@@ -499,7 +498,7 @@ export default function Home() {
                       marginTop: '0.4rem',
                       transition: 'transform 300ms ease'
                     }} className="explore-label-cta">
-                      <span>{locale === 'ar' ? 'عرض التفاصيل' : 'View Details'}</span>
+                      <span>{t('common.viewDetails')}</span>
                       <span className="arrow-icon" style={{ fontSize: '12px' }}>&gt;</span>
                     </div>
                   </div>
@@ -624,10 +623,10 @@ export default function Home() {
                 </svg>
               </div>
               <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'var(--font-title)' }}>
-                {locale === 'ar' ? 'حماية وخدمات VIP' : 'VIP Security & Services'}
+                {t('concierge.vipSecurity')}
               </h3>
               <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '300px' }}>
-                {locale === 'ar' ? 'حماية شخصية متكاملة وسيارات ليموزين مصفحة وسائقين محترفين لحمايتك.' : 'Premium executive security, armored limousines, and dedicated personal assistance.'}
+                {t('concierge.vipSecurityDesc')}
               </p>
             </div>
           </div>
@@ -635,7 +634,7 @@ export default function Home() {
           {/* Proposal CTA Button */}
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <a 
-              href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(locale === 'ar' ? 'مرحباً، أود الاستفسار عن عروض الكونسيرج الفاخرة.' : 'Hello, I would like to inquire about bespoke luxury concierge services.')}`} 
+              href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(t('common.requestProposalMsg'))}`} 
               target="_blank" 
               rel="noopener noreferrer"
               className="btn" 
@@ -662,7 +661,7 @@ export default function Home() {
                 e.target.style.background = 'var(--gold-500)';
               }}
             >
-              {locale === 'ar' ? 'طلب عرض مخصص' : 'REQUEST A PROPOSAL'}
+              {t('common.requestProposal')}
             </a>
           </div>
         </div>
@@ -683,13 +682,13 @@ export default function Home() {
             {storyTitle}
           </span>
           <h2 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
-            {locale === 'ar' ? 'تخيّل أنك قررت أن تمنح نفسك السعادة…' : 'Imagine Giving Yourself Happiness…'}
+            {t('common.imagineTitle')}
           </h2>
           <div style={{ marginBottom: '2rem', fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-            {locale === 'ar' ? 'أيام تهرب فيها من ضغوط الحياة لتصنع ذكريات لا تُنسى. اكتشف كيف بدأنا ولماذا نسعى لخدمتك بروح عائلية دافئة.' : 'Days where you escape the pressures of life to make unforgettable memories. Discover how we began and why we serve you with a warm family spirit.'}
+            {t('common.imagineDesc')}
           </div>
           <Link href="/our-story" className="btn btn-primary" style={{ padding: '10px 28px', fontSize: '0.95rem', borderRadius: '30px' }}>
-            {locale === 'ar' ? 'اقرأ قصتنا كاملة' : 'Read Our Full Story'}
+            {t('common.readOurStory')}
           </Link>
         </div>
       </section>
@@ -802,7 +801,7 @@ export default function Home() {
                 {/* Photo Upload */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    {locale === 'ar' ? 'أضف صورتك الشخصية (اختياري)' : 'Add your profile photo (Optional)'}
+                    <TranslatedText text="Add your profile photo (Optional)" />
                   </label>
                   <input 
                     type="file" 
@@ -822,13 +821,15 @@ export default function Home() {
                   {reviewForm.image && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem' }}>
                       <img src={reviewForm.image} alt="Preview" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
-                      <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>✓ تم تحميل الصورة</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>
+                        <TranslatedText text="✓ Image uploaded" />
+                      </span>
                       <button 
                         type="button" 
                         onClick={() => setReviewForm(prev => ({ ...prev, image: '' }))} 
                         style={{ background: 'none', border: 'none', color: 'var(--coral-500)', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline' }}
                       >
-                        إزالة
+                        <TranslatedText text="Remove" />
                       </button>
                     </div>
                   )}
@@ -1059,7 +1060,7 @@ export default function Home() {
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{ verticalAlign: 'middle' }}>
                   <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z"/>
                 </svg>
-                <span style={{ marginInlineStart: '6px' }}>{locale === 'ar' ? 'الطوارئ' : 'Emergency'}</span>
+                <span style={{ marginInlineStart: '6px' }}>{t('common.emergency')}</span>
               </a>
             )}
           </div>
@@ -1281,7 +1282,7 @@ export default function Home() {
                 className="btn btn-primary"
                 style={{ padding: '8px 24px', borderRadius: '8px' }}
               >
-                {locale === 'ar' ? 'إغلاق' : 'Close'}
+                <TranslatedText text="Close" />
               </button>
             </div>
           </div>

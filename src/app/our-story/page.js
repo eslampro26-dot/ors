@@ -7,6 +7,7 @@ import { getMessages, messages } from '@/lib/messages';
 import { useLanguage } from '@/context/LanguageContext';
 import { getSocialMedia } from '@/lib/db';
 import { useSettings, getPolicyText } from '@/hooks/useSettings';
+import TranslatedText from '@/components/TranslatedText';
 
 const CONTENT_FALLBACKS = {
   vision: {
@@ -127,7 +128,7 @@ export default function OurStoryPage() {
             color: 'var(--text-primary)',
             lineHeight: 1.2
           }}>
-            {locale === 'ar' ? 'تخيّل أنك قررت أن تمنح نفسك السعادة…' : 'Imagine Giving Yourself Happiness…'}
+            {t('common.imagineTitle')}
           </h1>
         </div>
       </section>
@@ -153,7 +154,7 @@ export default function OurStoryPage() {
             onMouseLeave={(e) => {
               e.currentTarget.style.gap = '0.5rem';
             }}>
-              {locale === 'ar' ? '← العودة للصفحة الرئيسية' : '← Back to Home'}
+              <TranslatedText text="← Back to Home" />
             </Link>
           </div>
 
@@ -263,27 +264,27 @@ export default function OurStoryPage() {
           {/* Column 2: About Us (عننا) */}
           <div>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {locale === 'ar' ? 'عننا' : 'About Us'}
+              {t('footer.aboutUs')}
             </h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: 0, listStyle: 'none' }}>
               <li>
                 <button onClick={() => handleOpenContentModal('vision', 'رؤيتنا', 'Our Vision')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'رؤيتنا' : 'Our Vision'}
+                  {t('footer.ourVision')}
                 </button>
               </li>
               <li>
                 <button onClick={() => handleOpenContentModal('goals', 'أهدافنا', 'Our Goals')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'أهدافنا' : 'Our Goals'}
+                  {t('footer.ourGoals')}
                 </button>
               </li>
               <li>
                 <button onClick={() => handleOpenContentModal('sustainability', 'الاستدامة', 'Sustainability')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'الاستدامة' : 'Sustainability'}
+                  {t('footer.sustainability')}
                 </button>
               </li>
               <li>
                 <button onClick={() => handleOpenContentModal('staff', 'موظفونا', 'Our Staff')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'موظفونا' : 'Our Staff'}
+                  {t('footer.ourStaff')}
                 </button>
               </li>
             </ul>
@@ -292,22 +293,22 @@ export default function OurStoryPage() {
           {/* Column 3: Legal (قانوني) & Data Protection */}
           <div>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {locale === 'ar' ? 'قانوني' : 'Legal'}
+              {t('footer.legal')}
             </h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: 0, listStyle: 'none' }}>
               <li>
                 <button onClick={() => handleOpenContentModal('legalCompany', 'الوضع القانوني للشركة', 'Company Legal Status')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'الوضع القانوني للشركة' : 'Company Legal Status'}
+                  {t('footer.companyLegalStatus')}
                 </button>
               </li>
               <li>
                 <button onClick={() => handleOpenContentModal('legalCancellation', 'سياسة الإلغاء', 'Cancellation Policy')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'سياسة الإلغاء' : 'Cancellation Policy'}
+                  {t('footer.cancellationPolicy')}
                 </button>
               </li>
               <li>
                 <button onClick={() => handleOpenContentModal('dataProtection', 'حماية البيانات', 'Data Protection')} className="footer-btn-link" style={{ background: 'none', border: 'none', padding: 0, color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', transition: 'color var(--transition-fast)' }}>
-                  {locale === 'ar' ? 'حماية البيانات' : 'Data Protection'}
+                  {t('footer.dataProtection')}
                 </button>
               </li>
             </ul>
@@ -316,21 +317,21 @@ export default function OurStoryPage() {
           {/* Column 4: Join Us (وظائف) & Payment Methods */}
           <div>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {locale === 'ar' ? 'انضم إلينا' : 'Join Us'}
+              {t('footer.joinUs')}
             </h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: 0, listStyle: 'none', marginBottom: '1.5rem' }}>
               <li>
                 <Link href="/agent/login" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', textDecoration: 'none', transition: 'color var(--transition-fast)' }} className="footer-link">
-                  {locale === 'ar' ? 'شركاء والوكلاء (بروفايل الأرباح)' : 'Partners & Agents Profile'}
+                  {t('footer.partnersProfile')}
                 </Link>
               </li>
             </ul>
 
             <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {locale === 'ar' ? 'طرق الدفع' : 'Payment Methods'}
+              {t('footer.paymentMethods')}
             </h4>
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', margin: 0 }}>
-              {locale === 'ar' ? 'فيزا، ماستركارد، باي بال، تحويل بنكي (سيتم تحديدها لاحقاً)' : 'Visa, Mastercard, PayPal, Bank Transfer (To be specified)'}
+              {t('footer.paymentMethodsDesc')}
             </p>
           </div>
 
@@ -338,7 +339,7 @@ export default function OurStoryPage() {
           <div>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('common.customSupport')}</h4>
             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', marginBottom: '1rem' }}>
-              {locale === 'ar' ? `تواصل معنا عبر البريد: ${socialMedia.email || 'info@orluxus.com'}` : `Contact us via email: ${socialMedia.email || 'info@orluxus.com'}`}
+              {t('footer.contactEmail') ? t('footer.contactEmail').replace('{email}', socialMedia.email || 'info@orluxus.com') : `Contact us via email: ${socialMedia.email || 'info@orluxus.com'}`}
             </p>
             <a 
               href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`} 
@@ -579,7 +580,7 @@ export default function OurStoryPage() {
                 className="btn btn-primary"
                 style={{ padding: '8px 24px', borderRadius: '8px' }}
               >
-                {locale === 'ar' ? 'إغلاق' : 'Close'}
+                <TranslatedText text="Close" />
               </button>
             </div>
           </div>
