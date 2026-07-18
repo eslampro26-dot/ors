@@ -25,6 +25,24 @@ export default function AdminSettings() {
     'restaurants': { economy: '', business: '', vip: '' },
     'entertainment': { economy: '', business: '', vip: '' }
   });
+
+  const [childPrices, setChildPrices] = useState({
+    'sea-trips': { economy: '', business: '', vip: '' },
+    'desert-trips': { economy: '', business: '', vip: '' },
+    'city-tours': { economy: '', business: '', vip: '' },
+    'packages': { economy: '', business: '', vip: '' },
+    'restaurants': { economy: '', business: '', vip: '' },
+    'entertainment': { economy: '', business: '', vip: '' }
+  });
+
+  const [infantPrices, setInfantPrices] = useState({
+    'sea-trips': { economy: '', business: '', vip: '' },
+    'desert-trips': { economy: '', business: '', vip: '' },
+    'city-tours': { economy: '', business: '', vip: '' },
+    'packages': { economy: '', business: '', vip: '' },
+    'restaurants': { economy: '', business: '', vip: '' },
+    'entertainment': { economy: '', business: '', vip: '' }
+  });
   
   const defaultAddons = [
     { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking', descAr: 'مرشد سياحي مرخص يرافقكم طوال الرحلة لشرح المعالم وتسهيل الدخول.', descEn: 'A licensed tour guide to accompany you throughout the trip.' },
@@ -84,6 +102,8 @@ export default function AdminSettings() {
           if (data.paypalEmail) setPaypalEmail(data.paypalEmail);
           if (data.checkoutAddons) setCheckoutAddons(data.checkoutAddons);
           if (data.additionalPrices) setAdditionalPrices(data.additionalPrices);
+          if (data.childPrices) setChildPrices(data.childPrices);
+          if (data.infantPrices) setInfantPrices(data.infantPrices);
 
           // SMTP Settings
           if (data.smtpHost) setSmtpHost(data.smtpHost);
@@ -144,6 +164,8 @@ export default function AdminSettings() {
           commission,
           checkoutAddons,
           additionalPrices,
+          childPrices,
+          infantPrices,
           smtpHost,
           smtpPort,
           smtpUser,
@@ -457,6 +479,13 @@ export default function AdminSettings() {
         {/* SMTP Email Settings Card */}
         <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
           <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📧 إعدادات البريد الإلكتروني (SMTP)</h3>
+          
+          {(!smtpUser || !smtpPass) && (
+            <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', padding: '0.8rem 1rem', borderRadius: '8px', color: '#f87171', fontSize: '0.82rem', marginBottom: '1.2rem', fontWeight: '700', lineHeight: '1.5' }}>
+              ⚠️ تنبيه هام: بيانات SMTP غير مكتملة حالياً. لن يتمكن النظام من إرسال رسائل البريد الإلكتروني التلقائية لتأكيد الحجز أو الفواتير إلى العملاء حتى يتم تهيئة اسم المستخدم وكلمة مرور التطبيق بشكل صحيح وتجربة الاتصال بنجاح.
+            </div>
+          )}
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             
             {/* SMTP Host */}
@@ -748,6 +777,96 @@ export default function AdminSettings() {
             💾 حفظ أسعار الأشخاص الإضافيين
           </button>
         </div>
+      </div>
+
+      {/* 👶 أسعار الأطفال (2-12 سنة) */}
+      <div className="glass-card animate-fade-in-up" style={{ gridColumn: 'span 2', animationDelay: '0.28s', marginTop: 'var(--space-md)' }}>
+        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>👶 أسعار الأطفال (2-12 سنة) حسب القسم والفئة</h3>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+          حدد سعر الطفل (من 2 إلى 12 سنة) لكل قسم وفئة خدمة. اترك فارغاً أو ضع 0 إذا كان الدخول مجانياً للأطفال.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          {[
+            { id: 'sea-trips', name: '⛵ الرحلات البحرية' },
+            { id: 'desert-trips', name: '🏜️ الرحلات الصحراوية' },
+            { id: 'city-tours', name: '🏛️ جولات المدينة' },
+            { id: 'packages', name: '📦 الباكدجات الشاملة' },
+            { id: 'restaurants', name: '🍽️ المطاعم' },
+            { id: 'entertainment', name: '🎭 الترفيه' }
+          ].map(cat => (
+            <div key={cat.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+              <h4 style={{ color: 'var(--gold-400)', marginBottom: '0.8rem', borderBottom: '1px dashed rgba(255,255,255,0.05)', paddingBottom: '0.4rem' }}>{cat.name}</h4>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {['economy', 'business', 'vip'].map(tier => (
+                  <div key={tier} style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'capitalize' }}>
+                      {tier === 'economy' ? 'اقتصادي' : tier === 'business' ? 'بيزنس' : 'VIP'}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      style={{ width: '100%', padding: '6px 10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '4px', outline: 'none', fontSize: '0.85rem' }}
+                      value={childPrices[cat.id]?.[tier] ?? ''}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? '' : Number(e.target.value);
+                        setChildPrices(prev => ({ ...prev, [cat.id]: { ...prev[cat.id], [tier]: val } }));
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <button onClick={handleSaveSettings} className="btn btn-primary" style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}>
+          💾 حفظ أسعار الأطفال
+        </button>
+      </div>
+
+      {/* 🍼 أسعار الرضع (أقل من سنتين) */}
+      <div className="glass-card animate-fade-in-up" style={{ gridColumn: 'span 2', animationDelay: '0.3s', marginTop: 'var(--space-md)' }}>
+        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>🍼 أسعار الرضع (أقل من 2 سنة) حسب القسم والفئة</h3>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+          في الغالب الرضع مجانيون — ضع 0 لإبقائه مجانياً، أو حدد سعراً إذا كانت الخدمة تتطلب ذلك.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          {[
+            { id: 'sea-trips', name: '⛵ الرحلات البحرية' },
+            { id: 'desert-trips', name: '🏜️ الرحلات الصحراوية' },
+            { id: 'city-tours', name: '🏛️ جولات المدينة' },
+            { id: 'packages', name: '📦 الباكدجات الشاملة' },
+            { id: 'restaurants', name: '🍽️ المطاعم' },
+            { id: 'entertainment', name: '🎭 الترفيه' }
+          ].map(cat => (
+            <div key={cat.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+              <h4 style={{ color: '#94a3b8', marginBottom: '0.8rem', borderBottom: '1px dashed rgba(255,255,255,0.05)', paddingBottom: '0.4rem' }}>{cat.name}</h4>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {['economy', 'business', 'vip'].map(tier => (
+                  <div key={tier} style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'capitalize' }}>
+                      {tier === 'economy' ? 'اقتصادي' : tier === 'business' ? 'بيزنس' : 'VIP'}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="0 (مجاني)"
+                      style={{ width: '100%', padding: '6px 10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '4px', outline: 'none', fontSize: '0.85rem' }}
+                      value={infantPrices[cat.id]?.[tier] ?? ''}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? '' : Number(e.target.value);
+                        setInfantPrices(prev => ({ ...prev, [cat.id]: { ...prev[cat.id], [tier]: val } }));
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <button onClick={handleSaveSettings} className="btn btn-primary" style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #0ea5e9, #0284c7)' }}>
+          💾 حفظ أسعار الرضع
+        </button>
       </div>
 
       {/* 📄 إدارة نصوص التعريف والسياسات (About Us & Policies) */}

@@ -163,8 +163,25 @@ const DEFAULT_SETTINGS = {
     'packages': { economy: 50, business: 100, vip: 150 },
     'restaurants': { economy: 10, business: 20, vip: 35 },
     'entertainment': { economy: 15, business: 30, vip: 50 }
+  },
+  childPrices: {
+    'sea-trips': { economy: 10, business: 18, vip: 25 },
+    'desert-trips': { economy: 8, business: 13, vip: 20 },
+    'city-tours': { economy: 5, business: 10, vip: 15 },
+    'packages': { economy: 25, business: 50, vip: 75 },
+    'restaurants': { economy: 5, business: 10, vip: 18 },
+    'entertainment': { economy: 8, business: 15, vip: 25 }
+  },
+  infantPrices: {
+    'sea-trips': { economy: 0, business: 0, vip: 0 },
+    'desert-trips': { economy: 0, business: 0, vip: 0 },
+    'city-tours': { economy: 0, business: 0, vip: 0 },
+    'packages': { economy: 0, business: 0, vip: 0 },
+    'restaurants': { economy: 0, business: 0, vip: 0 },
+    'entertainment': { economy: 0, business: 0, vip: 0 }
   }
 };
+
 
 export async function initializeDB() {
   try {
@@ -262,16 +279,20 @@ export async function addTrip(slug, category, tripData) {
 
 export async function updateTrip(tripId, tripData) {
   try {
-    // البحث عن الرحلة باستخدام tripId
+    // استخدام Document ID مباشرة — الحقل 'id' لا يُحفظ داخل الوثيقة
+    const tripRef = doc(db, COL.TRIPS, String(tripId));
+    const tripSnap = await safeGetDoc(tripRef);
+    if (tripSnap.exists()) {
+      await safeUpdateDoc(tripRef, tripData);
+      return true;
+    }
+    // fallback: بحث عبر query على حقل id (للرحلات القديمة التي تحتوي على الحقل)
     const q = query(collection(db, COL.TRIPS), where('id', '==', tripId));
     const snapshot = await getDocs(q);
-    
     if (!snapshot.empty) {
-      // تحديث أول تطابق
       await safeUpdateDoc(doc(db, COL.TRIPS, snapshot.docs[0].id), tripData);
       return true;
     }
-    
     return false;
   } catch (e) {
     console.error('Error updating trip:', e);

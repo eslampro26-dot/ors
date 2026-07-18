@@ -260,10 +260,31 @@ function CheckoutContent() {
     }
   }
 
-  // Calculate total: first person pays basePrice, others pay additionalPersonPrice
+  // Resolve child price (2-12 years) from settings
+  let childPrice = 0;
+  if (settings?.childPrices) {
+    const resolvedCategory = category || (type === 'package' ? 'packages' : '');
+    if (resolvedCategory && settings.childPrices[resolvedCategory]) {
+      const cp = parseFloat(settings.childPrices[resolvedCategory][tier]);
+      if (!isNaN(cp)) childPrice = cp;
+    }
+  }
+
+  // Resolve infant price (under 2 years) from settings — defaults to 0 (free)
+  let infantPrice = 0;
+  if (settings?.infantPrices) {
+    const resolvedCategory = category || (type === 'package' ? 'packages' : '');
+    if (resolvedCategory && settings.infantPrices[resolvedCategory]) {
+      const ip = parseFloat(settings.infantPrices[resolvedCategory][tier]);
+      if (!isNaN(ip)) infantPrice = ip;
+    }
+  }
+
+  // Calculate total: first person pays basePrice, others pay additionalPersonPrice, children & infants extra
   const originalTotal = travelers <= 1
-    ? basePrice + extrasTotal
-    : basePrice + (additionalPersonPrice * (travelers - 1)) + extrasTotal;
+    ? basePrice + (childPrice * children) + (infantPrice * infants) + extrasTotal
+    : basePrice + (additionalPersonPrice * (travelers - 1)) + (childPrice * children) + (infantPrice * infants) + extrasTotal;
+
   let discountAmount = 0;
   if (promoDetails) {
     if (promoDetails.discountType === 'percentage') {
@@ -275,6 +296,7 @@ function CheckoutContent() {
   // Clamp discount
   discountAmount = Math.min(originalTotal, discountAmount);
   const totalAmount = originalTotal - discountAmount;
+
 
   // Handle Promo Verification
   const handleApplyPromo = async (e) => {
@@ -1515,6 +1537,26 @@ function CheckoutContent() {
                   <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>{travelers}</span>
                 </div>
 
+                {/* Children row */}
+                {children > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>• {translate('children') || 'Children (2-12y)'} ×{children}</span>
+                    <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
+                      {childPrice > 0 ? `+€${(childPrice * children).toFixed(2)}` : '✓ Free'}
+                    </span>
+                  </div>
+                )}
+
+                {/* Infants row */}
+                {infants > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>• {translate('infants') || 'Infants (<2y)'} ×{infants}</span>
+                    <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
+                      {infantPrice > 0 ? `+€${(infantPrice * infants).toFixed(2)}` : '✓ Free'}
+                    </span>
+                  </div>
+                )}
+
                 {/* Extras Cost rows */}
                 {selectedExtras.guide && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
@@ -1541,7 +1583,13 @@ function CheckoutContent() {
                   </div>
                 )}
 
-                {discountAmount > 0 && (
+                {promoDetails && discountAmount > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981', background: 'rgba(16,185,129,0.06)', borderRadius: '8px', padding: '0.5rem 0.8rem', border: '1px solid rgba(16,185,129,0.15)' }}>
+                    <span style={{ fontSize: '0.9rem' }}>🎟️ {translate('discount')} <strong style={{ fontFamily: 'var(--font-en)', letterSpacing: '1px' }}>{promoDetails.code}</strong></span>
+                    <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {!promoDetails && discountAmount > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--coral-500)' }}>
                     <span>{translate('discount')}</span>
                     <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
@@ -1555,12 +1603,6 @@ function CheckoutContent() {
                   €{totalAmount.toFixed(2)}
                 </div>
               </div>
-
-              {promoDetails && (
-                <div style={{ marginTop: '1.5rem', padding: '0.8rem', background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: '8px', fontSize: '0.8rem', color: 'var(--gold-400)', textAlign: 'right' }}>
-                  كود الخصم المطبق: <strong>{promoDetails.code}</strong> (خصم {promoDetails.discountType === 'percentage' ? `${promoDetails.discountValue}%` : `€${promoDetails.discountValue}`})
-                </div>
-              )}
 
               <div style={{ marginTop: '2.5rem', display: 'flex', gap: '0.5rem', color: '#10b981', background: 'rgba(16,185,129,0.06)', padding: '0.8rem', borderRadius: '8px', fontSize: '0.8rem', lineHeight: '1.4', border: '1px solid rgba(16,185,129,0.12)' }}>
                 <span>🔒 SSL SECURE CONNECTION</span>
@@ -1654,6 +1696,7 @@ function CheckoutContent() {
                       fontFamily: 'var(--font-en)',
                       outline: 'none',
                       direction: 'ltr',
+                      fontSize: '1rem',
                       textAlign: isAr ? 'right' : 'left'
                     }}
                   />
@@ -1676,6 +1719,7 @@ function CheckoutContent() {
                       fontFamily: 'var(--font-en)',
                       outline: 'none',
                       direction: 'ltr',
+                      fontSize: '1rem',
                       textAlign: isAr ? 'right' : 'left'
                     }}
                   />
@@ -2028,6 +2072,26 @@ function CheckoutContent() {
                 <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>{travelers}</span>
               </div>
 
+              {/* Children row */}
+              {children > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'var(--text-tertiary)' }}>• {translate('children') || 'Children (2-12y)'} ×{children}</span>
+                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
+                    {childPrice > 0 ? `+€${(childPrice * children).toFixed(2)}` : '✓ Free'}
+                  </span>
+                </div>
+              )}
+
+              {/* Infants row */}
+              {infants > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'var(--text-tertiary)' }}>• {translate('infants') || 'Infants (<2y)'} ×{infants}</span>
+                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
+                    {infantPrice > 0 ? `+€${(infantPrice * infants).toFixed(2)}` : '✓ Free'}
+                  </span>
+                </div>
+              )}
+
               {/* Extras Cost rows */}
               {selectedExtras.guide && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
@@ -2054,7 +2118,13 @@ function CheckoutContent() {
                 </div>
               )}
 
-              {discountAmount > 0 && (
+              {promoDetails && discountAmount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981', background: 'rgba(16,185,129,0.06)', borderRadius: '8px', padding: '0.5rem 0.8rem', border: '1px solid rgba(16,185,129,0.15)' }}>
+                  <span style={{ fontSize: '0.9rem' }}>🎟️ {translate('discount')} <strong style={{ fontFamily: 'var(--font-en)', letterSpacing: '1px' }}>{promoDetails.code}</strong></span>
+                  <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
+                </div>
+              )}
+              {!promoDetails && discountAmount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--coral-500)' }}>
                   <span>{translate('discount')}</span>
                   <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
@@ -2068,12 +2138,6 @@ function CheckoutContent() {
                 €{totalAmount.toFixed(2)}
               </div>
             </div>
-
-            {promoDetails && (
-              <div style={{ marginTop: '1.5rem', padding: '0.8rem', background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: '8px', fontSize: '0.8rem', color: 'var(--gold-400)', textAlign: 'right' }}>
-                كود الخصم المطبق: <strong>{promoDetails.code}</strong> (خصم {promoDetails.discountType === 'percentage' ? `${promoDetails.discountValue}%` : `€${promoDetails.discountValue}`})
-              </div>
-            )}
 
             <div style={{ marginTop: '2rem', display: 'flex', gap: '0.5rem', color: 'var(--text-tertiary)', fontSize: '0.8rem', lineHeight: '1.4' }}>
               <span>🔒</span>

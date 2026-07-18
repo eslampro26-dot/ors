@@ -4,7 +4,7 @@ import Navbar from '@/components/navigation/Navbar';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function EntertainmentPage() {
-  const { locale, isReady } = useLanguage();
+  const { locale, isReady, t } = useLanguage();
 
   if (!isReady) {
     return (
@@ -30,9 +30,9 @@ export default function EntertainmentPage() {
       }}>
         <div className="container animate-fade-in-up">
           <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎭</div>
-          <h1 className="section-title">{isAr ? 'ترفيهي' : 'Entertainment'}</h1>
+          <h1 className="section-title">{t('entertainment.title')}</h1>
           <p className="section-subtitle">
-            {isAr ? 'أهم الفعاليات والحفلات الترفيهية في جميع أنحاء مصر' : 'The most important events and entertainment shows across Egypt'}
+            {t('entertainment.subtitle')}
           </p>
         </div>
       </div>
@@ -45,13 +45,13 @@ export default function EntertainmentPage() {
           marginBottom: '2rem',
           flexDirection: isAr ? 'row-reverse' : 'row'
         }}>
-          <h2 style={{ fontSize: 'var(--font-size-xl)' }}>{isAr ? 'الفعاليات المتاحة' : 'Available Events'}</h2>
+          <h2 style={{ fontSize: 'var(--font-size-xl)' }}>{t('entertainment.available')}</h2>
         </div>
 
         <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
           <span style={{ fontSize: '4rem', display: 'block', marginBottom: '1rem', opacity: 0.5 }}>🎟️</span>
           <h3 style={{ marginBottom: '1rem', color: 'var(--text-primary)' }}>
-            {isAr ? 'لا توجد فعاليات مضافة حالياً في هذا القسم' : 'No events currently added in this section'}
+            {t('entertainment.noEvents')}
           </h3>
 
         </div>

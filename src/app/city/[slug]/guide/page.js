@@ -6,6 +6,7 @@ import { cities, getLocalizedCity, getCategoryName } from '@/lib/data';
 import { cityArticles } from '@/lib/cityArticles';
 import Navbar from '@/components/navigation/Navbar';
 import Link from 'next/link';
+import TranslatedText from '@/components/TranslatedText';
 
 export default function CityGuidePage() {
   const { slug } = useParams();
@@ -30,7 +31,7 @@ export default function CityGuidePage() {
     return (
       <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0B0B0B', color: '#fff' }}>
         <div style={{ color: 'var(--gold-500)', fontSize: '1.2rem', fontFamily: 'var(--font-title)' }}>
-          {isAr ? 'جاري تحميل الدليل...' : 'Loading Guide...'}
+          <TranslatedText text="Loading Guide..." />
         </div>
       </main>
     );
@@ -45,7 +46,7 @@ export default function CityGuidePage() {
           <h1 style={{ fontFamily: 'var(--font-title)', color: 'var(--gold-500)', marginBottom: '2rem' }}>
             {locCity.name}
           </h1>
-          <p>{isAr ? 'الدليل السياحي الكامل لهذه الوجهة قيد الإنشاء حالياً.' : 'The comprehensive guide for this destination is under construction.'}</p>
+          <p><TranslatedText text="The comprehensive guide for this destination is under construction." /></p>
           <Link href={`/city/${slug}`} className="btn btn-primary" style={{ marginTop: '2rem', display: 'inline-flex' }}>
             {t('common.backToCity')}
           </Link>
@@ -110,7 +111,7 @@ export default function CityGuidePage() {
             display: 'block',
             marginBottom: '0.5rem'
           }}>
-            {isAr ? 'الدليل الحصري والشامل للزوار' : 'EXCLUSIVE TRAVEL GUIDE'}
+            <TranslatedText text="EXCLUSIVE TRAVEL GUIDE" />
           </span>
           <h1 style={{ 
             fontSize: 'clamp(2rem, 5vw, 3rem)', 
@@ -120,7 +121,7 @@ export default function CityGuidePage() {
             lineHeight: '1.2',
             margin: '0 0 1rem 0'
           }}>
-            {article.title}
+            <TranslatedText text={article.title} />
           </h1>
           <p style={{ 
             color: 'var(--gold-500)', 
@@ -129,7 +130,7 @@ export default function CityGuidePage() {
             margin: 0,
             fontFamily: 'var(--font-title)'
           }}>
-            {article.subtitle}
+            <TranslatedText text={article.subtitle} />
           </p>
         </div>
       </div>
@@ -173,7 +174,7 @@ export default function CityGuidePage() {
                 fontSize: '0.85rem',
                 letterSpacing: '1px'
               }}>{isAr ? 'مقدمة الدليل' : 'INTRODUCTION'}</span>
-              {article.introduction}
+              <TranslatedText text={article.introduction} />
             </div>
 
             {/* Chapters list */}
@@ -199,7 +200,7 @@ export default function CityGuidePage() {
                     flexDirection: isAr ? 'row-reverse' : 'row'
                   }}>
                     <span style={{ fontSize: '1.1rem', opacity: 0.5, fontFamily: 'var(--font-en)' }}>0{idx + 1}</span>
-                    <span>{ch.title}</span>
+                    <span><TranslatedText text={ch.title} /></span>
                   </h2>
                   <div style={{
                     lineHeight: '1.8',
@@ -207,7 +208,7 @@ export default function CityGuidePage() {
                     color: 'rgba(255, 255, 255, 0.85)',
                     whiteSpace: 'pre-line' // Preserve line breaks
                   }}>
-                    {ch.content}
+                    <TranslatedText text={ch.content} />
                   </div>
                 </section>
               ))}
@@ -221,21 +222,19 @@ export default function CityGuidePage() {
                 paddingTop: '2rem'
               }}>
                 <h3 style={{ fontFamily: 'var(--font-title)', color: 'var(--gold-400)', fontSize: '1.4rem', marginBottom: '1rem' }}>
-                  {isAr ? 'خاتمة الدليل' : 'Conclusion'}
+                  <TranslatedText text="Conclusion" />
                 </h3>
                 <p style={{ lineHeight: '1.7', color: 'rgba(255, 255, 255, 0.9)', fontSize: '1.05rem' }}>
-                  {article.conclusion}
+                  <TranslatedText text={article.conclusion} />
                 </p>
               </div>
             )}
 
             {/* Sources & SEO Technical Tip */}
             <div style={{ marginTop: '3rem', fontSize: '0.85rem', color: 'var(--text-tertiary)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem' }}>
-              <p style={{ margin: '0 0 10px 0' }}>{article.sources}</p>
+              <p style={{ margin: '0 0 10px 0' }}><TranslatedText text={article.sources} /></p>
               <p style={{ margin: 0, fontStyle: 'italic' }}>
-                {isAr 
-                  ? 'تمت مراجعة هذا الدليل وتحسينه لتسهيل محركات البحث والأرشفة (SEO).' 
-                  : 'This guide has been verified and optimized for Search Engine Indexing (SEO).'}
+                <TranslatedText text="This guide has been verified and optimized for Search Engine Indexing (SEO)." />
               </p>
             </div>
           </div>
@@ -251,14 +250,14 @@ export default function CityGuidePage() {
             }}>
               {/* Table of Contents */}
               <div style={{
-                background: 'rgba(255,255,255,0.01)',
+                background: 'rgba(255, 255, 255, 0.01)',
                 border: '1px solid var(--border-subtle)',
                 borderRadius: '16px',
                 padding: '1.5rem',
                 textAlign: isAr ? 'right' : 'left'
               }}>
                 <h3 style={{ fontFamily: 'var(--font-title)', color: '#FFFFFF', fontSize: '1.15rem', marginBottom: '1.2rem', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  {isAr ? 'فصول الدليل' : 'Guide Chapters'}
+                  <TranslatedText text="Guide Chapters" />
                 </h3>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {article.chapters.map((ch, idx) => (
@@ -292,12 +291,10 @@ export default function CityGuidePage() {
                 textAlign: isAr ? 'right' : 'left'
               }}>
                 <h3 style={{ fontFamily: 'var(--font-title)', color: 'var(--gold-400)', fontSize: '1.15rem', marginBottom: '0.5rem' }}>
-                  {isAr ? `قوائم ${locCity.name} السياحية` : `${locCity.name} Services`}
+                  <TranslatedText text={`${locCity.name} Services`} />
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1.2rem' }}>
-                  {isAr 
-                    ? `تصفح واحجز مباشرة من القوائم الحصرية لمدينة ${locCity.name} فقط:` 
-                    : `Browse and book from exclusive lists for ${locCity.name} only:`}
+                  <TranslatedText text={`Browse and book from exclusive lists for ${locCity.name} only:`} />
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
