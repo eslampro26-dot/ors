@@ -41,8 +41,10 @@ export async function GET(request) {
       paymentType: found.paymentType || '',
       agentName: found.agentName || '',
       pickup: found.pickupLocation || '',
+      specialRequests: found.specialRequests || found.comments || found.customer?.specialRequests || '',
       createdAt: found.createdAt || '',
     });
+
   } catch (e) {
     console.error('Booking lookup error:', e);
     return NextResponse.json({ error: 'Lookup failed. Please try again.' }, { status: 500 });

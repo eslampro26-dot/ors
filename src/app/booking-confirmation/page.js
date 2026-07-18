@@ -82,6 +82,7 @@ export default function BookingConfirmationPage() {
     { label: t('booking.payMethod'), value: payLabel },
     ...(booking.agentName ? [{ label: t('booking.agent'), value: booking.agentName }] : []),
     ...(booking.pickup ? [{ label: t('booking.pickup'), value: booking.pickup }] : []),
+    ...(booking.specialRequests ? [{ label: t('booking.specialRequests'), value: booking.specialRequests, fullWidth: true }] : []),
   ] : [];
 
   const statusEmoji = { confirmed: '✅', pending: '⏳', cancelled: '❌', completed: '✔️' }[statusKey] || '📋';
@@ -171,10 +172,19 @@ export default function BookingConfirmationPage() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-              {rows.map(({ label, value }, i) => (
-                <div key={i} style={{ background: '#f8fafc', borderRadius: '10px', padding: '0.9rem 1.1rem', border: '1px solid #e2e8f0', textAlign: isAr ? 'right' : 'left' }}>
-                  <div style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>{label}</div>
-                  <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '0.95rem', wordBreak: 'break-word' }}>{value || '—'}</div>
+              {rows.map(({ label, value, fullWidth }, i) => (
+                <div key={i} style={{
+                  background: fullWidth ? '#fff7ed' : '#f8fafc',
+                  borderRadius: '10px',
+                  padding: '0.9rem 1.1rem',
+                  border: fullWidth ? '1px solid #fed7aa' : '1px solid #e2e8f0',
+                  textAlign: isAr ? 'right' : 'left',
+                  ...(fullWidth ? { gridColumn: '1 / -1' } : {})
+                }}>
+                  <div style={{ fontSize: '0.72rem', color: fullWidth ? '#c2410c' : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {fullWidth && '💬 '}{label}
+                  </div>
+                  <div style={{ fontWeight: fullWidth ? '500' : '700', color: '#0f172a', fontSize: '0.95rem', wordBreak: 'break-word', lineHeight: '1.5' }}>{value || '—'}</div>
                 </div>
               ))}
             </div>
