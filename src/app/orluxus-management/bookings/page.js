@@ -347,7 +347,7 @@ export default function AdminBookings() {
               <tr>
                 <td><strong>${booking.service}</strong> (${booking.city})</td>
                 <td style="text-align: center;">${booking.travelers}</td>
-                <td style="text-align: right;">€${(Number(booking.originalAmount || booking.finalAmount) / Number(booking.travelers)).toFixed(2)}</td>
+                <td style="text-align: right;">€${(Number(booking.originalAmount || booking.finalAmount) / (Number(booking.travelers) || 1)).toFixed(2)}</td>
                 <td style="text-align: right; font-weight: bold;">€${Number(booking.originalAmount || booking.finalAmount).toFixed(2)}</td>
               </tr>
               ${booking.discountAmount > 0 ? `

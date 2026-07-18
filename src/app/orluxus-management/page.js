@@ -28,28 +28,33 @@ export default function AdminDashboard() {
         const allBookings = bookings || [];
 
         // Compute real KPIs
-        const totalRevenue = allBookings.reduce((sum, b) => sum + (parseFloat(b.totalPrice) || parseFloat(b.price) || 0), 0);
+        const activeBookings = allBookings.filter(b => {
+          const status = (b.status || '').toLowerCase();
+          return status !== 'ملغي' && status !== 'cancelled' && status !== 'قيد الانتظار' && status !== 'pending' && status !== 'جديد' && status !== 'new';
+        });
+
+        const totalRevenue = activeBookings.reduce((sum, b) => sum + (parseFloat(b.totalPrice) || parseFloat(b.price) || parseFloat(b.finalAmount) || 0), 0);
         const totalBookings = allBookings.length;
         const activeAgents = allAgents.filter(a => a.status === 'نشط' || a.status === 'active').length;
         const confirmedBookings = allBookings.filter(b => b.status === 'مؤكد' || b.status === 'confirmed').length;
 
         // This month revenue
         const now = new Date();
-        const monthRevenue = allBookings
+        const monthRevenue = activeBookings
           .filter(b => {
             const d = new Date(b.createdAt || b.date || 0);
             return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
           })
-          .reduce((sum, b) => sum + (parseFloat(b.totalPrice) || parseFloat(b.price) || 0), 0);
+          .reduce((sum, b) => sum + (parseFloat(b.totalPrice) || parseFloat(b.price) || parseFloat(b.finalAmount) || 0), 0);
 
         setStats({ totalRevenue, totalBookings, activeAgents, confirmedBookings, monthRevenue });
 
         // Top agents by sales
         const agentMap = {};
-        allBookings.forEach(b => {
+        activeBookings.forEach(b => {
           if (b.agentId) {
             if (!agentMap[b.agentId]) agentMap[b.agentId] = { revenue: 0, bookings: 0 };
-            agentMap[b.agentId].revenue += parseFloat(b.totalPrice) || parseFloat(b.price) || 0;
+            agentMap[b.agentId].revenue += parseFloat(b.totalPrice) || parseFloat(b.price) || parseFloat(b.finalAmount) || 0;
             agentMap[b.agentId].bookings += 1;
           }
         });

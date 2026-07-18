@@ -153,7 +153,7 @@ export default function ReviewsPage() {
           text: '',
           image: null
         });
-        setImagePreview(null);
+        setImagePreviews([]);
         alert('✅ شكراً! تم إضافة تقييمك بنجاح!');
       }
     } catch (error) {

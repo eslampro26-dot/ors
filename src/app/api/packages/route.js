@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPackages, addPackage, deletePackage } from '@/lib/db';
+import { getPackages, addPackage, deletePackage, updatePackage } from '@/lib/db';
 import { verifyApiSecret } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
