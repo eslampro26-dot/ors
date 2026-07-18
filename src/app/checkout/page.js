@@ -17,6 +17,14 @@ function CheckoutContent() {
 
   // Translations Dictionary
   const translate = (key) => {
+    // 1. Try to fetch from the global context messages.js first
+    const globalKey = `checkout.${key}`;
+    const translatedValue = tGlobal(globalKey);
+    if (translatedValue && translatedValue !== globalKey) {
+      return translatedValue;
+    }
+
+    // 2. Fallback to local dict for safety (en/ar only)
     const dict = {
       en: {
         title: 'Booking & Traveler Details',
@@ -2016,7 +2024,7 @@ function CheckoutContent() {
                     >
                       {translate('readTerms')}
                     </a>
-                    {locale === 'ar' ? ' و ' : ' and '}
+                    {locale === 'ar' ? ' و ' : locale === 'de' ? ' und ' : locale === 'fr' ? ' et ' : locale === 'es' ? ' y ' : locale === 'it' ? ' e ' : locale === 'ru' ? ' и ' : locale === 'tr' ? ' ve ' : locale === 'zh' ? ' 和 ' : locale === 'ja' ? ' と ' : ' and '}
                     <a 
                       href="#" 
                       onClick={(e) => {
