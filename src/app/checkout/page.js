@@ -305,6 +305,7 @@ function CheckoutContent() {
     url.searchParams.set('children', children.toString());
     url.searchParams.set('infants', infants.toString());
     url.searchParams.set('specialRequests', specialRequests);
+    url.searchParams.set('customerLanguage', customerLanguage);
     
     router.push(url.pathname + url.search);
   };

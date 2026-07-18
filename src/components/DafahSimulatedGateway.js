@@ -103,7 +103,10 @@ export default function DafahSimulatedGateway({ searchParams, router, addBooking
           txId: txParam,
           pickupLocation: pickupLocation,
           extras: extras,
-          specialRequests: specialRequests
+          specialRequests: specialRequests,
+          children: parseInt(searchParams.get('children') || '0', 10),
+          infants: parseInt(searchParams.get('infants') || '0', 10),
+          customerLanguage: searchParams.get('customerLanguage') || locale || 'ar',
         });
 
         setPaymentSuccess(true);

@@ -30,18 +30,23 @@ export async function GET(request) {
     }
 
     // Return only safe public fields
+    // `customer` may be stored as a plain string or as an object { name, ... }
+    const custName = typeof found.customer === 'string'
+      ? found.customer
+      : (found.customer?.name || found.customerName || '');
+
     return NextResponse.json({
       ref: (found.txId || found.id || '').toUpperCase(),
-      customerName: found.customer?.name || '',
+      customerName: custName,
       service: found.service || '',
-      date: found.date || '',
+      date: found.date || found.bookingDate || '',
       travelers: found.travelers || 1,
-      amount: found.finalAmount || 0,
+      amount: found.finalAmount || found.amount || 0,
       status: found.status || 'pending',
       paymentType: found.paymentType || '',
       agentName: found.agentName || '',
-      pickup: found.pickupLocation || '',
-      specialRequests: found.specialRequests || found.comments || found.customer?.specialRequests || '',
+      pickup: found.pickupLocation || found.pickup || '',
+      specialRequests: found.specialRequests || found.comments || '',
       createdAt: found.createdAt || '',
     });
 
