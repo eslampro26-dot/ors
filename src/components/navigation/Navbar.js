@@ -159,7 +159,7 @@ export default function Navbar() {
 
           {/* 5. Booking Confirmation */}
           <Link href="/booking-confirmation" className={styles.navLink} onClick={() => setMobileOpen(false)}>
-            {locale === 'ar' ? '🔑 حجزي' : locale === 'fr' ? '🔑 Ma réservation' : locale === 'de' ? '🔑 Meine Buchung' : locale === 'es' ? '🔑 Mi reserva' : '🔑 My Booking'}
+            {t('nav.myBooking')}
           </Link>
 
           {/* Language Switcher */}
