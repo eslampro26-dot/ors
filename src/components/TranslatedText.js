@@ -29,31 +29,41 @@ export default function TranslatedText({ text, fallback = '', className = '', st
     const cacheKey = `orluxus_tr_${locale}_${sanitizedKey}`;
     try {
       const cached = localStorage.getItem(cacheKey);
-      if (cached) {
+      // Only use cached if it exists and is actually translated (not matching English unless locale is en)
+      if (cached && (cached !== text || locale === 'en')) {
         setTranslated(cached);
         return;
       }
     } catch (e) {}
 
-    // Call the translation API
-    fetch('/api/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, to: locale })
-    })
-      .then(res => res.ok ? res.json() : {})
-      .then(data => {
-        if (data.translatedText) {
-          setTranslated(data.translatedText);
-          try {
-            localStorage.setItem(cacheKey, data.translatedText);
-          } catch (e) {}
-        }
+    // Stagger API calls randomly between 50ms and 1200ms to avoid concurrent rate-limits
+    const delay = 50 + Math.floor(Math.random() * 1150);
+    const timer = setTimeout(() => {
+      fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, to: locale })
       })
-      .catch(() => {
-        setTranslated(text);
-      });
+        .then(res => res.ok ? res.json() : {})
+        .then(data => {
+          if (data.translatedText) {
+            setTranslated(data.translatedText);
+            // Only cache in localStorage if translation actually succeeded (returned text != original text)
+            if (data.translatedText !== text) {
+              try {
+                localStorage.setItem(cacheKey, data.translatedText);
+              } catch (e) {}
+            }
+          }
+        })
+        .catch(() => {
+          setTranslated(text);
+        });
+    }, delay);
+
+    return () => clearTimeout(timer);
   }, [text, locale, fallback]);
 
   return <span className={className} style={style}>{translated}</span>;
 }
+
