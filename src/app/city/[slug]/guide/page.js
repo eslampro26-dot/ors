@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { cities, getLocalizedCity, getCategoryName } from '@/lib/data';
 import { cityArticles } from '@/lib/cityArticles';
+import { guideStaticTranslations } from '@/lib/guideStaticTranslations';
 import Navbar from '@/components/navigation/Navbar';
 import Link from 'next/link';
 import TranslatedText from '@/components/TranslatedText';
@@ -26,6 +27,11 @@ export default function CityGuidePage() {
 
   const locCity = getLocalizedCity(city, locale);
   const article = cityArticles[slug]?.[locale] || cityArticles[slug]?.['en'] || cityArticles[slug]?.['ar'];
+
+  // Static translations check for footer to bypass API rate-limiting and cache freezing issues
+  const staticFooter = guideStaticTranslations[slug]?.[locale];
+  const staticConclusion = staticFooter?.conclusion;
+  const staticSources = staticFooter?.sources;
 
   if (!isReady) {
     return (
@@ -225,14 +231,16 @@ export default function CityGuidePage() {
                   <TranslatedText text="Conclusion" />
                 </h3>
                 <p style={{ lineHeight: '1.7', color: 'rgba(255, 255, 255, 0.9)', fontSize: '1.05rem' }}>
-                  <TranslatedText text={article.conclusion} />
+                  {staticConclusion ? staticConclusion : <TranslatedText text={article.conclusion} />}
                 </p>
               </div>
             )}
 
             {/* Sources & SEO Technical Tip */}
             <div style={{ marginTop: '3rem', fontSize: '0.85rem', color: 'var(--text-tertiary)', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem' }}>
-              <p style={{ margin: '0 0 10px 0' }}><TranslatedText text={article.sources} /></p>
+              <p style={{ margin: '0 0 10px 0' }}>
+                {staticSources ? staticSources : <TranslatedText text={article.sources} />}
+              </p>
               <p style={{ margin: 0, fontStyle: 'italic' }}>
                 <TranslatedText text="This guide has been verified and optimized for Search Engine Indexing (SEO)." />
               </p>

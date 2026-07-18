@@ -169,9 +169,11 @@ export default function CategoryPage({ params }) {
                         <h3 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: '700', marginBottom: '4px' }}>
                           <TranslatedText text={trip.titleEn || trip.titleAr} />
                         </h3>
-                        <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>
-                          {locale === 'ar' ? (trip.titleEn || '') : trip.titleAr}
-                        </span>
+                        {locale === 'ar' && trip.titleEn && (
+                          <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>
+                            {trip.titleEn}
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', color: 'var(--gold-600)', fontSize: '1.35rem', whiteSpace: 'nowrap', textShadow: '0 0 1px rgba(217, 119, 6, 0.1)' }}>
                         {trip.currency || '€'}{activeTier.price}
@@ -271,14 +273,14 @@ export default function CategoryPage({ params }) {
                             textDecoration: 'underline'
                           }}
                         >
-                          {locale === 'ar' ? 'عرض المزيد عن هذه الفئة' : 'Show More Details'}
+                          {t('common.showMoreDetails')}
                         </button>
                       )}
                     </div>
 
                     {/* Stats */}
                     <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: '1.5rem', marginTop: 'auto', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
-                      <span>⏱️ {trip.duration}</span>
+                      <span>⏱️ <TranslatedText text={trip.duration} /></span>
                       <span>⭐ {trip.rating || '5.0'} ({trip.reviews || '1'})</span>
                     </div>
 
