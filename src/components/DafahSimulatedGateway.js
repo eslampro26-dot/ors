@@ -29,6 +29,7 @@ export default function DafahSimulatedGateway({ searchParams, router, addBooking
   const email = searchParams.get('email') || '';
   const pickupLocation = searchParams.get('pickupLocation') || '';
   const extras = searchParams.get('extras') || '';
+  const specialRequests = searchParams.get('specialRequests') || '';
 
   const translate = (key) => {
     const dict = {
@@ -101,16 +102,18 @@ export default function DafahSimulatedGateway({ searchParams, router, addBooking
           paymentType: 'card',
           txId: txParam,
           pickupLocation: pickupLocation,
-          extras: extras
+          extras: extras,
+          specialRequests: specialRequests
         });
 
         setPaymentSuccess(true);
         setIsProcessing(false);
 
         // Redirect to success view
-        const successUrl = `/checkout?status=success&tx=${txParam}&tripId=${tripId}&amount=${amount}&originalAmount=${originalAmount}&discountAmount=${discountAmount}&promoCode=${promoCode}&agentId=${agentId || ''}&agentName=${encodeURIComponent(agentName)}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(date)}&travelers=${travelers}&title=${encodeURIComponent(title)}&paymentType=card&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(extras)}`;
+        const successUrl = `/checkout?status=success&tx=${txParam}&tripId=${tripId}&amount=${amount}&originalAmount=${originalAmount}&discountAmount=${discountAmount}&promoCode=${promoCode}&agentId=${agentId || ''}&agentName=${encodeURIComponent(agentName)}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(date)}&travelers=${travelers}&title=${encodeURIComponent(title)}&paymentType=card&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(extras)}&specialRequests=${encodeURIComponent(specialRequests)}`;
         
         router.push(successUrl);
+
       } catch (err) {
         console.error('Error completing simulated Dafah payment:', err);
         setIsProcessing(false);
