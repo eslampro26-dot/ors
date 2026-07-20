@@ -9,8 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google-cloud/translate": "^9.4.2",
     "bcryptjs": "^3.0.3",
     "firebase": "^12.14.0",
+    "google-translate-api-x": "^10.7.3",
     "next": "16.2.6",
     "nodemailer": "^9.0.3",
     "postcss": "^8.5.15",

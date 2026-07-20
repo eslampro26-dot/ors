@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 
 import TranslatedText from '@/components/TranslatedText';
+import TranslatedTextWithFallback from '@/components/TranslatedTextWithFallback';
 
 export default function CategoryPage({ params }) {
   const resolvedParams = use(params);
@@ -175,21 +176,7 @@ export default function CategoryPage({ params }) {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', gap: '0.5rem', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
                       <div style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
                         <h3 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: '700', marginBottom: '4px' }}>
-                          {(() => {
-                            const titleMap = {
-                              ar: trip.titleAr,
-                              en: trip.titleEn,
-                              de: trip.titleDe,
-                              fr: trip.titleFr,
-                              es: trip.titleEs,
-                              it: trip.titleIt,
-                              ru: trip.titleRu,
-                              tr: trip.titleTr,
-                              zh: trip.titleZh,
-                              ja: trip.titleJa
-                            };
-                            return titleMap[locale] || trip.titleEn || trip.titleAr;
-                          })()}
+                          <TranslatedTextWithFallback trip={trip} locale={locale} />
                         </h3>
                       </div>
                       <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', color: 'var(--gold-600)', fontSize: '1.35rem', whiteSpace: 'nowrap', textShadow: '0 0 1px rgba(217, 119, 6, 0.1)' }}>
