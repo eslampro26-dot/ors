@@ -463,10 +463,63 @@ export default function AdminServices() {
         return;
       }
 
+      // Auto-translate package titles to other languages
+      let translatedTitles = {
+        titleDe: titleEn,
+        titleFr: titleEn,
+        titleEs: titleEn,
+        titleIt: titleEn,
+        titleRu: titleEn,
+        titleTr: titleEn,
+        titleZh: titleEn,
+        titleJa: titleEn
+      };
+
+      try {
+        const sourceText = titleEn || titleAr;
+        const sourceLang = titleEn ? 'en' : 'ar';
+
+        const translateResponse = await fetch('/api/auto-translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: sourceText,
+            sourceLang: sourceLang,
+            targetLangs: ['de', 'fr', 'es', 'it', 'ru', 'tr', 'zh', 'ja']
+          })
+        });
+
+        if (translateResponse.ok) {
+          const data = await translateResponse.json();
+          if (data.success && data.translations) {
+            translatedTitles = {
+              titleDe: data.translations.de || titleEn,
+              titleFr: data.translations.fr || titleEn,
+              titleEs: data.translations.es || titleEn,
+              titleIt: data.translations.it || titleEn,
+              titleRu: data.translations.ru || titleEn,
+              titleTr: data.translations.tr || titleEn,
+              titleZh: data.translations.zh || titleEn,
+              titleJa: data.translations.ja || titleEn
+            };
+          }
+        }
+      } catch (err) {
+        console.error('Auto-translation failed for package, using fallbacks:', err);
+      }
+
       try {
         const success = await addPackage(category, {
           titleAr,
           titleEn,
+          titleDe: translatedTitles.titleDe,
+          titleFr: translatedTitles.titleFr,
+          titleEs: translatedTitles.titleEs,
+          titleIt: translatedTitles.titleIt,
+          titleRu: translatedTitles.titleRu,
+          titleTr: translatedTitles.titleTr,
+          titleZh: translatedTitles.titleZh,
+          titleJa: translatedTitles.titleJa,
           price: parseFloat(price),
           duration: duration || '3 Nights / 4 Days',
           description,
@@ -478,7 +531,7 @@ export default function AdminServices() {
         if (success) {
           alert('Package added successfully!');
           setModalOpen(false);
-          setFormData({ titleAr:'',titleEn:'',price:'',duration:'Full Day',category:'',city:'',description:'',icon:'✈️',image:'',images:[] });
+          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',duration:'Full Day',category:'',city:'',description:'',icon:'✈️',image:'',images:[] });
           await reloadCurrentPackage();
         } else {
           alert('Error saving package.');
