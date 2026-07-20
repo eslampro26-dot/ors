@@ -53,10 +53,19 @@ export default function AdminServices() {
   const [formData, setFormData] = useState({
     titleAr: '',
     titleEn: '',
+    titleDe: '',
+    titleFr: '',
+    titleEs: '',
+    titleIt: '',
+    titleRu: '',
+    titleTr: '',
+    titleZh: '',
+    titleJa: '',
     price: '',
     economyPrice: '',
     businessPrice: '',
     vipPrice: '',
+    childPrice: '',
     duration: 'يوم كامل',
     category: '',
     city: '',
@@ -73,6 +82,7 @@ export default function AdminServices() {
     specialRequests: [],
   });
   const [useTierPrices, setUseTierPrices] = useState(false);
+  const [activeLangTab, setActiveLangTab] = useState('ar');
 
   // Load data only for the selected city (lazy loading for performance)
   const loadCityData = async (cityId) => {
@@ -269,10 +279,19 @@ export default function AdminServices() {
     setFormData({
       titleAr: trip.titleAr || '',
       titleEn: trip.titleEn || '',
+      titleDe: trip.titleDe || '',
+      titleFr: trip.titleFr || '',
+      titleEs: trip.titleEs || '',
+      titleIt: trip.titleIt || '',
+      titleRu: trip.titleRu || '',
+      titleTr: trip.titleTr || '',
+      titleZh: trip.titleZh || '',
+      titleJa: trip.titleJa || '',
       price: String(trip.price || ''),
       economyPrice: String(trip.economyPrice || trip.price || ''),
       businessPrice: String(trip.businessPrice || ''),
       vipPrice: String(trip.vipPrice || ''),
+      childPrice: String(trip.childPrice || ''),
       duration: trip.duration || 'يوم كامل',
       category: catId,
       city: cityId,
@@ -295,20 +314,29 @@ export default function AdminServices() {
     e.preventDefault();
     
     if (modalType === 'trip') {
-      const { city, category, titleAr, titleEn, price, economyPrice, businessPrice, vipPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, specialRequests } = formData;
+      const { city, category, titleAr, titleEn, titleDe, titleFr, titleEs, titleIt, titleRu, titleTr, titleZh, titleJa, price, economyPrice, businessPrice, vipPrice, childPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, specialRequests } = formData;
       const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
       if (!titleAr || !titleEn || basePrice <= 0) {
         alert('يرجى ملء جميع الحقول المطلوبة (العنوان والسعر)!');
         return;
       }
-      
+
       const tripPayload = {
         titleAr,
         titleEn,
+        titleDe,
+        titleFr,
+        titleEs,
+        titleIt,
+        titleRu,
+        titleTr,
+        titleZh,
+        titleJa,
         price: basePrice,
         economyPrice: useTierPrices ? (parseFloat(economyPrice) || basePrice) : basePrice,
         businessPrice: useTierPrices ? (parseFloat(businessPrice) || basePrice * 1.5) : basePrice * 1.5,
         vipPrice: useTierPrices ? (parseFloat(vipPrice) || basePrice * 2) : basePrice * 2,
+        childPrice: parseFloat(childPrice) || 0,
         duration,
         image: image || '/images/trips/glass-boat.jpg',
         images: images || [],
@@ -344,7 +372,7 @@ export default function AdminServices() {
         if (success) {
           setModalOpen(false);
           setEditingTrip(null);
-          setFormData({ titleAr:'',titleEn:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',duration:'يوم كامل',category:'',city:'',description:'',tripDescription:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
+          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',duration:'يوم كامل',category:'',city:'',description:'',tripDescription:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
           setUseTierPrices(false);
           await reloadCurrentCity();
         }
@@ -753,32 +781,172 @@ export default function AdminServices() {
                 </div>
               )}
 
-              {/* Title Arabic */}
-              <div className={styles.formGroup}>
-                <label>العنوان باللغة العربية *</label>
-                <input 
-                  type="text" 
-                  name="titleAr" 
-                  value={formData.titleAr} 
-                  onChange={handleInputChange}
-                  placeholder="مثال: رحلة اليخت الشراعي عند الغروب"
-                  className={styles.input}
-                  required
-                />
-              </div>
+              {/* Title Section with Language Tabs */}
+              <div style={{ marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+                  <button type="button" onClick={() => setActiveLangTab('ar')} style={{ padding: '0.5rem 1rem', background: activeLangTab === 'ar' ? 'var(--gold-600)' : 'var(--bg-tertiary)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>🇸🇦 العربية</button>
+                  <button type="button" onClick={() => setActiveLangTab('en')} style={{ padding: '0.5rem 1rem', background: activeLangTab === 'en' ? 'var(--gold-600)' : 'var(--bg-tertiary)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>🇬🇧 English</button>
+                  <button type="button" onClick={() => setActiveLangTab('de')} style={{ padding: '0.5rem 1rem', background: activeLangTab === 'de' ? 'var(--gold-600)' : 'var(--bg-tertiary)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>🇩🇪 Deutsch</button>
+                  <button type="button" onClick={() => setActiveLangTab('fr')} style={{ padding: '0.5rem 1rem', background: activeLangTab === 'fr' ? 'var(--gold-600)' : 'var(--bg-tertiary)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>🇫🇷 Français</button>
+                  <button type="button" onClick={() => setActiveLangTab('es')} style={{ padding: '0.5rem 1rem', background: activeLangTab === 'es' ? 'var(--gold-600)' : 'var(--bg-tertiary)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>🇪🇸 Español</button>
+                  <button type="button" onClick={() => setActiveLangTab('it')} style={{ padding: '0.5rem 1rem', background: activeLangTab === 'it' ? 'var(--gold-600)' : 'var(--bg-tertiary)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>🇮🇹 Italiano</button>
+                  <button type="button" onClick={() => setActiveLangTab('ru')} style={{ padding: '0.5rem 1rem', background: activeLangTab === 'ru' ? 'var(--gold-600)' : 'var(--bg-tertiary)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>🇷🇺 Русский</button>
+                  <button type="button" onClick={() => setActiveLangTab('tr')} style={{ padding: '0.5rem 1rem', background: activeLangTab === 'tr' ? 'var(--gold-600)' : 'var(--bg-tertiary)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>🇹🇷 Türkçe</button>
+                  <button type="button" onClick={() => setActiveLangTab('zh')} style={{ padding: '0.5rem 1rem', background: activeLangTab === 'zh' ? 'var(--gold-600)' : 'var(--bg-tertiary)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>🇨🇳 中文</button>
+                  <button type="button" onClick={() => setActiveLangTab('ja')} style={{ padding: '0.5rem 1rem', background: activeLangTab === 'ja' ? 'var(--gold-600)' : 'var(--bg-tertiary)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>🇯🇵 日本語</button>
+                </div>
 
-              {/* Title English */}
-              <div className={styles.formGroup}>
-                <label>العنوان باللغة الإنجليزية *</label>
-                <input 
-                  type="text" 
-                  name="titleEn" 
-                  value={formData.titleEn} 
-                  onChange={handleInputChange}
-                  placeholder="Example: Luxury Yacht Sunset Cruise"
-                  className={styles.input}
-                  required
-                />
+                {/* Arabic Title */}
+                {activeLangTab === 'ar' && (
+                  <div className={styles.formGroup}>
+                    <label>العنوان باللغة العربية *</label>
+                    <input
+                      type="text"
+                      name="titleAr"
+                      value={formData.titleAr}
+                      onChange={handleInputChange}
+                      placeholder="مثال: رحلة اليخت الشراعي عند الغروب"
+                      className={styles.input}
+                      required
+                    />
+                  </div>
+                )}
+
+                {/* English Title */}
+                {activeLangTab === 'en' && (
+                  <div className={styles.formGroup}>
+                    <label>Title in English *</label>
+                    <input
+                      type="text"
+                      name="titleEn"
+                      value={formData.titleEn}
+                      onChange={handleInputChange}
+                      placeholder="Example: Luxury Yacht Sunset Cruise"
+                      className={styles.input}
+                      required
+                    />
+                  </div>
+                )}
+
+                {/* German Title */}
+                {activeLangTab === 'de' && (
+                  <div className={styles.formGroup}>
+                    <label>Titel auf Deutsch</label>
+                    <input
+                      type="text"
+                      name="titleDe"
+                      value={formData.titleDe}
+                      onChange={handleInputChange}
+                      placeholder="Beispiel: Luxus-Yacht-Sonnenuntergangskreuzfahrt"
+                      className={styles.input}
+                    />
+                  </div>
+                )}
+
+                {/* French Title */}
+                {activeLangTab === 'fr' && (
+                  <div className={styles.formGroup}>
+                    <label>Titre en Français</label>
+                    <input
+                      type="text"
+                      name="titleFr"
+                      value={formData.titleFr}
+                      onChange={handleInputChange}
+                      placeholder="Exemple: Croisière de luxe au coucher du soleil"
+                      className={styles.input}
+                    />
+                  </div>
+                )}
+
+                {/* Spanish Title */}
+                {activeLangTab === 'es' && (
+                  <div className={styles.formGroup}>
+                    <label>Título en Español</label>
+                    <input
+                      type="text"
+                      name="titleEs"
+                      value={formData.titleEs}
+                      onChange={handleInputChange}
+                      placeholder="Ejemplo: Crucero de lujo al atardecer"
+                      className={styles.input}
+                    />
+                  </div>
+                )}
+
+                {/* Italian Title */}
+                {activeLangTab === 'it' && (
+                  <div className={styles.formGroup}>
+                    <label>Titolo in Italiano</label>
+                    <input
+                      type="text"
+                      name="titleIt"
+                      value={formData.titleIt}
+                      onChange={handleInputChange}
+                      placeholder="Esempio: Crociera di lusso al tramonto"
+                      className={styles.input}
+                    />
+                  </div>
+                )}
+
+                {/* Russian Title */}
+                {activeLangTab === 'ru' && (
+                  <div className={styles.formGroup}>
+                    <label>Заголовок на русском</label>
+                    <input
+                      type="text"
+                      name="titleRu"
+                      value={formData.titleRu}
+                      onChange={handleInputChange}
+                      placeholder="Пример: Роскошный яхтенный круиз на закате"
+                      className={styles.input}
+                    />
+                  </div>
+                )}
+
+                {/* Turkish Title */}
+                {activeLangTab === 'tr' && (
+                  <div className={styles.formGroup}>
+                    <label>Türkçe Başlık</label>
+                    <input
+                      type="text"
+                      name="titleTr"
+                      value={formData.titleTr}
+                      onChange={handleInputChange}
+                      placeholder="Örnek: Lüks Yat Gün Batımı Turu"
+                      className={styles.input}
+                    />
+                  </div>
+                )}
+
+                {/* Chinese Title */}
+                {activeLangTab === 'zh' && (
+                  <div className={styles.formGroup}>
+                    <label>中文标题</label>
+                    <input
+                      type="text"
+                      name="titleZh"
+                      value={formData.titleZh}
+                      onChange={handleInputChange}
+                      placeholder="例如：豪华游艇日落巡游"
+                      className={styles.input}
+                    />
+                  </div>
+                )}
+
+                {/* Japanese Title */}
+                {activeLangTab === 'ja' && (
+                  <div className={styles.formGroup}>
+                    <label>日本語のタイトル</label>
+                    <input
+                      type="text"
+                      name="titleJa"
+                      value={formData.titleJa}
+                      onChange={handleInputChange}
+                      placeholder="例：豪華ヨット夕日クルーズ"
+                      className={styles.input}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Trip Description */}
@@ -842,7 +1010,7 @@ export default function AdminServices() {
                   </label>
 
                   {useTierPrices && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.8rem' }}>
                       <div className={styles.formGroup} style={{ margin: 0 }}>
                         <label style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>💰 Economy (€)</label>
                         <input
@@ -877,6 +1045,18 @@ export default function AdminServices() {
                           placeholder="مثال: 120"
                           className={styles.input}
                           min="1"
+                        />
+                      </div>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--emerald-400)', fontSize: '0.85rem' }}>👶 Child (€)</label>
+                        <input
+                          type="number"
+                          name="childPrice"
+                          value={formData.childPrice}
+                          onChange={handleInputChange}
+                          placeholder="مثال: 25"
+                          className={styles.input}
+                          min="0"
                         />
                       </div>
                     </div>

@@ -107,6 +107,21 @@ export default function DafahSimulatedGateway({ searchParams, router, addBooking
           children: parseInt(searchParams.get('children') || '0', 10),
           infants: parseInt(searchParams.get('infants') || '0', 10),
           customerLanguage: searchParams.get('customerLanguage') || locale || 'ar',
+          electronicSignature: {
+            name: customerName,
+            email: email,
+            phone: phone,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            bookingDetails: {
+              tripId,
+              title,
+              date,
+              travelers,
+              amount
+            }
+          },
+          signatureTimestamp: new Date().toISOString()
         });
 
         setPaymentSuccess(true);

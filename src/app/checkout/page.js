@@ -109,7 +109,9 @@ function CheckoutContent() {
   const [modalContent, setModalContent] = useState('');
   const [modalTitle, setModalTitle] = useState('');
   const [customerLanguage, setCustomerLanguage] = useState(locale || 'ar');
-  
+  const [electronicSignature, setElectronicSignature] = useState(null);
+  const [signatureTimestamp, setSignatureTimestamp] = useState(null);
+
   // Promo Code State
   const [promoInput, setPromoInput] = useState('');
   const [promoDetails, setPromoDetails] = useState(null);
@@ -136,12 +138,6 @@ function CheckoutContent() {
     };
     loadSettings();
   }, []);
-
-  useEffect(() => {
-    if (locale) {
-      setCustomerLanguage(locale);
-    }
-  }, [locale]);
 
   const paypalEmail = settings?.paypalEmail || 'info@orluxus.com';
 
@@ -244,9 +240,9 @@ function CheckoutContent() {
     e.preventDefault();
     setPromoError('');
     setPromoSuccess('');
-    
+
     if (!promoInput.trim()) {
-      setPromoError('الرجاء كتابة الكود أولاً!');
+      setPromoError(translate('promoErrorRequired') || 'Please enter a code first!');
       return;
     }
 
@@ -258,11 +254,11 @@ function CheckoutContent() {
       } else {
         setPromoDetails(validation);
         let valueStr = validation.discountType === 'percentage' ? `${validation.discountValue}%` : `€${validation.discountValue}`;
-        setPromoSuccess(`تم تطبيق كود الخصم بنجاح! قيمة الخصم: ${valueStr} (الوكيل: ${validation.agentName})`);
+        setPromoSuccess(`${translate('promoSuccess') || 'Discount code applied successfully!'} ${valueStr} (${translate('agent') || 'Agent'}: ${validation.agentName})`);
       }
     } catch (err) {
       console.error('Error applying promo:', err);
-      setPromoError('حدث خطأ في التحقق من كود الخصم');
+      setPromoError(translate('promoError') || 'Error verifying discount code');
     }
   };
 
@@ -277,6 +273,23 @@ function CheckoutContent() {
       alert(translate('termsAlert'));
       return;
     }
+    // Generate electronic signature when proceeding to payment
+    const signature = {
+      name: customerName,
+      email: email,
+      phone: phone,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      bookingDetails: {
+        tripId,
+        title: titleAr || titleEn,
+        date: bookingDate,
+        travelers,
+        totalAmount
+      }
+    };
+    setElectronicSignature(signature);
+    setSignatureTimestamp(new Date().toISOString());
     setCheckoutStep('payment');
   };
 
@@ -340,7 +353,9 @@ function CheckoutContent() {
           children: children,
           infants: infants,
           specialRequests: specialRequests,
-          customerLanguage: customerLanguage
+          customerLanguage: customerLanguage,
+          electronicSignature: electronicSignature,
+          signatureTimestamp: signatureTimestamp
         });
 
         // Send invoice email (non-blocking)
@@ -354,6 +369,7 @@ function CheckoutContent() {
           promoCode: promoDetails?.code || '',
           agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
           children, infants, specialRequests,
+          electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
         });
         
         setIsSimulatingPayment(false);
@@ -370,7 +386,7 @@ function CheckoutContent() {
   const handleBankTransferPayment = async () => {
     setIsSimulatingPayment(true);
     const txId = `bank-tx-${Date.now()}`;
-    
+
     setTimeout(async () => {
       try {
         await addBooking({
@@ -396,7 +412,9 @@ function CheckoutContent() {
           children: children,
           infants: infants,
           specialRequests: specialRequests,
-          customerLanguage: customerLanguage
+          customerLanguage: customerLanguage,
+          electronicSignature: electronicSignature,
+          signatureTimestamp: signatureTimestamp
         });
 
         // Send invoice email (non-blocking)
@@ -410,8 +428,9 @@ function CheckoutContent() {
           promoCode: promoDetails?.code || '',
           agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
           children, infants, specialRequests,
+          electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
         });
-        
+
         setIsSimulatingPayment(false);
         const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)')}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=bank_transfer&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
         router.push(successUrl);
@@ -450,7 +469,9 @@ function CheckoutContent() {
         children: children,
         infants: infants,
         specialRequests: specialRequests,
-        customerLanguage: customerLanguage
+        customerLanguage: customerLanguage,
+        electronicSignature: electronicSignature,
+        signatureTimestamp: signatureTimestamp
       });
 
       // Send invoice email (non-blocking)
@@ -464,6 +485,7 @@ function CheckoutContent() {
         promoCode: promoDetails?.code || '',
         agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
         children, infants, specialRequests,
+        electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
       });
     } catch (err) {
       console.error('Error saving booking on cash payment:', err);
@@ -547,7 +569,9 @@ function CheckoutContent() {
               children: children,
               infants: infants,
               specialRequests: specialRequests,
-              customerLanguage: customerLanguage
+              customerLanguage: customerLanguage,
+              electronicSignature: electronicSignature,
+              signatureTimestamp: signatureTimestamp
             });
 
             // Send invoice email (non-blocking)
@@ -561,11 +585,12 @@ function CheckoutContent() {
               promoCode: promoDetails?.code || '',
               agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
               children, infants, specialRequests,
+              electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
             });
           } catch (err) {
             console.error('Error saving booking on PayPal approval:', err);
           }
-          
+
           const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)')}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=paypal&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
           router.push(successUrl);
         });
@@ -1950,52 +1975,73 @@ function CheckoutContent() {
                 )}
               </div>
 
-              {/* Terms Checkbox */}
+              {/* Terms Checkbox with Electronic Signature */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.2rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={termsAccepted}
                     onChange={(e) => setTermsAccepted(e.target.checked)}
                     style={{ width: '20px', height: '20px', cursor: 'pointer' }}
                   />
                   <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                     {translate('termsCheckbox')}
-                    <a 
-                      href="#" 
+                    <a
+                      href="#"
                       onClick={(e) => {
                         e.preventDefault();
                         setModalTitle(translate('readTerms'));
                         const isAr = locale === 'ar';
-                        const text = isAr 
+                        const text = isAr
                           ? (settings?.dataProtection || settings?.dataProtectionEn || 'لا توجد شروط.')
                           : (settings?.dataProtectionEn || settings?.dataProtection || 'No terms provided.');
                         setModalContent(text);
                         setShowTermsModal(true);
-                      }} 
+                      }}
                       style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}
                     >
                       {translate('readTerms')}
                     </a>
                     {locale === 'ar' ? ' و ' : locale === 'de' ? ' und ' : locale === 'fr' ? ' et ' : locale === 'es' ? ' y ' : locale === 'it' ? ' e ' : locale === 'ru' ? ' и ' : locale === 'tr' ? ' ve ' : locale === 'zh' ? ' 和 ' : locale === 'ja' ? ' と ' : ' and '}
-                    <a 
-                      href="#" 
+                    <a
+                      href="#"
                       onClick={(e) => {
                         e.preventDefault();
                         setModalTitle(translate('readPolicy'));
                         const isAr = locale === 'ar';
-                        const text = isAr 
+                        const text = isAr
                           ? (settings?.legalCancellation || settings?.legalCancellationEn || 'لا توجد سياسة.')
                           : (settings?.legalCancellationEn || settings?.legalCancellation || 'No policy provided.');
                         setModalContent(text);
                         setShowTermsModal(true);
-                      }} 
+                      }}
                       style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}
                     >
                       {translate('readPolicy')}
                     </a>
                   </span>
                 </label>
+
+                {/* Electronic Signature Display */}
+                {electronicSignature && (
+                  <div style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '8px',
+                    padding: '1rem',
+                    marginTop: '0.5rem'
+                  }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginBottom: '0.5rem' }}>
+                      {locale === 'ar' ? '📝 التوقيع الإلكتروني' : '📝 Electronic Signature'}
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                      <div><strong>{locale === 'ar' ? 'الاسم:' : 'Name:'}</strong> {electronicSignature.name}</div>
+                      <div><strong>{locale === 'ar' ? 'البريد الإلكتروني:' : 'Email:'}</strong> {electronicSignature.email}</div>
+                      <div><strong>{locale === 'ar' ? 'التوقيع:' : 'Signature:'}</strong> {electronicSignature.name}</div>
+                      <div><strong>{locale === 'ar' ? 'التاريخ والوقت:' : 'Date & Time:'}</strong> {new Date(electronicSignature.timestamp).toLocaleString()}</div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Pay Button */}

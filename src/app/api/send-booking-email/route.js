@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { generateContract } from '@/lib/contractGenerator';
 
 // Company contact info (Default Fallbacks from .env)
 const COMPANY_EMAIL_DEFAULT = process.env.COMPANY_EMAIL || 'info@orluxus.com';
@@ -266,6 +267,7 @@ export async function POST(request) {
       serviceName, originalAmount, discountAmount, finalAmount,
       paymentType, txId, extras, pickupLocation, promoCode,
       agentName, children = 0, infants = 0, specialRequests,
+      electronicSignature, signatureTimestamp, city
     } = body;
 
     // Validate required fields
@@ -296,6 +298,25 @@ export async function POST(request) {
     };
 
     const htmlContent = buildInvoiceHTML(invoiceData);
+
+    // Generate contract with electronic signature if available
+    let contractText = '';
+    if (electronicSignature && signatureTimestamp) {
+      const bookingData = {
+        customer: customerName,
+        email: email,
+        phone: phone,
+        service: serviceName,
+        city: city || 'شرم الشيخ',
+        originalAmount: originalAmount,
+        finalAmount: finalAmount,
+        travelers: travelers,
+        date: date,
+        txId: txId,
+        paymentType: paymentType
+      };
+      contractText = generateContract(bookingData, electronicSignature);
+    }
     const subject = `[ORLUXUS] Booking Confirmation — ${serviceName} | #${txId.slice(-8).toUpperCase()}`;
 
     // If no SMTP credentials, skip actually sending (log only)
@@ -317,25 +338,51 @@ export async function POST(request) {
       });
 
       console.log('[send-booking-email] Attempting to send email to customer:', email);
-      
+
       // Send to customer
-      await transporter.sendMail({
+      const customerMailOptions = {
         from: `"ORLUXUS" <${activeSmtpUser}>`,
         to: email,
         subject,
         html: htmlContent,
-      });
+      };
+
+      // Attach contract if available
+      if (contractText) {
+        customerMailOptions.attachments = [
+          {
+            filename: `ORLUXUS_Contract_${txId.slice(-8).toUpperCase()}.txt`,
+            content: contractText,
+            contentType: 'text/plain'
+          }
+        ];
+      }
+
+      await transporter.sendMail(customerMailOptions);
       console.log('[send-booking-email] Customer email sent successfully');
 
       console.log('[send-booking-email] Attempting to send email to company:', activeCompanyEmail);
-      
+
       // Send to company email
-      await transporter.sendMail({
-        from: `"ORLUXUS Booking System" <${activeSmtpUser}>`,
+      const companyMailOptions = {
+        from: `"ORLUXUS" <${activeSmtpUser}>`,
         to: activeCompanyEmail,
-        subject: `[NEW BOOKING] ${customerName} — ${serviceName} | €${finalAmount.toFixed(2)}`,
+        subject: `[ORLUXUS] New Booking — ${customerName} | ${serviceName}`,
         html: htmlContent,
-      });
+      };
+
+      // Attach contract if available
+      if (contractText) {
+        companyMailOptions.attachments = [
+          {
+            filename: `ORLUXUS_Contract_${txId.slice(-8).toUpperCase()}.txt`,
+            content: contractText,
+            contentType: 'text/plain'
+          }
+        ];
+      }
+
+      await transporter.sendMail(companyMailOptions);
       console.log('[send-booking-email] Company email sent successfully');
 
       return Response.json({ success: true, message: 'Emails sent successfully' });

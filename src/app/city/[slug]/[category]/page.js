@@ -158,6 +158,14 @@ export default function CategoryPage({ params }) {
                         {t('common.newBadge')}
                       </span>
                     )}
+
+                    {/* Multiple images indicator */}
+                    {trip.images && trip.images.length > 0 && (
+                      <div style={{ position: 'absolute', bottom: '12px', right: locale === 'ar' ? 'auto' : '12px', left: locale === 'ar' ? '12px' : 'auto', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', padding: '4px 10px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ fontSize: '1rem' }}>🖼️</span>
+                        <span style={{ color: '#fff', fontSize: '0.75rem', fontWeight: '600' }}>{trip.images.length + 1}</span>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Trip Card Content */}
@@ -167,13 +175,22 @@ export default function CategoryPage({ params }) {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', gap: '0.5rem', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
                       <div style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
                         <h3 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: '700', marginBottom: '4px' }}>
-                          <TranslatedText text={trip.titleEn || trip.titleAr} />
+                          {(() => {
+                            const titleMap = {
+                              ar: trip.titleAr,
+                              en: trip.titleEn,
+                              de: trip.titleDe,
+                              fr: trip.titleFr,
+                              es: trip.titleEs,
+                              it: trip.titleIt,
+                              ru: trip.titleRu,
+                              tr: trip.titleTr,
+                              zh: trip.titleZh,
+                              ja: trip.titleJa
+                            };
+                            return titleMap[locale] || trip.titleEn || trip.titleAr;
+                          })()}
                         </h3>
-                        {locale === 'ar' && trip.titleEn && (
-                          <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>
-                            {trip.titleEn}
-                          </span>
-                        )}
                       </div>
                       <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', color: 'var(--gold-600)', fontSize: '1.35rem', whiteSpace: 'nowrap', textShadow: '0 0 1px rgba(217, 119, 6, 0.1)' }}>
                         {trip.currency || '€'}{activeTier.price}
@@ -280,7 +297,7 @@ export default function CategoryPage({ params }) {
 
                     {/* Stats */}
                     <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: '1.5rem', marginTop: 'auto', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
-                      <span>⏱️ <TranslatedText text={trip.duration} /></span>
+                      <span>⏱️ {locale === 'ar' ? (trip.durationAr || trip.duration) : (trip.durationEn || trip.duration)}</span>
                       <span>⭐ {trip.rating || '5.0'} ({trip.reviews || '1'})</span>
                     </div>
 

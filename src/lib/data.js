@@ -399,7 +399,7 @@ export const sampleTrips = {
         descriptionEn: "Explore the depths of the Red Sea aboard a modern submarine — no swimming or diving required! Watch colorful coral reefs and tropical fish through a large glass window. The perfect family-friendly Sharm El Sheikh activity for all ages.",
         price: 45, currency: "€", rating: 4.6, reviews: 312,
         image: "https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=400&q=80",
-        duration: "3 Hours", includes: "Submarine ride, transfers"
+        duration: "3 Hours", durationAr: "3 ساعات", durationEn: "3 Hours", includes: "Submarine ride, transfers"
       },
       {
         id: 5,
@@ -409,7 +409,7 @@ export const sampleTrips = {
         descriptionEn: "View stunning coral reefs and colorful fish through the glass bottom of a boat without getting wet. A fun and relaxed Sharm El Sheikh boat trip suitable for the whole family including children and elderly visitors.",
         price: 25, currency: "€", rating: 4.5, reviews: 278,
         image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=400&q=80",
-        duration: "2 Hours", includes: "Glass bottom boat, refreshments"
+        duration: "2 Hours", durationAr: "2 ساعات", durationEn: "2 Hours", includes: "Glass bottom boat, refreshments"
       },
     ],
     "desert-trips": [
@@ -660,6 +660,8 @@ export const sampleTrips = {
 // Generates 3 tiers for a given trip
 export function getTripTiers(trip) {
   const basePrice = Number(trip.price) || 30;
+  const hasCustomTiers = !!(trip.economyPrice && trip.businessPrice && trip.vipPrice);
+  
   return [
     {
       id: "economy",
@@ -668,7 +670,7 @@ export function getTripTiers(trip) {
         es: "Clase Turista", it: "Classe Economica", ru: "Эконом-класс", tr: "Ekonomi Sınıfı",
         zh: "经济舱", ja: "エコノミークラス"
       },
-      price: basePrice,
+      price: hasCustomTiers ? Number(trip.economyPrice) : basePrice,
       descriptions: {
         en: "Standard group excursion with basic entry and guidance.",
         ar: "جولة جماعية قياسية شاملة الدخول الأساسي والإرشاد.",
@@ -690,7 +692,7 @@ export function getTripTiers(trip) {
         es: "Clase Ejecutiva", it: "Classe Business", ru: "Бизнес-класс", tr: "İş Sınıfı",
         zh: "公务舱", ja: "ビジネスクラス"
       },
-      price: Math.round(basePrice * 1.5),
+      price: hasCustomTiers ? Number(trip.businessPrice) : Math.round(basePrice * 1.5),
       descriptions: {
         en: "Upgraded amenities, premium lunch, and priority access.",
         ar: "مرافق مطورة، وجبة غداء ممتازة، ودخول سريع ذو أولوية.",
@@ -712,7 +714,7 @@ export function getTripTiers(trip) {
         es: "Clase VIP", it: "Classe VIP", ru: "VIP Премиум", tr: "VIP Sınıfı",
         zh: "VIP 豪华舱", ja: "VIPクラス"
       },
-      price: Math.round(basePrice * 2.3),
+      price: hasCustomTiers ? Number(trip.vipPrice) : Math.round(basePrice * 2.3),
       descriptions: {
         en: "Luxury private transfers, dedicated private guide, and elite amenities.",
         ar: "انتقالات خاصة فاخرة، مرشد خاص مخصص، ومرافق النخبة الراقية.",
