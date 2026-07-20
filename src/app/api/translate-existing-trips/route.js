@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getTrips, updateTrip } from '@/lib/db';
+import { getAllTrips, updateTrip } from '@/lib/db';
 import translate from 'google-translate-api-x';
 
 const LANGUAGES = {
@@ -21,7 +21,7 @@ export async function POST(request) {
     const { sourceLang = 'en' } = body;
 
     // Get all trips
-    const trips = await getTrips();
+    const trips = await getAllTrips();
     
     let translatedCount = 0;
     let failedCount = 0;

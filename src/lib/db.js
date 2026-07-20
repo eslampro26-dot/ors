@@ -3,6 +3,7 @@
 export {
   initializeDB,
   getTrips,
+  getAllTrips,
   addTrip,
   getPackages,
   addPackage,

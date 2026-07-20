@@ -8,6 +8,7 @@
 
 import {
   getTrips as fbGetTrips,
+  getAllTrips as fbGetAllTrips,
   addTrip as fbAddTrip,
   updateTrip as fbUpdateTrip,
   deleteTrip as fbDeleteTrip,
@@ -235,6 +236,13 @@ export async function getTrips(slug, category) {
   if (isFirebaseConfigured()) return fbGetTrips(slug, category);
   const res = await apiCall(`/api/trips?slug=${slug}&category=${category}`);
   return res || sampleTrips[slug]?.[category] || [];
+}
+
+export async function getAllTrips() {
+  if (!isClient) return fbGetAllTrips();
+  if (isFirebaseConfigured()) return fbGetAllTrips();
+  const res = await apiCall('/api/trips?all=true');
+  return res || [];
 }
 
 export async function addTrip(slug, category, tripData) {

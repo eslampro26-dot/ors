@@ -262,6 +262,18 @@ export async function getTrips(slug, category) {
   }
 }
 
+export async function getAllTrips() {
+  // Circuit breaker: skip Firebase if previously failed
+  if (_circuitBreaker.isOpen()) return [];
+  try {
+    const snapshot = await withTimeout(getDocs(collection(db, COL.TRIPS)), 10000);
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    _circuitBreaker.trip(e);
+    return [];
+  }
+}
+
 export async function addTrip(slug, category, tripData) {
   try {
     const newTrip = {
@@ -902,6 +914,7 @@ export const isFirebaseConfigured = () => {
 // تصدير جميع الدوال
 export {
   getTrips,
+  getAllTrips,
   addTrip,
   updateTrip,
   deleteTrip,
