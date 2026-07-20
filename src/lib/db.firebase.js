@@ -156,6 +156,11 @@ const DEFAULT_SETTINGS = {
   siteName: 'ORLUXUS',
   whatsapp: '+20100000000',
   paypalEmail: 'info@orluxus.com',
+  smtpHost: 'smtp.gmail.com',
+  smtpPort: '587',
+  smtpUser: '',
+  smtpPass: '',
+  companyEmail: 'info@orluxus.com',
   additionalPrices: {
     'sea-trips': { economy: 20, business: 35, vip: 50 },
     'desert-trips': { economy: 15, business: 25, vip: 40 },

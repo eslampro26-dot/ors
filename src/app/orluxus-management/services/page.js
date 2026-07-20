@@ -5,7 +5,7 @@ import { cities, internalPackages, categoryTranslations } from '@/lib/data';
 import { getTrips, addTrip, updateTrip, deleteTrip, getPackages, addPackage, deletePackage } from '@/lib/db';
 import styles from './page.module.css';
 
-// أيقونات الفئات
+// Category Icons
 const categoryIcons = {
   'sea-trips': '⛵',
   'desert-trips': '🏜️',
@@ -18,20 +18,20 @@ const categoryIcons = {
   'entertainment': '🎭',
 };
 
-// الطلبات الخاصة المتاحة للاختيار
+// Available special requests for selection
 const PRESET_SPECIAL_REQUESTS = [
-  { id: 'veg_food', labelAr: 'طعام نباتي', labelEn: 'Vegetarian Food' },
-  { id: 'halal_food', labelAr: 'طعام حلال', labelEn: 'Halal Food' },
-  { id: 'kids_menu', labelAr: 'قائمة أطفال', labelEn: 'Kids Menu' },
-  { id: 'wheelchair', labelAr: 'كرسي متحرك', labelEn: 'Wheelchair Access' },
-  { id: 'early_checkin', labelAr: 'تسجيل دخول مبكر', labelEn: 'Early Check-in' },
-  { id: 'late_checkout', labelAr: 'تسجيل خروج متأخر', labelEn: 'Late Check-out' },
-  { id: 'airport_pickup', labelAr: 'استقبال المطار', labelEn: 'Airport Pickup' },
-  { id: 'private_guide', labelAr: 'مرشد خاص', labelEn: 'Private Guide' },
-  { id: 'photography', labelAr: 'تصوير احترافي', labelEn: 'Professional Photography' },
-  { id: 'birthday_cake', labelAr: 'كيكة عيد ميلاد', labelEn: 'Birthday Cake' },
-  { id: 'romantic_setup', labelAr: 'ديكور رومانسي', labelEn: 'Romantic Setup' },
-  { id: 'snorkeling_gear', labelAr: 'معدات سنوركل', labelEn: 'Snorkeling Gear' },
+  { id: 'veg_food', labelEn: 'Vegetarian Food' },
+  { id: 'halal_food', labelEn: 'Halal Food' },
+  { id: 'kids_menu', labelEn: 'Kids Menu' },
+  { id: 'wheelchair', labelEn: 'Wheelchair Access' },
+  { id: 'early_checkin', labelEn: 'Early Check-in' },
+  { id: 'late_checkout', labelEn: 'Late Check-out' },
+  { id: 'airport_pickup', labelEn: 'Airport Pickup' },
+  { id: 'private_guide', labelEn: 'Private Guide' },
+  { id: 'photography', labelEn: 'Professional Photography' },
+  { id: 'birthday_cake', labelEn: 'Birthday Cake' },
+  { id: 'romantic_setup', labelEn: 'Romantic Setup' },
+  { id: 'snorkeling_gear', labelEn: 'Snorkeling Gear' },
 ];
 
 export default function AdminServices() {
@@ -66,7 +66,7 @@ export default function AdminServices() {
     businessPrice: '',
     vipPrice: '',
     childPrice: '',
-    duration: 'يوم كامل',
+    duration: 'Full Day',
     category: '',
     city: '',
     description: '',
@@ -83,6 +83,7 @@ export default function AdminServices() {
   });
   const [useTierPrices, setUseTierPrices] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState('ar');
+  const [isTranslating, setIsTranslating] = useState(false);
 
   // Load data only for the selected city (lazy loading for performance)
   const loadCityData = async (cityId) => {
@@ -147,6 +148,35 @@ export default function AdminServices() {
     setTripsData(prev => ({ ...prev, [selectedCity]: cityTrips }));
   };
 
+  // Translate all existing trips
+  const handleTranslateAllTrips = async () => {
+    if (!confirm('Do you want to translate all existing trips to 10 languages? This may take a few minutes.')) {
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const response = await fetch('/api/translate-existing-trips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sourceLang: 'en' })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert(`Successfully translated ${data.translatedCount} trips!`);
+        await reloadCurrentCity();
+      } else {
+        alert('Translation failed: ' + (data.error || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error('Translation error:', err);
+      alert('An error occurred during translation');
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   const reloadCurrentPackage = async () => {
     const pkgs = await getPackages(selectedPkgType);
     setPackagesData(prev => ({ ...prev, [selectedPkgType]: pkgs || [] }));
@@ -166,7 +196,7 @@ export default function AdminServices() {
         setFormData(prev => ({
           ...prev,
           category: selectedPkgType,
-          duration: '3 ليالي / 4 أيام',
+          duration: '3 Nights / 4 Days',
         }));
       }
     }
@@ -292,7 +322,7 @@ export default function AdminServices() {
       businessPrice: String(trip.businessPrice || ''),
       vipPrice: String(trip.vipPrice || ''),
       childPrice: String(trip.childPrice || ''),
-      duration: trip.duration || 'يوم كامل',
+      duration: trip.duration || 'Full Day',
       category: catId,
       city: cityId,
       description: trip.description || '',
@@ -317,7 +347,7 @@ export default function AdminServices() {
       const { city, category, titleEn, titleDe, price, economyPrice, businessPrice, vipPrice, childPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, specialRequests } = formData;
       const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
       if (!titleEn || !titleDe || basePrice <= 0) {
-        alert('يرجى ملء جميع الحقول المطلوبة (العنوان بالإنجليزية والألمانية والسعر)!');
+        alert('Please fill all required fields (English and German titles and price)!');
         return;
       }
 
@@ -401,35 +431,35 @@ export default function AdminServices() {
           // Update mode
           success = await updateTrip(editingTrip.tripId, tripPayload);
           if (success) {
-            alert('تم تحديث الرحلة بنجاح!');
+            alert('Trip updated successfully!');
           } else {
-            alert('حدث خطأ أثناء تحديث الرحلة.');
+            alert('Error updating trip.');
           }
         } else {
           // Add mode
           success = await addTrip(city, category, tripPayload);
           if (success) {
-            alert('تمت إضافة الرحلة بنجاح!');
+            alert('Trip added successfully!');
           } else {
-            alert('حدث خطأ أثناء حفظ الرحلة.');
+            alert('Error saving trip.');
           }
         }
 
         if (success) {
           setModalOpen(false);
           setEditingTrip(null);
-          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',duration:'يوم كامل',category:'',city:'',description:'',tripDescription:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
+          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',duration:'Full Day',category:'',city:'',description:'',tripDescription:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
           setUseTierPrices(false);
           await reloadCurrentCity();
         }
       } catch (err) {
         console.error('Error saving trip:', err);
-        alert('حدث خطأ أثناء حفظ الرحلة.');
+        alert('Error saving trip.');
       }
     } else {
       const { category, titleAr, titleEn, price, duration, description, icon, image, images } = formData;
       if (!titleAr || !titleEn || !price) {
-        alert('يرجى ملء جميع الحقول المطلوبة!');
+        alert('Please fill all required fields!');
         return;
       }
 
@@ -438,7 +468,7 @@ export default function AdminServices() {
           titleAr,
           titleEn,
           price: parseFloat(price),
-          duration: duration || '3 ليالي / 4 أيام',
+          duration: duration || '3 Nights / 4 Days',
           description,
           icon: icon || '✈️',
           image: image || '',
@@ -446,48 +476,48 @@ export default function AdminServices() {
         });
 
         if (success) {
-          alert('تمت إضافة الباكدج بنجاح!');
+          alert('Package added successfully!');
           setModalOpen(false);
-          setFormData({ titleAr:'',titleEn:'',price:'',duration:'يوم كامل',category:'',city:'',description:'',icon:'✈️',image:'',images:[] });
+          setFormData({ titleAr:'',titleEn:'',price:'',duration:'Full Day',category:'',city:'',description:'',icon:'✈️',image:'',images:[] });
           await reloadCurrentPackage();
         } else {
-          alert('حدث خطأ أثناء حفظ الباكدج.');
+          alert('Error saving package.');
         }
       } catch (err) {
         console.error('Error adding package:', err);
-        alert('حدث خطأ أثناء حفظ الباكدج.');
+        alert('Error saving package.');
       }
     }
   };
 
   const handleDeleteTrip = async (cityId, catId, tripId) => {
-    if (confirm('هل أنت متأكد من رغبتك في حذف هذه الخدمة؟')) {
+    if (confirm('Are you sure you want to delete this service?')) {
       try {
         const success = await deleteTrip(cityId, catId, tripId);
         if (success) {
           await reloadCurrentCity();
         } else {
-          alert('حدث خطأ أثناء حذف الخدمة.');
+          alert('Error deleting service.');
         }
       } catch (err) {
         console.error('Error deleting trip:', err);
-        alert('حدث خطأ أثناء حذف الخدمة.');
+        alert('Error deleting service.');
       }
     }
   };
 
   const handleDeletePackage = async (pkgId, itemUniqueId) => {
-    if (confirm('هل أنت متأكد من رغبتك في حذف هذا الباكدج؟')) {
+    if (confirm('Are you sure you want to delete this package?')) {
       try {
         const success = await deletePackage(pkgId, itemUniqueId);
         if (success) {
           await reloadCurrentPackage();
         } else {
-          alert('حدث خطأ أثناء حذف الباكدج.');
+          alert('Error deleting package.');
         }
       } catch (err) {
         console.error('Error deleting package:', err);
-        alert('حدث خطأ أثناء حذف الباكدج.');
+        alert('Error deleting package.');
       }
     }
   };
@@ -497,15 +527,15 @@ export default function AdminServices() {
       {/* Top Header */}
       <div className={styles.header}>
         <div>
-          <h2>إدارة الخدمات والرحلات السياحية</h2>
-          <p className={styles.subtitle}>تحكم في جميع الرحلات والباكدجات السياحية المتاحة على المنصة.</p>
+          <h2>Services & Trips Management</h2>
+          <p className={styles.subtitle}>Control all trips and tour packages available on the platform.</p>
         </div>
         <div style={{ display: 'flex', gap: '0.8rem' }}>
           <button 
             className="btn btn-primary" 
             onClick={() => { setModalType('trip'); setModalOpen(true); }}
           >
-            <span>➕</span> إضافة رحلة جديدة
+            <span>➕</span> Add New Trip
           </button>
           <button 
             className="btn btn-ocean" 
@@ -515,7 +545,7 @@ export default function AdminServices() {
               setModalOpen(true); 
             }}
           >
-            <span>✈️</span> إضافة باكدج جديد
+            <span>✈️</span> Add New Package
           </button>
         </div>
       </div>
@@ -526,13 +556,13 @@ export default function AdminServices() {
           className={`${styles.mainTab} ${activeTab === 'cities' ? styles.activeMainTab : ''}`}
           onClick={() => setActiveTab('cities')}
         >
-          🏖️ الرحلات حسب المدن
+          🏖️ Trips by Cities
         </button>
         <button 
           className={`${styles.mainTab} ${activeTab === 'packages' ? styles.activeMainTab : ''}`}
           onClick={() => setActiveTab('packages')}
         >
-          📦 باكدجات مصر الشاملة
+          📦 Egypt Comprehensive Packages
         </button>
       </div>
 
@@ -568,11 +598,29 @@ export default function AdminServices() {
                             {cat.nameAr} <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', fontFamily: 'var(--font-en)' }}>({cat.nameEn})</span>
                           </h3>
                         </div>
-                        
-                        {/* Active count */}
+
+                        {/* Actions */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {/* Translate All Button - only show on first category */}
+                          {city.categories.indexOf(cat) === 0 && (
+                            <button
+                              onClick={handleTranslateAllTrips}
+                              disabled={isTranslating}
+                              className="btn btn-secondary btn-sm"
+                              style={{
+                                padding: '0.4rem 0.8rem',
+                                fontSize: '0.8rem',
+                                opacity: isTranslating ? 0.6 : 1,
+                                cursor: isTranslating ? 'not-allowed' : 'pointer'
+                              }}
+                            >
+                              {isTranslating ? '⏳ Translating...' : '🌐 Translate All Trips'}
+                            </button>
+                          )}
+
+                          {/* Active count */}
                           <span className="badge badge-gold" style={{ fontSize: '0.75rem' }}>
-                            {trips.length} خدمة نشطة
+                            {trips.length} Active Services
                           </span>
                         </div>
                       </div>
@@ -599,7 +647,7 @@ export default function AdminServices() {
 
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.6rem' }}>
                                 <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                                  {trip.id.toString().startsWith('custom') ? '✏️ مضاف يدوياً' : '📌 افتراضي'}
+                                  {trip.id.toString().startsWith('custom') ? '✏️ Manually Added' : '📌 Default'}
                                 </span>
                                 <div style={{ display: 'flex', gap: '6px' }}>
                                   <button 
@@ -607,14 +655,14 @@ export default function AdminServices() {
                                     style={{ padding: '2px 8px', color: 'var(--gold-400)', borderColor: 'rgba(251,191,36,0.3)', fontSize: '0.8rem' }}
                                     onClick={() => handleEditTripClick(city.id, cat.id, trip)}
                                   >
-                                    ✏️ تعديل
+                                    ✏️ Edit
                                   </button>
                                   <button 
                                     className="btn btn-secondary btn-sm" 
                                     style={{ padding: '2px 8px', color: 'var(--coral-600)', borderColor: 'rgba(244, 63, 94, 0.2)', fontSize: '0.8rem' }}
                                     onClick={() => handleDeleteTrip(city.id, cat.id, trip.id)}
                                   >
-                                    🗑️ حذف
+                                    🗑️ Delete
                                   </button>
                                 </div>
                               </div>
@@ -623,7 +671,7 @@ export default function AdminServices() {
                         </div>
                       ) : (
                         <div className="glass-card" style={{ padding: '2rem', textAlign: 'center', borderStyle: 'dashed', opacity: 0.7 }}>
-                          <p style={{ color: 'var(--text-secondary)' }}>لا توجد رحلات مضافة في هذا القسم حالياً.</p>
+                          <p style={{ color: 'var(--text-secondary)' }}>No services added to this section yet.</p>
                           <button 
                             className="btn btn-secondary btn-sm" 
                             style={{ marginTop: '0.5rem' }}
@@ -633,7 +681,7 @@ export default function AdminServices() {
                               setModalOpen(true);
                             }}
                           >
-                            ➕ أضف أول رحلة الآن
+                            ➕ Add First Service Now
                           </button>
                         </div>
                       )}
@@ -675,7 +723,7 @@ export default function AdminServices() {
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{pkg.descriptions?.ar || ''}</p>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    <span className="badge badge-ocean">{items.length} باكدج مفعّل</span>
+                    <span className="badge badge-ocean">{items.length} Active Packages</span>
                     <button
                       className="btn btn-primary"
                       style={{ padding: '0.4rem 0.9rem', fontSize: '0.85rem' }}
@@ -685,7 +733,7 @@ export default function AdminServices() {
                         setModalOpen(true);
                       }}
                     >
-                      ➕ إضافة
+                      ➕ Add
                     </button>
                   </div>
                 </div>
@@ -712,18 +760,18 @@ export default function AdminServices() {
                         )}
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                          <span>⏱️ {item.duration || 'غير محدد'}</span>
+                          <span>⏱️ {item.duration || 'Not specified'}</span>
                           <span>⭐ {item.rating}</span>
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.8rem' }}>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>مضاف يدوياً</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Manually added</span>
                           <button 
                             className="btn btn-secondary btn-sm" 
                             style={{ padding: '2px 8px', color: 'var(--coral-600)', borderColor: 'rgba(244, 63, 94, 0.2)' }}
                             onClick={() => handleDeletePackage(pkg.id, item.id)}
                           >
-                            🗑️ حذف الباكدج
+                            🗑️ Delete Package
                           </button>
                         </div>
                       </div>
@@ -732,9 +780,9 @@ export default function AdminServices() {
                 ) : (
                   <div className="glass-card" style={{ padding: '4rem 2rem', textAlign: 'center', borderStyle: 'dashed', opacity: 0.7 }}>
                     <span style={{ fontSize: '3rem', opacity: 0.5 }}>{pkg.icon}</span>
-                    <h3 style={{ marginTop: '1rem', color: 'var(--text-primary)' }}>لا توجد باكدجات مضافة حالياً في هذا القسم</h3>
+                    <h3 style={{ marginTop: '1rem', color: 'var(--text-primary)' }}>No packages added to this section yet</h3>
                     <p style={{ color: 'var(--text-secondary)', maxWidth: '450px', margin: '0.5rem auto 1.5rem auto' }}>
-                      يمكنك إضافة عروض سياحية شاملة (فندق + طيران + رحلات) وتعيين أسعار خاصة بها لتظهر للجمهور.
+                      You can add comprehensive tourism offers (hotel + flights + trips) and set special prices for them to appear to the public.
                     </p>
                     <button 
                       className="btn btn-primary"
@@ -744,7 +792,7 @@ export default function AdminServices() {
                         setModalOpen(true);
                       }}
                     >
-                      ➕ إضافة باكدج لهذا القسم
+                      ➕ Add package to this section
                     </button>
                   </div>
                 )}
@@ -761,8 +809,8 @@ export default function AdminServices() {
             <div className={styles.modalHeader}>
               <h3>
                 {modalType === 'trip' 
-                  ? (editingTrip ? '✏️ تعديل بيانات الرحلة' : '➕ إضافة رحلة سياحية جديدة') 
-                  : '✈️ إضافة باكدج سياحي جديد'}
+                  ? (editingTrip ? '✏️ Edit trip data' : '➕ Add new tourist trip') 
+                  : '✈️ Add new tourism package'}
               </h3>
               <button className={styles.closeBtn} onClick={() => { setModalOpen(false); setEditingTrip(null); }}>×</button>
             </div>
@@ -772,7 +820,7 @@ export default function AdminServices() {
                 <>
                   {/* Select City */}
                   <div className={styles.formGroup}>
-                    <label>المدينة السياحية المستهدفة</label>
+                    <label>Target tourist city</label>
                     <select
                       name="city"
                       value={formData.city}
@@ -788,7 +836,7 @@ export default function AdminServices() {
 
                   {/* Select Category */}
                   <div className={styles.formGroup}>
-                    <label>نوع الرحلة (القسم)</label>
+                    <label>Trip type (section)</label>
                     <select
                       name="category"
                       value={formData.category}
@@ -812,7 +860,7 @@ export default function AdminServices() {
               ) : (
                 /* Select Package Category */
                 <div className={styles.formGroup}>
-                  <label>نوع الباكدج</label>
+                  <label>Package type</label>
                   <select
                     name="category"
                     value={formData.category}
@@ -831,7 +879,7 @@ export default function AdminServices() {
               <div style={{ marginBottom: '1rem' }}>
 
                 <div className={styles.formGroup}>
-                  <label>English Title (الإنجليزية) *</label>
+                  <label>English Title *</label>
                   <input
                     type="text"
                     name="titleEn"
@@ -844,7 +892,7 @@ export default function AdminServices() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label>German Title (الألمانية) *</label>
+                  <label>German Title *</label>
                   <input
                     type="text"
                     name="titleDe"
@@ -865,7 +913,7 @@ export default function AdminServices() {
                   marginBottom: '20px'
                 }}>
                   <p style={{ margin: '0', fontSize: '0.85rem', color: '#c9a227' }}>
-                    ℹ️ سيتم ترجمة العنوان تلقائياً للغات الأخرى (العربية، الفرنسية، الإسبانية، الإيطالية، الروسية، التركية، الصينية، اليابانية) عند الحفظ
+                    ℹ️ The title will be automatically translated to other languages (Arabic, French, Spanish, Italian, Russian, Turkish, Chinese, Japanese) when saved
                   </p>
                 </div>
               </div>
@@ -873,12 +921,12 @@ export default function AdminServices() {
               {/* Trip Description */}
               {modalType === 'trip' && (
                 <div className={styles.formGroup}>
-                  <label>وصف الرحلة التفصيلي (يظهر للعملاء)</label>
+                  <label>Detailed trip description (shown to customers)</label>
                   <textarea
                     name="tripDescription"
                     value={formData.tripDescription}
                     onChange={handleInputChange}
-                    placeholder="اكتب وصفاً شاملاً للرحلة: ما الذي يتضمنه البرنامج، أبرز المعالم، ما المميزات..."
+                    placeholder="Write a comprehensive description of the trip: what the program includes, main landmarks, features..."
                     className={styles.input}
                     rows="3"
                     style={{ resize: 'vertical' }}
@@ -889,13 +937,13 @@ export default function AdminServices() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 {/* Duration */}
                 <div className={styles.formGroup}>
-                  <label>المدة الزمنية</label>
+                  <label>Duration</label>
                   <input 
                     type="text" 
                     name="duration" 
                     value={formData.duration} 
                     onChange={handleInputChange}
-                    placeholder={modalType === 'trip' ? "يوم كامل، 3 ساعات..." : "3 ليالي / 4 أيام..."}
+                    placeholder={modalType === 'trip' ? "Full day, 3 hours..." : "3 nights / 4 days..."}
                     className={styles.input}
                   />
                 </div>
@@ -903,13 +951,13 @@ export default function AdminServices() {
                 {/* Base Price */}
                 {!useTierPrices && (
                   <div className={styles.formGroup}>
-                    <label>السعر الأساسي (€) *</label>
+                    <label>Base price (€) *</label>
                     <input 
                       type="number" 
                       name="price" 
                       value={formData.price} 
                       onChange={handleInputChange}
-                      placeholder="مثال: 45"
+                      placeholder="Example: 45"
                       className={styles.input}
                       min="1"
                     />
@@ -927,7 +975,7 @@ export default function AdminServices() {
                       onChange={(e) => setUseTierPrices(e.target.checked)}
                       style={{ width: '18px', height: '18px' }}
                     />
-                    <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>تفعيل أسعار منفصلة لكل فئة (Economy / Business / VIP)</span>
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>Enable separate prices for each category (Economy / Business / VIP)</span>
                   </label>
 
                   {useTierPrices && (
@@ -939,7 +987,7 @@ export default function AdminServices() {
                           name="economyPrice"
                           value={formData.economyPrice}
                           onChange={handleInputChange}
-                          placeholder="مثال: 45"
+                          placeholder="Example: 45"
                           className={styles.input}
                           min="1"
                         />
@@ -951,7 +999,7 @@ export default function AdminServices() {
                           name="businessPrice"
                           value={formData.businessPrice}
                           onChange={handleInputChange}
-                          placeholder="مثال: 75"
+                          placeholder="Example: 75"
                           className={styles.input}
                           min="1"
                         />
@@ -963,7 +1011,7 @@ export default function AdminServices() {
                           name="vipPrice"
                           value={formData.vipPrice}
                           onChange={handleInputChange}
-                          placeholder="مثال: 120"
+                          placeholder="Example: 120"
                           className={styles.input}
                           min="1"
                         />
@@ -975,7 +1023,7 @@ export default function AdminServices() {
                           name="childPrice"
                           value={formData.childPrice}
                           onChange={handleInputChange}
-                          placeholder="مثال: 25"
+                          placeholder="Example: 25"
                           className={styles.input}
                           min="0"
                         />
@@ -987,39 +1035,39 @@ export default function AdminServices() {
 
               {modalType === 'trip' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                  <h4 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.05rem' }}>تفاصيل وتوصيف الفئات (Rich Descriptions)</h4>
+                  <h4 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.05rem' }}>Category details and descriptions (Rich Descriptions)</h4>
                   
                   <div className={styles.formGroup}>
-                    <label style={{ color: 'var(--text-secondary)' }}>وصف فئة Economy (اقتصادي)</label>
+                    <label style={{ color: 'var(--text-secondary)' }}>Economy class description (Economy)</label>
                     <textarea 
                       name="economyDesc" 
                       value={formData.economyDesc} 
                       onChange={handleInputChange}
-                      placeholder="اكتب كل التفاصيل التي تقدمها فئة Economy هنا..."
+                      placeholder="Write all the details offered by Economy class here..."
                       className={styles.input}
                       rows="3"
                     ></textarea>
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label style={{ color: 'var(--gold-400)' }}>وصف فئة Business (أعمال)</label>
+                    <label style={{ color: 'var(--gold-400)' }}>Business class description (Business)</label>
                     <textarea 
                       name="businessDesc" 
                       value={formData.businessDesc} 
                       onChange={handleInputChange}
-                      placeholder="اكتب كل التفاصيل التي تقدمها فئة Business هنا..."
+                      placeholder="Write all the details offered by Business class here..."
                       className={styles.input}
                       rows="3"
                     ></textarea>
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label style={{ color: 'var(--coral-400)' }}>وصف فئة VIP (خاص)</label>
+                    <label style={{ color: 'var(--coral-400)' }}>VIP class description (VIP)</label>
                     <textarea 
                       name="vipDesc" 
                       value={formData.vipDesc} 
                       onChange={handleInputChange}
-                      placeholder="اكتب كل التفاصيل التي تقدمها فئة VIP هنا..."
+                      placeholder="Write all the details offered by VIP class here..."
                       className={styles.input}
                       rows="3"
                     ></textarea>
@@ -1030,7 +1078,7 @@ export default function AdminServices() {
               {/* Special Requests */}
               {modalType === 'trip' && (
                 <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                  <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--text-primary)', fontSize: '0.95rem' }}>🎯 الطلبات الخاصة المتاحة للعملاء (اختر ما ينطبق على رحلتك)</h4>
+                  <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--text-primary)', fontSize: '0.95rem' }}>🎯 Special requests available to customers (select what applies to your trip)</h4>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.5rem' }}>
                     {PRESET_SPECIAL_REQUESTS.map(req => (
                       <label key={req.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '0.85rem', padding: '0.4rem 0.5rem', borderRadius: '6px', background: formData.specialRequests.includes(req.id) ? 'rgba(217,119,6,0.1)' : 'transparent', border: formData.specialRequests.includes(req.id) ? '1px solid var(--gold-500)' : '1px solid transparent', transition: 'all 0.15s' }}>
@@ -1058,31 +1106,31 @@ export default function AdminServices() {
                 <>
                   {/* Description */}
                   <div className={styles.formGroup}>
-                    <label>الوصف / المزايا الشاملة</label>
+                    <label>Description / Comprehensive benefits</label>
                     <textarea 
                       name="description" 
                       value={formData.description} 
                       onChange={handleInputChange}
-                      placeholder="مثال: إقامة فندق 5 نجوم + طيران ذهاب وإياب + ترنسفير مطار"
+                      placeholder="Example: 5-star hotel accommodation + round-trip flights + airport transfer"
                       className={styles.input}
                       rows="3"
                     ></textarea>
                   </div>
                   {/* Icon */}
                   <div className={styles.formGroup}>
-                    <label>رمز تعبيري مميز (Emoji)</label>
+                    <label>Distinctive emoji</label>
                     <input 
                       type="text" 
                       name="icon" 
                       value={formData.icon} 
                       onChange={handleInputChange}
-                      placeholder="مثال: 🛳️, 🧖, 🏨"
+                      placeholder="Example: 🛳️, 🧖, 🏨"
                       className={styles.input}
                     />
                   </div>
                   {/* Main Image Upload for Package */}
                   <div className={styles.formGroup}>
-                    <label>صورة الباكدج الرئيسية (يتم ضغطها وحفظها تلقائياً)</label>
+                    <label>Main package image (automatically compressed and saved)</label>
                     <input 
                       type="file" 
                       accept="image/*"
@@ -1092,8 +1140,8 @@ export default function AdminServices() {
                     {formData.image && (
                       <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <img src={formData.image} alt="Preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>تم إرفاق الصورة الرئيسية بنجاح ✓</span>
-                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, image: '' }))} style={{ background: 'none', border: 'none', color: 'var(--coral-500)', cursor: 'pointer', fontSize: '0.8rem' }}>إزالة</button>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>Main image attached successfully ✓</span>
+                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, image: '' }))} style={{ background: 'none', border: 'none', color: 'var(--coral-500)', cursor: 'pointer', fontSize: '0.8rem' }}>Remove</button>
                       </div>
                     )}
                   </div>
@@ -1102,7 +1150,7 @@ export default function AdminServices() {
                 <>
                   {/* Image Upload for Trip */}
                   <div className={styles.formGroup}>
-                    <label>صورة الرحلة الرئيسية (يتم ضغطها وحفظها تلقائياً)</label>
+                    <label>Main trip image (automatically compressed and saved)</label>
                     <input 
                       type="file" 
                       accept="image/*"
@@ -1112,34 +1160,34 @@ export default function AdminServices() {
                     {formData.image && (
                       <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <img src={formData.image} alt="Preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
-                        <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>تم إرفاق الصورة الرئيسية بنجاح ✓</span>
-                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, image: '' }))} style={{ background: 'none', border: 'none', color: 'var(--coral-500)', cursor: 'pointer', fontSize: '0.8rem' }}>إزالة</button>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>Main image attached successfully ✓</span>
+                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, image: '' }))} style={{ background: 'none', border: 'none', color: 'var(--coral-500)', cursor: 'pointer', fontSize: '0.8rem' }}>Remove</button>
                       </div>
                     )}
                   </div>
 
                   {/* Location URL */}
                   <div className={styles.formGroup}>
-                    <label>رابط الموقع الجغرافي للمطعم/المكان (Google Maps URL) (اختياري)</label>
+                    <label>Geographic location link for restaurant/place (Google Maps URL) (optional)</label>
                     <input 
                       type="text" 
                       name="locationUrl" 
                       value={formData.locationUrl} 
                       onChange={handleInputChange}
-                      placeholder="مثال: https://maps.google.com/..."
+                      placeholder="Example: https://maps.google.com/..."
                       className={styles.input}
                     />
                   </div>
 
                   {/* Video URL */}
                   <div className={styles.formGroup}>
-                    <label>رابط فيديو الرحلة (فيديو اليوتيوب أو رابط مباشر) (اختياري)</label>
+                    <label>Trip video link (YouTube video or direct link) (optional)</label>
                     <input 
                       type="text" 
                       name="videoUrl" 
                       value={formData.videoUrl} 
                       onChange={handleInputChange}
-                      placeholder="مثال: https://www.youtube.com/watch?v=... أو رابط mp4 مباشر"
+                      placeholder="Example: https://www.youtube.com/watch?v=... or direct mp4 link"
                       className={styles.input}
                     />
                   </div>
@@ -1148,7 +1196,7 @@ export default function AdminServices() {
 
               {/* Multiple Images Gallery for both Trip and Package */}
               <div className={styles.formGroup} style={{ width: '100%', marginTop: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px dashed var(--border-medium)', boxSizing: 'border-box' }}>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--gold-400)' }}>📷 معرض الصور الإضافية (يمكن رفع أكثر من صورة)</label>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--gold-400)' }}>📷 Additional images gallery (upload multiple images)</label>
                 <input 
                   type="file" 
                   accept="image/*"
@@ -1176,8 +1224,8 @@ export default function AdminServices() {
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'flex-end', width: '100%' }}>
-                <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>إلغاء</button>
-                <button type="submit" className="btn btn-primary">➕ تأكيد الإضافة</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">➕ Confirm Addition</button>
               </div>
             </form>
           </div>
