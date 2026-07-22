@@ -398,6 +398,7 @@ export default function AdminServices() {
       }
 
       const tripPayload = {
+        category: category,
         titleAr: translatedTitles.titleAr,
         titleEn: titleEn,
         titleDe: titleDe,

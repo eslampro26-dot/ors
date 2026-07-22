@@ -254,7 +254,17 @@ export async function getTrips(slug, category) {
   try {
     const q = query(collection(db, COL.TRIPS), where('slug', '==', slug), where('category', '==', category));
     const snapshot = await withTimeout(getDocs(q), 5000);
-    const customTrips = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    const customTrips = snapshot.docs.map(d => {
+      const data = d.data();
+      // Ensure rich description fields are present
+      return {
+        id: d.id,
+        ...data,
+        economyDesc: data.economyDesc || '',
+        businessDesc: data.businessDesc || '',
+        vipDesc: data.vipDesc || ''
+      };
+    });
     return [...staticTrips, ...customTrips];
   } catch (e) {
     _circuitBreaker.trip(e);

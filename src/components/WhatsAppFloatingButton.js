@@ -48,6 +48,11 @@ export default function WhatsAppFloatingButton() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Hide WhatsApp button on admin pages
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/orluxus-management')) {
+    return null;
+  }
+
   if (!isVisible) return null;
 
   const labels = LABELS[locale] || LABELS.en;

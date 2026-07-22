@@ -25,6 +25,7 @@ export default function CategoryPage({ params }) {
   const [trips, setTrips] = useState([]);
   const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', richDesc: '', images: [] });
   const [activeVideoUrl, setActiveVideoUrl] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // State to track selected tier id for each trip
   // Format: { [tripId]: 'economy' | 'business' | 'vip' }
@@ -55,6 +56,29 @@ export default function CategoryPage({ params }) {
       [tripId]: tierId
     }));
   };
+
+  const handleNextImage = () => {
+    if (modalConfig.images.length > 0) {
+      setCurrentImageIndex((prev) => (prev + 1) % modalConfig.images.length);
+    }
+  };
+
+  const handlePrevImage = () => {
+    if (modalConfig.images.length > 0) {
+      setCurrentImageIndex((prev) => (prev - 1 + modalConfig.images.length) % modalConfig.images.length);
+    }
+  };
+
+  const handleImageDotClick = (index) => {
+    setCurrentImageIndex(index);
+  };
+
+  // Reset image index when modal opens
+  useEffect(() => {
+    if (modalConfig.isOpen) {
+      setCurrentImageIndex(0);
+    }
+  }, [modalConfig.isOpen]);
 
   const locCity = getLocalizedCity(city, locale);
   const localizedCategoryName = getCategoryName(category, locale);
@@ -367,31 +391,142 @@ export default function CategoryPage({ params }) {
               {modalConfig.title}
             </h3>
 
-            {/* Gallery Images */}
+            {/* Gallery Images - Professional Slider */}
             {modalConfig.images && modalConfig.images.length > 0 && (
-              <div style={{ 
-                display: 'flex', 
-                gap: '0.8rem', 
-                overflowX: 'auto', 
-                paddingBottom: '1rem', 
-                marginBottom: '1.5rem',
-                borderRadius: '8px'
-              }}>
-                {modalConfig.images.map((imgSrc, idx) => (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ 
+                  position: 'relative',
+                  width: '100%',
+                  height: '400px',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  background: '#000'
+                }}>
+                  {/* Main Image */}
                   <img 
-                    key={idx} 
-                    src={imgSrc} 
-                    alt={`Preview ${idx}`} 
-                    style={{ 
-                      width: '280px', 
-                      height: '180px', 
-                      objectFit: 'cover', 
-                      borderRadius: '8px', 
-                      border: '1px solid var(--border-subtle)',
-                      flexShrink: 0 
-                    }} 
+                    src={modalConfig.images[currentImageIndex]} 
+                    alt={`Gallery ${currentImageIndex + 1}`}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      transition: 'opacity 0.3s ease'
+                    }}
                   />
-                ))}
+
+                  {/* Navigation Arrows */}
+                  {modalConfig.images.length > 1 && (
+                    <>
+                      <button
+                        onClick={handlePrevImage}
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '16px',
+                          transform: 'translateY(-50%)',
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '50%',
+                          background: 'rgba(255, 255, 255, 0.9)',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '24px',
+                          color: '#000',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                          transition: 'all 0.2s ease',
+                          zIndex: 10
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#fff'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)'}
+                      >
+                        {locale === 'ar' ? '›' : '‹'}
+                      </button>
+                      <button
+                        onClick={handleNextImage}
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          right: '16px',
+                          transform: 'translateY(-50%)',
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '50%',
+                          background: 'rgba(255, 255, 255, 0.9)',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '24px',
+                          color: '#000',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                          transition: 'all 0.2s ease',
+                          zIndex: 10
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#fff'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)'}
+                      >
+                        {locale === 'ar' ? '‹' : '›'}
+                      </button>
+                    </>
+                  )}
+
+                  {/* Image Counter */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '16px',
+                    right: locale === 'ar' ? 'auto' : '16px',
+                    left: locale === 'ar' ? '16px' : 'auto',
+                    background: 'rgba(0, 0, 0, 0.7)',
+                    color: '#fff',
+                    padding: '6px 14px',
+                    borderRadius: '20px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    backdropFilter: 'blur(4px)'
+                  }}>
+                    {currentImageIndex + 1} / {modalConfig.images.length}
+                  </div>
+                </div>
+
+                {/* Dots Navigation */}
+                {modalConfig.images.length > 1 && (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    marginTop: '1rem'
+                  }}>
+                    {modalConfig.images.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleImageDotClick(idx)}
+                        style={{
+                          width: '10px',
+                          height: '10px',
+                          borderRadius: '50%',
+                          background: idx === currentImageIndex ? '#C9A227' : 'rgba(0, 0, 0, 0.3)',
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (idx !== currentImageIndex) {
+                            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.5)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (idx !== currentImageIndex) {
+                            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.3)';
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
