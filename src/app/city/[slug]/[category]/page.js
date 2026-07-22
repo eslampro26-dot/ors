@@ -636,10 +636,12 @@ export default function CategoryPage({ params }) {
                     videoId = url.split('youtube.com/embed/')[1]?.split('?')[0]?.split('&')[0];
                   } else if (url.includes('youtube.com/v/')) {
                     videoId = url.split('youtube.com/v/')[1]?.split('?')[0]?.split('&')[0];
+                  } else if (url.includes('youtube.com/shorts/')) {
+                    videoId = url.split('youtube.com/shorts/')[1]?.split('?')[0]?.split('&')[0];
                   }
                   
                   if (videoId && videoId.length >= 11) {
-                    return `https://www.youtube.com/embed/${videoId.substring(0, 11)}?autoplay=1&rel=0`;
+                    return `https://www.youtube.com/embed/${videoId.substring(0, 11)}?autoplay=1&rel=0&modestbranding=1`;
                   }
                 }
                 

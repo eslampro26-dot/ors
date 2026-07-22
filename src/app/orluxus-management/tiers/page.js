@@ -12,10 +12,10 @@ export default function AdminTiers() {
   const [upgradeMessage, setUpgradeMessage] = useState('');
 
   const tiers = [
-    { name: 'برونزي', color: 'bronze', icon: '🥉', comm: '10%', desc: 'المستوى الافتراضي لجميع الوكلاء الجدد.' },
-    { name: 'فضي', color: 'silver', icon: '🥈', comm: '15%', desc: 'ترقية تلقائية عند تحقيق الشروط.', criteria: ['مبيعات 96,000€ سنوياً', 'أو 1,920 عملية', 'أو 5-10 وكلاء فضيين'] },
-    { name: 'ذهبي', color: 'gold', icon: '🥇', comm: '20%', desc: 'يتم تحديد الشروط من قبل الإدارة.', criteria: ['مبيعات 250,000€ سنوياً', 'أو 5000 عملية'] },
-    { name: 'بلاتيني', color: 'platinum', icon: '💎', comm: '25%', desc: 'أعلى مستوى متاح لكبار الوكلاء.', criteria: ['مبيعات 500,000€ سنوياً'] },
+    { name: 'Bronze', color: 'bronze', icon: '🥉', comm: '10%', desc: 'Default tier for all new registered agents.' },
+    { name: 'Silver', color: 'silver', icon: '🥈', comm: '15%', desc: 'Automatic upgrade when criteria are met.', criteria: ['Sales of €96,000 / year', 'Or 1,920 bookings', 'Or 5-10 Silver sub-agents'] },
+    { name: 'Gold', color: 'gold', icon: '🥇', comm: '20%', desc: 'Criteria configured by administration.', criteria: ['Sales of €250,000 / year', 'Or 5,000 bookings'] },
+    { name: 'Platinum', color: 'platinum', icon: '💎', comm: '25%', desc: 'Highest available tier for top performing agents.', criteria: ['Sales of €500,000 / year'] },
   ];
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function AdminTiers() {
 
   const handleUpgrade = async () => {
     if (!selectedAgentId) {
-      setUpgradeMessage('❌ يرجى اختيار وكيل أولاً.');
+      setUpgradeMessage('❌ Please select an agent first.');
       return;
     }
 
@@ -44,29 +44,28 @@ export default function AdminTiers() {
       const result = await updateAgent(selectedAgentId, { tier: selectedTier });
 
       if (result) {
-        const tierNames = { bronze: 'برونزي', silver: 'فضي', gold: 'ذهبي', platinum: 'بلاتيني' };
-        setUpgradeMessage(`✅ تم ترقية ${agent?.name || 'الوكيل'} بنجاح إلى المستوى ${tierNames[selectedTier] || selectedTier}!`);
+        setUpgradeMessage(`✅ Successfully upgraded ${agent?.name || 'agent'} to ${selectedTier.toUpperCase()} tier!`);
         // Refresh agents list
         const updatedAgents = await getAgents();
         setAgents(updatedAgents || []);
         setSelectedAgentId('');
       } else {
-        setUpgradeMessage('❌ فشلت عملية الترقية. يرجى المحاولة مرة أخرى.');
+        setUpgradeMessage('❌ Upgrade operation failed. Please try again.');
       }
     } catch (e) {
       console.error('Error upgrading agent:', e);
-      setUpgradeMessage('❌ حدث خطأ أثناء الترقية. يرجى المحاولة مرة أخرى.');
+      setUpgradeMessage('❌ An error occurred during upgrade. Please try again.');
     } finally {
       setIsUpgrading(false);
     }
   };
 
   return (
-    <div className={styles.tiersPage}>
+    <div className={styles.tiersPage} style={{ textAlign: 'left' }}>
       <div className={styles.header}>
         <div>
-          <h2>نظام الترقيات</h2>
-          <p className={styles.subtitle}>تكوين معايير الترقيات التلقائية للوكلاء</p>
+          <h2>Tier System</h2>
+          <p className={styles.subtitle}>Configure automatic tier upgrade criteria for agents</p>
         </div>
       </div>
 
@@ -75,11 +74,11 @@ export default function AdminTiers() {
           <div key={idx} className={`${styles.tierCard} glass-card`} data-tier={tier.color}>
             <div className={styles.tierHeader}>
               <div className={styles.tierIcon}>{tier.icon}</div>
-              <h3>المستوى الـ{tier.name}</h3>
+              <h3>{tier.name} Tier</h3>
             </div>
             
             <div className={styles.commRate}>
-              <span className={styles.commLabel}>نسبة العمولة المباشرة:</span>
+              <span className={styles.commLabel}>Direct Commission Rate:</span>
               <span className={styles.commValue}>{tier.comm}</span>
             </div>
             
@@ -87,7 +86,7 @@ export default function AdminTiers() {
             
             {tier.criteria && (
               <div className={styles.criteriaBox}>
-                <h4>شروط الترقية:</h4>
+                <h4>Upgrade Requirements:</h4>
                 <ul>
                   {tier.criteria.map((crit, i) => (
                     <li key={i}>{crit}</li>
@@ -101,40 +100,36 @@ export default function AdminTiers() {
 
       <div className={`${styles.manualUpgradeCard} glass-card animate-fade-in-up`}>
         <div className={styles.cardHeader}>
-          <h3>ترقية يدوية استثنائية</h3>
-          <p>يمكنك ترقية وكيل يدوياً حتى وإن لم يستوفِ الشروط المطلوبة.</p>
+          <h3>Manual Exceptional Upgrade</h3>
+          <p>You can manually upgrade an agent even if criteria are not fully met.</p>
         </div>
         <div className={styles.upgradeForm}>
           <div className={styles.formGroup}>
-            <label>اختر الوكيل</label>
+            <label>Select Agent</label>
             <select
               className={styles.input}
               value={selectedAgentId}
               onChange={(e) => setSelectedAgentId(e.target.value)}
             >
-              <option value="">-- اختر وكيل --</option>
+              <option value="">-- Choose Agent --</option>
               {agents.map(a => (
                 <option key={a.id} value={a.id}>
-                  {a.name} (AG-{a.id}) — المستوى الحالي: {
-                    a.tier === 'gold' ? 'ذهبي' :
-                    a.tier === 'silver' ? 'فضي' :
-                    a.tier === 'platinum' ? 'بلاتيني' : 'برونزي'
-                  }
+                  {a.name} (AG-{a.id}) — Current Tier: {a.tier.toUpperCase()}
                 </option>
               ))}
             </select>
           </div>
           <div className={styles.formGroup}>
-            <label>المستوى الجديد</label>
+            <label>New Target Tier</label>
             <select
               className={styles.input}
               value={selectedTier}
               onChange={(e) => setSelectedTier(e.target.value)}
             >
-              <option value="bronze">برونزي (عمولة 10%)</option>
-              <option value="silver">فضي (عمولة 15%)</option>
-              <option value="gold">ذهبي (عمولة 20%)</option>
-              <option value="platinum">بلاتيني (عمولة 25%)</option>
+              <option value="bronze">Bronze (10% Commission)</option>
+              <option value="silver">Silver (15% Commission)</option>
+              <option value="gold">Gold (20% Commission)</option>
+              <option value="platinum">Platinum (25% Commission)</option>
             </select>
           </div>
           <button
@@ -143,7 +138,7 @@ export default function AdminTiers() {
             onClick={handleUpgrade}
             disabled={isUpgrading}
           >
-            {isUpgrading ? 'جاري التنفيذ...' : 'تنفيذ الترقية'}
+            {isUpgrading ? 'Executing...' : 'Execute Upgrade'}
           </button>
         </div>
         {upgradeMessage && (

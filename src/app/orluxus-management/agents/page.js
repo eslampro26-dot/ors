@@ -8,8 +8,8 @@ import { tierConfig } from '@/lib/data';
 export default function AdminAgents() {
   const [viewMode, setViewMode] = useState('table'); // table or tree
   const [searchTerm, setSearchTerm] = useState('');
-  const [tierFilter, setTierFilter] = useState('جميع المستويات');
-  const [statusFilter, setStatusFilter] = useState('كل الحالات');
+  const [tierFilter, setTierFilter] = useState('All Tiers');
+  const [statusFilter, setStatusFilter] = useState('All Statuses');
   const [agents, setAgents] = useState([]);
   const [bookings, setBookings] = useState([]);
 
@@ -42,7 +42,7 @@ export default function AdminAgents() {
       
       // Calculate dynamic sales for each agent based on their active bookings
       const updatedAgents = (allAgents || []).map(agent => {
-        const agentBookings = (allBookings || []).filter(b => b.agentId === agent.id && b.status !== 'ملغي');
+        const agentBookings = (allBookings || []).filter(b => b.agentId === agent.id && b.status !== 'ملغي' && b.status !== 'Cancelled');
         const salesTotal = agentBookings.reduce((sum, b) => sum + b.finalAmount, 0);
         const subCount = (allAgents || []).filter(a => a.parentId === agent.id || a.parentId === agent.id.toString()).length;
         
@@ -85,18 +85,18 @@ export default function AdminAgents() {
 
   // Handle Delete Agent
   const handleDeleteAgent = async (id) => {
-    if (!confirm('⚠️ هل أنت متأكد من رغبتك في حذف هذا الوكيل نهائياً؟')) return;
+    if (!confirm('⚠️ Are you sure you want to permanently delete this agent?')) return;
     try {
       const success = await deleteAgent(id);
       if (success) {
-        alert('تم حذف الوكيل بنجاح!');
+        alert('Agent deleted successfully!');
         await loadData();
       } else {
-        alert('❌ فشل حذف الوكيل من السيرفر.');
+        alert('❌ Failed to delete agent from server.');
       }
     } catch (e) {
       console.error('Error deleting agent:', e);
-      alert('❌ فشل حذف الوكيل!');
+      alert('❌ Failed to delete agent!');
     }
   };
 
@@ -104,7 +104,7 @@ export default function AdminAgents() {
   const handleAddAgent = async (e) => {
     e.preventDefault();
     if (!newAgentName || !newAgentEmail || !newAgentUsername || !newAgentPassword) {
-      alert('الرجاء تعبئة كافة الحقول المطلوبة!');
+      alert('Please fill in all required fields!');
       return;
     }
 
@@ -115,7 +115,7 @@ export default function AdminAgents() {
         (!editingAgent || String(a.id) !== String(editingAgent.id))
       );
       if (isTaken) {
-        alert('اسم المستخدم هذا محجوز مسبقاً! الرجاء اختيار اسم مستخدم آخر.');
+        alert('This username is already taken! Please choose a different username.');
         return;
       }
 
@@ -142,9 +142,9 @@ export default function AdminAgents() {
         // Mode: Edit existing agent
         const success = await updateAgent(editingAgent.id, agentData);
         if (success) {
-          alert(`تم تعديل الوكيل ${newAgentName} بنجاح!`);
+          alert(`Agent ${newAgentName} updated successfully!`);
         } else {
-          alert('❌ فشل تعديل الوكيل.');
+          alert('❌ Failed to update agent.');
         }
       } else {
         // Mode: Add new agent
@@ -164,9 +164,9 @@ export default function AdminAgents() {
               createdBy: 'admin'
             });
           }
-          alert(`تمت إضافة الوكيل ${newAgentName} بنجاح!`);
+          alert(`Agent ${newAgentName} added successfully!`);
         } else {
-          alert('❌ فشل إضافة الوكيل. قد يكون هناك مشكلة في قاعدة البيانات أو في الصلاحيات.');
+          alert('❌ Failed to add agent. There may be an issue with the database or permissions.');
         }
       }
 
@@ -192,7 +192,7 @@ export default function AdminAgents() {
       await loadData();
     } catch (err) {
       console.error('Error saving agent:', err);
-      alert('❌ فشل حفظ بيانات الوكيل!');
+      alert('❌ Failed to save agent data!');
     }
   };
 
@@ -201,14 +201,14 @@ export default function AdminAgents() {
       const allAgents = await getAgents();
       const agent = (allAgents || []).find(a => a.id === id);
       if (agent) {
-        const newStatus = agent.status === 'نشط' ? 'موقوف' : 'نشط';
+        const newStatus = agent.status === 'نشط' || agent.status === 'Active' ? 'Suspended' : 'Active';
         await updateAgent(id, { status: newStatus });
-        alert(`تم تعديل حالة الوكيل بنجاح!`);
+        alert(`Agent status updated successfully!`);
         await loadData();
       }
     } catch (err) {
       console.error('Error toggling agent status:', err);
-      alert('حدث خطأ أثناء تعديل حالة الوكيل!');
+      alert('An error occurred while updating agent status!');
     }
   };
 
@@ -219,15 +219,15 @@ export default function AdminAgents() {
                           agent.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           `AG-${agent.id}`.includes(searchTerm);
     
-    const matchesTier = tierFilter === 'جميع المستويات' || 
-                        (tierFilter === 'برونزي' && agent.tier === 'bronze') ||
-                        (tierFilter === 'فضي' && agent.tier === 'silver') ||
-                        (tierFilter === 'ذهبي' && agent.tier === 'gold') ||
-                        (tierFilter === 'بلاتيني' && agent.tier === 'platinum');
+    const matchesTier = tierFilter === 'All Tiers' || 
+                        (tierFilter === 'Bronze' && agent.tier === 'bronze') ||
+                        (tierFilter === 'Silver' && agent.tier === 'silver') ||
+                        (tierFilter === 'Gold' && agent.tier === 'gold') ||
+                        (tierFilter === 'Platinum' && agent.tier === 'platinum');
 
-    const matchesStatus = statusFilter === 'كل الحالات' || 
-                          (statusFilter === 'نشط' && agent.status === 'نشط') ||
-                          (statusFilter === 'موقوف' && agent.status === 'موقوف');
+    const matchesStatus = statusFilter === 'All Statuses' || 
+                          (statusFilter === 'Active' && (agent.status === 'نشط' || agent.status === 'Active')) ||
+                          (statusFilter === 'Suspended' && (agent.status === 'موقوف' || agent.status === 'Suspended'));
 
     return matchesSearch && matchesTier && matchesStatus;
   });
@@ -275,13 +275,13 @@ export default function AdminAgents() {
             <span className={`badge badge-${agent.tier === 'gold' ? 'gold' : agent.tier === 'silver' ? 'ocean' : agent.tier === 'platinum' ? 'emerald' : 'coral'}`} style={{ fontSize: '10px' }}>
               {agent.tier.toUpperCase()}
             </span>
-            <span className={`badge badge-${agent.status === 'نشط' ? 'emerald' : 'coral'}`} style={{ fontSize: '10px' }}>
-              {agent.status}
+            <span className={`badge badge-${agent.status === 'نشط' || agent.status === 'Active' ? 'emerald' : 'coral'}`} style={{ fontSize: '10px' }}>
+              {agent.status === 'نشط' ? 'Active' : agent.status === 'موقوف' ? 'Suspended' : agent.status}
             </span>
           </div>
 
           <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '6px', fontSize: '11px', display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
-            <span>المبيعات: <strong>€{agent.sales.toLocaleString()}</strong></span>
+            <span>Sales: <strong>€{agent.sales.toLocaleString()}</strong></span>
           </div>
 
           <button 
@@ -293,7 +293,7 @@ export default function AdminAgents() {
               setShowDetailsModal(true);
             }}
           >
-            التفاصيل
+            Details
           </button>
 
           {children.length > 0 && (
@@ -359,8 +359,8 @@ export default function AdminAgents() {
     <div className={styles.agentsPage}>
       <div className={styles.header}>
         <div>
-          <h2>إدارة الوكلاء والشبكة التسويقية</h2>
-          <p className={styles.subtitle}>التحكم بحسابات الوكلاء، المستويات، كلمات المرور، وهيكل التبعية التسويقية.</p>
+          <h2>Agents &amp; Marketing Network Management</h2>
+          <p className={styles.subtitle}>Manage agent accounts, tiers, passwords, and the marketing network hierarchy.</p>
         </div>
         <div className={styles.headerActions}>
           <div className={styles.viewToggle}>
@@ -368,13 +368,13 @@ export default function AdminAgents() {
               className={`${styles.toggleBtn} ${viewMode === 'table' ? styles.active : ''}`}
               onClick={() => setViewMode('table')}
             >
-              جدول الوكلاء
+              Agents Table
             </button>
             <button 
               className={`${styles.toggleBtn} ${viewMode === 'tree' ? styles.active : ''}`}
               onClick={() => setViewMode('tree')}
             >
-              شجرة الشبكة
+              Network Tree
             </button>
           </div>
           <button className="btn btn-primary" onClick={() => {
@@ -393,7 +393,7 @@ export default function AdminAgents() {
             setNewAgentJoinDate(new Date().toISOString().split('T')[0]);
             setIsModalOpen(true);
           }}>
-            <span>+</span> إضافة وكيل مباشر جديد
+            <span>+</span> Add New Direct Agent
           </button>
         </div>
       </div>
@@ -403,7 +403,7 @@ export default function AdminAgents() {
           <span className={styles.searchIcon}>◎</span>
           <input 
             type="text" 
-            placeholder="ابحث بالاسم، اسم المستخدم، البريد، أو الكود..." 
+            placeholder="Search by name, username, email, or code..." 
             className={styles.searchInput}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -412,16 +412,16 @@ export default function AdminAgents() {
         </div>
         <div className={styles.filters}>
           <select className={styles.select} value={tierFilter} onChange={(e) => setTierFilter(e.target.value)}>
-            <option>جميع المستويات</option>
-            <option>برونزي</option>
-            <option>فضي</option>
-            <option>ذهبي</option>
-            <option>بلاتيني</option>
+            <option>All Tiers</option>
+            <option>Bronze</option>
+            <option>Silver</option>
+            <option>Gold</option>
+            <option>Platinum</option>
           </select>
           <select className={styles.select} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option>كل الحالات</option>
-            <option>نشط</option>
-            <option>موقوف</option>
+            <option>All Statuses</option>
+            <option>Active</option>
+            <option>Suspended</option>
           </select>
         </div>
       </div>
@@ -432,18 +432,18 @@ export default function AdminAgents() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>الكود</th>
-                  <th>اسم الوكيل / الحساب</th>
-                  <th>اسم المستخدم</th>
-                  <th>كلمة المرور</th>
-                  <th>الوكيل الراعي</th>
-                  <th>المستوى</th>
-                  <th>أكواد الخصم</th>
-                  <th>إجمالي المبيعات</th>
-                  <th>الفرعيين</th>
-                  <th>تاريخ الانضمام</th>
-                  <th>الحالة</th>
-                  <th>إجراءات</th>
+                  <th>Code</th>
+                  <th>Agent Name / Account</th>
+                  <th>Username</th>
+                  <th>Password</th>
+                  <th>Sponsoring Agent</th>
+                  <th>Tier</th>
+                  <th>Promo Codes</th>
+                  <th>Total Sales</th>
+                  <th>Sub-Agents</th>
+                  <th>Join Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -469,7 +469,7 @@ export default function AdminAgents() {
                             {parent.name} <strong style={{ color: 'var(--gold-600)', fontSize: '10px' }}>(AG-{parent.id})</strong>
                           </span>
                         ) : (
-                          <span style={{ color: 'var(--text-tertiary)', fontSize: 'var(--font-size-xs)' }}>المدير العام المباشر</span>
+                          <span style={{ color: 'var(--text-tertiary)', fontSize: 'var(--font-size-xs)' }}>Direct — General Manager</span>
                         )}
                       </td>
                       <td>
@@ -485,15 +485,15 @@ export default function AdminAgents() {
                             </span>
                           ))
                         ) : (
-                          <span style={{ color: 'var(--text-tertiary)', fontSize: '11px' }}>بدون كود</span>
+                          <span style={{ color: 'var(--text-tertiary)', fontSize: '11px' }}>No Code</span>
                         )}
                       </td>
                       <td className={styles.monoBold}>€{agent.sales.toLocaleString()}</td>
                       <td>{agent.subAgents}</td>
                       <td>{agent.joinDate}</td>
                       <td>
-                        <span className={`badge badge-${agent.status === 'نشط' ? 'emerald' : 'coral'}`}>
-                          {agent.status}
+                        <span className={`badge badge-${agent.status === 'نشط' || agent.status === 'Active' ? 'emerald' : 'coral'}`}>
+                          {agent.status === 'نشط' ? 'Active' : agent.status === 'موقوف' ? 'Suspended' : agent.status}
                         </span>
                       </td>
                       <td>
@@ -501,26 +501,26 @@ export default function AdminAgents() {
                           <button 
                             className={styles.actionBtn} 
                             onClick={() => handleToggleStatus(agent.id)}
-                            title={agent.status === 'نشط' ? 'تجميد الحساب' : 'تفعيل الحساب'}
+                            title={agent.status === 'نشط' || agent.status === 'Active' ? 'Suspend Account' : 'Activate Account'}
                             style={{ padding: '2px 6px', fontSize: '0.75rem' }}
                           >
-                            {agent.status === 'نشط' ? '🔒 تجميد' : '🔓 تفعيل'}
+                            {agent.status === 'نشط' || agent.status === 'Active' ? '🔒 Suspend' : '🔓 Activate'}
                           </button>
                           <button 
                             className={styles.actionBtn} 
                             onClick={() => handleEditAgentClick(agent)}
-                            title="تعديل بيانات الوكيل"
+                            title="Edit Agent Data"
                             style={{ padding: '2px 6px', fontSize: '0.75rem', color: 'var(--gold-400)', borderColor: 'rgba(251,191,36,0.3)' }}
                           >
-                            ✏️ تعديل
+                            ✏️ Edit
                           </button>
                           <button 
                             className={styles.actionBtn} 
                             onClick={() => handleDeleteAgent(agent.id)}
-                            title="حذف الوكيل"
+                            title="Delete Agent"
                             style={{ padding: '2px 6px', fontSize: '0.75rem', color: 'var(--coral-500)', borderColor: 'rgba(244,63,94,0.3)' }}
                           >
-                            🗑️ حذف
+                            🗑️ Delete
                           </button>
                         </div>
                       </td>
@@ -530,7 +530,7 @@ export default function AdminAgents() {
                 {filteredAgents.length === 0 && (
                   <tr>
                     <td colSpan="12" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>
-                    لا يوجد وكلاء يطابقون خيارات البحث.
+                    No agents match the search criteria.
                     </td>
                   </tr>
                 )}
@@ -544,7 +544,7 @@ export default function AdminAgents() {
             {rootAgents.map(rootAgent => (
               <TreeNode key={rootAgent.id} agent={rootAgent} allAgents={agents} />
             ))}
-            {rootAgents.length === 0 && <div style={{ color: 'var(--text-tertiary)' }}>لا يوجد وكلاء شبكة لعرضهم كشجرة.</div>}
+            {rootAgents.length === 0 && <div style={{ color: 'var(--text-tertiary)' }}>No network agents to display as a tree.</div>}
           </div>
         </div>
       )}
@@ -560,7 +560,7 @@ export default function AdminAgents() {
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 999999,
-          textAlign: 'right'
+          textAlign: 'left'
         }}>
           <div className="glass-card" style={{
             width: '100%',
@@ -576,18 +576,18 @@ export default function AdminAgents() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem' }}>
               <button onClick={() => { setIsModalOpen(false); setEditingAgent(null); }} style={{ fontSize: '1.5rem', color: 'var(--text-secondary)', cursor: 'pointer', background: 'none', border: 'none' }}>×</button>
               <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
-                {editingAgent ? '✏️ تعديل بيانات الوكيل المعتمد' : '➕ إضافة وكيل معتمد جديد'}
+                {editingAgent ? '✏️ Edit Certified Agent Data' : '➕ Add New Certified Agent'}
               </h3>
             </div>
 
             <form onSubmit={handleAddAgent} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>اسم الوكيل الكامل *</label>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Full Agent Name *</label>
                 <input 
                   type="text" 
                   value={newAgentName}
                   onChange={(e) => setNewAgentName(e.target.value)}
-                  placeholder="مثال: أحمد محمود الهواري"
+                  placeholder="e.g. John Smith"
                   required
                   style={{
                     padding: '0.8rem 1rem',
@@ -601,7 +601,7 @@ export default function AdminAgents() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>البريد الإلكتروني للوكيل *</label>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Agent Email Address *</label>
                 <input 
                   type="email" 
                   value={newAgentEmail}
@@ -622,7 +622,7 @@ export default function AdminAgents() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>اسم المستخدم *</label>
+                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Username *</label>
                   <input 
                     type="text" 
                     value={newAgentUsername}
@@ -642,7 +642,7 @@ export default function AdminAgents() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>كلمة المرور *</label>
+                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Password *</label>
                   <input 
                     type="password" 
                     value={newAgentPassword}
@@ -663,7 +663,7 @@ export default function AdminAgents() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>مستوى الوكالة</label>
+                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Agency Tier</label>
                   <select 
                     value={newAgentTier}
                     onChange={(e) => setNewAgentTier(e.target.value)}
@@ -676,15 +676,15 @@ export default function AdminAgents() {
                       outline: 'none'
                     }}
                   >
-                    <option value="bronze">برونزي (BRONZE)</option>
-                    <option value="silver">فضي (SILVER)</option>
-                    <option value="gold">ذهبي (GOLD)</option>
-                    <option value="platinum">بلاتيني (PLATINUM)</option>
+                    <option value="bronze">Bronze (BRONZE)</option>
+                    <option value="silver">Silver (SILVER)</option>
+                    <option value="gold">Gold (GOLD)</option>
+                    <option value="platinum">Platinum (PLATINUM)</option>
                   </select>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>الوكيل الراعي (الأعلى)</label>
+                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Sponsoring Agent (Parent)</label>
                   <select 
                     value={parentAgentId}
                     onChange={(e) => setParentAgentId(e.target.value)}
@@ -697,7 +697,7 @@ export default function AdminAgents() {
                       outline: 'none'
                     }}
                   >
-                    <option value="">المدير العام مباشرة</option>
+                    <option value="">Direct — General Manager</option>
                     {agents.map(a => (
                       <option key={a.id} value={a.id}>{a.name} (AG-{a.id})</option>
                     ))}
@@ -707,12 +707,12 @@ export default function AdminAgents() {
 
               {/* Profile Photo URL */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>صورة الملف الشخصي (Profile Photo URL)</label>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Profile Photo URL</label>
                 <input
                   type="text"
                   value={newAgentPhoto}
                   onChange={(e) => setNewAgentPhoto(e.target.value)}
-                  placeholder="https://example.com/photo.jpg (اختياري)"
+                  placeholder="https://example.com/photo.jpg (optional)"
                   style={{ padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none', textAlign: 'left' }}
                 />
               </div>
@@ -720,7 +720,7 @@ export default function AdminAgents() {
               {/* Partner ID */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Partner ID (اختياري)</label>
+                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Partner ID (optional)</label>
                   <input
                     type="text"
                     value={newAgentPartnerId}
@@ -730,7 +730,7 @@ export default function AdminAgents() {
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>رقم الهاتف (Phone Number)</label>
+                  <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Phone Number</label>
                   <input
                     type="tel"
                     value={newAgentPhone}
@@ -743,31 +743,31 @@ export default function AdminAgents() {
 
               {/* Bank Account */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>رقم الحساب البنكي (Bank Account Number)</label>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Bank Account Number</label>
                 <input
                   type="text"
                   value={newAgentBank}
                   onChange={(e) => setNewAgentBank(e.target.value)}
-                  placeholder="IBAN أو رقم الحساب"
+                  placeholder="IBAN or account number"
                   style={{ padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none', textAlign: 'left', fontFamily: 'var(--font-en)', letterSpacing: '0.5px' }}
                 />
               </div>
 
               {/* Country / City */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>الدولة / المدينة (Country / City)</label>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Country / City</label>
                 <input
                   type="text"
                   value={newAgentCountry}
                   onChange={(e) => setNewAgentCountry(e.target.value)}
-                  placeholder="مثال: مصر - شرم الشيخ"
+                  placeholder="e.g. Egypt - Sharm El Sheikh"
                   style={{ padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none' }}
                 />
               </div>
 
               {/* Date Joined */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>تاريخ الانضمام (Date Joined)</label>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Date Joined</label>
                 <input
                   type="date"
                   value={newAgentJoinDate}
@@ -777,12 +777,12 @@ export default function AdminAgents() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>إنشاء كود خصم ترويجي أولي للوكيل (اختياري)</label>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Initial Promo Code for Agent (optional)</label>
                 <input 
                   type="text" 
                   value={newAgentPromo}
                   onChange={(e) => setNewAgentPromo(e.target.value)}
-                  placeholder="مثال: AHMED10"
+                  placeholder="e.g. JOHN10"
                   style={{
                     padding: '0.8rem 1rem',
                     borderRadius: 'var(--radius-md)',
@@ -799,10 +799,10 @@ export default function AdminAgents() {
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1, padding: '0.8rem' }}>
-                  {editingAgent ? '💾 حفظ التعديلات' : 'إضافة الوكيل'}
+                  {editingAgent ? '💾 Save Changes' : 'Add Agent'}
                 </button>
                 <button type="button" className="btn btn-secondary" onClick={() => { setIsModalOpen(false); setEditingAgent(null); }} style={{ flex: 1, padding: '0.8rem' }}>
-                  إلغاء
+                  Cancel
                 </button>
               </div>
             </form>
@@ -815,7 +815,7 @@ export default function AdminAgents() {
         <div style={{
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
           background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999999, textAlign: 'right'
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999999, textAlign: 'left'
         }}>
           <div className="glass-card" style={{
             width: '100%', maxWidth: '500px', background: 'var(--bg-secondary)',
@@ -823,7 +823,7 @@ export default function AdminAgents() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem' }}>
               <button onClick={() => setShowDetailsModal(false)} style={{ fontSize: '1.5rem', color: 'var(--text-secondary)', cursor: 'pointer', background: 'none', border: 'none' }}>×</button>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', margin: 0 }}>تفاصيل الوكيل</h3>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', margin: 0 }}>Agent Details</h3>
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
@@ -833,45 +833,45 @@ export default function AdminAgents() {
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 'bold' }}>الاسم:</span>
+                <span style={{ fontWeight: 'bold' }}>Name:</span>
                 <span>{selectedAgentDetails.name}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 'bold' }}>رقم الشريك (Partner ID):</span>
+                <span style={{ fontWeight: 'bold' }}>Partner ID:</span>
                 <span style={{ fontFamily: 'var(--font-en)' }}>{selectedAgentDetails.partnerId || 'N/A'}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 'bold' }}>البريد الإلكتروني:</span>
+                <span style={{ fontWeight: 'bold' }}>Email:</span>
                 <span style={{ fontFamily: 'var(--font-en)' }}>{selectedAgentDetails.email}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 'bold' }}>رقم الهاتف:</span>
+                <span style={{ fontWeight: 'bold' }}>Phone Number:</span>
                 <span style={{ fontFamily: 'var(--font-en)' }}>{selectedAgentDetails.phone || 'N/A'}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 'bold' }}>رقم الحساب البنكي:</span>
+                <span style={{ fontWeight: 'bold' }}>Bank Account Number:</span>
                 <span style={{ fontFamily: 'var(--font-en)' }}>{selectedAgentDetails.bankAccount || 'N/A'}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 'bold' }}>الدولة / المدينة:</span>
+                <span style={{ fontWeight: 'bold' }}>Country / City:</span>
                 <span>{selectedAgentDetails.country || 'N/A'}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 'bold' }}>تاريخ الانضمام:</span>
+                <span style={{ fontWeight: 'bold' }}>Join Date:</span>
                 <span style={{ fontFamily: 'var(--font-en)' }}>{selectedAgentDetails.joinDate || 'N/A'}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 'bold' }}>المستوى:</span>
+                <span style={{ fontWeight: 'bold' }}>Tier:</span>
                 <span>{selectedAgentDetails.tier.toUpperCase()}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 'bold' }}>إجمالي المبيعات:</span>
+                <span style={{ fontWeight: 'bold' }}>Total Sales:</span>
                 <span style={{ fontFamily: 'var(--font-en)', color: 'var(--gold-500)', fontWeight: 'bold' }}>€{selectedAgentDetails.sales?.toLocaleString() || 0}</span>
               </div>
             </div>
 
             <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-              <button className="btn btn-primary" onClick={() => setShowDetailsModal(false)} style={{ padding: '0.8rem 2rem' }}>إغلاق</button>
+              <button className="btn btn-primary" onClick={() => setShowDetailsModal(false)} style={{ padding: '0.8rem 2rem' }}>Close</button>
             </div>
           </div>
         </div>

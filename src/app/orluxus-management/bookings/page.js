@@ -5,9 +5,9 @@ import { getBookings, updateBookingStatus, getAgents } from '@/lib/db';
 
 export default function AdminBookings() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [cityFilter, setCityFilter] = useState('جميع المدن');
-  const [statusFilter, setStatusFilter] = useState('جميع الحالات');
-  const [agentFilter, setAgentFilter] = useState('جميع الوكلاء');
+  const [cityFilter, setCityFilter] = useState('All Cities');
+  const [statusFilter, setStatusFilter] = useState('All Statuses');
+  const [agentFilter, setAgentFilter] = useState('All Agents');
   const [bookings, setBookings] = useState([]);
   const [agents, setAgents] = useState([]);
 
@@ -26,26 +26,25 @@ export default function AdminBookings() {
     loadData();
   }, []);
 
-  // Export Bookings to CSV (Excel compatible with UTF-8 BOM for Arabic support)
+  // Export Bookings to CSV (Excel compatible with UTF-8 BOM)
   const handleExportCSV = () => {
-    const headers = ['رقم الحجز', 'التاريخ', 'اسم العميل', 'رقم الهاتف', 'الخدمة المطلوبة', 'المدينة', 'الوكيل المسؤول', 'كود الخصم', 'المبلغ الأصلي', 'قيمة الخصم', 'المبلغ النهائي', 'طريقة الدفع', 'حالة الحجز'];
+    const headers = ['Booking ID', 'Date', 'Guest Name', 'Phone Number', 'Service Requested', 'City', 'Agent', 'Promo Code', 'Original Price', 'Discount Amount', 'Final Amount', 'Payment Method', 'Status'];
     const rows = filteredBookings.map(b => [
       b.id,
       b.date,
       b.customer,
-      `"${b.phone}"`, // Wrap phone in quotes to prevent Excel from formatting it as scientific number
+      `"${b.phone}"`,
       b.service,
       b.city,
-      b.agentName || 'مباشر (بدون وكيل)',
-      b.promoCode || 'بدون كود',
+      b.agentName || 'Direct (No Agent)',
+      b.promoCode || 'None',
       `€${b.originalAmount || b.finalAmount}`,
       `€${b.discountAmount || 0}`,
       `€${b.finalAmount}`,
-      b.paymentType === 'cash' || b.paymentType === 'onsite' ? 'كاش' : (b.paymentType === 'card' ? 'بطاقة ائتمان' : 'PayPal'),
+      b.paymentType === 'cash' || b.paymentType === 'onsite' ? 'Cash' : (b.paymentType === 'card' ? 'Card' : 'PayPal'),
       b.status
     ]);
 
-    // UTF-8 BOM indicator for proper Excel Arabic decoding
     const BOM = "\uFEFF";
     const csvContent = BOM + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
     
@@ -65,21 +64,21 @@ export default function AdminBookings() {
     try {
       const success = await updateBookingStatus(id, newStatus);
       if (success) {
-        alert(`تم تحديث حالة الحجز ${id} بنجاح!`);
+        alert(`Booking ${id} status updated successfully!`);
         await loadData();
       } else {
-        alert('فشل تحديث حالة الحجز!');
+        alert('Failed to update booking status!');
       }
     } catch (err) {
       console.error('Error updating booking status:', err);
-      alert('حدث خطأ أثناء تحديث حالة الحجز!');
+      alert('An error occurred while updating booking status!');
     }
   };
 
   // Print Digital Agreement
   const handlePrintAgreement = (booking) => {
     const printWindow = window.open('', '_blank');
-    const bLang = booking.customerLanguage || 'ar';
+    const bLang = booking.customerLanguage || 'en';
     const isAr = bLang === 'ar';
     const txId = (booking.txId || booking.id || '').toUpperCase();
     const dateFormatted = new Date(booking.createdAt || Date.now()).toLocaleDateString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -119,16 +118,16 @@ export default function AdminBookings() {
       refLabel: isAr ? 'رمز التوقيع' : 'Signature Key',
       footerText: isAr ? 'شكراً لاختيارك ORLUXUS. نتمنى لك رحلة عائلية رائعة. 🌟' : 'Thank you for choosing ORLUXUS. We wish you an amazing family trip. 🌟',
       statusLabel: {
-        'مؤكد': isAr ? 'مؤكد' : 'CONFIRMED',
-        'قيد الانتظار': isAr ? 'في الانتظار' : 'PENDING',
-        'مكتمل': isAr ? 'مكتمل' : 'COMPLETED',
-        'ملغي': isAr ? 'ملغي' : 'CANCELLED'
+        'Confirmed': 'Confirmed',
+        'Pending': 'Pending',
+        'Completed': 'Completed',
+        'Cancelled': 'Cancelled'
       }[booking.status] || booking.status,
       methodLabel: {
-        'cash': isAr ? 'كاش (💵)' : 'Cash (💵)',
-        'onsite': isAr ? 'نقداً عند الوصول' : 'Cash on Site',
-        'card': 'Dafah Credit Card',
-        'bank_transfer': isAr ? 'تحويل بنكي' : 'Bank Transfer'
+        'cash': 'Cash (💵)',
+        'onsite': 'Cash on Site',
+        'card': 'Credit Card',
+        'bank_transfer': 'Bank Transfer'
       }[booking.paymentType] || booking.paymentType || '—'
     };
 
@@ -150,150 +149,158 @@ export default function AdminBookings() {
           .invoice-card {
             max-width: 800px;
             margin: 0 auto;
-            border: 1px solid #e2e8f0;
-            padding: 40px;
+            border: 2px solid #cbd5e1;
+            padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
           }
           .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #f1f5f9;
+            border-bottom: 2px solid #e2e8f0;
             padding-bottom: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
           }
           .logo-area {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
           }
           .logo-text h2 {
-            font-size: 1.6rem;
-            font-weight: 900;
-            color: #b45309;
             margin: 0;
-            letter-spacing: 1px;
+            font-size: 1.8rem;
+            color: #b45309;
+            letter-spacing: 2px;
           }
           .logo-text span {
-            font-size: 0.68rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: block;
+            font-size: 0.8rem;
+            color: #64748b;
           }
           .ref-area {
             text-align: ${isAr ? 'left' : 'right'};
           }
           .ref-area h3 {
-            margin: 0;
-            font-size: 1.2rem;
-            color: #0f172a;
+            margin: 0 0 5px 0;
+            color: #1e293b;
           }
           .ref-area p {
-            margin: 4px 0 0;
-            font-size: 0.8rem;
-            color: #94a3b8;
+            margin: 0;
+            font-size: 0.85rem;
+            color: #64748b;
           }
           .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: 20px;
+            margin-bottom: 25px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
           }
           .info-block h4 {
             margin: 0 0 10px 0;
-            font-size: 0.85rem;
-            color: #64748b;
-            text-transform: uppercase;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 6px;
+            color: #b45309;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 4px;
           }
           .info-block p {
-            margin: 6px 0;
-            font-size: 0.92rem;
-          }
-          .info-block strong {
-            color: #0f172a;
+            margin: 4px 0;
+            font-size: 0.88rem;
           }
           table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+          }
+          th, td {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.88rem;
           }
           th {
-            background: #f8fafc;
-            border-bottom: 2px solid #e2e8f0;
-            padding: 12px;
-            font-weight: bold;
-            font-size: 0.88rem;
-            color: #475569;
-            text-align: ${isAr ? 'right' : 'left'};
-          }
-          td {
-            padding: 14px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.95rem;
+            background: #f1f5f9;
+            color: #334155;
           }
           .total-block {
-            border-top: 2px solid #e2e8f0;
-            padding-top: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: #fffbe6;
+            border: 1px solid #ffe58f;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
           }
           .total-amount {
-            font-size: 2rem;
-            font-weight: 900;
+            font-size: 1.4rem;
+            font-weight: bold;
             color: #b45309;
           }
-          .badge {
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            display: inline-block;
-          }
-          .badge-green { background: #ecfdf5; color: #10b981; }
-          .badge-orange { background: #fef3c7; color: #b45309; }
-          .badge-red { background: #fef2f2; color: #ef4444; }
           .contacts {
+            margin-bottom: 25px;
             background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            padding: 15px;
             border-radius: 8px;
-            padding: 15px 20px;
-            margin-top: 30px;
+            border-left: 4px solid #b45309;
           }
-          .contacts h4 { margin: 0 0 10px; font-size: 0.78rem; color: #64748b; text-transform: uppercase; }
-          .contacts-list { display: flex; gap: 20px; flex-wrap: wrap; }
-          .contact-item { font-size: 0.9rem; }
-          .contact-item a { color: #b45309; text-decoration: none; font-weight: bold; }
-          .agreement {
-            border: 1px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 15px 20px;
-            margin-top: 20px;
-            font-size: 0.82rem;
-            color: #475569;
+          .contacts h4 {
+            margin: 0 0 10px 0;
+            color: #1e293b;
+            font-size: 0.9rem;
           }
-          .agreement h4 { margin: 0 0 8px; text-transform: uppercase; font-size: 0.8rem; color: #64748b; }
-          .signature-box {
-            background: #f1f5f9;
-            border-radius: 6px;
-            padding: 10px 14px;
+          .contacts-list {
             display: flex;
-            flex-wrap: wrap;
             gap: 20px;
-            margin-top: 12px;
-            color: #64748b;
+            flex-wrap: wrap;
+          }
+          .contact-item {
+            font-size: 0.85rem;
+            font-weight: bold;
+          }
+          .contact-item a {
+            color: #2563eb;
+            text-decoration: none;
+          }
+          .agreement {
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
             font-size: 0.78rem;
+            color: #475569;
+            background: #fafafa;
+          }
+          .agreement h4 {
+            margin: 0 0 8px 0;
+            color: #1e293b;
+            font-size: 0.85rem;
+          }
+          .signature-box {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #cbd5e1;
+            font-size: 0.8rem;
+            color: #0f172a;
           }
           .footer {
             text-align: center;
             margin-top: 30px;
             font-size: 0.85rem;
-            color: #94a3b8;
+            color: #64748b;
+            font-weight: bold;
           }
+          .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.75rem;
+          }
+          .badge-green { background: #dcfce7; color: #15803d; }
+          .badge-orange { background: #ffedd5; color: #c2410c; }
+          .badge-red { background: #fee2e2; color: #b91c1c; }
           @media print {
             body { padding: 0; }
             .invoice-card { border: none; box-shadow: none; padding: 0; }
@@ -364,7 +371,7 @@ export default function AdminBookings() {
           <div class="total-block">
             <div>
               <span style="font-size: 0.85rem; color: #64748b; display: block; margin-bottom: 4px;">${t.payStatus}</span>
-              <span class="badge ${booking.status === 'مؤكد' || booking.status === 'مكتمل' ? 'badge-green' : booking.status === 'ملغي' ? 'badge-red' : 'badge-orange'}">
+              <span class="badge ${booking.status === 'Confirmed' || booking.status === 'Completed' ? 'badge-green' : booking.status === 'Cancelled' ? 'badge-red' : 'badge-orange'}">
                 ${t.statusLabel}
               </span>
             </div>
@@ -416,13 +423,13 @@ export default function AdminBookings() {
       (b.txId || '').toLowerCase().includes(searchLower) ||
       (b.customerLanguage || '').toLowerCase().includes(searchLower);
 
-    const matchesCity = cityFilter === 'جميع المدن' || b.city === cityFilter;
+    const matchesCity = cityFilter === 'All Cities' || b.city === cityFilter;
 
-    const matchesStatus = statusFilter === 'جميع الحالات' || b.status === statusFilter;
+    const matchesStatus = statusFilter === 'All Statuses' || b.status === statusFilter;
 
     let matchesAgent = true;
-    if (agentFilter !== 'جميع الوكلاء') {
-      if (agentFilter === 'مباشر (بدون وكيل)') {
+    if (agentFilter !== 'All Agents') {
+      if (agentFilter === 'Direct (No Agent)') {
         matchesAgent = !b.agentId;
       } else {
         matchesAgent = b.agentId?.toString() === agentFilter.toString();
@@ -433,18 +440,18 @@ export default function AdminBookings() {
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xl)', textAlign: 'right' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xl)', textAlign: 'left' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h2 style={{ color: 'var(--text-primary)', fontWeight: '800' }}>إدارة الحجوزات والمبيعات - ORLUXUS</h2>
-          <p style={{ color: 'var(--text-secondary)' }}>تتبع حجوزات المنصة، مراقبة الخصومات وأكواد إحالة الوكلاء وتصدير التقارير.</p>
+          <h2 style={{ color: 'var(--text-primary)', fontWeight: '800' }}>Bookings &amp; Sales Management — ORLUXUS</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>Track platform bookings, monitor discounts, referral codes, and export reports.</p>
         </div>
         <button 
           onClick={handleExportCSV} 
           className="btn btn-primary"
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem' }}
         >
-          <span>⬇️</span> تصدير الحجوزات المصفاة (CSV/Excel)
+          <span>⬇️</span> Export Filtered Bookings (CSV)
         </button>
       </div>
 
@@ -453,7 +460,7 @@ export default function AdminBookings() {
         <div style={{ position: 'relative', flex: 1, minWidth: '280px' }}>
           <input 
             type="text" 
-            placeholder="البحث برقم الفاتورة/الحجز، العميل، رقم الهاتف أو الخدمة..." 
+            placeholder="Search by booking ID, customer name, phone, or service..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
@@ -480,8 +487,8 @@ export default function AdminBookings() {
               outline: 'none'
             }}
           >
-            <option value="جميع الوكلاء">جميع الوكلاء</option>
-            <option value="مباشر (بدون وكيل)">مباشر (بدون وكيل)</option>
+            <option value="جميع الوكلاء">All Agents</option>
+            <option value="مباشر (بدون وكيل)">Direct (No Agent)</option>
             {agents.map(a => (
               <option key={a.id} value={a.id}>{a.name} (AG-{a.id})</option>
             ))}
@@ -499,11 +506,11 @@ export default function AdminBookings() {
               outline: 'none'
             }}
           >
-            <option value="جميع المدن">جميع المدن</option>
-            <option value="شرم الشيخ">شرم الشيخ</option>
-            <option value="الغردقة">الغردقة</option>
-            <option value="مرسى علم">مرسى علم</option>
-            <option value="دهب">دهب والعين السخنة</option>
+            <option value="جميع المدن">All Cities</option>
+            <option value="شرم الشيخ">Sharm El Sheikh</option>
+            <option value="الغردقة">Hurghada</option>
+            <option value="مرسى علم">Marsa Alam</option>
+            <option value="دهب">Dahab &amp; El Sokhna</option>
           </select>
 
           <select 
@@ -518,11 +525,11 @@ export default function AdminBookings() {
               outline: 'none'
             }}
           >
-            <option value="جميع الحالات">جميع الحالات</option>
-            <option value="مؤكد">مؤكد</option>
-            <option value="قيد الانتظار">قيد الانتظار</option>
-            <option value="مكتمل">مكتمل</option>
-            <option value="ملغي">ملغي</option>
+            <option value="All Statuses">All Statuses</option>
+            <option value="Confirmed">Confirmed</option>
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
           </select>
         </div>
       </div>
@@ -530,19 +537,19 @@ export default function AdminBookings() {
       {/* Bookings Table */}
       <div className="glass-card animate-fade-in-up" style={{ padding: '2rem 1.5rem' }}>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--border-subtle)' }}>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>رقم الحجز</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>التاريخ</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>العميل / الجوال</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>الخدمة والوجهة</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>الوكيل</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>كود الخصم</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>الحساب المالي (€)</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>الدفع</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>الحالة</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold', textAlign: 'center' }}>إجراءات</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Booking ID</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Date</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Customer / Mobile</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Service &amp; Destination</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Agent</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Promo Code</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Total (€)</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Payment</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Status</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold', textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -555,7 +562,7 @@ export default function AdminBookings() {
                     <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-en)', marginTop: '2px' }}>{booking.phone}</div>
                     {booking.customerLanguage && (
                       <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.06)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginTop: '4px', color: 'var(--gold-400)', fontWeight: 'bold' }}>
-                        🌐 {booking.customerLanguage === 'ar' ? 'العربية' : booking.customerLanguage === 'de' ? 'Deutsch' : booking.customerLanguage === 'fr' ? 'Français' : booking.customerLanguage === 'it' ? 'Italiano' : booking.customerLanguage === 'ru' ? 'Русский' : booking.customerLanguage === 'es' ? 'Español' : booking.customerLanguage === 'zh' ? 'Chinese' : booking.customerLanguage === 'ja' ? 'Japanese' : booking.customerLanguage === 'tr' ? 'Türkçe' : booking.customerLanguage.toUpperCase()}
+                        🌐 {booking.customerLanguage === 'ar' ? 'Arabic' : booking.customerLanguage === 'de' ? 'Deutsch' : booking.customerLanguage === 'fr' ? 'Français' : booking.customerLanguage === 'it' ? 'Italiano' : booking.customerLanguage === 'ru' ? 'Русский' : booking.customerLanguage === 'es' ? 'Español' : booking.customerLanguage === 'zh' ? 'Chinese' : booking.customerLanguage === 'ja' ? 'Japanese' : booking.customerLanguage === 'tr' ? 'Türkçe' : booking.customerLanguage.toUpperCase()}
                       </span>
                     )}
                   </td>
@@ -572,7 +579,7 @@ export default function AdminBookings() {
                         👤 {booking.agentName}
                       </span>
                     ) : (
-                      <span style={{ color: 'var(--text-tertiary)', fontStyle: 'italic', fontSize: '11px' }}>بدون وكيل (مباشر)</span>
+                      <span style={{ color: 'var(--text-tertiary)', fontStyle: 'italic', fontSize: '11px' }}>Direct (No Agent)</span>
                     )}
                   </td>
                   <td>
@@ -595,7 +602,7 @@ export default function AdminBookings() {
                           €{booking.finalAmount}
                         </strong>
                         <span style={{ fontSize: '9px', color: 'var(--coral-400)', display: 'block' }}>
-                          (وفر €{booking.discountAmount})
+                          (Saved €{booking.discountAmount})
                         </span>
                       </div>
                     ) : (
@@ -616,19 +623,19 @@ export default function AdminBookings() {
                       display: 'inline-block',
                       whiteSpace: 'nowrap'
                     }}>
-                      {booking.paymentType === 'cash' || booking.paymentType === 'onsite' ? '💵 كاش' : (booking.paymentType === 'card' ? '💳 بطاقة' : '🅿️ PayPal')}
+                      {booking.paymentType === 'cash' || booking.paymentType === 'onsite' ? '💵 Cash' : (booking.paymentType === 'card' ? '💳 Card' : '🅿️ PayPal')}
                     </span>
                   </td>
                   <td style={{ padding: '1.2rem 1rem' }}>
-                    <span className={`badge badge-${booking.status === 'مؤكد' ? 'emerald' : booking.status === 'مكتمل' ? 'ocean' : booking.status === 'ملغي' ? 'coral' : 'gold'}`}>
-                      {booking.status}
+                    <span className={`badge badge-${booking.status === 'مؤكد' || booking.status === 'Confirmed' ? 'emerald' : booking.status === 'مكتمل' || booking.status === 'Completed' ? 'ocean' : booking.status === 'ملغي' || booking.status === 'Cancelled' ? 'coral' : 'gold'}`}>
+                      {booking.status === 'مؤكد' ? 'Confirmed' : booking.status === 'مكتمل' ? 'Completed' : booking.status === 'ملغي' ? 'Cancelled' : booking.status === 'قيد الانتظار' ? 'Pending' : booking.status}
                     </span>
                   </td>
                   <td style={{ padding: '1.2rem 1rem', textAlign: 'center' }}>
                     <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', alignItems: 'center' }}>
                       <button
                         onClick={() => handlePrintAgreement(booking)}
-                        title="طباعة الاتفاقية الرقمية"
+                        title="Print Digital Agreement"
                         style={{
                           padding: '6px 12px',
                           background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
@@ -643,7 +650,7 @@ export default function AdminBookings() {
                           gap: '4px'
                         }}
                       >
-                        📄 طباعة
+                        📄 Print
                       </button>
                       <select 
                         value={booking.status} 
@@ -659,10 +666,10 @@ export default function AdminBookings() {
                           cursor: 'pointer'
                         }}
                       >
-                        <option value="مؤكد">مؤكد</option>
-                        <option value="قيد الانتظار">قيد الانتظار</option>
-                        <option value="مكتمل">مكتمل</option>
-                        <option value="ملغي">ملغي</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
                       </select>
                     </div>
                   </td>
@@ -671,7 +678,7 @@ export default function AdminBookings() {
               {filteredBookings.length === 0 && (
                 <tr>
                   <td colSpan="9" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>
-                    ❌ لا توجد حجوزات تطابق البحث أو التصفية الحالية.
+                    ❌ No bookings match the current search or filter criteria.
                   </td>
                 </tr>
               )}

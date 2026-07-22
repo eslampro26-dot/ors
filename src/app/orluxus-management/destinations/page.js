@@ -84,27 +84,27 @@ export default function AdminDestinations() {
       });
       
       if (res.ok) {
-        alert('تم حفظ البيانات بنجاح!');
+        alert('Changes saved successfully!');
       } else {
-        alert('حدث خطأ أثناء الحفظ.');
+        alert('Error saving changes.');
       }
     } catch (err) {
       console.error('Error saving:', err);
-      alert('حدث خطأ أثناء الحفظ.');
+      alert('Error saving changes.');
     }
     setIsSaving(false);
   };
 
   if (isLoading) {
-    return <div style={{ padding: '2rem', color: '#fff' }}>جاري التحميل...</div>;
+    return <div style={{ padding: '2rem', color: '#fff' }}>Loading...</div>;
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', color: '#fff' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', color: '#fff', textAlign: 'left' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
-          <h2 style={{ fontSize: '2rem', color: 'var(--gold-500)', marginBottom: '0.5rem' }}>إدارة المدن والوجهات</h2>
-          <p style={{ color: 'var(--text-secondary)' }}>تعديل الصور والوصف للمدن المعروضة في الصفحة الرئيسية</p>
+          <h2 style={{ fontSize: '2rem', color: 'var(--gold-500)', marginBottom: '0.5rem' }}>Manage Cities &amp; Destinations</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>Manage images and descriptions for destinations displayed on the homepage</p>
         </div>
         <button 
           onClick={saveChanges} 
@@ -112,7 +112,7 @@ export default function AdminDestinations() {
           className="btn btn-primary"
           style={{ padding: '0.8rem 2rem', fontSize: '1.1rem' }}
         >
-          {isSaving ? 'جاري الحفظ...' : '💾 حفظ التعديلات'}
+          {isSaving ? 'Saving...' : '💾 Save Changes'}
         </button>
       </div>
 
@@ -122,6 +122,11 @@ export default function AdminDestinations() {
           const displayImage = currentData.image || city.image;
           const displayDescAr = currentData.descriptionAr !== undefined ? currentData.descriptionAr : city.descriptionAr;
           const displayDescEn = currentData.descriptionEn !== undefined ? currentData.descriptionEn : city.descriptionEn;
+          
+          // Add timestamp to prevent browser caching when image is updated
+          const imageUrl = displayImage.startsWith('data:') 
+            ? displayImage 
+            : `${displayImage}${displayImage.includes('?') ? '&' : '?'}t=${Date.now()}`;
 
           return (
             <div key={city.slug} className="glass-card" style={{ padding: '1.5rem', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
@@ -129,21 +134,21 @@ export default function AdminDestinations() {
               {/* Image Preview and Upload */}
               <div style={{ flex: '1 1 300px' }}>
                 <h3 style={{ color: 'var(--gold-400)', marginBottom: '1rem', fontSize: '1.2rem' }}>
-                  {city.emoji} {city.nameAr} ({city.nameEn})
+                  {city.emoji} {city.nameEn} ({city.nameAr})
                 </h3>
                 
                 <div style={{ 
                   width: '100%', 
                   height: '200px', 
                   borderRadius: '12px',
-                  backgroundImage: `url(${displayImage})`,
+                  backgroundImage: `url(${imageUrl})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   marginBottom: '1rem',
                   border: '1px solid var(--border-medium)'
                 }} />
                 
-                <label style={{ display: 'block', marginBottom: '0.5rem' }}>صورة المدينة:</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem' }}>City Cover Image:</label>
                 <input 
                   type="file" 
                   accept="image/*" 
@@ -155,10 +160,11 @@ export default function AdminDestinations() {
               {/* Descriptions */}
               <div style={{ flex: '2 1 400px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>الوصف (بالعربية)</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Description (Arabic)</label>
                   <textarea 
                     value={displayDescAr}
                     onChange={(e) => handleInputChange(city.slug, 'descriptionAr', e.target.value)}
+                    dir="rtl"
                     style={{ 
                       width: '100%', 
                       background: 'rgba(255,255,255,0.05)', 
@@ -174,7 +180,7 @@ export default function AdminDestinations() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>الوصف (بالإنجليزية)</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Description (English)</label>
                   <textarea 
                     value={displayDescEn}
                     onChange={(e) => handleInputChange(city.slug, 'descriptionEn', e.target.value)}

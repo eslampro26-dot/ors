@@ -161,8 +161,7 @@ const adminLabels = {
 };
 
 export default function AdminLayout({ children }) {
-  const { locale } = useLanguage();
-  const aL = adminLabels[locale] || adminLabels.en;
+  const aL = adminLabels.en;
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);

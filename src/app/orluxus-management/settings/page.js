@@ -174,13 +174,13 @@ export default function AdminSettings() {
         })
       });
       if (res.ok) {
-        alert('✅ تم حفظ جميع الإعدادات بنجاح في قاعدة البيانات!');
+        alert('✅ All settings saved successfully in the database!');
       } else {
-        alert('❌ فشل حفظ الإعدادات!');
+        alert('❌ Failed to save settings!');
       }
     } catch (err) {
       console.error('Error saving settings:', err);
-      alert('❌ فشل حفظ الإعدادات!');
+      alert('❌ Failed to save settings!');
     }
   };
 
@@ -201,13 +201,13 @@ export default function AdminSettings() {
         })
       });
       if (res.ok) {
-        alert('✅ تم حفظ روابط وسائل التواصل الاجتماعي بنجاح!');
+        alert('✅ Social media links saved successfully!');
       } else {
-        alert('❌ فشل حفظ روابط التواصل!');
+        alert('❌ Failed to save social media links!');
       }
     } catch (err) {
       console.error('Error saving social media settings:', err);
-      alert('❌ فشل حفظ روابط التواصل!');
+      alert('❌ Failed to save social media links!');
     }
   };
 
@@ -237,19 +237,19 @@ export default function AdminSettings() {
         })
       });
       if (res.ok) {
-        alert('✅ تم حفظ نصوص السياسات والتعريف بنجاح!');
+        alert('✅ Policies and description texts saved successfully!');
       } else {
-        alert('❌ فشل حفظ نصوص السياسات!');
+        alert('❌ Failed to save policy texts!');
       }
     } catch (err) {
       console.error('Error saving policies:', err);
-      alert('❌ فشل حفظ نصوص السياسات!');
+      alert('❌ Failed to save policy texts!');
     }
   };
 
   const handleTestSmtp = async () => {
     if (!smtpUser || !smtpPass) {
-      alert('الرجاء إدخال الإيميل وكلمة المرور أولاً لتجربة الاتصال!');
+      alert('Please enter email and app password first to test connection!');
       return;
     }
     setSmtpTestStatus('testing');
@@ -270,39 +270,39 @@ export default function AdminSettings() {
         const data = await res.json();
         if (data.success) {
           setSmtpTestStatus('ok');
-          alert('✅ تم الاتصال وإرسال إيميل التجربة بنجاح إلى: ' + companyEmail);
+          alert('✅ Connection successful! Test email sent to: ' + companyEmail);
         } else {
           setSmtpTestStatus('fail');
-          alert('❌ فشل الاتصال: ' + (data.error || 'خطأ غير معروف'));
+          alert('❌ Connection failed: ' + (data.error || 'Unknown error'));
         }
       } else {
         setSmtpTestStatus('fail');
-        alert('❌ فشل الاتصال بالخادم!');
+        alert('❌ Server connection failed!');
       }
     } catch (err) {
       console.error(err);
       setSmtpTestStatus('fail');
-      alert('❌ حدث خطأ غير متوقع أثناء الاتصال!');
+      alert('❌ An unexpected error occurred during connection!');
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xl)', textAlign: 'right' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xl)', textAlign: 'left' }}>
       <div>
-        <h2 style={{ color: 'var(--text-primary)', fontWeight: '800' }}>إعدادات المنصة</h2>
-        <p style={{ color: 'var(--text-secondary)' }}>تخصيص الإعدادات العامة وبيانات التواصل وسياسات المنصة.</p>
+        <h2 style={{ color: 'var(--text-primary)', fontWeight: '800' }}>Platform Settings</h2>
+        <p style={{ color: 'var(--text-secondary)' }}>Customize general settings, contact details, and platform policies.</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-xl)' }}>
         
         {/* Left side: General Settings */}
         <div className="glass-card animate-fade-in-up">
-          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>⚙️ الإعدادات العامة</h3>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>⚙️ General Settings</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             
             {/* Site Name Input */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>اسم الموقع</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Site Name</label>
               <input 
                 type="text" 
                 value={siteName} 
@@ -321,7 +321,7 @@ export default function AdminSettings() {
 
             {/* Whatsapp Contact */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>رقم التواصل (WhatsApp)</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>WhatsApp Contact Number</label>
               <input 
                 type="text" 
                 value={whatsapp} 
@@ -342,7 +342,7 @@ export default function AdminSettings() {
 
             {/* Emergency Contact */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>رقم الطوارئ</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Emergency Phone Number</label>
               <input 
                 type="text" 
                 value={emergencyPhone} 
@@ -364,7 +364,7 @@ export default function AdminSettings() {
 
             {/* Default Currency */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>العملة الافتراضية</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Default Currency</label>
               <select 
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
@@ -379,15 +379,15 @@ export default function AdminSettings() {
                   cursor: 'pointer'
                 }}
               >
-                <option value="اليورو (€)">اليورو (€)</option>
-                <option value="الدولار ($)">الدولار ($)</option>
-                <option value="الجنيه المصري (EGP)">الجنيه المصري (EGP)</option>
+                <option value="Euro (€)">Euro (€)</option>
+                <option value="USD ($)">USD ($)</option>
+                <option value="EGP (EGP)">EGP (EGP)</option>
               </select>
             </div>
 
             {/* PayPal Email */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>بريد PayPal المستلم</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Recipient PayPal Email</label>
               <input 
                 type="email" 
                 value={paypalEmail} 
@@ -407,14 +407,14 @@ export default function AdminSettings() {
             </div>
             
             <button onClick={handleSaveSettings} className="btn btn-primary" style={{ marginTop: '1rem', width: '100%', padding: '0.8rem' }}>
-              💾 حفظ التغييرات العامة
+              💾 Save General Settings
             </button>
           </div>
         </div>
 
         {/* Right side: Agents & Commission Settings */}
         <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>👥 إعدادات الوكلاء والتسجيل</h3>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>👥 Agent &amp; Registration Settings</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             
             {/* Allow Auto Registration */}
@@ -425,7 +425,7 @@ export default function AdminSettings() {
                 onChange={(e) => setAllowReg(e.target.checked)}
                 style={{ width: '18px', height: '18px', cursor: 'pointer' }}
               />
-              <span>السماح بتسجيل وكلاء جدد تلقائياً</span>
+              <span>Allow automatic new agent registration</span>
             </label>
 
             {/* Auto Upgrade to Silver */}
@@ -436,7 +436,7 @@ export default function AdminSettings() {
                 onChange={(e) => setAllowPromo(e.target.checked)}
                 style={{ width: '18px', height: '18px', cursor: 'pointer' }}
               />
-              <span>تفعيل الترقية التلقائية للمستوى الفضي</span>
+              <span>Enable automatic upgrade to Silver tier</span>
             </label>
 
             {/* Email Notifications */}
@@ -447,12 +447,12 @@ export default function AdminSettings() {
                 onChange={(e) => setNotifyEmail(e.target.checked)}
                 style={{ width: '18px', height: '18px', cursor: 'pointer' }}
               />
-              <span>إرسال إشعارات البريد الإلكتروني عند كل حجز</span>
+              <span>Send email notifications for every booking</span>
             </label>
             
             {/* Default Direct Commission */}
             <div style={{ marginTop: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>نسبة خصم الوكيل المباشر الافتراضية (%)</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Default Direct Agent Commission (%)</label>
               <input 
                 type="number" 
                 value={commission} 
@@ -471,18 +471,18 @@ export default function AdminSettings() {
             </div>
             
             <button onClick={handleSaveSettings} className="btn btn-secondary" style={{ marginTop: '1rem', width: '100%', padding: '0.8rem' }}>
-              💾 حفظ إعدادات الوكلاء
+              💾 Save Agent Settings
             </button>
           </div>
         </div>
 
         {/* SMTP Email Settings Card */}
         <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
-          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📧 إعدادات البريد الإلكتروني (SMTP)</h3>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📧 Email Settings (SMTP)</h3>
           
           {(!smtpUser || !smtpPass) && (
             <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', padding: '0.8rem 1rem', borderRadius: '8px', color: '#f87171', fontSize: '0.82rem', marginBottom: '1.2rem', fontWeight: '700', lineHeight: '1.5' }}>
-              ⚠️ تنبيه هام: بيانات SMTP غير مكتملة حالياً. لن يتمكن النظام من إرسال رسائل البريد الإلكتروني التلقائية لتأكيد الحجز أو الفواتير إلى العملاء حتى يتم تهيئة اسم المستخدم وكلمة مرور التطبيق بشكل صحيح وتجربة الاتصال بنجاح.
+              ⚠️ Important Notice: SMTP credentials are not configured yet. Automatic booking confirmation and invoice emails will not be sent to customers until valid SMTP username and app password are saved and tested.
             </div>
           )}
 
@@ -490,7 +490,7 @@ export default function AdminSettings() {
             
             {/* SMTP Host */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>خادم SMTP (SMTP Host)</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>SMTP Host</label>
               <input 
                 type="text" 
                 value={smtpHost} 
@@ -513,7 +513,7 @@ export default function AdminSettings() {
 
             {/* SMTP Port */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>منفذ SMTP (SMTP Port)</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>SMTP Port</label>
               <input 
                 type="text" 
                 value={smtpPort} 
@@ -536,7 +536,7 @@ export default function AdminSettings() {
 
             {/* SMTP User */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>إيميل المُرسِل (SMTP User)</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>SMTP User (Sender Email)</label>
               <input 
                 type="email" 
                 value={smtpUser} 
@@ -559,7 +559,7 @@ export default function AdminSettings() {
 
             {/* SMTP Password */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>كلمة مرور التطبيق (App Password)</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>App Password</label>
               <input 
                 type="password" 
                 value={smtpPass} 
@@ -582,7 +582,7 @@ export default function AdminSettings() {
 
             {/* Company Notification Email */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>إيميل الشركة المستلم للفواتير</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Company Invoice Recipient Email</label>
               <input 
                 type="email" 
                 value={companyEmail} 
@@ -609,7 +609,7 @@ export default function AdminSettings() {
                 className="btn btn-primary" 
                 style={{ flex: 1, padding: '0.8rem' }}
               >
-                💾 حفظ الإعدادات
+                💾 Save Settings
               </button>
               <button 
                 onClick={handleTestSmtp} 
@@ -621,7 +621,7 @@ export default function AdminSettings() {
                 }}
                 disabled={smtpTestStatus === 'testing'}
               >
-                {smtpTestStatus === 'testing' ? '⏳ جاري الفحص...' : '⚡ تجربة الاتصال'}
+                {smtpTestStatus === 'testing' ? '⏳ Testing...' : '⚡ Test Connection'}
               </button>
             </div>
           </div>
@@ -630,12 +630,12 @@ export default function AdminSettings() {
 
         {/* Social Media Settings */}
         <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.2s', gridColumn: 'span 1' }}>
-          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📱 وسائل التواصل الاجتماعي</h3>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📱 Social Media Links</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             
             {/* Email */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>📧 البريد الإلكتروني</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>📧 Public Support Email</label>
               <input 
                 type="email" 
                 value={email} 
@@ -654,7 +654,7 @@ export default function AdminSettings() {
 
             {/* Facebook */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>👍 رابط فيسبوك</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>👍 Facebook URL</label>
               <input 
                 type="url" 
                 value={facebook} 
@@ -674,7 +674,7 @@ export default function AdminSettings() {
 
             {/* TikTok */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>🎵 رابط تيك توك</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>🎵 TikTok URL</label>
               <input 
                 type="url" 
                 value={tiktok} 
@@ -694,7 +694,7 @@ export default function AdminSettings() {
 
             {/* Instagram */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>📷 رابط إنستغرام</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>📷 Instagram URL</label>
               <input 
                 type="url" 
                 value={instagram} 
@@ -713,26 +713,26 @@ export default function AdminSettings() {
             </div>
             
             <button onClick={handleSaveSocialMedia} className="btn btn-primary" style={{ marginTop: '1rem', width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #c084fc, #7c3aed)' }}>
-              💾 حفظ وسائل التواصل
+              💾 Save Social Media
             </button>
           </div>
         </div>
 
-        {/* أسعار الأشخاص الإضافيين حسب فئة الخدمة والدرجة */}
+        {/* Additional Guest Prices */}
         <div className="glass-card animate-fade-in-up" style={{ gridColumn: 'span 2', animationDelay: '0.25s' }}>
-          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>💰 أسعار الأشخاص الإضافيين حسب القسم والفئة</h3>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>💰 Additional Guest Pricing by Category &amp; Tier</h3>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-            حدد سعر الفرد الإضافي (من الشخص الثاني فما فوق) لكل قسم وفئة خدمة. إذا تُرِك فارغاً، سيتم احتساب السعر الكامل للشخص الإضافي.
+            Configure additional guest fee (from 2nd guest onwards) per category and service tier. Leave empty to charge full price.
           </p>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
             {[
-              { id: 'sea-trips', name: '⛵ الرحلات البحرية (Sea Trips)' },
-              { id: 'desert-trips', name: '🏜️ الرحلات الصحراوية (Desert Trips)' },
-              { id: 'city-tours', name: '🏛️ جولات المدينة (City Tours)' },
-              { id: 'packages', name: '📦 باكدجات مصر الشاملة (Packages)' },
-              { id: 'restaurants', name: '🍽️ حجوزات المطاعم (Restaurants)' },
-              { id: 'entertainment', name: '🎭 العروض والترفيه (Entertainment)' }
+              { id: 'sea-trips', name: '⛵ Sea Trips' },
+              { id: 'desert-trips', name: '🏜️ Desert Trips' },
+              { id: 'city-tours', name: '🏛️ City Tours' },
+              { id: 'packages', name: '📦 Egypt Packages' },
+              { id: 'restaurants', name: '🍽️ Restaurants' },
+              { id: 'entertainment', name: '🎭 Entertainment' }
             ].map(cat => (
               <div key={cat.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                 <h4 style={{ color: 'var(--gold-400)', marginBottom: '0.8rem', borderBottom: '1px dashed rgba(255,255,255,0.05)', paddingBottom: '0.4rem' }}>{cat.name}</h4>
@@ -740,7 +740,7 @@ export default function AdminSettings() {
                   {['economy', 'business', 'vip'].map(tier => (
                     <div key={tier} style={{ flex: 1 }}>
                       <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'capitalize' }}>
-                        {tier === 'economy' ? 'اقتصادي' : tier === 'business' ? 'بيزنس' : 'VIP'}
+                        {tier === 'economy' ? 'Economy' : tier === 'business' ? 'Business' : 'VIP'}
                       </label>
                       <input
                         type="number"
@@ -774,25 +774,25 @@ export default function AdminSettings() {
           </div>
           
           <button onClick={handleSaveSettings} className="btn btn-primary" style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem' }}>
-            💾 حفظ أسعار الأشخاص الإضافيين
+            💾 Save Additional Guest Prices
           </button>
         </div>
       </div>
 
-      {/* 👶 أسعار الأطفال (2-12 سنة) */}
+      {/* Child Prices */}
       <div className="glass-card animate-fade-in-up" style={{ gridColumn: 'span 2', animationDelay: '0.28s', marginTop: 'var(--space-md)' }}>
-        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>👶 أسعار الأطفال (2-12 سنة) حسب القسم والفئة</h3>
+        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>👶 Child Prices (2-12 Years) by Category &amp; Tier</h3>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-          حدد سعر الطفل (من 2 إلى 12 سنة) لكل قسم وفئة خدمة. اترك فارغاً أو ضع 0 إذا كان الدخول مجانياً للأطفال.
+          Configure child price per category and service tier. Leave empty or set to 0 if children enter for free.
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
           {[
-            { id: 'sea-trips', name: '⛵ الرحلات البحرية' },
-            { id: 'desert-trips', name: '🏜️ الرحلات الصحراوية' },
-            { id: 'city-tours', name: '🏛️ جولات المدينة' },
-            { id: 'packages', name: '📦 الباكدجات الشاملة' },
-            { id: 'restaurants', name: '🍽️ المطاعم' },
-            { id: 'entertainment', name: '🎭 الترفيه' }
+            { id: 'sea-trips', name: '⛵ Sea Trips' },
+            { id: 'desert-trips', name: '🏜️ Desert Trips' },
+            { id: 'city-tours', name: '🏛️ City Tours' },
+            { id: 'packages', name: '📦 Egypt Packages' },
+            { id: 'restaurants', name: '🍽️ Restaurants' },
+            { id: 'entertainment', name: '🎭 Entertainment' }
           ].map(cat => (
             <div key={cat.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
               <h4 style={{ color: 'var(--gold-400)', marginBottom: '0.8rem', borderBottom: '1px dashed rgba(255,255,255,0.05)', paddingBottom: '0.4rem' }}>{cat.name}</h4>
@@ -800,7 +800,7 @@ export default function AdminSettings() {
                 {['economy', 'business', 'vip'].map(tier => (
                   <div key={tier} style={{ flex: 1 }}>
                     <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'capitalize' }}>
-                      {tier === 'economy' ? 'اقتصادي' : tier === 'business' ? 'بيزنس' : 'VIP'}
+                      {tier === 'economy' ? 'Economy' : tier === 'business' ? 'Business' : 'VIP'}
                     </label>
                     <input
                       type="number"
@@ -820,24 +820,24 @@ export default function AdminSettings() {
           ))}
         </div>
         <button onClick={handleSaveSettings} className="btn btn-primary" style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}>
-          💾 حفظ أسعار الأطفال
+          💾 Save Child Prices
         </button>
       </div>
 
-      {/* 🍼 أسعار الرضع (أقل من سنتين) */}
+      {/* Infant Prices */}
       <div className="glass-card animate-fade-in-up" style={{ gridColumn: 'span 2', animationDelay: '0.3s', marginTop: 'var(--space-md)' }}>
-        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>🍼 أسعار الرضع (أقل من 2 سنة) حسب القسم والفئة</h3>
+        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>🍼 Infant Prices (Under 2 Years) by Category &amp; Tier</h3>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-          في الغالب الرضع مجانيون — ضع 0 لإبقائه مجانياً، أو حدد سعراً إذا كانت الخدمة تتطلب ذلك.
+          Infants are usually free — set to 0 to keep free, or specify a price if required.
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
           {[
-            { id: 'sea-trips', name: '⛵ الرحلات البحرية' },
-            { id: 'desert-trips', name: '🏜️ الرحلات الصحراوية' },
-            { id: 'city-tours', name: '🏛️ جولات المدينة' },
-            { id: 'packages', name: '📦 الباكدجات الشاملة' },
-            { id: 'restaurants', name: '🍽️ المطاعم' },
-            { id: 'entertainment', name: '🎭 الترفيه' }
+            { id: 'sea-trips', name: '⛵ Sea Trips' },
+            { id: 'desert-trips', name: '🏜️ Desert Trips' },
+            { id: 'city-tours', name: '🏛️ City Tours' },
+            { id: 'packages', name: '📦 Egypt Packages' },
+            { id: 'restaurants', name: '🍽️ Restaurants' },
+            { id: 'entertainment', name: '🎭 Entertainment' }
           ].map(cat => (
             <div key={cat.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
               <h4 style={{ color: '#94a3b8', marginBottom: '0.8rem', borderBottom: '1px dashed rgba(255,255,255,0.05)', paddingBottom: '0.4rem' }}>{cat.name}</h4>
@@ -845,12 +845,12 @@ export default function AdminSettings() {
                 {['economy', 'business', 'vip'].map(tier => (
                   <div key={tier} style={{ flex: 1 }}>
                     <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'capitalize' }}>
-                      {tier === 'economy' ? 'اقتصادي' : tier === 'business' ? 'بيزنس' : 'VIP'}
+                      {tier === 'economy' ? 'Economy' : tier === 'business' ? 'Business' : 'VIP'}
                     </label>
                     <input
                       type="number"
                       min="0"
-                      placeholder="0 (مجاني)"
+                      placeholder="0 (Free)"
                       style={{ width: '100%', padding: '6px 10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '4px', outline: 'none', fontSize: '0.85rem' }}
                       value={infantPrices[cat.id]?.[tier] ?? ''}
                       onChange={(e) => {
@@ -865,111 +865,111 @@ export default function AdminSettings() {
           ))}
         </div>
         <button onClick={handleSaveSettings} className="btn btn-primary" style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #0ea5e9, #0284c7)' }}>
-          💾 حفظ أسعار الرضع
+          💾 Save Infant Prices
         </button>
       </div>
 
-      {/* 📄 إدارة نصوص التعريف والسياسات (About Us & Policies) */}
+      {/* About Us & Policy Texts */}
       <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.3s', marginTop: 'var(--space-md)' }}>
-        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📄 إدارة نصوص التعريف والسياسات (تظهر للعملاء في الفوتر)</h3>
+        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📄 Manage About Us &amp; Policy Texts (Footer Links)</h3>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
           
           {/* Column 1: About Us */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <h4 style={{ color: 'var(--gold-400)', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.3rem' }}>عن أورلوكسوس</h4>
+            <h4 style={{ color: 'var(--gold-400)', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.3rem' }}>About ORLUXUS</h4>
             
             <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>رؤيتنا (Vision)</span>
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Vision</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In Arabic 🇸🇦</label>
               <textarea value={vision} onChange={(e) => setVision(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In English 🇬🇧</label>
               <textarea value={visionEn} onChange={(e) => setVisionEn(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
 
             <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>أهدافنا (Goals)</span>
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Goals</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In Arabic 🇸🇦</label>
               <textarea value={goals} onChange={(e) => setGoals(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In English 🇬🇧</label>
               <textarea value={goalsEn} onChange={(e) => setGoalsEn(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
 
             <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>الاستدامة (Sustainability)</span>
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Sustainability</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In Arabic 🇸🇦</label>
               <textarea value={sustainability} onChange={(e) => setSustainability(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In English 🇬🇧</label>
               <textarea value={sustainabilityEn} onChange={(e) => setSustainabilityEn(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
 
             <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>موظفونا (Staff)</span>
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Staff</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In Arabic 🇸🇦</label>
               <textarea value={staff} onChange={(e) => setStaff(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In English 🇬🇧</label>
               <textarea value={staffEn} onChange={(e) => setStaffEn(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
           </div>
 
           {/* Column 2: Legal & Data Protection */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <h4 style={{ color: 'var(--gold-400)', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.3rem' }}>السياسات والقانونية</h4>
+            <h4 style={{ color: 'var(--gold-400)', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.3rem' }}>Legal &amp; Policies</h4>
 
             <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>الوضع القانوني للشركة (Legal Status)</span>
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Company Legal Status</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In Arabic 🇸🇦</label>
               <textarea value={legalCompany} onChange={(e) => setLegalCompany(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In English 🇬🇧</label>
               <textarea value={legalCompanyEn} onChange={(e) => setLegalCompanyEn(e.target.value)} rows="2" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
 
             <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>سياسة الإلغاء (Cancellation Policy)</span>
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Cancellation Policy</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In Arabic 🇸🇦</label>
               <textarea value={legalCancellation} onChange={(e) => setLegalCancellation(e.target.value)} rows="3" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In English 🇬🇧</label>
               <textarea value={legalCancellationEn} onChange={(e) => setLegalCancellationEn(e.target.value)} rows="3" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
 
             <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
-              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>حماية البيانات والخصوصية (Data Protection)</span>
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالعربية 🇸🇦</label>
+              <span style={{ display: 'block', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Data Protection &amp; Privacy</span>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In Arabic 🇸🇦</label>
               <textarea value={dataProtection} onChange={(e) => setDataProtection(e.target.value)} rows="3" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }} />
-              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>بالإنجليزية 🇬🇧</label>
+              <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>In English 🇬🇧</label>
               <textarea value={dataProtectionEn} onChange={(e) => setDataProtectionEn(e.target.value)} rows="3" style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
           </div>
 
           {/* Column 3: Terms & Conditions */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <h4 style={{ color: 'var(--gold-400)', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.3rem' }}>الشروط والأحكام (تظهر في الفاتورة)</h4>
+            <h4 style={{ color: 'var(--gold-400)', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.3rem' }}>Terms &amp; Conditions (Invoice Footer)</h4>
             
             <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>الشروط بالعربية 🇸🇦</label>
-              <textarea value={termsAr} onChange={(e) => setTermsAr(e.target.value)} rows="6" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} placeholder="اكتب الشروط والأحكام بالعربية..." />
+              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Terms in Arabic 🇸🇦</label>
+              <textarea value={termsAr} onChange={(e) => setTermsAr(e.target.value)} rows="6" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} placeholder="Write terms and conditions in Arabic..." />
             </div>
 
             <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>الشروط بالإنجليزية 🇬🇧</label>
+              <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Terms in English 🇬🇧</label>
               <textarea value={termsEn} onChange={(e) => setTermsEn(e.target.value)} rows="6" style={{ width: '100%', padding: '10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '6px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} placeholder="Write terms and conditions in English..." />
             </div>
           </div>
         </div>
 
         <button onClick={handleSaveContent} className="btn btn-primary" style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-          💾 حفظ نصوص السياسات والتعريف
+          💾 Save Policy &amp; Description Texts
         </button>
       </div>
 
-      {/* Section 6: Checkout Add-ons (الخدمات الإضافية في صفحة الدفع) */}
+      {/* Section 6: Checkout Add-ons */}
       <div className="admin-card">
         <div className="admin-card-header">
-          <h2 className="admin-card-title">الخدمات الإضافية في صفحة الدفع (Checkout Add-ons)</h2>
+          <h2 className="admin-card-title">Checkout Add-ons Management</h2>
         </div>
         <div className="admin-card-body">
           <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-            هذه الإضافات ستظهر للعميل أثناء عملية الحجز ليتمكن من اختيارها. يمكنك تعديل أسعارها ومسمياتها بحرية.
+            These add-ons will appear during customer checkout. You can customize titles, prices, and descriptions freely.
           </p>
           {checkoutAddons.map((addon, index) => (
             <div key={addon.id || index} style={{ marginBottom: '1.2rem', padding: '1.2rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
@@ -977,27 +977,27 @@ export default function AdminSettings() {
               {/* Header: title + delete */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <span style={{ fontWeight: '700', color: 'var(--gold-400)', fontSize: '0.9rem' }}>
-                  #{index + 1} — {addon.nameAr || addon.nameEn || 'خدمة جديدة'}
+                  #{index + 1} — {addon.nameEn || addon.nameAr || 'New Addon'}
                 </span>
                 <button
                   onClick={() => setCheckoutAddons(checkoutAddons.filter((_, i) => i !== index))}
                   style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: '6px', padding: '4px 14px', cursor: 'pointer', fontSize: '0.8rem' }}
                 >
-                  🗑️ حذف
+                  🗑️ Delete
                 </button>
               </div>
 
               {/* Row 1: Names */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '0.8rem' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الاسم بالعربية</label>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>Name (Arabic)</label>
                   <input type="text" value={addon.nameAr}
                     onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],nameAr:e.target.value}; setCheckoutAddons(n); }}
                     style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', boxSizing:'border-box' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الاسم بالإنجليزية</label>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>Name (English)</label>
                   <input type="text" value={addon.nameEn}
                     onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],nameEn:e.target.value}; setCheckoutAddons(n); }}
                     style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
@@ -1008,20 +1008,20 @@ export default function AdminSettings() {
               {/* Row 2: Price + Unit */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '0.8rem' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>السعر (€)</label>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>Price (€)</label>
                   <input type="number" value={addon.price}
                     onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],price:Number(e.target.value)}; setCheckoutAddons(n); }}
                     style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>حساب السعر</label>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>Billing Calculation</label>
                   <select value={addon.unit || 'booking'}
                     onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],unit:e.target.value}; setCheckoutAddons(n); }}
                     style={{ width:'100%', padding:'8px 12px', background:'#0c0f17', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', cursor:'pointer', boxSizing:'border-box' }}
                   >
-                    <option value="booking">للحجز بالكامل (Flat Rate)</option>
-                    <option value="person">لكل فرد (Per Person)</option>
+                    <option value="booking">Flat Rate (Per Booking)</option>
+                    <option value="person">Per Person</option>
                   </select>
                 </div>
               </div>
@@ -1029,14 +1029,14 @@ export default function AdminSettings() {
               {/* Row 3: Descriptions */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الوصف (بالعربية)</label>
-                  <input type="text" placeholder="وصف تفصيلي يظهر للعميل..." value={addon.descAr || ''}
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>Description (Arabic)</label>
+                  <input type="text" placeholder="Arabic description text..." value={addon.descAr || ''}
                     onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],descAr:e.target.value}; setCheckoutAddons(n); }}
                     style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontSize:'0.85rem', boxSizing:'border-box' }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>الوصف (بالإنجليزية)</label>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 'bold' }}>Description (English)</label>
                   <input type="text" placeholder="Detailed description shown to client..." value={addon.descEn || ''}
                     onChange={(e) => { const n=[...checkoutAddons]; n[index]={...n[index],descEn:e.target.value}; setCheckoutAddons(n); }}
                     style={{ width:'100%', padding:'8px 12px', background:'rgba(255,255,255,0.05)', color:'white', border:'1px solid var(--border-medium)', borderRadius:'6px', outline:'none', fontSize:'0.85rem', fontFamily:'var(--font-en)', boxSizing:'border-box' }}
@@ -1050,10 +1050,10 @@ export default function AdminSettings() {
             style={{ marginTop: '0.5rem' }}
             onClick={() => setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: '', nameAr: '', price: 0, unit: 'booking', descAr: '', descEn: '' }])}
           >
-            + إضافة خدمة جديدة
+            + Add New Add-on
           </button>
           <div style={{ marginTop: '1.5rem', textAlign: 'left' }}>
-            <button className="btn btn-primary" onClick={handleSaveSettings}>حفظ الخدمات الإضافية</button>
+            <button className="btn btn-primary" onClick={handleSaveSettings}>Save Checkout Add-ons</button>
           </div>
         </div>
       </div>

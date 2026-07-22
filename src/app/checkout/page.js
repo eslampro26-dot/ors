@@ -310,7 +310,7 @@ function CheckoutContent() {
     url.searchParams.set('discountAmount', discountAmount.toString());
     url.searchParams.set('originalAmount', originalTotal.toString());
     url.searchParams.set('agentId', promoDetails ? promoDetails.agentId || '' : '');
-    url.searchParams.set('agentName', promoDetails ? promoDetails.agentName || '' : 'مباشر (بدون وكيل)');
+    url.searchParams.set('agentName', promoDetails ? promoDetails.agentName || '' : translate('directAgent'));
     url.searchParams.set('city', searchParams.get('city') || 'شرم الشيخ');
     url.searchParams.set('email', email);
     url.searchParams.set('pickupLocation', pickupLocation);
@@ -339,7 +339,7 @@ function CheckoutContent() {
           service: titleEn || titleAr || 'Travel Excursion',
           city: searchParams.get('city') || 'شرم الشيخ',
           agentId: promoDetails ? promoDetails.agentId || null : null,
-          agentName: promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)',
+          agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
           originalAmount: originalTotal,
           discountAmount: discountAmount,
           finalAmount: totalAmount,
@@ -398,7 +398,7 @@ function CheckoutContent() {
           service: titleEn || titleAr || 'Travel Excursion',
           city: searchParams.get('city') || 'شرم الشيخ',
           agentId: promoDetails ? promoDetails.agentId || null : null,
-          agentName: promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)',
+          agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
           originalAmount: originalTotal,
           discountAmount: discountAmount,
           finalAmount: totalAmount,
@@ -555,7 +555,7 @@ function CheckoutContent() {
               service: titleEn || titleAr || 'Travel Excursion',
               city: searchParams.get('city') || 'شرم الشيخ',
               agentId: promoDetails ? promoDetails.agentId || null : null,
-              agentName: promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)',
+              agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
               originalAmount: originalTotal,
               discountAmount: discountAmount,
               finalAmount: totalAmount,
@@ -1601,8 +1601,106 @@ function CheckoutContent() {
       <Navbar />
 
       <div className="container" style={{ paddingTop: 'calc(var(--nav-height) + 3rem)' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap-reverse', gap: 'var(--space-2xl)', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2xl)', alignItems: 'flex-start' }}>
           
+          {/* Order Summary - Moved to top */}
+          <div className="glass-card animate-fade-in-up" style={{ flex: '1 1 320px', padding: '2.5rem', border: '1px solid var(--border-accent)', boxShadow: 'var(--shadow-glow-gold)', textAlign: 'left' }}>
+            <h3 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '700', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem', color: 'var(--text-primary)' }}>{translate('summary')}</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+              <div>
+                <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{translate('serviceRequested')}</span>
+                <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '0.2rem' }}>
+                  <TranslatedText text={titleEn || titleAr} fallback="Travel Excursion" />
+                </h4>
+                {locale === 'ar' && titleEn && (
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontFamily: 'var(--font-en)', margin: 0 }}>{titleEn}</p>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>{translate('basePrice')}</span>
+                <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>€{basePrice}</span>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>{translate('travelers')}</span>
+                <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>{travelers}</span>
+              </div>
+
+              {/* Children row */}
+              {children > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'var(--text-tertiary)' }}>• {translate('children') || 'Children (2-12y)'} ×{children}</span>
+                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
+                    {childPrice > 0 ? `+€${(childPrice * children).toFixed(2)}` : '✓ Free'}
+                  </span>
+                </div>
+              )}
+
+              {/* Infants row */}
+              {infants > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'var(--text-tertiary)' }}>• {translate('infants') || 'Infants (<2y)'} ×{infants}</span>
+                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
+                    {infantPrice > 0 ? `+€${(infantPrice * infants).toFixed(2)}` : '✓ Free'}
+                  </span>
+                </div>
+              )}
+
+              {/* Extras Cost rows */}
+              {selectedExtras.guide && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'var(--text-tertiary)' }}>• Private Tour Guide</span>
+                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€25</span>
+                </div>
+              )}
+              {selectedExtras.lunch && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'var(--text-tertiary)' }}>• Lunch & Soft Drinks</span>
+                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€{15 * travelers}</span>
+                </div>
+              )}
+              {selectedExtras.transfer && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'var(--text-tertiary)' }}>• Round-trip Transfer</span>
+                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€30</span>
+                </div>
+              )}
+              {selectedExtras.photos && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'var(--text-tertiary)' }}>• Professional Photography</span>
+                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€20</span>
+                </div>
+              )}
+
+              {promoDetails && discountAmount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981', background: 'rgba(16,185,129,0.06)', borderRadius: '8px', padding: '0.5rem 0.8rem', border: '1px solid rgba(16,185,129,0.15)' }}>
+                  <span style={{ fontSize: '0.9rem' }}>🎟️ {translate('discount')} <strong style={{ fontFamily: 'var(--font-en)', letterSpacing: '1px' }}>{promoDetails.code}</strong></span>
+                  <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
+                </div>
+              )}
+              {!promoDetails && discountAmount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--coral-500)' }}>
+                  <span>{translate('discount')}</span>
+                  <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+
+            <div style={{ borderTop: '2px solid var(--border-medium)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-primary)' }}>{translate('totalDue')}</span>
+              <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', fontSize: '2rem', color: 'var(--gold-600)' }}>
+                €{totalAmount.toFixed(2)}
+              </div>
+            </div>
+
+            <div style={{ marginTop: '2rem', display: 'flex', gap: '0.5rem', color: 'var(--text-tertiary)', fontSize: '0.8rem', lineHeight: '1.4' }}>
+              <span>🔒</span>
+              <span>All payment details are processed under high-level SSL encryption protocols.</span>
+            </div>
+          </div>
+
           {/* Form */}
           <div className="glass-card animate-fade-in-up" style={{ flex: '1 1 500px', textAlign: isAr ? 'right' : 'left' }}>
             <h2 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: '800', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{translate('title')}</h2>
@@ -2047,104 +2145,6 @@ function CheckoutContent() {
               </button>
 
             </form>
-          </div>
-
-          {/* Order Summary */}
-          <div className="glass-card animate-fade-in-up" style={{ flex: '1 1 320px', padding: '2.5rem', border: '1px solid var(--border-accent)', boxShadow: 'var(--shadow-glow-gold)', textAlign: 'left' }}>
-            <h3 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '700', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem', color: 'var(--text-primary)' }}>{translate('summary')}</h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
-              <div>
-                <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{translate('serviceRequested')}</span>
-                <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '0.2rem' }}>
-                  <TranslatedText text={titleEn || titleAr} fallback="Travel Excursion" />
-                </h4>
-                {locale === 'ar' && titleEn && (
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontFamily: 'var(--font-en)', margin: 0 }}>{titleEn}</p>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>{translate('basePrice')}</span>
-                <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>€{basePrice}</span>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>{translate('travelers')}</span>
-                <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>{travelers}</span>
-              </div>
-
-              {/* Children row */}
-              {children > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• {translate('children') || 'Children (2-12y)'} ×{children}</span>
-                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                    {childPrice > 0 ? `+€${(childPrice * children).toFixed(2)}` : '✓ Free'}
-                  </span>
-                </div>
-              )}
-
-              {/* Infants row */}
-              {infants > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• {translate('infants') || 'Infants (<2y)'} ×{infants}</span>
-                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                    {infantPrice > 0 ? `+€${(infantPrice * infants).toFixed(2)}` : '✓ Free'}
-                  </span>
-                </div>
-              )}
-
-              {/* Extras Cost rows */}
-              {selectedExtras.guide && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• Private Tour Guide</span>
-                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€25</span>
-                </div>
-              )}
-              {selectedExtras.lunch && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• Lunch & Soft Drinks</span>
-                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€{15 * travelers}</span>
-                </div>
-              )}
-              {selectedExtras.transfer && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• Round-trip Transfer</span>
-                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€30</span>
-                </div>
-              )}
-              {selectedExtras.photos && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• Professional Photography</span>
-                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€20</span>
-                </div>
-              )}
-
-              {promoDetails && discountAmount > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981', background: 'rgba(16,185,129,0.06)', borderRadius: '8px', padding: '0.5rem 0.8rem', border: '1px solid rgba(16,185,129,0.15)' }}>
-                  <span style={{ fontSize: '0.9rem' }}>🎟️ {translate('discount')} <strong style={{ fontFamily: 'var(--font-en)', letterSpacing: '1px' }}>{promoDetails.code}</strong></span>
-                  <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
-                </div>
-              )}
-              {!promoDetails && discountAmount > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--coral-500)' }}>
-                  <span>{translate('discount')}</span>
-                  <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
-                </div>
-              )}
-            </div>
-
-            <div style={{ borderTop: '2px solid var(--border-medium)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-primary)' }}>{translate('totalDue')}</span>
-              <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', fontSize: '2rem', color: 'var(--gold-600)' }}>
-                €{totalAmount.toFixed(2)}
-              </div>
-            </div>
-
-            <div style={{ marginTop: '2rem', display: 'flex', gap: '0.5rem', color: 'var(--text-tertiary)', fontSize: '0.8rem', lineHeight: '1.4' }}>
-              <span>🔒</span>
-              <span>All payment details are processed under high-level SSL encryption protocols.</span>
-            </div>
           </div>
 
         </div>

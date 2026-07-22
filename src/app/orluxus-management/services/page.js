@@ -138,6 +138,10 @@ export default function AdminServices() {
   const reloadCurrentCity = async () => {
     const city = cities.find(c => c.id === selectedCity);
     if (!city) return;
+    
+    // Clear the current city data first to force fresh load
+    setTripsData(prev => ({ ...prev, [selectedCity]: undefined }));
+    
     const cityTrips = {};
     await Promise.all(
       city.categories.map(async (cat) => {

@@ -23,7 +23,7 @@ export default function AdminLogin() {
     setError('');
 
     if (!username.trim() || !password) {
-      setError('الرجاء تعبئة جميع الحقول.');
+      setError('Please fill in all required fields.');
       return;
     }
 
@@ -39,36 +39,36 @@ export default function AdminLogin() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'بيانات الدخول غير صحيحة.');
+        setError(data.error || 'Invalid username or password.');
         return;
       }
 
       // Cookie is set server-side (HttpOnly) — no document.cookie manipulation
       router.push('/orluxus-management');
     } catch {
-      setError('تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.');
+      setError('Unable to connect to server. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className={styles.loginContainer}>
+    <div className={styles.loginContainer} style={{ textAlign: 'left' }}>
       <div className={`${styles.loginCard} glass-card animate-scale-in`}>
         <div className={styles.logoArea}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1rem', lineHeight: 1.2 }}>
             <span style={{ fontFamily: 'var(--font-en)', fontSize: '2rem', fontWeight: 700, background: 'var(--gradient-gold)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>ORLUXUS</span>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>WITH A FAMILY SPIRIT</span>
           </div>
-          <h2>الإدارة العليا | ORLUXUS</h2>
-          <p className={styles.subtitle}>الوصول مقصور على الإدارة فقط</p>
+          <h2>Executive Management | ORLUXUS</h2>
+          <p className={styles.subtitle}>Restricted Access — Authorized Personnel Only</p>
         </div>
 
         {error && <div className={styles.errorBox}>{error}</div>}
 
         <form onSubmit={handleLogin} className={styles.loginForm}>
           <div className={styles.formGroup}>
-            <label>اسم المستخدم</label>
+            <label>Username</label>
             <input
               type="text"
               value={username}
@@ -80,7 +80,7 @@ export default function AdminLogin() {
             />
           </div>
           <div className={styles.formGroup}>
-            <label>كلمة المرور</label>
+            <label>Password</label>
             <input
               type="password"
               value={password}
@@ -98,7 +98,7 @@ export default function AdminLogin() {
             style={{ width: '100%', marginTop: '1rem' }}
             disabled={loading}
           >
-            {loading ? 'جاري التحقق...' : 'دخول آمن'}
+            {loading ? 'Authenticating...' : 'Secure Sign In'}
           </button>
         </form>
       </div>
