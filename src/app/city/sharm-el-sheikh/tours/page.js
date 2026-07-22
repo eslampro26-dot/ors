@@ -4,9 +4,105 @@ import Link from 'next/link';
 import Navbar from '@/components/navigation/Navbar';
 import { useLanguage } from '@/context/LanguageContext';
 
+const translations = {
+  ar: {
+    title: 'رحلات شرم الشيخ: الدليل الكامل للأنشطة والجولات',
+    subtitle: 'اكتشف أجمل رحلات شرم الشيخ والأنشطة الترفيهية. جولات القارب الزجاجي، الغوص، رحلات الصحراء، وجولات المدينة مع أفضل العروض.',
+    exploreSeaTrips: 'استكشف رحلات البحر',
+    exploreDesertSafaris: 'استكشف رحلات الصحراء',
+    topActivities: 'أفضل الأنشطة في شرم الشيخ',
+    glassBoatTours: 'جولات القارب الزجاجي',
+    glassBoatDesc: 'استمتع بمشاهدة الشعاب المرجانية الملونة والأسماك الاستوائية من قارب زجاجي آمن ومريح.',
+    snorkelingDiving: 'الغوص وال Snorkeling',
+    snorkelingDesc: 'استكشف عالم البحار الساحر مع أفضل مواقع الغوص في شرم الشيخ وشعابها المرجانية الشهيرة.',
+    desertSafari: 'رحلات السفاري الصحراوية',
+    desertSafariDesc: 'مغامرة مثيرة في الصحراء مع ركوب الجمال، ركوب quad bike، وعشاء بدوي تقليدي.',
+    cityTours: 'جولات المدينة',
+    cityToursDesc: 'استكشف السوق القديم، نعمة باي، ومناطق التسوق والترفيه في شرم الشيخ.',
+    bookNow: 'احجز الآن',
+    whyChoose: 'لماذا تختار شرم الشيخ؟',
+    stunningBeaches: 'شواطئ خلابة',
+    stunningBeachesDesc: 'شواطئ رملية بيضاء ومياه صافية مثالية للسباحة والاسترخاء.',
+    coralReefs: 'شعاب مرجانية',
+    coralReefsDesc: 'من بين أفضل الشعاب المرجانية في العالم للغوص وال snorkeling.',
+    sunnyWeather: 'طقس مشمس',
+    sunnyWeatherDesc: 'أكثر من 300 يوم مشمس في السنة، مثالي للسياحة على مدار العام.',
+    vibrantNightlife: 'حياة ليلية نابضة',
+    vibrantNightlifeDesc: 'مطاعم، كافيهات، وأماكن ترفيهية مفتوحة حتى وقت متأخر.',
+    bestTimeToVisit: 'أفضل وقت لزيارة شرم الشيخ',
+    winter: 'الشتاء (ديسمبر - فبراير)',
+    winterDesc: 'موسم الذروة السياحية مع طقس دافئ وممتع (20-25°C). مثالي للسباحة والرحلات البحرية.',
+    spring: 'الربيع (مارس - أبريل)',
+    springDesc: 'طقس رائع لجميع الأنشطة مع ازدحام معتدل. مناسب للغوص والرحلات الصحراوية.',
+    fall: 'الخريف (أكتوبر - نوفمبر)',
+    fallDesc: 'أفضل وقت للزيارة مع طقس معتدل وحشود أقل. مثالي لجميع أنواع الرحلات.',
+    summer: 'الصيف (مايو - سبتمبر)',
+    summerDesc: 'حار جداً (35-40°C) لكن مثالي للغوص والرحلات البحرية. أسعار أقل وحشود أقل.',
+    travelTips: 'نصائح السفر في شرم الشيخ',
+    visa: '🛂 الفيزا',
+    visaDesc: 'يمكن الحصول على فيزا عند الوصول في مطار شرم الشيخ لمعظم الجنسيات.',
+    currency: '💰 العملة',
+    currencyDesc: 'الجنيه المصري (EGP) والعملات الأجنبية مقبولة في معظم الأماكن.',
+    transportation: '🚕 النقل',
+    transportationDesc: 'تتوفر سيارات الأجارة والحافلات. يمكن حجز نقل خاص من المطار.',
+    accommodation: '🏨 الإقامة',
+    accommodationDesc: 'مجموعة واسعة من الفنادق والمنتجعات من الاقتصادية إلى الفاخرة.',
+    ctaTitle: 'ابدأ مغامرتك في شرم الشيخ اليوم',
+    ctaDesc: 'احجز رحلتك الآن واستمتع بتجربة سياحية لا تُنسى في شرم الشيخ مع أورلكسوس.',
+    ctaButton: 'احجز رحلتك الآن'
+  },
+  en: {
+    title: 'Sharm El Sheikh Tours: Complete Guide to Activities & Excursions',
+    subtitle: 'Discover the beauty of Sharm El Sheikh with our comprehensive guide. Glass boat tours, snorkeling, diving, desert safaris, and city tours with the best deals.',
+    exploreSeaTrips: 'Explore Sea Trips',
+    exploreDesertSafaris: 'Explore Desert Safaris',
+    topActivities: 'Top Activities in Sharm El Sheikh',
+    glassBoatTours: 'Glass Boat Tours',
+    glassBoatDesc: 'Enjoy viewing colorful coral reefs and tropical fish from a safe and comfortable glass boat.',
+    snorkelingDiving: 'Snorkeling & Diving',
+    snorkelingDesc: 'Explore the magical underwater world with the best diving spots in Sharm El Sheikh and its famous coral reefs.',
+    desertSafari: 'Desert Safari Adventures',
+    desertSafariDesc: 'An exciting desert adventure with camel riding, quad biking, and traditional Bedouin dinner.',
+    cityTours: 'City Tours',
+    cityToursDesc: 'Explore the Old Market, Naama Bay, and shopping and entertainment areas in Sharm El Sheikh.',
+    bookNow: 'Book Now',
+    whyChoose: 'Why Choose Sharm El Sheikh?',
+    stunningBeaches: 'Stunning Beaches',
+    stunningBeachesDesc: 'White sandy beaches and crystal clear waters perfect for swimming and relaxation.',
+    coralReefs: 'Coral Reefs',
+    coralReefsDesc: 'Among the best coral reefs in the world for diving and snorkeling.',
+    sunnyWeather: 'Sunny Weather',
+    sunnyWeatherDesc: 'Over 300 sunny days per year, perfect for year-round tourism.',
+    vibrantNightlife: 'Vibrant Nightlife',
+    vibrantNightlifeDesc: 'Restaurants, cafes, and entertainment venues open late into the night.',
+    bestTimeToVisit: 'Best Time to Visit Sharm El Sheikh',
+    winter: 'Winter (December - February)',
+    winterDesc: 'Peak tourist season with warm and pleasant weather (20-25°C). Perfect for swimming and sea trips.',
+    spring: 'Spring (March - April)',
+    springDesc: 'Excellent weather for all activities with moderate crowds. Suitable for diving and desert adventures.',
+    fall: 'Fall (October - November)',
+    fallDesc: 'The best time to visit with moderate temperatures and fewer crowds. Perfect for all types of tours.',
+    summer: 'Summer (May - September)',
+    summerDesc: 'Very hot (35-40°C) but perfect for diving and sea trips. Lower prices and fewer crowds.',
+    travelTips: 'Sharm El Sheikh Travel Tips',
+    visa: '🛂 Visa',
+    visaDesc: 'Visa on arrival is available at Sharm El Sheikh airport for most nationalities.',
+    currency: '💰 Currency',
+    currencyDesc: 'Egyptian Pound (EGP) and foreign currencies are accepted in most places.',
+    transportation: '🚕 Transportation',
+    transportationDesc: 'Taxis and buses are available. Private transfers from the airport can be arranged.',
+    accommodation: '🏨 Accommodation',
+    accommodationDesc: 'Wide range of hotels and resorts from budget to luxury options.',
+    ctaTitle: 'Start Your Sharm El Sheikh Adventure Today',
+    ctaDesc: 'Book your trip now and enjoy an unforgettable tourism experience in Sharm El Sheikh with Orluxus.',
+    ctaButton: 'Book Your Trip Now'
+  }
+};
+
 export default function SharmElSheikhToursPage() {
   const { locale } = useLanguage();
   const isRTL = locale === 'ar';
+  const t = translations[locale] || translations.en;
 
   return (
     <main style={{ minHeight: '100vh', background: 'transparent' }}>
@@ -27,7 +123,7 @@ export default function SharmElSheikhToursPage() {
             color: 'var(--text-primary)',
             lineHeight: '1.2'
           }}>
-            {locale === 'ar' ? 'رحلات شرم الشيخ: الدليل الكامل للأنشطة والجولات' : 'Sharm El Sheikh Tours: Complete Guide to Activities & Excursions'}
+            {t.title}
           </h1>
           <p style={{
             fontSize: '1.25rem',
@@ -36,17 +132,14 @@ export default function SharmElSheikhToursPage() {
             marginBottom: '2rem',
             lineHeight: '1.8'
           }}>
-            {locale === 'ar' 
-              ? 'اكتشف أجمل رحلات شرم الشيخ والأنشطة الترفيهية. جولات القارب الزجاجي، الغوص، رحلات الصحراء، وجولات المدينة مع أفضل العروض.'
-              : 'Discover the beauty of Sharm El Sheikh with our comprehensive guide. Glass boat tours, snorkeling, diving, desert safaris, and city tours with the best deals.'
-            }
+            {t.subtitle}
           </p>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <Link href="/city/sharm-el-sheikh/sea-trips" className="btn btn-primary">
-              {locale === 'ar' ? 'استكشف رحلات البحر' : 'Explore Sea Trips'}
+              {t.exploreSeaTrips}
             </Link>
             <Link href="/city/sharm-el-sheikh/desert-safaris" className="btn btn-secondary">
-              {locale === 'ar' ? 'استكشف رحلات الصحراء' : 'Explore Desert Safaris'}
+              {t.exploreDesertSafaris}
             </Link>
           </div>
         </div>
@@ -62,7 +155,7 @@ export default function SharmElSheikhToursPage() {
             color: 'var(--text-primary)',
             textAlign: isRTL ? 'right' : 'left'
           }}>
-            {locale === 'ar' ? 'أفضل الأنشطة في شرم الشيخ' : 'Top Activities in Sharm El Sheikh'}
+            {t.topActivities}
           </h2>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
@@ -72,16 +165,13 @@ export default function SharmElSheikhToursPage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '4rem' }}>🚤</div>
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? 'جولات القارب الزجاجي' : 'Glass Boat Tours'}
+                {t.glassBoatTours}
               </h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-                {locale === 'ar'
-                  ? 'استمتع بمشاهدة الشعاب المرجانية الملونة والأسماك الاستوائية من قارب زجاجي آمن ومريح.'
-                  : 'Enjoy viewing colorful coral reefs and tropical fish from a safe and comfortable glass boat.'
-                }
+                {t.glassBoatDesc}
               </p>
               <Link href="/city/sharm-el-sheikh/sea-trips" className="btn btn-primary" style={{ width: '100%' }}>
-                {locale === 'ar' ? 'احجز الآن' : 'Book Now'}
+                {t.bookNow}
               </Link>
             </div>
 
@@ -91,16 +181,13 @@ export default function SharmElSheikhToursPage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '4rem' }}>🤿</div>
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? 'الغوص وال Snorkeling' : 'Snorkeling & Diving'}
+                {t.snorkelingDiving}
               </h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-                {locale === 'ar'
-                  ? 'استكشف عالم البحار الساحر مع أفضل مواقع الغوص في شرم الشيخ وشعابها المرجانية الشهيرة.'
-                  : 'Explore the magical underwater world with the best diving spots in Sharm El Sheikh and its famous coral reefs.'
-                }
+                {t.snorkelingDesc}
               </p>
               <Link href="/city/sharm-el-sheikh/sea-trips" className="btn btn-primary" style={{ width: '100%' }}>
-                {locale === 'ar' ? 'احجز الآن' : 'Book Now'}
+                {t.bookNow}
               </Link>
             </div>
 
@@ -110,16 +197,13 @@ export default function SharmElSheikhToursPage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '4rem' }}>🏜️</div>
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? 'رحلات السفاري الصحراوية' : 'Desert Safari Adventures'}
+                {t.desertSafari}
               </h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-                {locale === 'ar'
-                  ? 'مغامرة مثيرة في الصحراء مع ركوب الجمال، ركوب quad bike، وعشاء بدوي تقليدي.'
-                  : 'An exciting desert adventure with camel riding, quad biking, and traditional Bedouin dinner.'
-                }
+                {t.desertSafariDesc}
               </p>
               <Link href="/city/sharm-el-sheikh/desert-safaris" className="btn btn-primary" style={{ width: '100%' }}>
-                {locale === 'ar' ? 'احجز الآن' : 'Book Now'}
+                {t.bookNow}
               </Link>
             </div>
 
@@ -129,16 +213,13 @@ export default function SharmElSheikhToursPage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', fontSize: '4rem' }}>🏙️</div>
               </div>
               <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? 'جولات المدينة' : 'City Tours'}
+                {t.cityTours}
               </h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-                {locale === 'ar'
-                  ? 'استكشف السوق القديم، نعمة باي، ومناطق التسوق والترفيه في شرم الشيخ.'
-                  : 'Explore the Old Market, Naama Bay, and shopping and entertainment areas in Sharm El Sheikh.'
-                }
+                {t.cityToursDesc}
               </p>
               <Link href="/city/sharm-el-sheikh/city-tours" className="btn btn-primary" style={{ width: '100%' }}>
-                {locale === 'ar' ? 'احجز الآن' : 'Book Now'}
+                {t.bookNow}
               </Link>
             </div>
           </div>
@@ -155,47 +236,47 @@ export default function SharmElSheikhToursPage() {
             color: 'var(--text-primary)',
             textAlign: isRTL ? 'right' : 'left'
           }}>
-            {locale === 'ar' ? 'لماذا تختار شرم الشيخ؟' : 'Why Choose Sharm El Sheikh?'}
+            {t.whyChoose}
           </h2>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
             <div className="glass-card" style={{ padding: '2rem', textAlign: 'center' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌊</div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? 'شواطئ خلابة' : 'Stunning Beaches'}
+                {t.stunningBeaches}
               </h3>
               <p style={{ color: 'var(--text-secondary)' }}>
-                {locale === 'ar' ? 'شواطئ رملية بيضاء ومياه صافية مثالية للسباحة والاسترخاء.' : 'White sandy beaches and crystal clear waters perfect for swimming and relaxation.'}
+                {t.stunningBeachesDesc}
               </p>
             </div>
 
             <div className="glass-card" style={{ padding: '2rem', textAlign: 'center' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🐠</div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? 'شعاب مرجانية' : 'Coral Reefs'}
+                {t.coralReefs}
               </h3>
               <p style={{ color: 'var(--text-secondary)' }}>
-                {locale === 'ar' ? 'من بين أفضل الشعاب المرجانية في العالم للغوص وال snorkeling.' : 'Among the best coral reefs in the world for diving and snorkeling.'}
+                {t.coralReefsDesc}
               </p>
             </div>
 
             <div className="glass-card" style={{ padding: '2rem', textAlign: 'center' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>☀️</div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? 'طقس مشمس' : 'Sunny Weather'}
+                {t.sunnyWeather}
               </h3>
               <p style={{ color: 'var(--text-secondary)' }}>
-                {locale === 'ar' ? 'أكثر من 300 يوم مشمس في السنة، مثالي للسياحة على مدار العام.' : 'Over 300 sunny days per year, perfect for year-round tourism.'}
+                {t.sunnyWeatherDesc}
               </p>
             </div>
 
             <div className="glass-card" style={{ padding: '2rem', textAlign: 'center' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? 'حياة ليلية نابضة' : 'Vibrant Nightlife'}
+                {t.vibrantNightlife}
               </h3>
               <p style={{ color: 'var(--text-secondary)' }}>
-                {locale === 'ar' ? 'مطاعم، كافيهات، وأماكن ترفيهية مفتوحة حتى وقت متأخر.' : 'Restaurants, cafes, and entertainment venues open late into the night.'}
+                {t.vibrantNightlifeDesc}
               </p>
             </div>
           </div>
@@ -212,56 +293,44 @@ export default function SharmElSheikhToursPage() {
             color: 'var(--text-primary)',
             textAlign: isRTL ? 'right' : 'left'
           }}>
-            {locale === 'ar' ? 'أفضل وقت لزيارة شرم الشيخ' : 'Best Time to Visit Sharm El Sheikh'}
+            {t.bestTimeToVisit}
           </h2>
           
           <div className="glass-card" style={{ padding: '3rem', borderRadius: '12px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
               <div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--gold-600)' }}>
-                  {locale === 'ar' ? 'الشتاء (ديسمبر - فبراير)' : 'Winter (December - February)'}
+                  {t.winter}
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                  {locale === 'ar'
-                    ? 'موسم الذروة السياحية مع طقس دافئ وممتع (20-25°C). مثالي للسباحة والرحلات البحرية.'
-                    : 'Peak tourist season with warm and pleasant weather (20-25°C). Perfect for swimming and sea trips.'
-                  }
+                  {t.winterDesc}
                 </p>
               </div>
 
               <div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--gold-600)' }}>
-                  {locale === 'ar' ? 'الربيع (مارس - أبريل)' : 'Spring (March - April)'}
+                  {t.spring}
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                  {locale === 'ar'
-                    ? 'طقس رائع لجميع الأنشطة مع ازدحام معتدل. مناسب للغوص والرحلات الصحراوية.'
-                    : 'Excellent weather for all activities with moderate crowds. Suitable for diving and desert adventures.'
-                  }
+                  {t.springDesc}
                 </p>
               </div>
 
               <div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--gold-600)' }}>
-                  {locale === 'ar' ? 'الخريف (أكتوبر - نوفمبر)' : 'Fall (October - November)'}
+                  {t.fall}
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                  {locale === 'ar'
-                    ? 'أفضل وقت للزيارة مع طقس معتدل وحشود أقل. مثالي لجميع أنواع الرحلات.'
-                    : 'The best time to visit with moderate temperatures and fewer crowds. Perfect for all types of tours.'
-                  }
+                  {t.fallDesc}
                 </p>
               </div>
 
               <div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--gold-600)' }}>
-                  {locale === 'ar' ? 'الصيف (مايو - سبتمبر)' : 'Summer (May - September)'}
+                  {t.summer}
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                  {locale === 'ar'
-                    ? 'حار جداً (35-40°C) لكن مثالي للغوص والرحلات البحرية. أسعار أقل وحشود أقل.'
-                    : 'Very hot (35-40°C) but perfect for diving and sea trips. Lower prices and fewer crowds.'
-                  }
+                  {t.summerDesc}
                 </p>
               </div>
             </div>
@@ -279,55 +348,43 @@ export default function SharmElSheikhToursPage() {
             color: 'var(--text-primary)',
             textAlign: isRTL ? 'right' : 'left'
           }}>
-            {locale === 'ar' ? 'نصائح السفر في شرم الشيخ' : 'Sharm El Sheikh Travel Tips'}
+            {t.travelTips}
           </h2>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
             <div className="glass-card" style={{ padding: '2rem' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? '🛂 الفيزا' : '🛂 Visa'}
+                {t.visa}
               </h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                {locale === 'ar'
-                  ? 'يمكن الحصول على فيزا عند الوصول في مطار شرم الشيخ لمعظم الجنسيات.'
-                  : 'Visa on arrival is available at Sharm El Sheikh airport for most nationalities.'
-                }
+                {t.visaDesc}
               </p>
             </div>
 
             <div className="glass-card" style={{ padding: '2rem' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? '💰 العملة' : '💰 Currency'}
+                {t.currency}
               </h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                {locale === 'ar'
-                  ? 'الجنيه المصري (EGP) والعملات الأجنبية مقبولة في معظم الأماكن.'
-                  : 'Egyptian Pound (EGP) and foreign currencies are accepted in most places.'
-                }
+                {t.currencyDesc}
               </p>
             </div>
 
             <div className="glass-card" style={{ padding: '2rem' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? '🚕 النقل' : '🚕 Transportation'}
+                {t.transportation}
               </h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                {locale === 'ar'
-                  ? 'تتوفر سيارات الأجرة والحافلات. يمكن حجز نقل خاص من المطار.'
-                  : 'Taxis and buses are available. Private transfers from the airport can be arranged.'
-                }
+                {t.transportationDesc}
               </p>
             </div>
 
             <div className="glass-card" style={{ padding: '2rem' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>
-                {locale === 'ar' ? '🏨 الإقامة' : '🏨 Accommodation'}
+                {t.accommodation}
               </h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                {locale === 'ar'
-                  ? 'مجموعة واسعة من الفنادق والمنتجعات من الاقتصادية إلى الفاخرة.'
-                  : 'Wide range of hotels and resorts from budget to luxury options.'
-                }
+                {t.accommodationDesc}
               </p>
             </div>
           </div>
@@ -339,16 +396,13 @@ export default function SharmElSheikhToursPage() {
         <div className="container">
           <div className="glass-card" style={{ padding: '3rem', borderRadius: '12px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)' }}>
             <h2 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>
-              {locale === 'ar' ? 'ابدأ مغامرتك في شرم الشيخ اليوم' : 'Start Your Sharm El Sheikh Adventure Today'}
+              {t.ctaTitle}
             </h2>
             <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
-              {locale === 'ar'
-                ? 'احجز رحلتك الآن واستمتع بتجربة سياحية لا تُنسى في شرم الشيخ مع أورلكسوس.'
-                : 'Book your trip now and enjoy an unforgettable tourism experience in Sharm El Sheikh with Orluxus.'
-              }
+              {t.ctaDesc}
             </p>
             <Link href="/city/sharm-el-sheikh/sea-trips" className="btn btn-primary" style={{ fontSize: '1.1rem', padding: '1rem 2rem' }}>
-              {locale === 'ar' ? 'احجز رحلتك الآن' : 'Book Your Trip Now'}
+              {t.ctaButton}
             </Link>
           </div>
         </div>
