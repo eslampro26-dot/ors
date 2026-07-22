@@ -679,30 +679,58 @@ const DURATION_TRANSLATIONS = {
  * Falls back to durationAr/durationEn fields, then raw duration.
  */
 export function translateDuration(trip, locale = 'en') {
-  // 1. Check locale-specific field first (e.g. trip.durationDe, trip.durationFr)
-  const localeField = `duration${locale.charAt(0).toUpperCase() + locale.slice(1)}`;
-  if (trip[localeField]) return trip[localeField];
+  const loc = (locale || 'en').toLowerCase();
+  
+  // 1. Check direct locale field on trip object (e.g. trip.durationDe, trip.durationFr)
+  const capLocale = loc.charAt(0).toUpperCase() + loc.slice(1);
+  if (trip[`duration${capLocale}`]) return trip[`duration${capLocale}`];
+  if (loc === 'ar' && trip.durationAr) return trip.durationAr;
+  if (loc === 'en' && trip.durationEn) return trip.durationEn;
 
-  // 2. For Arabic use durationAr
-  if (locale === 'ar' && trip.durationAr) return trip.durationAr;
-  // 3. For English use durationEn
-  if (locale === 'en' && trip.durationEn) return trip.durationEn;
+  const raw = (trip.duration || trip.durationEn || trip.durationAr || '').trim();
+  if (!raw) return '';
 
-  // 4. Look up in translation map using English or Arabic source
-  const rawEn = trip.durationEn || trip.duration || '';
-  const rawAr = trip.durationAr || '';
-
-  // Try English key
-  const mapEntry = DURATION_TRANSLATIONS[rawEn];
-  if (mapEntry) return mapEntry[locale] || mapEntry.en;
-
-  // Try reverse-lookup from Arabic value
-  for (const [key, val] of Object.entries(DURATION_TRANSLATIONS)) {
-    if (val.ar === rawAr) return val[locale] || val.en;
+  // 2. Direct dictionary lookup by key
+  if (DURATION_TRANSLATIONS[raw] && DURATION_TRANSLATIONS[raw][loc]) {
+    return DURATION_TRANSLATIONS[raw][loc];
   }
 
-  // 5. Fallback: use whatever is available
-  return rawEn || rawAr || trip.duration || '';
+  // 3. Search dictionary across all language values (ar, en, de, fr, es, it, ru, tr, zh, ja)
+  const rawLower = raw.toLowerCase();
+  for (const entry of Object.values(DURATION_TRANSLATIONS)) {
+    for (const val of Object.values(entry)) {
+      if (typeof val === 'string' && val.trim().toLowerCase() === rawLower) {
+        return entry[loc] || entry.en;
+      }
+    }
+  }
+
+  // 4. Smart pattern matching for dynamic numbers (e.g., "3 ساعات", "6 Hours", "2 أيام", "10 days")
+  const numMatch = raw.match(/\d+/);
+  if (numMatch) {
+    const num = numMatch[0];
+    const isHour = /ساع|hour|std|stunde|heure|hora|ora|часи|часа|saat|小时|時間/i.test(raw);
+    const isDay = /يوم|أيام|day|tag|jour|día|giorno|дней|дня|gün|天|日/i.test(raw);
+
+    if (isHour) {
+      const hourUnits = {
+        en: `${num} Hours`, ar: `${num} ساعات`, de: `${num} Stunden`, fr: `${num} heures`,
+        es: `${num} horas`, it: `${num} ore`, ru: `${num} часа`, tr: `${num} Saat`,
+        zh: `${num}小时`, ja: `${num}時間`
+      };
+      return hourUnits[loc] || hourUnits.en;
+    } else if (isDay) {
+      const dayUnits = {
+        en: `${num} Days`, ar: `${num} أيام`, de: `${num} Tage`, fr: `${num} jours`,
+        es: `${num} días`, it: `${num} giorni`, ru: `${num} дней`, tr: `${num} Gün`,
+        zh: `${num}天`, ja: `${num}日間`
+      };
+      return dayUnits[loc] || dayUnits.en;
+    }
+  }
+
+  // 5. Fallback: return raw
+  return raw;
 }
 
 // Generates 3 tiers for a given trip

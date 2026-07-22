@@ -282,7 +282,7 @@ export default function CategoryPage({ params }) {
                               boxShadow: isSelected ? 'var(--shadow-sm)' : 'none'
                             }}
                           >
-                            <span>{tier.names[locale] || tier.names.en}</span>
+                            <span>{tier.names[locale?.toLowerCase()] || tier.names[locale] || tier.names.en}</span>
                           </button>
                         );
                       })}
@@ -303,7 +303,7 @@ export default function CategoryPage({ params }) {
                         minHeight: '40px',
                         margin: 0
                       }}>
-                        {activeTier.descriptions[locale] || activeTier.descriptions.en}
+                        {activeTier.descriptions[locale?.toLowerCase()] || activeTier.descriptions[locale] || activeTier.descriptions.en}
                       </p>
                       
                       {activeTier.richDesc && (
