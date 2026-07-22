@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { internalPackages, getLocalizedPackage, getTripTiers } from '@/lib/data';
+import { internalPackages, getLocalizedPackage, getTripTiers, translateDuration } from '@/lib/data';
 import { getPackages } from '@/lib/db';
 import Link from 'next/link';
 import Navbar from '@/components/navigation/Navbar';
@@ -252,16 +252,16 @@ export default function PackagePage({ params }) {
                       </div>
                     </div>
                     <div style={{ textAlign: locale === 'ar' ? 'left' : 'right' }}>
-                      <span style={{ color: 'var(--text-tertiary)', fontSize: 'var(--font-size-xs)' }}>Duration</span>
+                      <span style={{ color: 'var(--text-tertiary)', fontSize: 'var(--font-size-xs)' }}>{t('common.duration')}</span>
                       <div style={{ color: 'var(--text-primary)', fontWeight: '600', fontSize: 'var(--font-size-sm)' }}>
-                        ⏱️ {item.duration || 'Not specified'}
+                        ⏱️ {translateDuration(item, locale)}
                       </div>
                     </div>
                   </div>
 
                   {/* Rating */}
                   <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
-                    <span>⭐ {item.rating || '5.0'} ({item.reviews || '1'} reviews)</span>
+                    <span>⭐ {item.rating || '5.0'} ({item.reviews || '1'} {t('common.reviews')})</span>
                   </div>
 
                   {/* Book Button */}

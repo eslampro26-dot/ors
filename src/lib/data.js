@@ -657,7 +657,56 @@ export const sampleTrips = {
   }
 };;
 
+// Duration translation map for all 10 supported locales
+const DURATION_TRANSLATIONS = {
+  'Full Day':          { en: 'Full Day',     ar: 'يوم كامل',       de: 'Ganztag',         fr: 'Journée complète', es: 'Día completo',      it: 'Giornata intera',   ru: 'Полный день',        tr: 'Tam Gün',        zh: '全天',      ja: '終日' },
+  'Half Day':          { en: 'Half Day',     ar: 'نصف يوم',        de: 'Halbtag',         fr: 'Demi-journée',     es: 'Medio día',         it: 'Mezza giornata',    ru: 'Полдня',             tr: 'Yarım Gün',      zh: '半天',      ja: '半日' },
+  'Evening':           { en: 'Evening',      ar: 'مسائي',          de: 'Abends',          fr: 'En soirée',        es: 'Tarde/noche',       it: 'Serata',            ru: 'Вечер',              tr: 'Akşam',          zh: '傍晚',      ja: '夜' },
+  '3 Hours':           { en: '3 Hours',      ar: '3 ساعات',        de: '3 Stunden',       fr: '3 heures',         es: '3 horas',           it: '3 ore',             ru: '3 часа',             tr: '3 Saat',         zh: '3小时',     ja: '3時間' },
+  '2 Hours':           { en: '2 Hours',      ar: '2 ساعتان',       de: '2 Stunden',       fr: '2 heures',         es: '2 horas',           it: '2 ore',             ru: '2 часа',             tr: '2 Saat',         zh: '2小时',     ja: '2時間' },
+  '4 Hours':           { en: '4 Hours',      ar: '4 ساعات',        de: '4 Stunden',       fr: '4 heures',         es: '4 horas',           it: '4 ore',             ru: '4 часа',             tr: '4 Saat',         zh: '4小时',     ja: '4時間' },
+  '1-2 Hours':         { en: '1-2 Hours',    ar: '1-2 ساعة',       de: '1-2 Stunden',     fr: '1-2 heures',       es: '1-2 horas',         it: '1-2 ore',           ru: '1-2 часа',           tr: '1-2 Saat',       zh: '1-2小时',   ja: '1〜2時間' },
+  '1.5 Hours':         { en: '1.5 Hours',    ar: 'ساعة ونصف',      de: '1,5 Stunden',     fr: '1h30',             es: '1,5 horas',         it: '1,5 ore',           ru: '1,5 часа',           tr: '1,5 Saat',       zh: '1.5小时',   ja: '1時間半' },
+  '2 Hours':           { en: '2 Hours',      ar: 'ساعتان',         de: '2 Stunden',       fr: '2 heures',         es: '2 horas',           it: '2 ore',             ru: '2 часа',             tr: '2 Saat',         zh: '2小时',     ja: '2時間' },
+  '3 Nights / 4 Days': { en: '3 Nights / 4 Days', ar: '3 ليالي / 4 أيام', de: '3 Nächte / 4 Tage', fr: '3 nuits / 4 jours', es: '3 noches / 4 días', it: '3 notti / 4 giorni', ru: '3 ночи / 4 дня', tr: '3 Gece / 4 Gün', zh: '3晚/4天', ja: '3泊4日' },
+  '5 Days':            { en: '5 Days',       ar: '5 أيام',         de: '5 Tage',          fr: '5 jours',          es: '5 días',            it: '5 giorni',          ru: '5 дней',             tr: '5 Gün',          zh: '5天',       ja: '5日間' },
+  '7 Days':            { en: '7 Days',       ar: '7 أيام',         de: '7 Tage',          fr: '7 jours',          es: '7 días',            it: '7 giorni',          ru: '7 дней',             tr: '7 Gün',          zh: '7天',       ja: '7日間' },
+  '10 Days':           { en: '10 Days',      ar: '10 أيام',        de: '10 Tage',         fr: '10 jours',         es: '10 días',           it: '10 giorni',         ru: '10 дней',            tr: '10 Gün',         zh: '10天',      ja: '10日間' },
+};
+
+/**
+ * Translate a trip duration string to the target locale.
+ * Falls back to durationAr/durationEn fields, then raw duration.
+ */
+export function translateDuration(trip, locale = 'en') {
+  // 1. Check locale-specific field first (e.g. trip.durationDe, trip.durationFr)
+  const localeField = `duration${locale.charAt(0).toUpperCase() + locale.slice(1)}`;
+  if (trip[localeField]) return trip[localeField];
+
+  // 2. For Arabic use durationAr
+  if (locale === 'ar' && trip.durationAr) return trip.durationAr;
+  // 3. For English use durationEn
+  if (locale === 'en' && trip.durationEn) return trip.durationEn;
+
+  // 4. Look up in translation map using English or Arabic source
+  const rawEn = trip.durationEn || trip.duration || '';
+  const rawAr = trip.durationAr || '';
+
+  // Try English key
+  const mapEntry = DURATION_TRANSLATIONS[rawEn];
+  if (mapEntry) return mapEntry[locale] || mapEntry.en;
+
+  // Try reverse-lookup from Arabic value
+  for (const [key, val] of Object.entries(DURATION_TRANSLATIONS)) {
+    if (val.ar === rawAr) return val[locale] || val.en;
+  }
+
+  // 5. Fallback: use whatever is available
+  return rawEn || rawAr || trip.duration || '';
+}
+
 // Generates 3 tiers for a given trip
+
 export function getTripTiers(trip) {
   const basePrice = Number(trip.price) || 30;
   const hasCustomTiers = !!(trip.economyPrice && trip.businessPrice && trip.vipPrice);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { cities, getLocalizedCity, getCategoryName, getTripTiers } from '@/lib/data';
+import { cities, getLocalizedCity, getCategoryName, getTripTiers, translateDuration } from '@/lib/data';
 import { getTrips } from '@/lib/db';
 import Link from 'next/link';
 import Navbar from '@/components/navigation/Navbar';
@@ -26,6 +26,8 @@ export default function CategoryPage({ params }) {
   const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', richDesc: '', images: [] });
   const [activeVideoUrl, setActiveVideoUrl] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  // Per-card image carousel index: { [tripId]: number }
+  const [cardImageIndexes, setCardImageIndexes] = useState({});
   
   // State to track selected tier id for each trip
   // Format: { [tripId]: 'economy' | 'business' | 'vip' }
@@ -55,6 +57,14 @@ export default function CategoryPage({ params }) {
       ...prev,
       [tripId]: tierId
     }));
+  };
+
+  const handleCardImageNext = (tripId, imagesArr) => {
+    setCardImageIndexes(prev => ({ ...prev, [tripId]: ((prev[tripId] || 0) + 1) % imagesArr.length }));
+  };
+
+  const handleCardImagePrev = (tripId, imagesArr) => {
+    setCardImageIndexes(prev => ({ ...prev, [tripId]: ((prev[tripId] || 0) - 1 + imagesArr.length) % imagesArr.length }));
   };
 
   const handleNextImage = () => {
@@ -112,7 +122,7 @@ export default function CategoryPage({ params }) {
           <div>
             <h1 className="section-title" style={{ margin: 0, textAlign: locale === 'ar' ? 'right' : 'left', fontSize: '2.5rem' }}>{localizedCategoryName}</h1>
             <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)', fontSize: '0.9rem', marginTop: '0.3rem' }}>
-              Explore premium {localizedCategoryName} in {locCity.name}
+              {t('common.explorePremium').replace('{category}', localizedCategoryName).replace('{city}', locCity.name)}
             </p>
           </div>
         </div>
@@ -184,13 +194,32 @@ export default function CategoryPage({ params }) {
                       </span>
                     )}
 
-                    {/* Multiple images indicator */}
-                    {trip.images && trip.images.length > 0 && (
-                      <div style={{ position: 'absolute', bottom: '12px', right: locale === 'ar' ? 'auto' : '12px', left: locale === 'ar' ? '12px' : 'auto', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', padding: '4px 10px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span style={{ fontSize: '1rem' }}>🖼️</span>
-                        <span style={{ color: '#fff', fontSize: '0.75rem', fontWeight: '600' }}>{trip.images.length + 1}</span>
-                      </div>
-                    )}
+                    {/* Multiple images indicator + click to browse */}
+                    {(() => {
+                      const cardImages = trip.images && trip.images.length > 0 ? [trip.image || '', ...trip.images] : null;
+                      const cardIdx = cardImageIndexes[trip.id] || 0;
+                      return cardImages ? (
+                        <>
+                          {/* Show current card image */}
+                          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${cardImages[cardIdx] || cardImages[0]})`, backgroundSize: 'cover', backgroundPosition: 'center', transition: 'background-image 0.3s ease' }} />
+                          {/* Prev/Next arrows */}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleCardImagePrev(trip.id, cardImages); }}
+                            style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5 }}
+                          >‹</button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleCardImageNext(trip.id, cardImages); }}
+                            style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5 }}
+                          >›</button>
+                          {/* Dots */}
+                          <div style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '4px', zIndex: 5 }}>
+                            {cardImages.map((_, i) => (
+                              <span key={i} onClick={(e) => { e.preventDefault(); setCardImageIndexes(prev => ({ ...prev, [trip.id]: i })); }} style={{ width: '6px', height: '6px', borderRadius: '50%', background: i === cardIdx ? '#fff' : 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'block' }} />
+                            ))}
+                          </div>
+                        </>
+                      ) : null;
+                    })()}
                   </div>
                   
                   {/* Trip Card Content */}
@@ -308,7 +337,7 @@ export default function CategoryPage({ params }) {
 
                     {/* Stats */}
                     <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)', marginBottom: '1.5rem', marginTop: 'auto', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
-                      <span>⏱️ {locale === 'ar' ? (trip.durationAr || trip.duration) : (trip.durationEn || trip.duration)}</span>
+                      <span>⏱️ {translateDuration(trip, locale)}</span>
                       <span>⭐ {trip.rating || '5.0'} ({trip.reviews || '1'})</span>
                     </div>
 
@@ -329,7 +358,7 @@ export default function CategoryPage({ params }) {
                           color: 'var(--gold-400)'
                         }}
                       >
-                        📍 {locale === 'ar' ? 'الموقع على الخريطة' : 'Location on Map'}
+                        📍 {t('common.locationOnMap')}
                       </a>
                     )}
                     
