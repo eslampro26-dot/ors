@@ -406,7 +406,7 @@ export default function CategoryPage({ params }) {
             </div>
             <div style={{ marginTop: '2rem', textAlign: 'center' }}>
               <button className="btn btn-primary" onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}>
-                {locale === 'ar' ? 'إغلاق' : 'Close'}
+                {t('common.close') || (locale === 'ar' ? 'إغلاق' : 'Close')}
               </button>
             </div>
           </div>
@@ -456,14 +456,37 @@ export default function CategoryPage({ params }) {
             </button>
             {(() => {
               const embedUrl = (() => {
-                const url = activeVideoUrl;
+                const url = activeVideoUrl.trim();
+                
+                // Handle YouTube URLs
                 if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                  let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                  let match = url.match(regExp);
-                  if (match && match[2].length === 11) {
-                    return `https://www.youtube.com/embed/${match[2]}?autoplay=1`;
+                  let videoId = '';
+                  
+                  // Extract video ID from various YouTube URL formats
+                  if (url.includes('youtu.be/')) {
+                    videoId = url.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0];
+                  } else if (url.includes('youtube.com/watch')) {
+                    const urlParams = new URLSearchParams(url.split('?')[1]);
+                    videoId = urlParams.get('v');
+                  } else if (url.includes('youtube.com/embed/')) {
+                    videoId = url.split('youtube.com/embed/')[1]?.split('?')[0]?.split('&')[0];
+                  } else if (url.includes('youtube.com/v/')) {
+                    videoId = url.split('youtube.com/v/')[1]?.split('?')[0]?.split('&')[0];
+                  }
+                  
+                  if (videoId && videoId.length >= 11) {
+                    return `https://www.youtube.com/embed/${videoId.substring(0, 11)}?autoplay=1&rel=0`;
                   }
                 }
+                
+                // Handle Vimeo URLs
+                if (url.includes('vimeo.com')) {
+                  const vimeoId = url.match(/vimeo\.com\/(\d+)/);
+                  if (vimeoId && vimeoId[1]) {
+                    return `https://player.vimeo.com/video/${vimeoId[1]}?autoplay=1`;
+                  }
+                }
+                
                 return null;
               })();
 
@@ -472,8 +495,9 @@ export default function CategoryPage({ params }) {
                   <iframe 
                     src={embedUrl}
                     style={{ width: '100%', height: '100%', border: 'none' }}
-                    allow="autoplay; encrypted-media; picture-in-picture"
+                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
                     allowFullScreen
+                    title="Video Player"
                   />
                 );
               } else {
@@ -483,7 +507,9 @@ export default function CategoryPage({ params }) {
                     controls
                     autoPlay
                     style={{ width: '100%', height: '100%' }}
-                  />
+                  >
+                    Your browser does not support the video tag.
+                  </video>
                 );
               }
             })()}

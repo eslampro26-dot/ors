@@ -463,7 +463,7 @@ export default function ReviewsPage() {
             {/* Reviews Display Section */}
             <div>
               <h2 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 'bold' }}>
-                💬 آراء العملاء
+                {t('reviews.title')}
               </h2>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', maxHeight: '600px', overflowY: 'auto', paddingRight: '0.5rem' }}>
@@ -513,7 +513,7 @@ export default function ReviewsPage() {
                 ) : (
                   <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
                     <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📭</p>
-                    <p>لا توجد تقييمات حالياً. كن الأول!</p>
+                    <p>{t('reviews.noReviews')}</p>
                   </div>
                 )}
               </div>

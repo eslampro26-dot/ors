@@ -867,31 +867,24 @@ function CheckoutContent() {
                 {extrasParam && (
                   <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafb' }}>
                     <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#475569', textAlign: locale === 'ar' ? 'right' : 'left' }}>
-                      🎁 {locale === 'ar' ? 'إضافات' : locale === 'fr' ? 'Suppléments' : locale === 'de' ? 'Extras' : 'Extras'}: {extrasParam}
+                      🎁 {t('checkout.extrasLabel')}: {extrasParam}
                     </td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'center' }}>-</td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'right' }}>-</td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', color: '#475569', fontWeight: 'bold' }}>
-                      {locale === 'ar' ? 'مشمول' : locale === 'fr' ? 'Inclus' : locale === 'de' ? 'Inklusive' : locale === 'es' ? 'Incluido' : locale === 'ru' ? 'Включено' : locale === 'zh' ? '已包含' : 'Included'}
+                      {t('checkout.extrasIncluded')}
                     </td>
                   </tr>
                 )}
                 {discountParam > 0 && (
                   <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fef2f2' }}>
                     <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#dc2626', textAlign: locale === 'ar' ? 'right' : 'left', fontWeight: 'bold' }}>
-                      {locale === 'ar' ? `خصم الكود الترويجي (الكود: ${promoParam})` : `Promo Code Discount (Code: ${promoParam})`}
+                      {t('checkout.promoDiscount', { code: promoParam })}
                     </td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'center' }}>-</td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'right' }}>-</td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', color: '#dc2626', fontWeight: 'bold' }}>
                       -€{discountParam.toFixed(2)}
-                    </td>
-                  </tr>
-                )}
-                {agentNameParam && agentNameParam !== 'مباشر (بدون وكيل)' && (
-                  <tr style={{ background: '#f8fafc' }}>
-                    <td colSpan="4" style={{ padding: '0.6rem 1rem', fontSize: '0.85rem', color: '#475569', textAlign: locale === 'ar' ? 'left' : 'right', fontStyle: 'italic' }}>
-                      {locale === 'ar' ? 'عن طريق وكيل:' : 'Referred by Agent:'} <strong>{agentNameParam}</strong>
                     </td>
                   </tr>
                 )}
@@ -902,7 +895,7 @@ function CheckoutContent() {
             <div style={{ borderTop: '2px solid #e2e8f0', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
               <div style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
                 <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>
-                  {locale === 'ar' ? 'حالة الدفع' : locale === 'fr' ? 'Statut paiement' : locale === 'de' ? 'Zahlungsstatus' : locale === 'es' ? 'Estado de pago' : locale === 'ru' ? 'Статус оплаты' : locale === 'zh' ? '付款状态' : locale === 'ja' ? '支払状況' : locale === 'tr' ? 'Ödeme durumu' : 'Payment Status'}
+                  {t('checkout.paymentStatus')}
                 </span>
                 <span style={{ 
                   color: (isBank || isOnsite) ? '#b45309' : '#10b981', 
@@ -915,10 +908,10 @@ function CheckoutContent() {
                   marginTop: '0.3rem' 
                 }}>
                   {isBank 
-                    ? (locale === 'ar' ? 'في انتظار التحويل' : locale === 'fr' ? 'TRANSFERT EN ATTENTE' : locale === 'de' ? 'AUSSTEHEND' : 'PENDING TRANSFER') 
+                    ? t('checkout.statusPending')
                     : (isOnsite 
-                      ? (locale === 'ar' ? 'الدفع عند الوصول' : locale === 'fr' ? 'PAIEMENT A L\'ARRIVEE' : locale === 'de' ? 'ZAHLUNG VOR ORT' : locale === 'es' ? 'PAGO AL LLEGAR' : locale === 'ru' ? 'ОПЛАТА ПО ПРИБЫТИИ' : locale === 'zh' ? '到达付款' : locale === 'ja' ? '現地払い' : locale === 'tr' ? 'VARISTA ODEME' : 'PAY ON ARRIVAL') 
-                      : (locale === 'ar' ? 'تم الدفع بالكامل' : locale === 'fr' ? 'PAYE INTEGRALEMENT' : locale === 'de' ? 'VOLLSTAENDIG BEZAHLT' : locale === 'es' ? 'PAGADO' : locale === 'ru' ? 'ПОЛНОСТЬЮ ОПЛАЧЕНО' : locale === 'zh' ? '全额付款' : locale === 'ja' ? '支払済み' : locale === 'tr' ? 'TAM ODENDI' : 'PAID IN FULL'))}
+                      ? t('checkout.statusOnsite')
+                      : t('checkout.statusPaid'))}
                 </span>
               </div>
               <div style={{ textAlign: locale === 'ar' ? 'left' : 'right' }}>
