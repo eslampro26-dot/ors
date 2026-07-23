@@ -297,7 +297,7 @@ function CheckoutContent() {
   const handleDafahPayment = () => {
     const baseDafahUrl = createDafahCheckoutSession({
       tripId,
-      title: titleAr || titleEn || 'Travel Excursion',
+      title: locale === 'ar' ? (titleAr || titleEn || 'Travel Excursion') : (titleEn || titleAr || 'Travel Excursion'),
       amount: totalAmount,
       customerName,
       phone,
@@ -1500,10 +1500,9 @@ function CheckoutContent() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
                 <div>
                   <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{translate('serviceRequested')}</span>
-                  <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '0.2rem' }}>{titleEn || titleAr || 'Travel Excursion'}</h4>
-                  {locale === 'ar' && titleEn && (
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontFamily: 'var(--font-en)', margin: 0 }}>{titleEn}</p>
-                  )}
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '0.2rem' }}>
+                    <TranslatedText text={titleEn || titleAr} fallback="Travel Excursion" />
+                  </h4>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
@@ -1519,9 +1518,9 @@ function CheckoutContent() {
                 {/* Children row */}
                 {children > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>• {translate('children') || 'Children (2-12y)'} ×{children}</span>
+                    <span style={{ color: 'var(--text-tertiary)' }}>• {translate('childrenLabel')} ×{children}</span>
                     <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                      {childPrice > 0 ? `+€${(childPrice * children).toFixed(2)}` : '✓ Free'}
+                      {childPrice > 0 ? `+€${(childPrice * children).toFixed(2)}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
                     </span>
                   </div>
                 )}
@@ -1529,38 +1528,29 @@ function CheckoutContent() {
                 {/* Infants row */}
                 {infants > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>• {translate('infants') || 'Infants (<2y)'} ×{infants}</span>
+                    <span style={{ color: 'var(--text-tertiary)' }}>• {translate('infantsLabel')} ×{infants}</span>
                     <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                      {infantPrice > 0 ? `+€${(infantPrice * infants).toFixed(2)}` : '✓ Free'}
+                      {infantPrice > 0 ? `+€${(infantPrice * infants).toFixed(2)}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
                     </span>
                   </div>
                 )}
 
-                {/* Extras Cost rows */}
-                {selectedExtras.guide && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>• Private Tour Guide</span>
-                    <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€25</span>
-                  </div>
-                )}
-                {selectedExtras.lunch && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>• Lunch & Soft Drinks</span>
-                    <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€{15 * travelers}</span>
-                  </div>
-                )}
-                {selectedExtras.transfer && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>• Round-trip Transfer</span>
-                    <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€30</span>
-                  </div>
-                )}
-                {selectedExtras.photos && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>• Professional Photography</span>
-                    <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€20</span>
-                  </div>
-                )}
+                {/* Extras Cost rows - dynamic from settings or fallback */}
+                {((settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : [
+                  { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking' },
+                  { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', price: 15, unit: 'person' },
+                  { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 30, unit: 'booking' },
+                  { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20, unit: 'booking' },
+                ]).map(addon => (
+                  selectedExtras[addon.id] ? (
+                    <div key={addon.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                      <span style={{ color: 'var(--text-tertiary)' }}>• <TranslatedText text={locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr)} /></span>
+                      <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
+                        +€{(addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? (addon.price * travelers) : addon.price}
+                      </span>
+                    </div>
+                  ) : null
+                ))}
 
                 {promoDetails && discountAmount > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981', background: 'rgba(16,185,129,0.06)', borderRadius: '8px', padding: '0.5rem 0.8rem', border: '1px solid rgba(16,185,129,0.15)' }}>
@@ -1584,7 +1574,7 @@ function CheckoutContent() {
               </div>
 
               <div style={{ marginTop: '2.5rem', display: 'flex', gap: '0.5rem', color: '#10b981', background: 'rgba(16,185,129,0.06)', padding: '0.8rem', borderRadius: '8px', fontSize: '0.8rem', lineHeight: '1.4', border: '1px solid rgba(16,185,129,0.12)' }}>
-                <span>🔒 SSL SECURE CONNECTION</span>
+                <span>🔒 {translate('sslSecure')}</span>
               </div>
             </div>
 
@@ -1631,9 +1621,9 @@ function CheckoutContent() {
               {/* Children row */}
               {children > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• {translate('children') || 'Children (2-12y)'} ×{children}</span>
+                  <span style={{ color: 'var(--text-tertiary)' }}>• {translate('childrenLabel')} ×{children}</span>
                   <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                    {childPrice > 0 ? `+€${(childPrice * children).toFixed(2)}` : '✓ Free'}
+                    {childPrice > 0 ? `+€${(childPrice * children).toFixed(2)}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
                   </span>
                 </div>
               )}
@@ -1641,38 +1631,29 @@ function CheckoutContent() {
               {/* Infants row */}
               {infants > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• {translate('infants') || 'Infants (<2y)'} ×{infants}</span>
+                  <span style={{ color: 'var(--text-tertiary)' }}>• {translate('infantsLabel')} ×{infants}</span>
                   <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                    {infantPrice > 0 ? `+€${(infantPrice * infants).toFixed(2)}` : '✓ Free'}
+                    {infantPrice > 0 ? `+€${(infantPrice * infants).toFixed(2)}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
                   </span>
                 </div>
               )}
 
-              {/* Extras Cost rows */}
-              {selectedExtras.guide && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• Private Tour Guide</span>
-                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€25</span>
-                </div>
-              )}
-              {selectedExtras.lunch && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• Lunch & Soft Drinks</span>
-                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€{15 * travelers}</span>
-                </div>
-              )}
-              {selectedExtras.transfer && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• Round-trip Transfer</span>
-                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€30</span>
-                </div>
-              )}
-              {selectedExtras.photos && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>• Professional Photography</span>
-                  <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>+€20</span>
-                </div>
-              )}
+              {/* Extras Cost rows - dynamic from settings or fallback */}
+              {((settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : [
+                { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking' },
+                { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', price: 15, unit: 'person' },
+                { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 30, unit: 'booking' },
+                { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20, unit: 'booking' },
+              ]).map(addon => (
+                selectedExtras[addon.id] ? (
+                  <div key={addon.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>• <TranslatedText text={locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr)} /></span>
+                    <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
+                      +€{(addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? (addon.price * travelers) : addon.price}
+                    </span>
+                  </div>
+                ) : null
+              ))}
 
               {promoDetails && discountAmount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981', background: 'rgba(16,185,129,0.06)', borderRadius: '8px', padding: '0.5rem 0.8rem', border: '1px solid rgba(16,185,129,0.15)' }}>
@@ -1697,7 +1678,7 @@ function CheckoutContent() {
 
             <div style={{ marginTop: '2rem', display: 'flex', gap: '0.5rem', color: 'var(--text-tertiary)', fontSize: '0.8rem', lineHeight: '1.4' }}>
               <span>🔒</span>
-              <span>All payment details are processed under high-level SSL encryption protocols.</span>
+              <span>{translate('sslNotice')}</span>
             </div>
           </div>
 
@@ -1948,7 +1929,12 @@ function CheckoutContent() {
               </div>
 
               {/* PREMIUM EXTRAS & ADD-ONS */}
-              {settings?.checkoutAddons && settings.checkoutAddons.length > 0 && (
+              {((settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : [
+                { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking', descAr: 'مرشد سياحي مرخص يرافقكم طوال الرحلة لشرح المعالم وتسهيل الدخول.', descEn: 'A licensed tour guide to accompany you throughout the trip.' },
+                { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', price: 15, unit: 'person', descAr: 'وجبة غداء بوفيه مفتوح أو قائمة طعام محددة مع مشروبات غازية ومياه معدنية.', descEn: 'Buffet or set menu lunch with soft drinks and mineral water.' },
+                { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 30, unit: 'booking', descAr: 'سيارة خاصة حديثة ومكيفة تنقلكم من الفندق إلى مكان الرحلة وتعود بكم بعد الانتهاء.', descEn: 'Modern private air-conditioned vehicle to and from your hotel.' },
+                { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20, unit: 'booking', descAr: 'مصور محترف يرافقكم لالتقاط أجمل اللحظات وتسليمكم الصور بنظام رقمي عالي الجودة.', descEn: 'A professional photographer to capture your best memories.' },
+              ]).length > 0 && (
                 <div style={{ 
                   display: 'flex', 
                   flexDirection: 'column', 
@@ -1959,9 +1945,14 @@ function CheckoutContent() {
                   <h4 style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem' }}>{translate('extrasTitle')}</h4>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                    {settings.checkoutAddons.map(addon => {
-                      const name = addon.nameEn || addon.nameAr;
-                      const desc = addon.descEn || addon.descAr;
+                    {((settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : [
+                      { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking', descAr: 'مرشد سياحي مرخص يرافقكم طوال الرحلة لشرح المعالم وتسهيل الدخول.', descEn: 'A licensed tour guide to accompany you throughout the trip.' },
+                      { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', price: 15, unit: 'person', descAr: 'وجبة غداء بوفيه مفتوح أو قائمة طعام محددة مع مشروبات غازية ومياه معدنية.', descEn: 'Buffet or set menu lunch with soft drinks and mineral water.' },
+                      { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 30, unit: 'booking', descAr: 'سيارة خاصة حديثة ومكيفة تنقلكم من الفندق إلى مكان الرحلة وتعود بكم بعد الانتهاء.', descEn: 'Modern private air-conditioned vehicle to and from your hotel.' },
+                      { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20, unit: 'booking', descAr: 'مصور محترف يرافقكم لالتقاط أجمل اللحظات وتسليمكم الصور بنظام رقمي عالي الجودة.', descEn: 'A professional photographer to capture your best memories.' },
+                    ]).map(addon => {
+                      const name = locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr);
+                      const desc = locale === 'ar' ? (addon.descAr || addon.descEn) : (addon.descEn || addon.descAr);
                       return (
                         <div key={addon.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', marginBottom: '0.4rem', textAlign: locale === 'ar' ? 'right' : 'left' }}>
                           <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-secondary)', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
@@ -1976,7 +1967,7 @@ function CheckoutContent() {
                               {' '}
                               (+€{addon.price}
                               {addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch'
-                                ? (locale === 'ar' ? ' / للفرد' : ' / person') 
+                                ? ` ${translate('perPerson')}` 
                                 : ''}
                               )
                             </span>
@@ -2093,7 +2084,7 @@ function CheckoutContent() {
                     >
                       {translate('readTerms')}
                     </a>
-                    {locale === 'ar' ? ' و ' : locale === 'de' ? ' und ' : locale === 'fr' ? ' et ' : locale === 'es' ? ' y ' : locale === 'it' ? ' e ' : locale === 'ru' ? ' и ' : locale === 'tr' ? ' ve ' : locale === 'zh' ? ' 和 ' : locale === 'ja' ? ' と ' : ' and '}
+                    {translate('termsAnd')}
                     <a
                       href="#"
                       onClick={(e) => {
