@@ -35,24 +35,20 @@ export default function Navbar() {
     setActiveDropdown(activeDropdown === id ? null : id);
   };
 
-  // Official Site Logo — using white version with gold CSS filter for full transparency
+  // Official Site Logo — Orluxus gold logo
   const Logo = () => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
       <img 
-        src="/logo_white.png" 
+        src="/logo_gold.png" 
         alt="ORLUXUS Logo" 
         className={styles.logoImage} 
         style={{ 
-          height: '40px', 
+          height: '44px', 
           width: 'auto', 
           objectFit: 'contain', 
           flexShrink: 0,
-          // CSS filter: white → gold (#C9A227)
-          // sepia gives brown tones, saturate & hue-rotate shift to gold
-          filter: 'brightness(0) saturate(100%) invert(72%) sepia(50%) saturate(700%) hue-rotate(5deg) brightness(105%) contrast(95%) drop-shadow(0 2px 6px rgba(201,162,39,0.35))',
         }}
       />
-      <span className={styles.logoTextString}>ORLUXUS</span>
     </div>
   );
 
