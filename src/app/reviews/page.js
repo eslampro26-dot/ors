@@ -98,18 +98,19 @@ export default function ReviewsPage() {
 
 
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || []);
     if (files.length > 0) {
-      // Limit to 5 images max
       const filesToProcess = files.slice(0, 5);
-      
       filesToProcess.forEach(file => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setImagePreviews(prev => [...prev, reader.result]);
+          const result = reader.result;
+          if (!result) return;
+          setImagePreviews(prev => [...prev, result]);
           setFormData(prev => ({
             ...prev,
-            images: [...prev.images, reader.result]
+            images: [...prev.images, result],
+            image: prev.image || result // Set primary image field as well
           }));
         };
         reader.readAsDataURL(file);
@@ -119,10 +120,14 @@ export default function ReviewsPage() {
 
   const handleRemoveImage = (index) => {
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
+    setFormData(prev => {
+      const updatedImages = prev.images.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        images: updatedImages,
+        image: updatedImages[0] || ''
+      };
+    });
   };
 
   const handleSubmitReview = async (e) => {
@@ -136,12 +141,13 @@ export default function ReviewsPage() {
     setIsSubmitting(true);
 
     try {
+      const reviewPhoto = (formData.images && formData.images[0]) || formData.image || '';
       const newReview = await addReview({
         name: formData.name,
         country: formData.country,
         rating: formData.rating,
         text: formData.text,
-        image: formData.image // Base64 encoded image
+        image: reviewPhoto
       });
 
       if (newReview) {
@@ -151,7 +157,8 @@ export default function ReviewsPage() {
           country: '',
           rating: 0,
           text: '',
-          image: null
+          image: '',
+          images: []
         });
         setImagePreviews([]);
         alert('✅ شكراً! تم إضافة تقييمك بنجاح!');
