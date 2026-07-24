@@ -11,15 +11,6 @@ const BG_IMAGES = [
   'https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&w=1200&q=70',
 ];
 
-function preloadImage(src) {
-  return new Promise((resolve) => {
-    const img = new window.Image();
-    img.onload = () => resolve(src);
-    img.onerror = () => resolve(src); // resolve anyway to not block rotation
-    img.src = src;
-  });
-}
-
 export default function GlobalBackground() {
   const [currentImg, setCurrentImg] = useState(BG_IMAGES[0]);
   const [nextImg, setNextImg] = useState(null);
@@ -27,12 +18,10 @@ export default function GlobalBackground() {
   const indexRef = useRef(0);
   const isMounted = useRef(true);
 
-  const rotateImage = useCallback(async () => {
+  const rotateImage = useCallback(() => {
     const nextIdx = (indexRef.current + 1) % BG_IMAGES.length;
     const nextSrc = BG_IMAGES[nextIdx];
 
-    // Wait for image to fully load before displaying — prevents NS_BINDING_ABORTED
-    await preloadImage(nextSrc);
     if (!isMounted.current) return;
 
     indexRef.current = nextIdx;
@@ -58,12 +47,6 @@ export default function GlobalBackground() {
       window.location.pathname === '/en';
     if (!isHome) return;
 
-    // Preload all images silently on mount — no aborted requests later
-    BG_IMAGES.forEach((src) => {
-      const img = new window.Image();
-      img.src = src;
-    });
-
     const interval = setInterval(rotateImage, 10000);
     return () => {
       isMounted.current = false;
@@ -86,6 +69,13 @@ export default function GlobalBackground() {
         />
       )}
       <div className="global-bg-overlay" />
+
+      {/* Native Browser Preloader - zero garbage collection, zero NS_BINDING_ABORTED */}
+      <div style={{ display: 'none', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+        {BG_IMAGES.map((src, i) => (
+          <img key={i} src={src} alt="preload" crossOrigin="anonymous" loading="eager" />
+        ))}
+      </div>
 
       <style jsx global>{`
         .global-bg-container {
