@@ -861,19 +861,19 @@ function CheckoutContent() {
                 {extrasParam && (
                   <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafb' }}>
                     <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#475569', textAlign: locale === 'ar' ? 'right' : 'left' }}>
-                      🎁 {t('checkout.extrasLabel')}: {extrasParam}
+                      🎁 {tGlobal('checkout.extrasLabel')}: {extrasParam}
                     </td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'center' }}>-</td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'right' }}>-</td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', color: '#475569', fontWeight: 'bold' }}>
-                      {t('checkout.extrasIncluded')}
+                      {tGlobal('checkout.extrasIncluded')}
                     </td>
                   </tr>
                 )}
                 {discountParam > 0 && (
                   <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fef2f2' }}>
                     <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#dc2626', textAlign: locale === 'ar' ? 'right' : 'left', fontWeight: 'bold' }}>
-                      {t('checkout.promoDiscount', { code: promoParam })}
+                      {tGlobal('checkout.promoDiscount', { code: promoParam })}
                     </td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'center' }}>-</td>
                     <td style={{ padding: '0.8rem 1rem', textAlign: 'right' }}>-</td>
@@ -889,7 +889,7 @@ function CheckoutContent() {
             <div style={{ borderTop: '2px solid #e2e8f0', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
               <div style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
                 <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>
-                  {t('checkout.paymentStatus')}
+                  {tGlobal('checkout.paymentStatus')}
                 </span>
                 <span style={{ 
                   color: (isBank || isOnsite) ? '#b45309' : '#10b981', 
@@ -902,10 +902,10 @@ function CheckoutContent() {
                   marginTop: '0.3rem' 
                 }}>
                   {isBank 
-                    ? t('checkout.statusPending')
+                    ? tGlobal('checkout.statusPending')
                     : (isOnsite 
-                      ? t('checkout.statusOnsite')
-                      : t('checkout.statusPaid'))}
+                      ? tGlobal('checkout.statusOnsite')
+                      : tGlobal('checkout.statusPaid'))}
                 </span>
               </div>
               <div style={{ textAlign: locale === 'ar' ? 'left' : 'right' }}>
