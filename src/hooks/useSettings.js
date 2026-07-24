@@ -67,23 +67,19 @@ export function useSettings() {
  * @returns {string}
  */
 export function getPolicyText(settings, arField, enField, locale, t, msgKey) {
-  // 1. If messages.js key exists and locale is not ar/en, prefer t(msgKey) for full 10-language localization
-  if (locale !== 'ar' && locale !== 'en' && msgKey) {
-    const translated = t(msgKey);
-    if (translated && translated !== msgKey) return translated;
-  }
-
-  // 2. Try DB field for current language
+  // 1. If locale is Arabic and custom text is set in DB, use it
   if (locale === 'ar' && settings?.[arField]) return settings[arField];
+  
+  // 2. If locale is English and custom text is set in DB, use it
   if (locale === 'en' && settings?.[enField]) return settings[enField];
 
-  // 3. Try fallback to msgKey for ar/en if DB field not present
-  if (msgKey) {
+  // 3. For all 10 languages: try messages.js translation key first if available
+  if (msgKey && typeof t === 'function') {
     const translated = t(msgKey);
     if (translated && translated !== msgKey) return translated;
   }
 
-  // 4. Final DB fallbacks
+  // 4. Fallback to DB fields if msgKey is not present or untranslated
   if (settings?.[enField]) return settings[enField];
   if (settings?.[arField]) return settings[arField];
 

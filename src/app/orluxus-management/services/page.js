@@ -20,18 +20,18 @@ const categoryIcons = {
 
 // Available special requests for selection
 const PRESET_SPECIAL_REQUESTS = [
-  { id: 'veg_food', labelEn: 'Vegetarian Food' },
-  { id: 'halal_food', labelEn: 'Halal Food' },
-  { id: 'kids_menu', labelEn: 'Kids Menu' },
-  { id: 'wheelchair', labelEn: 'Wheelchair Access' },
-  { id: 'early_checkin', labelEn: 'Early Check-in' },
-  { id: 'late_checkout', labelEn: 'Late Check-out' },
-  { id: 'airport_pickup', labelEn: 'Airport Pickup' },
-  { id: 'private_guide', labelEn: 'Private Guide' },
-  { id: 'photography', labelEn: 'Professional Photography' },
-  { id: 'birthday_cake', labelEn: 'Birthday Cake' },
-  { id: 'romantic_setup', labelEn: 'Romantic Setup' },
-  { id: 'snorkeling_gear', labelEn: 'Snorkeling Gear' },
+  { id: 'veg_food', labelEn: 'Vegetarian Food', labelAr: 'وجبة نباتية' },
+  { id: 'halal_food', labelEn: 'Halal Food', labelAr: 'طعام حلال' },
+  { id: 'kids_menu', labelEn: 'Kids Menu', labelAr: 'وجبات أطفال' },
+  { id: 'wheelchair', labelEn: 'Wheelchair Access', labelAr: 'كراسي متحركة' },
+  { id: 'early_checkin', labelEn: 'Early Check-in', labelAr: 'تسجيل دخول مبكر' },
+  { id: 'late_checkout', labelEn: 'Late Check-out', labelAr: 'تسجيل خروج متأخر' },
+  { id: 'airport_pickup', labelEn: 'Airport Pickup', labelAr: 'توصيل من المطار' },
+  { id: 'private_guide', labelEn: 'Private Guide', labelAr: 'مرشد خاص' },
+  { id: 'photography', labelEn: 'Professional Photography', labelAr: 'تصوير احترافي' },
+  { id: 'birthday_cake', labelEn: 'Birthday Cake', labelAr: 'كعكة عيد ميلاد' },
+  { id: 'romantic_setup', labelEn: 'Romantic Setup', labelAr: 'تجهيز رومانسي' },
+  { id: 'snorkeling_gear', labelEn: 'Snorkeling Gear', labelAr: 'معدات سنوركلينج' },
 ];
 
 export default function AdminServices() {
@@ -308,7 +308,7 @@ export default function AdminServices() {
   const handleEditTripClick = (cityId, catId, trip) => {
     setEditingTrip({ cityId, catId, tripId: trip.id });
     setModalType('trip');
-    const hasTiers = !!(trip.economyPrice && trip.businessPrice && trip.vipPrice);
+    const hasTiers = trip.enableTiers !== undefined ? trip.enableTiers === true : !!(trip.economyPrice && trip.businessPrice && trip.vipPrice && Number(trip.businessPrice) !== Number(trip.economyPrice));
     setUseTierPrices(hasTiers);
     setFormData({
       titleAr: trip.titleAr || '',
@@ -414,9 +414,10 @@ export default function AdminServices() {
         titleZh: translatedTitles.titleZh,
         titleJa: translatedTitles.titleJa,
         price: basePrice,
+        enableTiers: useTierPrices,
         economyPrice: useTierPrices ? (parseFloat(economyPrice) || basePrice) : basePrice,
-        businessPrice: useTierPrices ? (parseFloat(businessPrice) || basePrice * 1.5) : basePrice * 1.5,
-        vipPrice: useTierPrices ? (parseFloat(vipPrice) || basePrice * 2) : basePrice * 2,
+        businessPrice: useTierPrices ? (parseFloat(businessPrice) || null) : null,
+        vipPrice: useTierPrices ? (parseFloat(vipPrice) || null) : null,
         childPrice: parseFloat(childPrice) || 0,
         duration,
         image: image || '/images/trips/glass-boat.jpg',
@@ -1153,7 +1154,7 @@ export default function AdminServices() {
                           }}
                           style={{ width: '15px', height: '15px', cursor: 'pointer' }}
                         />
-                        <span>{req.labelAr}</span>
+                        <span>{req.labelEn} ({req.labelAr})</span>
                       </label>
                     ))}
                   </div>

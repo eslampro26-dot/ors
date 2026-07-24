@@ -9,17 +9,30 @@ import { notFound, useParams } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import TranslatedText from '@/components/TranslatedText';
 
+import { useSettings } from '@/hooks/useSettings';
+
 export default function CityPage() {
   const { slug } = useParams();
   const city = cities.find(c => c.slug === slug);
   const { locale, t, isReady } = useLanguage();
+  const { settings } = useSettings();
   const [showGuideModal, setShowGuideModal] = useState(false);
 
   if (!city) {
     notFound();
   }
 
-  const locCity = getLocalizedCity(city, locale);
+  const customDest = settings?.destinations?.[slug];
+  const dynamicCity = {
+    ...city,
+    image: customDest?.image || city.image,
+    nameAr: customDest?.nameAr || city.nameAr,
+    nameEn: customDest?.nameEn || city.nameEn,
+    descriptionAr: customDest?.descriptionAr || city.descriptionAr,
+    descriptionEn: customDest?.descriptionEn || city.descriptionEn,
+  };
+
+  const locCity = getLocalizedCity(dynamicCity, locale);
   const article = cityArticles[slug]?.[locale] || cityArticles[slug]?.['en'];
 
   if (!isReady) {
@@ -43,7 +56,7 @@ export default function CityPage() {
         justifyContent: 'center',
         textAlign: 'center',
         position: 'relative',
-        backgroundImage: `linear-gradient(to bottom, rgba(9, 13, 22, 0.75) 0%, rgba(9, 13, 22, 0.4) 50%, rgba(9, 13, 22, 0.85) 100%), url(${city.image})`,
+        backgroundImage: `linear-gradient(to bottom, rgba(9, 13, 22, 0.75) 0%, rgba(9, 13, 22, 0.4) 50%, rgba(9, 13, 22, 0.85) 100%), url(${dynamicCity.image})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

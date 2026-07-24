@@ -736,32 +736,42 @@ export function translateDuration(trip, locale = 'en') {
 // Generates 3 tiers for a given trip
 
 export function getTripTiers(trip) {
-  const basePrice = Number(trip.price) || 30;
-  const hasCustomTiers = !!(trip.economyPrice && trip.businessPrice && trip.vipPrice);
+  const basePrice = Number(trip.price) || Number(trip.economyPrice) || 30;
   
-  return [
-    {
-      id: "economy",
-      names: {
-        en: "Economy Class", ar: "الدرجة الاقتصادية", de: "Economy-Klasse", fr: "Classe Économique",
-        es: "Clase Turista", it: "Classe Economica", ru: "Эконом-класс", tr: "Ekonomi Sınıfı",
-        zh: "经济舱", ja: "エコノミークラス"
-      },
-      price: hasCustomTiers ? Number(trip.economyPrice) : basePrice,
-      descriptions: {
-        en: "Standard group excursion with basic entry and guidance.",
-        ar: "جولة جماعية قياسية شاملة الدخول الأساسي والإرشاد.",
-        de: "Standard-Gruppenausflug mit Standard-Eintritt und Führung.",
-        fr: "Excursion de groupe standard avec entrée et guidage de base.",
-        es: "Excursión grupal estándar con entrada y guía básicas.",
-        it: "Escursione di gruppo standard con ingresso e guida di base.",
-        ru: "Стандартная групповая экскурсия с базовым входом и гидом.",
-        tr: "Temel giriş ve rehberlik içeren standart grup gezisi.",
-        zh: "标准团体游览，包含基础门票和导游服务。",
-        ja: "基本的な入場とガイドが含まれる標準的なグループツアー。"
-      },
-      richDesc: trip.economyDesc || null
+  // Check if 3-tier pricing is explicitly enabled for this trip
+  const hasCustomTiers = trip.enableTiers !== undefined 
+    ? trip.enableTiers === true 
+    : !!(trip.economyPrice && trip.businessPrice && trip.vipPrice && Number(trip.businessPrice) !== Number(trip.economyPrice));
+
+  const standardTier = {
+    id: "economy",
+    names: {
+      en: "Standard", ar: "الأساسي", de: "Standard", fr: "Standard",
+      es: "Estándar", it: "Standard", ru: "Стандарт", tr: "Standart",
+      zh: "标准", ja: "標準"
     },
+    price: hasCustomTiers ? (Number(trip.economyPrice) || basePrice) : basePrice,
+    descriptions: {
+      en: "Standard group excursion with basic entry and guidance.",
+      ar: "جولة قياسية شاملة الخدمة والإرشاد.",
+      de: "Standard-Gruppenausflug mit Führung.",
+      fr: "Excursion standard avec guidage.",
+      es: "Excursión estándar con guía.",
+      it: "Escursione standard con guida.",
+      ru: "Стандартная экскурсия с гидом.",
+      tr: "Rehberlik içeren standart gezi.",
+      zh: "标准游览包含导游。",
+      ja: "標準的なガイド付きツアー。"
+    },
+    richDesc: trip.economyDesc || trip.tripDescription || null
+  };
+
+  if (!hasCustomTiers) {
+    return [standardTier];
+  }
+
+  return [
+    standardTier,
     {
       id: "business",
       names: {

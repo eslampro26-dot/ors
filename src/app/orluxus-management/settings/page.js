@@ -293,7 +293,7 @@ export default function AdminSettings() {
         <p style={{ color: 'var(--text-secondary)' }}>Customize general settings, contact details, and platform policies.</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-xl)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 'var(--space-xl)', maxWidth: '100%' }}>
         
         {/* Left side: General Settings */}
         <div className="glass-card animate-fade-in-up">
@@ -873,7 +873,7 @@ export default function AdminSettings() {
       <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.3s', marginTop: 'var(--space-md)' }}>
         <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📄 Manage About Us &amp; Policy Texts (Footer Links)</h3>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem', maxWidth: '100%' }}>
           
           {/* Column 1: About Us */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

@@ -237,56 +237,58 @@ export default function CategoryPage({ params }) {
                       </div>
                     </div>
 
-                    {/* Tier Switcher Buttons */}
-                    <div style={{
-                      display: 'flex',
-                      background: 'var(--bg-tertiary)',
-                      padding: '4px',
-                      borderRadius: '12px',
-                      gap: '4px',
-                      marginBottom: '1rem',
-                      direction: 'ltr' // Always keep tiers ltr left-to-right visually
-                    }}>
-                      {tiers.map(tier => {
-                        const isSelected = tier.id === currentTierId;
-                        let badgeColor = 'rgba(205, 127, 50, 0.15)';
-                        let textColor = '#cd7f32';
-                        
-                        if (tier.id === 'business') {
-                          badgeColor = 'rgba(149, 165, 166, 0.15)';
-                          textColor = '#7f8c8d';
-                        } else if (tier.id === 'vip') {
-                          badgeColor = 'rgba(243, 156, 18, 0.15)';
-                          textColor = '#f39c12';
-                        }
+                    {/* Tier Switcher Buttons (rendered ONLY if multiple tiers are enabled) */}
+                    {tiers.length > 1 && (
+                      <div style={{
+                        display: 'flex',
+                        background: 'var(--bg-tertiary)',
+                        padding: '4px',
+                        borderRadius: '12px',
+                        gap: '4px',
+                        marginBottom: '1rem',
+                        direction: 'ltr' // Always keep tiers ltr left-to-right visually
+                      }}>
+                        {tiers.map(tier => {
+                          const isSelected = tier.id === currentTierId;
+                          let badgeColor = 'rgba(205, 127, 50, 0.15)';
+                          let textColor = '#cd7f32';
+                          
+                          if (tier.id === 'business') {
+                            badgeColor = 'rgba(149, 165, 166, 0.15)';
+                            textColor = '#7f8c8d';
+                          } else if (tier.id === 'vip') {
+                            badgeColor = 'rgba(243, 156, 18, 0.15)';
+                            textColor = '#f39c12';
+                          }
 
-                        return (
-                          <button
-                            key={tier.id}
-                            type="button"
-                            onClick={() => handleTierSelect(trip.id, tier.id)}
-                            style={{
-                              flex: 1,
-                              padding: '6px 4px',
-                              borderRadius: '8px',
-                              fontSize: '0.72rem',
-                              fontWeight: 'bold',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '2px',
-                              transition: 'all 0.2s ease',
-                              background: isSelected ? badgeColor : 'transparent',
-                              color: isSelected ? textColor : 'var(--text-tertiary)',
-                              border: isSelected ? `1px solid ${textColor}40` : '1px solid transparent',
-                              boxShadow: isSelected ? 'var(--shadow-sm)' : 'none'
-                            }}
-                          >
-                            <span>{tier.names[locale?.toLowerCase()] || tier.names[locale] || tier.names.en}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                          return (
+                            <button
+                              key={tier.id}
+                              type="button"
+                              onClick={() => handleTierSelect(trip.id, tier.id)}
+                              style={{
+                                flex: 1,
+                                padding: '6px 4px',
+                                borderRadius: '8px',
+                                fontSize: '0.72rem',
+                                fontWeight: 'bold',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '2px',
+                                transition: 'all 0.2s ease',
+                                background: isSelected ? badgeColor : 'transparent',
+                                color: isSelected ? textColor : 'var(--text-tertiary)',
+                                border: isSelected ? `1px solid ${textColor}40` : '1px solid transparent',
+                                boxShadow: isSelected ? 'var(--shadow-sm)' : 'none'
+                              }}
+                            >
+                              <span>{tier.names[locale?.toLowerCase()] || tier.names[locale] || tier.names.en}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
 
                     <div style={{
                       marginBottom: '1rem',
