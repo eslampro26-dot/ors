@@ -269,7 +269,7 @@ export default function PackagePage({ params }) {
 
                   {/* Book Button */}
                   <Link 
-                    href={`/checkout?tripId=${item.id}&price=${activeTier.price}&titleAr=${encodeURIComponent(item.titleAr + ' - ' + activeTier.names.ar)}&titleEn=${encodeURIComponent((item.titleEn || item.titleAr) + ' - ' + activeTier.names.en)}&type=package&category=packages&tier=${activeTier.id}`}
+                    href={`/checkout?tripId=${item.id}&price=${activeTier.price}&titleAr=${encodeURIComponent(tiers.length > 1 ? (item.titleAr + ' - ' + activeTier.names.ar) : item.titleAr)}&titleEn=${encodeURIComponent(tiers.length > 1 ? ((item.titleEn || item.titleAr) + ' - ' + activeTier.names.en) : (item.titleEn || item.titleAr))}&type=package&category=packages&tier=${activeTier.id}`}
                     className="btn btn-primary" 
                     style={{ width: '100%', marginTop: 'auto', display: 'inline-flex', justifyContent: 'center' }}
                   >

@@ -306,21 +306,25 @@ export async function addTrip(slug, category, tripData) {
 
 export async function updateTrip(tripId, tripData) {
   try {
-    // استخدام Document ID مباشرة — الحقل 'id' لا يُحفظ داخل الوثيقة
+    // 1. Check if document exists by ID
     const tripRef = doc(db, COL.TRIPS, String(tripId));
     const tripSnap = await safeGetDoc(tripRef);
-    if (tripSnap.exists()) {
+    if (tripSnap && tripSnap.exists()) {
       await safeUpdateDoc(tripRef, tripData);
       return true;
     }
-    // fallback: بحث عبر query على حقل id (للرحلات القديمة التي تحتوي على الحقل)
+    
+    // 2. Query fallback for legacy trips stored with id field
     const q = query(collection(db, COL.TRIPS), where('id', '==', tripId));
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
+    const snapshot = await safeGetDocs(q);
+    if (snapshot && !snapshot.empty) {
       await safeUpdateDoc(doc(db, COL.TRIPS, snapshot.docs[0].id), tripData);
       return true;
     }
-    return false;
+
+    // 3. Upsert fallback: if trip document does not exist yet (e.g. editing a static sample trip for the first time), save it to Firestore!
+    await safeSetDoc(tripRef, { id: tripId, ...tripData }, { merge: true });
+    return true;
   } catch (e) {
     console.error('Error updating trip:', e);
     return false;

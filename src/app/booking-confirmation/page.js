@@ -231,9 +231,30 @@ export default function BookingConfirmationPage() {
 
       <style jsx global>{`
         @media print {
-          body { background: #fff !important; color: #000 !important; }
-          .hide-print, nav, header, footer { display: none !important; }
-          #confirmation-sheet { box-shadow: none !important; border: none !important; }
+          @page {
+            size: A4 portrait;
+            margin: 10mm;
+          }
+          html, body {
+            background: #ffffff !important;
+            color: #000000 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .hide-print, nav, header, footer, .water-bg-pattern {
+            display: none !important;
+          }
+          #confirmation-sheet {
+            box-shadow: none !important;
+            border: 1px solid #cbd5e1 !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            padding: 1.5rem !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
         }
       `}</style>
     </main>

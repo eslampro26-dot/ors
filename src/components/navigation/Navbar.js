@@ -161,22 +161,20 @@ export default function Navbar() {
           <Link href="/booking-confirmation" className={styles.navLink} onClick={() => setMobileOpen(false)}>
             {t('nav.myBooking')}
           </Link>
-
-          {/* Language Switcher */}
-          <LanguageSwitcher onLanguageChange={() => setMobileOpen(false)} />
-
-          {/* Theme Toggle */}
-          <ThemeToggle />
         </div>
 
-        {/* Mobile Toggle */}
-        <button className={styles.mobileToggle} onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
-          <span className={`${styles.hamburger} ${mobileOpen ? styles.hamburgerOpen : ''}`}>
-            <span></span>
-            <span></span>
-            <span></span>
-          </span>
-        </button>
+        {/* Right Header Actions (Language Switcher, Theme, Mobile Toggle) - Always visible at top */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', zIndex: 60 }}>
+          <LanguageSwitcher onLanguageChange={() => setMobileOpen(false)} />
+          <ThemeToggle />
+          <button className={styles.mobileToggle} onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
+            <span className={`${styles.hamburger} ${mobileOpen ? styles.hamburgerOpen : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Mobile Overlay */}

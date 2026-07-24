@@ -86,9 +86,12 @@ function buildInvoiceHTML(data) {
       <h2 style="margin:0;color:${paymentColor};font-size:1.3rem;font-weight:800;">
         ${isBank ? 'تم تسجيل الحجز بنجاح — في انتظار التحويل البنكي' : isOnsite ? 'تم استلام طلبك — الدفع نقداً عند انطلاق الرحلة' : 'تم تأكيد الدفع والحجز بنجاح!'}
       </h2>
-      <p style="margin:6px 0 0;color:#64748b;font-size:0.9rem;">
+      <p style="margin:6px 0 12px;color:#64748b;font-size:0.9rem;">
         Issued: ${bookingDateTime}
       </p>
+      <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.orluxus.com'}/booking-confirmation?ref=${txId}" target="_blank" style="display:inline-block;background:#c9a227;color:#ffffff;text-decoration:none;padding:10px 24px;border-radius:24px;font-weight:bold;font-size:13px;box-shadow:0 4px 12px rgba(201,162,39,0.3);">
+        📄 Download &amp; Print PDF Confirmation (تحميل وطباعة تأكيد الحجز PDF)
+      </a>
     </div>
 
     <!-- BODY -->
