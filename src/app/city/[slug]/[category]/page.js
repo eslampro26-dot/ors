@@ -150,7 +150,7 @@ export default function CategoryPage({ params }) {
                   <div style={{
                     position: 'relative',
                     width: '100%',
-                    height: '240px',
+                    height: '260px',
                     overflow: 'hidden',
                     borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
                     flexShrink: 0
@@ -160,7 +160,7 @@ export default function CategoryPage({ params }) {
                       height: '100%',
                       backgroundImage: `url(${trip.image || '/images/trips/glass-boat.jpg'})`,
                       backgroundSize: 'cover',
-                      backgroundPosition: 'center',
+                      backgroundPosition: 'center center',
                       backgroundRepeat: 'no-repeat',
                       backgroundColor: 'var(--bg-tertiary)',
                       transition: 'transform 0.4s ease',
@@ -209,7 +209,7 @@ export default function CategoryPage({ params }) {
                           title={locale === 'ar' ? 'انقر للتبديل للصورة التالية' : 'Click to view next photo'}
                         >
                           {/* Show current card image */}
-                          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${cardImages[cardIdx] || cardImages[0]})`, backgroundSize: 'cover', backgroundPosition: 'center', transition: 'background-image 0.35 ease' }} />
+                          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${cardImages[cardIdx] || cardImages[0]})`, backgroundSize: 'cover', backgroundPosition: 'center center', transition: 'background-image 0.35s ease' }} />
                           
                           {/* Photo Counter Badge */}
                           <div style={{ position: 'absolute', top: '12px', left: locale === 'ar' ? 'auto' : '12px', right: locale === 'ar' ? '12px' : 'auto', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', color: '#fff', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', zIndex: 5 }}>

@@ -1544,7 +1544,14 @@ function CheckoutContent() {
                 ]).map(addon => (
                   selectedExtras[addon.id] ? (
                     <div key={addon.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                      <span style={{ color: 'var(--text-tertiary)' }}>• <TranslatedText text={locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr)} /></span>
+                      <span style={{ color: 'var(--text-tertiary)' }}>
+                        • {locale === 'de' ? ({
+                          'guide': 'Privater Reiseleiter',
+                          'lunch': 'Mittagessen & Erfrischungsgetränke',
+                          'transfer': 'Privater Hin- und Rücktransfer',
+                          'photos': 'Professionelles Fotoshooting'
+                        }[addon.id] || addon.nameEn) : (locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr))}
+                      </span>
                       <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
                         +€{(addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? (addon.price * travelers) : addon.price}
                       </span>
@@ -1647,7 +1654,14 @@ function CheckoutContent() {
               ]).map(addon => (
                 selectedExtras[addon.id] ? (
                   <div key={addon.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>• <TranslatedText text={locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr)} /></span>
+                    <span style={{ color: 'var(--text-tertiary)' }}>
+                      • {locale === 'de' ? ({
+                        'guide': 'Privater Reiseleiter',
+                        'lunch': 'Mittagessen & Erfrischungsgetränke',
+                        'transfer': 'Privater Hin- und Rücktransfer',
+                        'photos': 'Professionelles Fotoshooting'
+                      }[addon.id] || addon.nameEn) : (locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr))}
+                    </span>
                     <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
                       +€{(addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? (addon.price * travelers) : addon.price}
                     </span>
@@ -2066,42 +2080,72 @@ function CheckoutContent() {
                     onChange={(e) => setTermsAccepted(e.target.checked)}
                     style={{ width: '20px', height: '20px', cursor: 'pointer' }}
                   />
-                  <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                    {translate('termsCheckbox')}
-                    <a
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setModalTitle(translate('readTerms'));
-                        const isAr = locale === 'ar';
-                        const text = isAr
-                          ? (settings?.dataProtection || settings?.dataProtectionEn || 'لا توجد شروط.')
-                          : (settings?.dataProtectionEn || settings?.dataProtection || 'No terms provided.');
-                        setModalContent(text);
-                        setShowTermsModal(true);
-                      }}
-                      style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}
-                    >
-                      {translate('readTerms')}
-                    </a>
-                    {translate('termsAnd')}
-                    <a
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setModalTitle(translate('readPolicy'));
-                        const isAr = locale === 'ar';
-                        const text = isAr
-                          ? (settings?.legalCancellation || settings?.legalCancellationEn || 'لا توجد سياسة.')
-                          : (settings?.legalCancellationEn || settings?.legalCancellation || 'No policy provided.');
-                        setModalContent(text);
-                        setShowTermsModal(true);
-                      }}
-                      style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}
-                    >
-                      {translate('readPolicy')}
-                    </a>
-                  </span>
+                  {(() => {
+                    const openTerms = (e) => {
+                      e.preventDefault();
+                      setModalTitle(translate('readTerms'));
+                      const isAr = locale === 'ar';
+                      const text = isAr
+                        ? (settings?.dataProtection || settings?.dataProtectionEn || 'لا توجد شروط.')
+                        : (settings?.dataProtectionEn || settings?.dataProtection || 'No terms provided.');
+                      setModalContent(text);
+                      setShowTermsModal(true);
+                    };
+                    const openPolicy = (e) => {
+                      e.preventDefault();
+                      setModalTitle(translate('readPolicy'));
+                      const isAr = locale === 'ar';
+                      const text = isAr
+                        ? (settings?.legalCancellation || settings?.legalCancellationEn || 'لا توجد سياسة.')
+                        : (settings?.legalCancellationEn || settings?.legalCancellation || 'No policy provided.');
+                      setModalContent(text);
+                      setShowTermsModal(true);
+                    };
+
+                    if (locale === 'de') {
+                      return (
+                        <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                          Ich stimme den{' '}
+                          <a href="#" onClick={openTerms} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
+                            Allgemeinen Geschäftsbedingungen
+                          </a>{' '}
+                          und{' '}
+                          <a href="#" onClick={openPolicy} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
+                            Stornierungsbedingungen
+                          </a>{' '}
+                          zu.
+                        </span>
+                      );
+                    }
+
+                    if (locale === 'ar') {
+                      return (
+                        <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                          أوافق على{' '}
+                          <a href="#" onClick={openTerms} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
+                            الشروط والأحكام
+                          </a>{' '}
+                          و{' '}
+                          <a href="#" onClick={openPolicy} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
+                            سياسة الإلغاء
+                          </a>
+                        </span>
+                      );
+                    }
+
+                    return (
+                      <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                        I agree to the{' '}
+                        <a href="#" onClick={openTerms} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
+                          Terms &amp; Conditions
+                        </a>{' '}
+                        and{' '}
+                        <a href="#" onClick={openPolicy} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
+                          Cancellation Policy
+                        </a>
+                      </span>
+                    );
+                  })()}
                 </label>
 
                 {/* Electronic Signature Display */}

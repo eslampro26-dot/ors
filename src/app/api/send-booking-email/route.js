@@ -350,16 +350,23 @@ export async function POST(request) {
         html: htmlContent,
       };
 
-      // Attach contract if available
+      // Attach printable 1-page confirmation invoice and contract if available
+      const printableAttachment = {
+        filename: `ORLUXUS_Booking_Confirmation_${invoiceData.bookingDateTime ? invoiceData.bookingDateTime.slice(0,10) : 'Doc'}.html`,
+        content: htmlContent,
+        contentType: 'text/html'
+      };
+
+      const attachments = [printableAttachment];
       if (contractText) {
-        customerMailOptions.attachments = [
-          {
-            filename: `ORLUXUS_Contract_${txId.slice(-8).toUpperCase()}.txt`,
-            content: contractText,
-            contentType: 'text/plain'
-          }
-        ];
+        attachments.push({
+          filename: `ORLUXUS_Contract_${txId.slice(-8).toUpperCase()}.txt`,
+          content: contractText,
+          contentType: 'text/plain'
+        });
       }
+
+      customerMailOptions.attachments = attachments;
 
       await transporter.sendMail(customerMailOptions);
       console.log('[send-booking-email] Customer email sent successfully');
@@ -372,18 +379,8 @@ export async function POST(request) {
         to: activeCompanyEmail,
         subject: `[ORLUXUS] New Booking — ${customerName} | ${serviceName}`,
         html: htmlContent,
+        attachments: attachments
       };
-
-      // Attach contract if available
-      if (contractText) {
-        companyMailOptions.attachments = [
-          {
-            filename: `ORLUXUS_Contract_${txId.slice(-8).toUpperCase()}.txt`,
-            content: contractText,
-            contentType: 'text/plain'
-          }
-        ];
-      }
 
       await transporter.sendMail(companyMailOptions);
       console.log('[send-booking-email] Company email sent successfully');

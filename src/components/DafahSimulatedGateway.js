@@ -24,15 +24,35 @@ export default function DafahSimulatedGateway({ searchParams, router, addBooking
   const phone = searchParams.get('phone') || '';
   const whatsapp = searchParams.get('whatsapp') || '';
   const date = searchParams.get('date') || '';
-  const travelers = parseInt(searchParams.get('travelers') || '1', 10);
-  const title = searchParams.get('title') || 'رحلة سياحية';
-  const city = searchParams.get('city') || 'شرم الشيخ';
-  const email = searchParams.get('email') || '';
-  const pickupLocation = searchParams.get('pickupLocation') || '';
-  const extras = searchParams.get('extras') || '';
-  const specialRequests = searchParams.get('specialRequests') || '';
+  const activeLang = locale || searchParams.get('customerLanguage') || 'en';
+  const rawTitle = searchParams.get('title') || searchParams.get('titleEn') || 'Travel Excursion';
+  
+  // Helper to translate Arabic trip names into German / English if active language is non-Arabic
+  const getLocalizedTitle = (tStr) => {
+    if (!tStr) return 'Travel Excursion';
+    if (activeLang === 'ar') return tStr;
+    const titleMap = {
+      'ميجا سفاري - الدرجة الاقتصادية': activeLang === 'de' ? 'Mega Safari - Economy-Klasse' : 'Mega Safari - Economy Class',
+      'ميجا سفاري': 'Mega Safari',
+      'الدرجة الاقتصادية': activeLang === 'de' ? 'Economy-Klasse' : 'Economy Class',
+      'درجة رجال الأعمال': activeLang === 'de' ? 'Business-Klasse' : 'Business Class',
+      'درجة في آي بي': activeLang === 'de' ? 'VIP-Klasse' : 'VIP Class',
+      'رحلة الغواصة البحرية': activeLang === 'de' ? 'U-Boot-Ausflug' : 'Sea Submarine Tour',
+      'عشاء رومنسي على يخت فاخر': activeLang === 'de' ? 'Romantisches Abendessen auf der Luxusyacht' : 'Romantic Dinner on Luxury Yacht',
+      'سهرة رقص شرقي وعروض نارية': activeLang === 'de' ? 'Bauchtanz-Show & Feuershow' : 'Belly Dance & Fire Show',
+      'حفلة يخت كروز في أورلوكسوس': activeLang === 'de' ? 'Yacht-Party-Kreuzfahrt' : 'Yacht Party Cruise'
+    };
+    let mapped = tStr;
+    Object.keys(titleMap).forEach(key => {
+      mapped = mapped.replace(key, titleMap[key]);
+    });
+    return mapped;
+  };
+
+  const title = getLocalizedTitle(rawTitle);
 
   const translate = (key) => {
+    const lang = activeLang && ['en','ar','de','fr','es','it','ru','tr','zh','ja'].includes(activeLang) ? activeLang : 'en';
     const dict = {
       en: {
         gatewayTitle: 'Dafah Payment Gateway',
