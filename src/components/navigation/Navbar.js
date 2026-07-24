@@ -171,11 +171,16 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Right Header Actions (Language Switcher, Theme, Mobile Toggle) - Always visible at top */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', zIndex: 60 }}>
+        {/* Right Header Actions (Mobile Toggle FIRST, then Language, Theme) - Always visible at top */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', zIndex: 60, flexShrink: 0 }}>
           <LanguageSwitcher onLanguageChange={() => setMobileOpen(false)} />
           <ThemeToggle />
-          <button className={styles.mobileToggle} onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
+          <button 
+            className={styles.mobileToggle} 
+            onClick={() => setMobileOpen(!mobileOpen)} 
+            aria-label="Toggle menu"
+            style={{ minWidth: '42px', minHeight: '42px' }}
+          >
             <span className={`${styles.hamburger} ${mobileOpen ? styles.hamburgerOpen : ''}`}>
               <span></span>
               <span></span>

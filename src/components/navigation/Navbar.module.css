@@ -367,7 +367,8 @@
 /* ======================== RESPONSIVE ======================== */
 @media (max-width: 1080px) {
   .navContainer {
-    padding: 0 var(--space-md);
+    padding: 0 10px;
+    gap: 6px;
   }
 
   .navLinks {
@@ -436,7 +437,18 @@
   }
 
   .mobileToggle {
-    display: flex;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    min-height: 42px;
+    background: var(--bg-glass);
+    border: 1.5px solid var(--gold-500);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    padding: 10px;
+    z-index: calc(var(--z-modal) + 1);
+    flex-shrink: 0;
   }
 
   .overlay {
