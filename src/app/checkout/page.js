@@ -772,34 +772,29 @@ function CheckoutContent() {
           }}>
             {/* Invoice Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #f1f5f9', paddingBottom: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-                  <div>
-                    <h2 style={{ fontSize: '1.6rem', fontWeight: '900', color: '#b45309', margin: 0, letterSpacing: '2px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', display: 'block', fontWeight: 'bold' }}>ORLUXUS TOURISM MARKETING AGENCY</span>
-                  </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <img src="/logo_gold.png" alt="Orluxus" style={{ height: '56px', width: 'auto', objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
+                <div>
+                  <h2 style={{ fontSize: '1.6rem', fontWeight: '900', color: '#b45309', margin: 0, letterSpacing: '2px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
+                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', display: 'block', fontWeight: 'bold' }}>ORLUXUS TOURISM MARKETING AGENCY</span>
                 </div>
               </div>
-              <div style={{ textAlign: locale === 'ar' ? 'left' : 'right' }}>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', color: '#0f172a' }}>
-                  {locale === 'ar' ? 'تأكيد الحجز' : locale === 'fr' ? 'Confirmation de Réservation' : locale === 'de' ? 'Buchungsbestätigung' : locale === 'es' ? 'Confirmación de Reserva' : locale === 'it' ? 'Conferma di Prenotazione' : locale === 'ru' ? 'Подтверждение бронирования' : locale === 'zh' ? '预订确认' : locale === 'ja' ? '予約確認' : locale === 'tr' ? 'Rezervasyon Onayı' : 'Booking Confirmation'}
-                </h3>
+              <div style={{ textAlign: 'right' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', color: '#0f172a' }}>Booking Confirmation</h3>
                 <span style={{ fontSize: '0.85rem', color: '#64748b', fontFamily: 'var(--font-en)' }}>
                   #{txParam.replace('pp-tx-', '').replace('cash-tx-', '').replace('dafah-tx-', '').replace('bank-tx-', '').replace('apple_pay-tx-', '').replace('google_pay-tx-', '').slice(0, 8).toUpperCase()}
                 </span>
                 <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#94a3b8' }}>
-                  {new Date().toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+                  {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
                 </p>
               </div>
             </div>
 
 
             {/* Customer & Date Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', marginBottom: '2.5rem', textAlign: locale === 'ar' ? 'right' : 'left' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', marginBottom: '2.5rem', textAlign: 'left' }}>
               <div>
-                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase' }}>
-                  {locale === 'ar' ? 'بيانات المسافر' : locale === 'fr' ? 'Détails du voyageur' : locale === 'de' ? 'Reisendaten' : locale === 'es' ? 'Datos del viajero' : locale === 'it' ? 'Dettagli viaggiatore' : locale === 'ru' ? 'Данные путешественника' : locale === 'zh' ? '旅客详情' : locale === 'ja' ? '旅行者詳細' : locale === 'tr' ? 'Yolcu Bilgileri' : 'Traveler Details'}
-                </h4>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase' }}>Traveler Details</h4>
                 <p style={{ margin: '0 0 0.3rem 0', fontWeight: 'bold', fontSize: '1.05rem' }}>{nameParam}</p>
                 {emailParam && <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>✉ {emailParam}</p>}
                 <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>📞 {phoneParam}</p>

@@ -152,93 +152,112 @@ function BookingConfirmationContent() {
 
         {error && (
           <div className="glass-card animate-fade-in-up" style={{ padding: '1.2rem 1.5rem', border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.05)', borderRadius: '12px', textAlign: 'center', color: '#ef4444', marginBottom: '2rem' }}>
-            ❌ {error}
+            {error}
           </div>
         )}
 
         {booking && (
-          <div id="confirmation-sheet" className="glass-card animate-scale-in" style={{
-            padding: '2.5rem', background: '#ffffff', color: '#1e293b',
-            borderRadius: '16px', border: '1px solid var(--border-medium)', boxShadow: 'var(--shadow-xl)',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '2px solid #f1f5f9' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <img src="/logo_gold.png" alt="Orluxus" style={{ height: '44px', width: 'auto', objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
-                <div>
-                  <h2 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#b45309', margin: 0, letterSpacing: '1px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
-                  <span style={{ fontSize: '0.68rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Premium Egypt Travel &amp; Tourism</span>
-                </div>
-              </div>
-              <div style={{ textAlign: isAr ? 'left' : 'right' }}>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px' }}>{t('booking.ref')}</div>
-                <div style={{ fontFamily: 'var(--font-en)', fontWeight: '900', fontSize: '1.1rem', color: '#0f172a', letterSpacing: '1px' }}>{booking.ref}</div>
-              </div>
-            </div>
+          <>
+            <style dangerouslySetInnerHTML={{ __html: `
+              @media print {
+                @page { size: A4 portrait; margin: 10mm; }
+                body { background: #ffffff !important; color: #0f172a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                .hide-print, nav, footer, button { display: none !important; }
+                #confirmation-sheet { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; page-break-inside: avoid !important; }
+              }
+            ` }} />
 
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <span style={{
-                display: 'inline-block', padding: '0.5rem 2rem', borderRadius: '9999px',
-                fontWeight: '800', fontSize: '1rem', letterSpacing: '1px',
-                color: STATUS_COLORS[statusKey] || '#64748b',
-                background: STATUS_BG[statusKey] || '#f8fafc',
-                border: '2px solid ' + (STATUS_COLORS[statusKey] || '#e2e8f0'),
-              }}>
-                {statusEmoji} {statusLabel}
-              </span>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-              {rows.map(({ label, value, fullWidth }, i) => (
-                <div key={i} style={{
-                  background: fullWidth ? '#fff7ed' : '#f8fafc',
-                  borderRadius: '10px',
-                  padding: '0.9rem 1.1rem',
-                  border: fullWidth ? '1px solid #fed7aa' : '1px solid #e2e8f0',
-                  textAlign: isAr ? 'right' : 'left',
-                  ...(fullWidth ? { gridColumn: '1 / -1' } : {})
-                }}>
-                  <div style={{ fontSize: '0.72rem', color: fullWidth ? '#c2410c' : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    {fullWidth && '💬 '}{label}
+            <div id="confirmation-sheet" className="glass-card animate-scale-in" style={{
+              padding: '2rem 2.5rem', background: '#ffffff', color: '#0f172a',
+              borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: 'var(--shadow-xl)',
+              maxWidth: '750px', margin: '0 auto'
+            }}>
+              {/* Invoice Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1.2rem', borderBottom: '2px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <img src="/logo_gold.png" alt="Orluxus" style={{ height: '52px', width: 'auto', objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
+                  <div>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#d97706', margin: 0, letterSpacing: '2px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
+                    <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600' }}>ORLUXUS TOURISM AGENCY</span>
                   </div>
-                  <div style={{ fontWeight: fullWidth ? '500' : '700', color: '#0f172a', fontSize: '0.95rem', wordBreak: 'break-word', lineHeight: '1.5' }}>{value || '—'}</div>
                 </div>
-              ))}
-            </div>
+                <div style={{ textAlign: isAr ? 'left' : 'right' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '2px', textTransform: 'uppercase', fontWeight: 'bold' }}>{t('booking.ref')}</div>
+                  <div style={{ fontFamily: 'var(--font-en)', fontWeight: '900', fontSize: '1.15rem', color: '#0f172a', letterSpacing: '1px' }}>{booking.ref}</div>
+                </div>
+              </div>
 
-            {/* Digital Signature & Terms Agreement */}
-            <div style={{ border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '1.2rem 1.5rem', marginTop: '1.5rem' }}>
-              <h4 style={{ margin: '0 0 8px', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', textAlign: isAr ? 'right' : 'left' }}>
-                📋 {t('booking.termsTitle')}
-              </h4>
-              <p style={{ margin: '0 0 10px', fontSize: '0.82rem', color: '#475569', lineHeight: '1.6', textAlign: isAr ? 'right' : 'left' }}>
-                {t('booking.termsBody', { name: booking.customerName })}
-              </p>
-              <p style={{ margin: '0 0 12px', fontSize: '0.82rem', color: '#475569', lineHeight: '1.6', fontStyle: 'italic', borderTop: '1px solid #e2e8f0', paddingTop: '8px', textAlign: isAr ? 'right' : 'left' }}>
-                {t('booking.termsNote')}
-              </p>
-              <div style={{ background: '#f1f5f9', borderRadius: '8px', padding: '10px 14px', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', fontSize: '0.78rem', color: '#64748b' }}>
-                <span>✍️ <strong>{t('booking.digitallyAgreed')}</strong> {booking.customerName}</span>
-                {booking.createdAt && (
-                  <span>
-                    🕐 <strong>{t('booking.bookingTime')}</strong>{' '}
-                    {(() => {
-                      try {
-                        const dateObj = booking.createdAt?.seconds ? new Date(booking.createdAt.seconds * 1000) : new Date(booking.createdAt);
-                        return isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
-                      } catch {
-                        return '—';
-                      }
-                    })()}
-                  </span>
-                )}
-                <span>🔑 <strong>{t('booking.bookingRef')}</strong> {booking.ref}</span>
+              {/* Status Header */}
+              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                <span style={{
+                  display: 'inline-block', padding: '0.4rem 1.8rem', borderRadius: '9999px',
+                  fontWeight: '800', fontSize: '0.95rem', letterSpacing: '1px',
+                  color: STATUS_COLORS[statusKey] || '#64748b',
+                  background: STATUS_BG[statusKey] || '#f8fafc',
+                  border: '1.5px solid ' + (STATUS_COLORS[statusKey] || '#e2e8f0'),
+                }}>
+                  {statusLabel}
+                </span>
+              </div>
+
+              {/* Data Table */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.8rem', marginBottom: '1.2rem' }}>
+                {rows.map(({ label, value, fullWidth }, i) => (
+                  <div key={i} style={{
+                    background: fullWidth ? '#fff7ed' : '#f8fafc',
+                    borderRadius: '8px',
+                    padding: '0.75rem 1rem',
+                    border: fullWidth ? '1px solid #fed7aa' : '1px solid #e2e8f0',
+                    textAlign: isAr ? 'right' : 'left',
+                    ...(fullWidth ? { gridColumn: '1 / -1' } : {})
+                  }}>
+                    <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '3px', fontWeight: 'bold' }}>
+                      {label}
+                    </div>
+                    <div style={{ fontWeight: fullWidth ? '500' : '700', color: '#0f172a', fontSize: '0.92rem', wordBreak: 'break-word', lineHeight: '1.4' }}>{value || '—'}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Emergency Contact & Digital Signature Block */}
+              <div style={{ border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '1rem 1.2rem', marginBottom: '1.2rem', background: '#ffffff' }}>
+                <h4 style={{ margin: '0 0 6px', fontSize: '0.75rem', color: '#d97706', textTransform: 'uppercase', letterSpacing: '1px', textAlign: isAr ? 'right' : 'left', fontWeight: 'bold' }}>
+                  {t('booking.termsTitle')}
+                </h4>
+                <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#0f172a', lineHeight: '1.5', textAlign: isAr ? 'right' : 'left' }}>
+                  {t('booking.termsBody', { name: booking.customerName })}
+                </p>
+                
+                <div style={{ background: '#f8fafc', borderRadius: '6px', padding: '8px 12px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '0.8rem', fontSize: '0.75rem', color: '#64748b', border: '1px solid #e2e8f0' }}>
+                  <span><strong>{t('booking.digitallyAgreed')}:</strong> {booking.customerName}</span>
+                  {booking.createdAt && (
+                    <span>
+                      <strong>{t('booking.bookingTime')}:</strong>{' '}
+                      {(() => {
+                        try {
+                          const dateObj = booking.createdAt?.seconds ? new Date(booking.createdAt.seconds * 1000) : new Date(booking.createdAt);
+                          return isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+                        } catch {
+                          return '—';
+                        }
+                      })()}
+                    </span>
+                  )}
+                  <span><strong>{t('booking.bookingRef')}:</strong> {booking.ref}</span>
+                </div>
+
+                {/* Emergency Contact Information (Kept in Invoice) */}
+                <div style={{ marginTop: '0.8rem', paddingTop: '0.6rem', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#0f172a', fontWeight: '600' }}>
+                  <span>24/7 Emergency Support Hotline: +20 15 50507949</span>
+                  <span>WhatsApp: +20 15 50507949</span>
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'center', paddingTop: '0.8rem', borderTop: '1px dashed #e2e8f0', fontSize: '0.78rem', color: '#64748b', fontWeight: 'bold' }}>
+                {t('booking.thankYou')}
               </div>
             </div>
-
-            <div style={{ textAlign: 'center', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px dashed #e2e8f0', fontSize: '0.8rem', color: '#94a3b8' }}>
-              {t('booking.thankYou')}
-            </div>
-          </div>
+          </>
         )}
 
         {booking && (
