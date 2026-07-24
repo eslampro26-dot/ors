@@ -227,6 +227,8 @@ html {
 
 html {
   touch-action: manipulation;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 body {
@@ -236,7 +238,9 @@ body {
   line-height: 1.5; /* Body: 150% line height */
   direction: ltr;
   min-height: 100vh;
+  max-width: 100vw;
   overflow-x: hidden;
+  position: relative;
   touch-action: manipulation;
 }
 
