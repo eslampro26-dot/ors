@@ -45,6 +45,7 @@ export default function RootLayout({ children, params }) {
         <link rel="alternate" hrefLang="en" href="https://orluxus.com/" />
         <link rel="alternate" hrefLang="ar" href="https://orluxus.com/ar/" />
         <link rel="alternate" hrefLang="x-default" href="https://orluxus.com/" />
+        <link rel="alternate" type="application/rss+xml" href="https://orluxus.com/rss.xml" title="ORLUXUS RSS Feed" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#d97706" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />

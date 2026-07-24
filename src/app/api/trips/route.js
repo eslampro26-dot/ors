@@ -39,6 +39,13 @@ export async function POST(request) {
     if (!result) {
       return NextResponse.json({ error: 'فشل إضافة الرحلة' }, { status: 500 });
     }
+    // Ping Search Engines dynamically
+    try {
+      const { notifySearchEngines } = await import('@/lib/indexing');
+      notifySearchEngines({ url: `/city/${slug}/${category}` });
+    } catch (err) {
+      console.warn('[trips API] Failed to trigger indexing notification:', err.message);
+    }
     return NextResponse.json({ ...result, message: 'تمت إضافة الرحلة بنجاح!' }, { status: 201 });
   } catch (e) {
     console.error('API Error adding trip:', e);
@@ -51,12 +58,21 @@ export async function PUT(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   try {
-    const { id, ...tripData } = await request.json();
+    const { id, slug, category, ...tripData } = await request.json();
     if (!id) {
       return NextResponse.json({ error: 'Missing trip ID' }, { status: 400 });
     }
     const result = await updateTrip(id, tripData);
     if (result) {
+      // Ping Search Engines dynamically
+      if (slug && category) {
+        try {
+          const { notifySearchEngines } = await import('@/lib/indexing');
+          notifySearchEngines({ url: `/city/${slug}/${category}` });
+        } catch (err) {
+          console.warn('[trips API] Failed to trigger indexing notification on update:', err.message);
+        }
+      }
       return NextResponse.json({ success: true, message: 'تم تحديث الرحلة بنجاح!' });
     } else {
       return NextResponse.json({ error: 'لم يتم العثور على الرحلة أو فشل التحديث' }, { status: 404 });

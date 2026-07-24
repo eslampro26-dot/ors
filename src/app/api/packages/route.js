@@ -38,6 +38,13 @@ export async function POST(request) {
     if (!result) {
       return NextResponse.json({ error: 'فشل إضافة الباقة' }, { status: 500 });
     }
+    // Ping Search Engines dynamically
+    try {
+      const { notifySearchEngines } = await import('@/lib/indexing');
+      notifySearchEngines({ url: `/packages/${pkgId}` });
+    } catch (err) {
+      console.warn('[packages API] Failed to trigger indexing notification:', err.message);
+    }
     return NextResponse.json({ ...result, message: 'تمت إضافة الباقة بنجاح!' }, { status: 201 });
   } catch (e) {
     console.error('API Error adding package:', e);
@@ -56,6 +63,13 @@ export async function PUT(request) {
     }
     const result = await updatePackage(pkgId, id, packageData);
     if (result) {
+      // Ping Search Engines dynamically
+      try {
+        const { notifySearchEngines } = await import('@/lib/indexing');
+        notifySearchEngines({ url: `/packages/${pkgId}` });
+      } catch (err) {
+        console.warn('[packages API] Failed to trigger indexing notification on update:', err.message);
+      }
       return NextResponse.json({ success: true, message: 'تم تحديث الباقة بنجاح!' });
     } else {
       return NextResponse.json({ error: 'لم يتم العثور على الباقة أو فشل التحديث' }, { status: 404 });
