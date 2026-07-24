@@ -53,21 +53,7 @@ export default function Home() {
   const { locale, t, isReady } = useLanguage();
   const { settings: siteSettings } = useSettings();
 
-  const [heroActiveIndex, setHeroActiveIndex] = useState(0);
-
-  const HERO_IMAGES = useMemo(() => [
-    'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1600&q=80',
-    'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1600&q=80',
-    'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1600&q=80',
-    'https://images.unsplash.com/photo-1600016688773-bc18bf39aa3e?auto=format&fit=crop&w=1600&q=80'
-  ], []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHeroActiveIndex(prev => (prev + 1) % HERO_IMAGES.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [HERO_IMAGES]);
+  // GlobalBackground.js handles the background image slideshow — no need for a duplicate here
 
   const storyParagraphs = useMemo(() => {
     const msgs = getMessages(locale);
@@ -249,25 +235,11 @@ export default function Home() {
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Luxury Yacht Background Image instead of video to prevent CORS blocks */}
-        <div 
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            backgroundImage: 'url("https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1600&q=80")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            zIndex: 1
-          }}
-        />
-
-        {/* 40% Dark Overlay */}
+        {/* Dark Overlay over GlobalBackground */}
         <div style={{
           position: 'absolute',
           inset: 0,
-          background: 'rgba(11, 11, 11, 0.4)',
+          background: 'rgba(11, 11, 11, 0.45)',
           zIndex: 2
         }}></div>
 
