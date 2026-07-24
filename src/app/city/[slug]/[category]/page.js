@@ -194,30 +194,39 @@ export default function CategoryPage({ params }) {
                       </span>
                     )}
 
-                    {/* Multiple images indicator + click to browse */}
+                    {/* Multiple images indicator + click image to cycle */}
                     {(() => {
                       const cardImages = trip.images && trip.images.length > 0 ? [trip.image || '', ...trip.images] : null;
                       const cardIdx = cardImageIndexes[trip.id] || 0;
                       return cardImages ? (
-                        <>
+                        <div 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleCardImageNext(trip.id, cardImages);
+                          }}
+                          style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}
+                          title={locale === 'ar' ? 'انقر للتبديل للصورة التالية' : 'Click to view next photo'}
+                        >
                           {/* Show current card image */}
-                          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${cardImages[cardIdx] || cardImages[0]})`, backgroundSize: 'cover', backgroundPosition: 'center', transition: 'background-image 0.3s ease' }} />
-                          {/* Prev/Next arrows */}
-                          <button
-                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleCardImagePrev(trip.id, cardImages); }}
-                            style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5 }}
-                          >‹</button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleCardImageNext(trip.id, cardImages); }}
-                            style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', color: '#fff', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5 }}
-                          >›</button>
+                          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${cardImages[cardIdx] || cardImages[0]})`, backgroundSize: 'cover', backgroundPosition: 'center', transition: 'background-image 0.35 ease' }} />
+                          
+                          {/* Photo Counter Badge */}
+                          <div style={{ position: 'absolute', top: '12px', left: locale === 'ar' ? 'auto' : '12px', right: locale === 'ar' ? '12px' : 'auto', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', color: '#fff', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', zIndex: 5 }}>
+                            📷 {cardIdx + 1}/{cardImages.length}
+                          </div>
+
                           {/* Dots */}
-                          <div style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '4px', zIndex: 5 }}>
+                          <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '5px', zIndex: 5 }}>
                             {cardImages.map((_, i) => (
-                              <span key={i} onClick={(e) => { e.preventDefault(); setCardImageIndexes(prev => ({ ...prev, [trip.id]: i })); }} style={{ width: '6px', height: '6px', borderRadius: '50%', background: i === cardIdx ? '#fff' : 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'block' }} />
+                              <span 
+                                key={i} 
+                                onClick={(e) => { e.stopPropagation(); e.preventDefault(); setCardImageIndexes(prev => ({ ...prev, [trip.id]: i })); }} 
+                                style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === cardIdx ? 'var(--gold-400)' : 'rgba(255,255,255,0.6)', transition: 'all 0.2s ease', cursor: 'pointer', display: 'block', boxShadow: '0 1px 3px rgba(0,0,0,0.4)' }} 
+                              />
                             ))}
                           </div>
-                        </>
+                        </div>
                       ) : null;
                     })()}
                   </div>

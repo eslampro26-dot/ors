@@ -67,19 +67,28 @@ export function useSettings() {
  * @returns {string}
  */
 export function getPolicyText(settings, arField, enField, locale, t, msgKey) {
-  // 1. If locale is Arabic and custom text is set in DB, use it
-  if (locale === 'ar' && settings?.[arField]) return settings[arField];
-  
-  // 2. If locale is English and custom text is set in DB, use it
-  if (locale === 'en' && settings?.[enField]) return settings[enField];
+  // Normalize locale key for DB property lookup (e.g. 'De', 'Fr', 'Es', 'It', 'Ru', 'Tr', 'Zh', 'Ja')
+  const localeSuffix = locale ? (locale.charAt(0).toUpperCase() + locale.slice(1).toLowerCase()) : 'En';
+  const customFieldForLocale = arField.replace(/Ar$/, '') + localeSuffix; // e.g. visionDe, goalsFr
 
-  // 3. For all 10 languages: try messages.js translation key first if available
+  // 1. If custom DB text exists specifically for current locale, use it
+  if (locale === 'ar' && settings?.[arField]) return settings[arField];
+  if (locale === 'en' && settings?.[enField]) return settings[enField];
+  if (settings?.[customFieldForLocale]) return settings[customFieldForLocale];
+
+  // 2. For non-ar/en locales (de, fr, ru, etc.): prioritize messages.js localization
+  if (locale !== 'ar' && locale !== 'en' && msgKey && typeof t === 'function') {
+    const translated = t(msgKey);
+    if (translated && translated !== msgKey) return translated;
+  }
+
+  // 3. Fallback: try messages.js for ar/en
   if (msgKey && typeof t === 'function') {
     const translated = t(msgKey);
     if (translated && translated !== msgKey) return translated;
   }
 
-  // 4. Fallback to DB fields if msgKey is not present or untranslated
+  // 4. Final DB fallbacks
   if (settings?.[enField]) return settings[enField];
   if (settings?.[arField]) return settings[arField];
 
