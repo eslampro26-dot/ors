@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Navbar from '@/components/navigation/Navbar';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSearchParams } from 'next/navigation';
 
 const STATUS_COLORS = {
   confirmed: '#10b981', pending: '#f59e0b', cancelled: '#ef4444', completed: '#6366f1',
@@ -12,24 +13,25 @@ const STATUS_BG = {
   confirmed: '#ecfdf5', pending: '#fef3c7', cancelled: '#fef2f2', completed: '#eef2ff',
 };
 
-export default function BookingConfirmationPage() {
+function BookingConfirmationContent() {
   const { locale, t, isReady } = useLanguage();
-  const [refInput, setRefInput] = useState('');
+  const searchParams = useSearchParams();
+  const urlRef = searchParams.get('ref') || '';
+
+  const [refInput, setRefInput] = useState(urlRef);
   const [loading, setLoading] = useState(false);
   const [booking, setBooking] = useState(null);
   const [error, setError] = useState('');
 
   const isAr = locale === 'ar';
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    const ref = refInput.trim();
-    if (!ref) return;
+  const lookupRef = async (targetRef) => {
+    if (!targetRef) return;
     setLoading(true);
     setError('');
     setBooking(null);
     try {
-      const res = await fetch('/api/booking-lookup?ref=' + encodeURIComponent(ref));
+      const res = await fetch('/api/booking-lookup?ref=' + encodeURIComponent(targetRef));
       const data = await res.json();
       if (!res.ok) { 
         setError(data.error || t('booking.notFound')); 
@@ -41,6 +43,20 @@ export default function BookingConfirmationPage() {
     } finally { 
       setLoading(false); 
     }
+  };
+
+  useEffect(() => {
+    if (urlRef) {
+      setRefInput(urlRef);
+      lookupRef(urlRef);
+    }
+  }, [urlRef]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const ref = refInput.trim();
+    if (!ref) return;
+    lookupRef(ref);
   };
 
   if (!isReady) {
@@ -202,7 +218,19 @@ export default function BookingConfirmationPage() {
               </p>
               <div style={{ background: '#f1f5f9', borderRadius: '8px', padding: '10px 14px', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', fontSize: '0.78rem', color: '#64748b' }}>
                 <span>✍️ <strong>{t('booking.digitallyAgreed')}</strong> {booking.customerName}</span>
-                {booking.createdAt && <span>🕐 <strong>{t('booking.bookingTime')}</strong> {new Date(booking.createdAt).toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span>}
+                {booking.createdAt && (
+                  <span>
+                    🕐 <strong>{t('booking.bookingTime')}</strong>{' '}
+                    {(() => {
+                      try {
+                        const dateObj = booking.createdAt?.seconds ? new Date(booking.createdAt.seconds * 1000) : new Date(booking.createdAt);
+                        return isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+                      } catch {
+                        return '—';
+                      }
+                    })()}
+                  </span>
+                )}
                 <span>🔑 <strong>{t('booking.bookingRef')}</strong> {booking.ref}</span>
               </div>
             </div>
@@ -258,5 +286,13 @@ export default function BookingConfirmationPage() {
         }
       `}</style>
     </main>
+  );
+}
+
+export default function BookingConfirmationPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>Loading booking details...</div>}>
+      <BookingConfirmationContent />
+    </Suspense>
   );
 }

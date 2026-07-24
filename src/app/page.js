@@ -398,7 +398,7 @@ export default function Home() {
                       inset: 0,
                     }}>
                       <OptimizedImage
-                        src={city.image}
+                        src={dynamicCity.image}
                         alt={locCity.name}
                         width={400}
                         height={225}

@@ -79,12 +79,27 @@ export default function AdminBookings() {
 
   // Change Booking Status
   const handleStatusChange = async (id, newStatus) => {
-    // Convert English UI value → Arabic DB value before saving
     const arStatus = toArStatus(newStatus);
     try {
-      const success = await updateBookingStatus(id, arStatus);
+      let success = false;
+      try {
+        success = await updateBookingStatus(id, arStatus);
+      } catch (e) {
+        console.warn('Direct update failed, falling back to API route:', e);
+      }
+
+      if (!success) {
+        const res = await fetch('/api/bookings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, status: arStatus })
+        });
+        const data = await res.json();
+        success = data?.success || res.ok;
+      }
+
       if (success) {
-        alert(`Booking ${id} status updated to ${newStatus} successfully!`);
+        alert(`Booking status updated to ${newStatus} successfully!`);
         await loadData();
       } else {
         alert('Failed to update booking status!');

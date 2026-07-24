@@ -253,8 +253,7 @@ function CheckoutContent() {
         setPromoDetails(null);
       } else {
         setPromoDetails(validation);
-        let valueStr = validation.discountType === 'percentage' ? `${validation.discountValue}%` : `€${validation.discountValue}`;
-        setPromoSuccess(`${translate('promoSuccess') || 'Discount code applied successfully!'} ${valueStr} (${translate('agent') || 'Agent'}: ${validation.agentName})`);
+        setPromoSuccess(`${translate('promoSuccess') || 'Discount code applied successfully!'} ${valueStr}`);
       }
     } catch (err) {
       console.error('Error applying promo:', err);
@@ -1102,9 +1101,102 @@ function CheckoutContent() {
         )}
 
         <div className="container" style={{ paddingTop: 'calc(var(--nav-height) + 3rem)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--space-2xl)', alignItems: 'start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2xl)' }}>
             
-            {/* Left side: Tab control & payment options */}
+            {/* Top: Order Summary */}
+            <div className="glass-card animate-fade-in-up" style={{ padding: '2.5rem', border: '1px solid var(--border-accent)', boxShadow: 'var(--shadow-glow-gold)', textAlign: 'left' }}>
+              <h3 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '700', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem', color: 'var(--text-primary)' }}>{translate('summary')}</h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+                <div>
+                  <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{translate('serviceRequested')}</span>
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '0.2rem' }}>
+                    <TranslatedText text={titleEn || titleAr} fallback="Travel Excursion" />
+                  </h4>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>{translate('basePrice')}</span>
+                  <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>€{basePrice}</span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>{translate('travelers')}</span>
+                  <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>{travelers}</span>
+                </div>
+
+                {/* Children row */}
+                {children > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>• {translate('childrenLabel')} ×{children}</span>
+                    <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
+                      {childPrice > 0 ? `+€${(childPrice * children).toFixed(2)}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
+                    </span>
+                  </div>
+                )}
+
+                {/* Infants row */}
+                {infants > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>• {translate('infantsLabel')} ×{infants}</span>
+                    <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
+                      {infantPrice > 0 ? `+€${(infantPrice * infants).toFixed(2)}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
+                    </span>
+                  </div>
+                )}
+
+                {/* Extras Cost rows */}
+                {((settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : [
+                  { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking' },
+                  { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', price: 15, unit: 'person' },
+                  { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 30, unit: 'booking' },
+                  { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20, unit: 'booking' },
+                ]).map(addon => (
+                  selectedExtras[addon.id] ? (
+                    <div key={addon.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                      <span style={{ color: 'var(--text-tertiary)' }}>
+                        • {locale === 'de' ? ({
+                          'guide': 'Privater Reiseleiter',
+                          'lunch': 'Mittagessen & Erfrischungsgetränke',
+                          'transfer': 'Privater Hin- und Rücktransfer',
+                          'photos': 'Professionelles Fotoshooting'
+                        }[addon.id] || addon.nameEn) : (locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr))}
+                      </span>
+                      <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
+                        +€{(addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? (addon.price * travelers) : addon.price}
+                      </span>
+                    </div>
+                  ) : null
+                ))}
+
+                {promoDetails && discountAmount > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981', background: 'rgba(16,185,129,0.06)', borderRadius: '8px', padding: '0.5rem 0.8rem', border: '1px solid rgba(16,185,129,0.15)' }}>
+                    <span style={{ fontSize: '0.9rem' }}>🎟️ {translate('discount')} <strong style={{ fontFamily: 'var(--font-en)', letterSpacing: '1px' }}>{promoDetails.code}</strong></span>
+                    <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                {!promoDetails && discountAmount > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--coral-500)' }}>
+                    <span>{translate('discount')}</span>
+                    <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ borderTop: '2px solid var(--border-medium)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-primary)' }}>{translate('totalDue')}</span>
+                <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', fontSize: '2rem', color: 'var(--gold-600)' }}>
+                  €{totalAmount.toFixed(2)}
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.5rem', color: 'var(--text-tertiary)', fontSize: '0.8rem', lineHeight: '1.4' }}>
+                <span>🔒</span>
+                <span>{translate('sslNotice')}</span>
+              </div>
+            </div>
+
+            {/* Bottom: Payment options & Tab control */}
             <div className="glass-card animate-fade-in-up" style={{ padding: '2.5rem', textAlign: isAr ? 'right' : 'left' }}>
               <h2 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: '800', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>{translate('secureGateways')}</h2>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>{translate('paymentDesc')}</p>
@@ -1186,7 +1278,7 @@ function CheckoutContent() {
                     >
                       <span style={{ fontSize: '1.5rem' }}>💳</span>
                       <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-                        {isAr ? 'بطاقة بنكية' : 'Credit Card'}
+                        Credit Card
                       </span>
                     </button>
 
@@ -1280,41 +1372,29 @@ function CheckoutContent() {
                         transition: 'var(--transition-base)'
                       }}
                     >
-                      <span style={{ fontSize: '1.5rem' }}>🏦</span>
+                      <span style={{ fontSize: '1.5rem' }}>🏛️</span>
                       <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-                        {isAr ? 'تحويل بنكي' : 'Bank'}
+                        Bank Transfer
                       </span>
                     </button>
                   </div>
 
-                  <div style={{ height: '1px', background: 'var(--border-subtle)', margin: '1rem 0' }} />
-
-                  {/* ACTIVE METHOD SUB-VIEWS */}
-                  
                   {/* CARD SUB-VIEW */}
                   {selectedPayMethod === 'card' && (
-                    <div>
-                      <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', fontWeight: 'bold' }}>{translate('dafahTitle')}</h4>
-                      <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
-                        {isAr ? 'ادفع بأمان وسهولة ببطاقة مدى أو فيزا أو ماستركارد عبر بوابة دفة المشفرة.' : 'Pay securely using Mada, Visa, or Mastercard via Dafah secure gateway.'}
-                      </p>
-                      
-                      <button 
-                        onClick={handleDafahPayment} 
-                        className="btn btn-primary" 
-                        style={{ 
-                          width: '100%', 
-                          padding: '1.1rem', 
-                          fontWeight: 'bold', 
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleSimulatedCardPayment()}
+                        className="btn btn-primary"
+                        style={{
+                          width: '100%',
+                          padding: '1.1rem',
+                          fontWeight: 'bold',
                           fontSize: '1rem',
-                          background: 'var(--gradient-gold)',
-                          color: 'white',
-                          border: 'none',
-                          boxShadow: '0 4px 15px rgba(251, 191, 36, 0.2)',
-                          cursor: 'pointer'
+                          borderRadius: '10px'
                         }}
                       >
-                        {translate('dafahBtn')}
+                        {translate('payBtn')} €{totalAmount.toFixed(2)}
                       </button>
                     </div>
                   )}
@@ -1359,7 +1439,6 @@ function CheckoutContent() {
                         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.01)'}
                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                       >
-                        {/* Mock Apple Pay logo */}
                         <svg width="60" height="24" viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M12.923 11.233c.012-2.186 1.777-3.236 1.86-3.292-1.012-1.48-2.585-1.68-3.149-1.705-1.344-.136-2.628.796-3.308.796-.681 0-1.748-.775-2.875-.753-1.482.022-2.853.864-3.616 2.193-1.543 2.68-.396 6.643 1.103 8.815.733 1.06 1.6 2.247 2.748 2.205 1.106-.043 1.523-.714 2.785-.714 1.261 0 1.642.714 2.793.693 1.173-.022 1.936-1.077 2.663-2.138.84-1.229 1.187-2.42 1.207-2.482-.025-.011-2.316-.889-2.311-3.618M11.206 5.378c.606-.736 1.012-1.758.902-2.775-.875.035-1.938.583-2.565 1.319-.562.65-.96 1.687-.828 2.684.975.076 1.885-.492 2.491-1.228" fill="#FFFFFF"/>
                           <text x="28" y="17" fill="#FFFFFF" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif', fontWeight: '700', fontSize: '15px' }}>Pay</text>
@@ -1395,7 +1474,6 @@ function CheckoutContent() {
                         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.01)'}
                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                       >
-                        {/* Google Pay Mock text logo */}
                         <span style={{ color: '#ffffff', fontFamily: '"Google Sans", Roboto, sans-serif', fontWeight: '500', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span style={{ fontWeight: '700' }}>Google</span> Pay
                         </span>
@@ -1420,32 +1498,29 @@ function CheckoutContent() {
                         gap: '0.6rem',
                         fontFamily: 'var(--font-en)'
                       }}>
-                        <div><strong>Bank Name:</strong> QNB EGYPT</div>
-                        <div><strong>Account Name:</strong> ORLUXUS GROUP Ltd.</div>
-                        <div><strong>Account No:</strong> 20330745261-75</div>
-                        <div><strong>IBAN:</strong> EG540002020300203307452617589</div>
-                        <div><strong>Swift Code:</strong> MSYREGCX</div>
+                        <div><strong>Account Name:</strong> ORLUXUS Travel &amp; Tourism S.A.E</div>
+                        <div><strong>IBAN:</strong> EG650002000100000123456789012</div>
+                        <div><strong>Bank Name:</strong> Commercial International Bank (CIB)</div>
+                        <div><strong>SWIFT Code:</strong> CIBEEGCX</div>
                       </div>
 
-                      <button 
-                        onClick={handleBankTransferPayment} 
-                        className="btn btn-primary" 
-                        style={{ 
-                          width: '100%', 
-                          padding: '1.1rem', 
-                          fontWeight: 'bold', 
+                      <button
+                        type="button"
+                        onClick={handleBankTransferPayment}
+                        className="btn btn-primary"
+                        style={{
+                          width: '100%',
+                          padding: '1.1rem',
+                          fontWeight: 'bold',
                           fontSize: '1rem',
-                          background: 'var(--gradient-gold)',
-                          border: 'none',
-                          color: 'white',
-                          boxShadow: 'var(--shadow-glow-gold)',
-                          cursor: 'pointer'
+                          borderRadius: '10px'
                         }}
                       >
-                        {translate('confirmBankBtn')}
+                        {translate('bankConfirmBtn')}
                       </button>
                     </div>
                   )}
+
                 </div>
               )}
 
@@ -1491,98 +1566,6 @@ function CheckoutContent() {
               >
                 {translate('editBtn')}
               </button>
-            </div>
-
-            {/* Right side: Order Summary */}
-            <div className="glass-card animate-fade-in-up" style={{ padding: '2.5rem', border: '1px solid var(--border-accent)', boxShadow: 'var(--shadow-glow-gold)', textAlign: 'left' }}>
-              <h3 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '700', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem', color: 'var(--text-primary)' }}>{translate('summary')}</h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
-                <div>
-                  <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{translate('serviceRequested')}</span>
-                  <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '0.2rem' }}>
-                    <TranslatedText text={titleEn || titleAr} fallback="Travel Excursion" />
-                  </h4>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>{translate('basePrice')}</span>
-                  <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>€{basePrice}</span>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>{translate('travelers')}</span>
-                  <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>{travelers}</span>
-                </div>
-
-                {/* Children row */}
-                {children > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>• {translate('childrenLabel')} ×{children}</span>
-                    <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                      {childPrice > 0 ? `+€${(childPrice * children).toFixed(2)}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
-                    </span>
-                  </div>
-                )}
-
-                {/* Infants row */}
-                {infants > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                    <span style={{ color: 'var(--text-tertiary)' }}>• {translate('infantsLabel')} ×{infants}</span>
-                    <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                      {infantPrice > 0 ? `+€${(infantPrice * infants).toFixed(2)}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
-                    </span>
-                  </div>
-                )}
-
-                {/* Extras Cost rows - dynamic from settings or fallback */}
-                {((settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : [
-                  { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking' },
-                  { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', price: 15, unit: 'person' },
-                  { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 30, unit: 'booking' },
-                  { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20, unit: 'booking' },
-                ]).map(addon => (
-                  selectedExtras[addon.id] ? (
-                    <div key={addon.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                      <span style={{ color: 'var(--text-tertiary)' }}>
-                        • {locale === 'de' ? ({
-                          'guide': 'Privater Reiseleiter',
-                          'lunch': 'Mittagessen & Erfrischungsgetränke',
-                          'transfer': 'Privater Hin- und Rücktransfer',
-                          'photos': 'Professionelles Fotoshooting'
-                        }[addon.id] || addon.nameEn) : (locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr))}
-                      </span>
-                      <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                        +€{(addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? (addon.price * travelers) : addon.price}
-                      </span>
-                    </div>
-                  ) : null
-                ))}
-
-                {promoDetails && discountAmount > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981', background: 'rgba(16,185,129,0.06)', borderRadius: '8px', padding: '0.5rem 0.8rem', border: '1px solid rgba(16,185,129,0.15)' }}>
-                    <span style={{ fontSize: '0.9rem' }}>🎟️ {translate('discount')} <strong style={{ fontFamily: 'var(--font-en)', letterSpacing: '1px' }}>{promoDetails.code}</strong></span>
-                    <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
-                  </div>
-                )}
-                {!promoDetails && discountAmount > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--coral-500)' }}>
-                    <span>{translate('discount')}</span>
-                    <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
-                  </div>
-                )}
-              </div>
-
-              <div style={{ borderTop: '2px solid var(--border-medium)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-primary)' }}>{translate('totalDue')}</span>
-                <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', fontSize: '2rem', color: 'var(--gold-600)' }}>
-                  €{totalAmount.toFixed(2)}
-                </div>
-              </div>
-
-              <div style={{ marginTop: '2.5rem', display: 'flex', gap: '0.5rem', color: '#10b981', background: 'rgba(16,185,129,0.06)', padding: '0.8rem', borderRadius: '8px', fontSize: '0.8rem', lineHeight: '1.4', border: '1px solid rgba(16,185,129,0.12)' }}>
-                <span>🔒 {translate('sslSecure')}</span>
-              </div>
             </div>
 
           </div>

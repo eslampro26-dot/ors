@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSettings } from '@/hooks/useSettings';
 
-// ✅ Official contact numbers
-const WHATSAPP_NUMBER = '201038820019'; // WhatsApp: 01038820019
-const EMERGENCY_NUMBER = '01038820014'; // Emergency / Technical Support (call only)
+// Fallback numbers if DB settings are empty
+const DEFAULT_WHATSAPP = '201038820019';
+const DEFAULT_EMERGENCY = '01038820014';
 
 // WhatsApp greeting messages per language
 const WA_MESSAGES = {
@@ -39,6 +40,7 @@ export default function WhatsAppFloatingButton() {
   const [isVisible, setIsVisible] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const { locale } = useLanguage();
+  const { settings } = useSettings();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,11 +57,14 @@ export default function WhatsAppFloatingButton() {
 
   if (!isVisible) return null;
 
+  const whatsappNum = (settings?.whatsapp || DEFAULT_WHATSAPP).replace(/[^0-9]/g, '');
+  const emergencyNum = (settings?.emergencyPhone || DEFAULT_EMERGENCY).replace(/[^0-9]/g, '');
+
   const labels = LABELS[locale] || LABELS.en;
   const waMsg = WA_MESSAGES[locale] || WA_MESSAGES.en;
-  const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
-  const callUrl = `tel:+2${EMERGENCY_NUMBER}`;
-  const formattedNumber = EMERGENCY_NUMBER.replace(/(\d{3})(\d{4})(\d{4})/, '$1 $2 $3');
+  const waUrl = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(waMsg)}`;
+  const callUrl = `tel:+${emergencyNum}`;
+  const formattedNumber = emergencyNum;
 
   return (
     <div

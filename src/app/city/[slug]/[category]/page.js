@@ -194,27 +194,57 @@ export default function CategoryPage({ params }) {
                       </span>
                     )}
 
-                    {/* Multiple images indicator + click image to cycle */}
+                    {/* Multiple images indicator + touch swipe support */}
                     {(() => {
                       const cardImages = trip.images && trip.images.length > 0 ? [trip.image || '', ...trip.images] : null;
                       const cardIdx = cardImageIndexes[trip.id] || 0;
-                      return cardImages ? (
+                      if (!cardImages || cardImages.length <= 1) return null;
+
+                      return (
                         <div 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            handleCardImageNext(trip.id, cardImages);
+                          onTouchStart={(e) => {
+                            e.currentTarget.dataset.touchX = e.changedTouches[0].clientX;
                           }}
-                          style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}
-                          title={locale === 'ar' ? 'انقر للتبديل للصورة التالية' : 'Click to view next photo'}
+                          onTouchEnd={(e) => {
+                            const startX = parseFloat(e.currentTarget.dataset.touchX || '0');
+                            const endX = e.changedTouches[0].clientX;
+                            const diff = startX - endX;
+                            if (Math.abs(diff) > 30) {
+                              if (diff > 0) {
+                                handleCardImageNext(trip.id, cardImages);
+                              } else {
+                                handleCardImagePrev(trip.id, cardImages);
+                              }
+                            }
+                          }}
+                          style={{ position: 'absolute', inset: 0, cursor: 'grab', userSelect: 'none', touchAction: 'pan-y' }}
+                          title={locale === 'ar' ? 'اسحب ليمين أو اليسار للتنقل بين الصور' : 'Swipe left or right to view photos'}
                         >
-                          {/* Show current card image */}
-                          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${cardImages[cardIdx] || cardImages[0]})`, backgroundSize: 'cover', backgroundPosition: 'center center', transition: 'background-image 0.35s ease' }} />
+                          {/* Show current card image with smooth fade */}
+                          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${cardImages[cardIdx] || cardImages[0]})`, backgroundSize: 'cover', backgroundPosition: 'center center', transition: 'background-image 0.3s ease' }} />
                           
                           {/* Photo Counter Badge */}
-                          <div style={{ position: 'absolute', top: '12px', left: locale === 'ar' ? 'auto' : '12px', right: locale === 'ar' ? '12px' : 'auto', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', color: '#fff', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', zIndex: 5 }}>
+                          <div style={{ position: 'absolute', top: '12px', left: locale === 'ar' ? 'auto' : '12px', right: locale === 'ar' ? '12px' : 'auto', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', color: '#fff', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', zIndex: 5 }}>
                             📷 {cardIdx + 1}/{cardImages.length}
                           </div>
+
+                          {/* Left Arrow Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleCardImagePrev(trip.id, cardImages); }}
+                            style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 6, opacity: 0.8 }}
+                          >
+                            &#10094;
+                          </button>
+
+                          {/* Right Arrow Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleCardImageNext(trip.id, cardImages); }}
+                            style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 6, opacity: 0.8 }}
+                          >
+                            &#10095;
+                          </button>
 
                           {/* Dots */}
                           <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '5px', zIndex: 5 }}>
@@ -227,7 +257,7 @@ export default function CategoryPage({ params }) {
                             ))}
                           </div>
                         </div>
-                      ) : null;
+                      );
                     })()}
                   </div>
                   
