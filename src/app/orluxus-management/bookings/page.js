@@ -59,12 +59,32 @@ export default function AdminBookings() {
     document.body.removeChild(link);
   };
 
+  // Map English display values <-> Arabic DB values
+  const STATUS_EN_TO_AR = {
+    'Confirmed': 'مؤكد',
+    'Pending': 'قيد الانتظار',
+    'Completed': 'مكتمل',
+    'Cancelled': 'ملغي',
+    'Failed': 'فاشل',
+  };
+  const STATUS_AR_TO_EN = {
+    'مؤكد': 'Confirmed',
+    'قيد الانتظار': 'Pending',
+    'مكتمل': 'Completed',
+    'ملغي': 'Cancelled',
+    'فاشل': 'Failed',
+  };
+  const toArStatus = (en) => STATUS_EN_TO_AR[en] || en;
+  const toEnStatus = (ar) => STATUS_AR_TO_EN[ar] || ar;
+
   // Change Booking Status
   const handleStatusChange = async (id, newStatus) => {
+    // Convert English UI value → Arabic DB value before saving
+    const arStatus = toArStatus(newStatus);
     try {
-      const success = await updateBookingStatus(id, newStatus);
+      const success = await updateBookingStatus(id, arStatus);
       if (success) {
-        alert(`Booking ${id} status updated successfully!`);
+        alert(`Booking ${id} status updated to ${newStatus} successfully!`);
         await loadData();
       } else {
         alert('Failed to update booking status!');
@@ -425,7 +445,11 @@ export default function AdminBookings() {
 
     const matchesCity = cityFilter === 'All Cities' || b.city === cityFilter;
 
-    const matchesStatus = statusFilter === 'All Statuses' || b.status === statusFilter;
+    // Support both Arabic (DB stored) and English status values in filter
+    const matchesStatus = statusFilter === 'All Statuses' || 
+      b.status === statusFilter || 
+      b.status === toArStatus(statusFilter) ||
+      toEnStatus(b.status) === statusFilter;
 
     let matchesAgent = true;
     if (agentFilter !== 'All Agents') {
@@ -652,8 +676,8 @@ export default function AdminBookings() {
                       >
                         📄 Print
                       </button>
-                      <select 
-                        value={booking.status} 
+                       <select 
+                        value={STATUS_AR_TO_EN[booking.status] || booking.status} 
                         onChange={(e) => handleStatusChange(booking.id, e.target.value)}
                         style={{
                           padding: '6px 10px',

@@ -367,7 +367,7 @@ function CheckoutContent() {
           paymentType: walletName, txId,
           extras: getSelectedExtrasString(), pickupLocation,
           promoCode: promoDetails?.code || '',
-          agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
+          agentName: promoDetails?.agentName || translate('directAgent'),
           children, infants, specialRequests,
           electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
         });
@@ -426,13 +426,13 @@ function CheckoutContent() {
           paymentType: 'bank_transfer', txId,
           extras: getSelectedExtrasString(), pickupLocation,
           promoCode: promoDetails?.code || '',
-          agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
+          agentName: promoDetails?.agentName || translate('directAgent'),
           children, infants, specialRequests,
           electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
         });
 
         setIsSimulatingPayment(false);
-        const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)')}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=bank_transfer&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
+        const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=bank_transfer&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
         router.push(successUrl);
       } catch (err) {
         console.error('Error saving booking on bank transfer payment:', err);
@@ -455,7 +455,7 @@ function CheckoutContent() {
         service: titleEn || titleAr || 'Travel Excursion',
         city: searchParams.get('city') || 'شرم الشيخ',
         agentId: promoDetails ? promoDetails.agentId || null : null,
-        agentName: promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)',
+        agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
         originalAmount: originalTotal,
         discountAmount: discountAmount,
         finalAmount: totalAmount,
@@ -483,7 +483,7 @@ function CheckoutContent() {
         paymentType: 'onsite', txId,
         extras: getSelectedExtrasString(), pickupLocation,
         promoCode: promoDetails?.code || '',
-        agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
+        agentName: promoDetails?.agentName || translate('directAgent'),
         children, infants, specialRequests,
         electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
       });
@@ -491,7 +491,7 @@ function CheckoutContent() {
       console.error('Error saving booking on cash payment:', err);
     }
 
-    const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)')}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=onsite&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
+    const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=onsite&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
     router.push(successUrl);
   };
 
@@ -583,7 +583,7 @@ function CheckoutContent() {
               paymentType: 'paypal', txId,
               extras: getSelectedExtrasString(), pickupLocation,
               promoCode: promoDetails?.code || '',
-              agentName: promoDetails?.agentName || 'مباشر (بدون وكيل)',
+              agentName: promoDetails?.agentName || translate('directAgent'),
               children, infants, specialRequests,
               electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
             });
@@ -591,7 +591,7 @@ function CheckoutContent() {
             console.error('Error saving booking on PayPal approval:', err);
           }
 
-          const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)')}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=paypal&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
+          const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=paypal&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
           router.push(successUrl);
         });
       },
