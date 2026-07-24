@@ -181,35 +181,43 @@
 /* ===== Responsive ===== */
 @media (max-width: 1024px) {
   .switcher {
-    width: 100%;
+    width: auto;
+    position: relative;
   }
 
   .trigger {
-    width: 100%;
-    justify-content: center;
-    padding: 12px 16px;
-    border-radius: var(--radius-md);
-    background: rgba(255, 255, 255, 0.04);
+    width: auto;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    border-radius: var(--radius-full);
   }
 
   .dropdown {
-    position: static;
-    transform: none;
-    min-width: 100%;
-    margin-top: 6px;
-    border-radius: var(--radius-md);
-    display: none;
+    position: fixed;
+    top: calc(var(--nav-height) + 6px);
+    right: 12px;
+    left: auto;
+    transform: translateY(-8px);
+    min-width: 270px;
+    max-width: 92vw;
+    z-index: 9999;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  :global([dir="rtl"]) .dropdown {
+    right: auto;
+    left: 12px;
+  }
+
+  .dropdownOpen {
+    display: block;
+    transform: translateY(0);
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: all !important;
   }
 
-  .dropdownOpen {
-    display: block;
-    transform: none;
-  }
-
   .langGrid {
-    max-height: 240px;
+    max-height: 260px;
   }
 }
