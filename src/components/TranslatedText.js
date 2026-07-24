@@ -3,67 +3,76 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0;
+  }
+  return Math.abs(hash).toString(36);
+}
+
 /**
- * Component that takes English text and automatically translates it
- * to the visitor's current language. Saves translated results in
- * localStorage for instant retrieval on next views.
+ * Component that takes text and translates it to the current locale.
+ * Saves translated results in localStorage for instant retrieval.
+ * Guaranteed to NEVER render blank text.
  */
 export default function TranslatedText({ text, fallback = '', className = '', style = {} }) {
   const { locale } = useLanguage();
-  const [translated, setTranslated] = useState(text || fallback);
+  const rawText = text || fallback || '';
+  const [translated, setTranslated] = useState(rawText);
 
   useEffect(() => {
-    if (!text) {
+    if (!rawText || !rawText.trim()) {
       setTranslated(fallback);
       return;
     }
     
-    // No translation needed for English since admin inputs in English
+    // No translation needed for English if already English
     if (locale === 'en') {
-      setTranslated(text);
+      setTranslated(rawText);
       return;
     }
 
-    // Quick lookup in localStorage cache (browser-safe key)
-    const sanitizedKey = text.slice(0, 60).replace(/[^a-zA-Z0-9]/g, '_');
-    const cacheKey = `orluxus_tr_${locale}_${sanitizedKey}`;
+    // Unique cache key combining locale, text length, and text hash
+    const textHash = simpleHash(rawText);
+    const cacheKey = `orluxus_tr_${locale}_len${rawText.length}_${textHash}`;
+
     try {
       const cached = localStorage.getItem(cacheKey);
-      // Only use cached if it exists and is actually translated (not matching English unless locale is en)
-      if (cached && (cached !== text || locale === 'en')) {
+      if (cached && cached.trim().length > 0) {
         setTranslated(cached);
         return;
       }
     } catch (e) {}
 
-    // Stagger API calls randomly between 50ms and 1200ms to avoid concurrent rate-limits
-    const delay = 50 + Math.floor(Math.random() * 1150);
+    // Stagger API calls randomly to avoid rate-limits
+    const delay = 50 + Math.floor(Math.random() * 800);
     const timer = setTimeout(() => {
       fetch('/api/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, to: locale })
+        body: JSON.stringify({ text: rawText, to: locale })
       })
         .then(res => res.ok ? res.json() : {})
         .then(data => {
-          if (data.translatedText) {
+          if (data && data.translatedText && data.translatedText.trim().length > 0) {
             setTranslated(data.translatedText);
-            // Only cache in localStorage if translation actually succeeded (returned text != original text)
-            if (data.translatedText !== text) {
-              try {
-                localStorage.setItem(cacheKey, data.translatedText);
-              } catch (e) {}
-            }
+            try {
+              localStorage.setItem(cacheKey, data.translatedText);
+            } catch (e) {}
+          } else {
+            setTranslated(rawText);
           }
         })
         .catch(() => {
-          setTranslated(text);
+          setTranslated(rawText);
         });
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [text, locale, fallback]);
+  }, [rawText, locale, fallback]);
 
-  return <span className={className} style={style}>{translated}</span>;
+  return <span className={className} style={style}>{translated || rawText}</span>;
 }
-

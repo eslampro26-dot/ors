@@ -89,11 +89,11 @@ function BookingConfirmationContent() {
   const payLabel = getPayMethodLabel(booking?.paymentType);
 
   const rows = booking ? [
-    { label: t('booking.customer'), value: booking.customerName },
-    { label: t('booking.service'), value: booking.service },
-    { label: t('booking.date'), value: booking.date },
-    { label: t('booking.travelers'), value: booking.travelers + ' ' + t('booking.persons') },
-    { label: t('booking.amount'), value: '€' + Number(booking.amount).toFixed(2) },
+    { label: t('booking.customer'), value: booking.customerName || booking.customer || '—' },
+    { label: t('booking.service'), value: booking.service || '—' },
+    { label: t('booking.date'), value: booking.date || '—' },
+    { label: t('booking.travelers'), value: (booking.travelers || 1) + ' ' + t('booking.persons') },
+    { label: t('booking.amount'), value: '€' + (Number(booking.amount || booking.finalAmount || 0) || 0).toFixed(2) },
     { label: t('booking.payStatus'), value: statusLabel },
     { label: t('booking.payMethod'), value: payLabel },
     ...(booking.agentName ? [{ label: t('booking.agent'), value: booking.agentName }] : []),

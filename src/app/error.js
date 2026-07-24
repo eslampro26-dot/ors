@@ -1,8 +1,13 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 
 export default function Error({ error, reset }) {
+  useEffect(() => {
+    console.error('Captured Application Error:', error);
+  }, [error]);
+
   return (
     <div style={{
       display: 'flex',
@@ -28,10 +33,27 @@ export default function Error({ error, reset }) {
         fontSize: '1.1rem',
         lineHeight: '1.6',
         maxWidth: '500px',
-        marginBottom: '2rem'
+        marginBottom: '1.5rem'
       }}>
         An unexpected error occurred. Please try again or go back to the homepage.
       </p>
+
+      {error?.message && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          color: '#ef4444',
+          padding: '0.8rem 1.2rem',
+          borderRadius: '8px',
+          fontSize: '0.85rem',
+          fontFamily: 'monospace',
+          marginBottom: '2rem',
+          maxWidth: '600px',
+          wordBreak: 'break-word'
+        }}>
+          Error Details: {error.message}
+        </div>
+      )}
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
         <button
           onClick={() => reset()}
