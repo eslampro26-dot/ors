@@ -18,6 +18,13 @@ function getDirection(locale) {
   return RTL_LOCALES.includes(locale) ? 'rtl' : 'ltr';
 }
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
+
 export async function generateMetadata({ params }) {
   const locale = params?.locale || 'en';
   return getSeoMetadata(locale);
@@ -30,6 +37,7 @@ export default function RootLayout({ children, params }) {
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />

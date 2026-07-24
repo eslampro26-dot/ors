@@ -225,6 +225,10 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  touch-action: manipulation;
+}
+
 body {
   font-family: var(--font-en);
   background: transparent;
@@ -233,6 +237,7 @@ body {
   direction: ltr;
   min-height: 100vh;
   overflow-x: hidden;
+  touch-action: manipulation;
 }
 
 h1, h2, h3, h4, h5, h6, .section-title {
