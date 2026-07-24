@@ -2197,9 +2197,11 @@ function CheckoutContent() {
             borderRadius: '12px', padding: '2rem', border: '1px solid var(--border-accent)',
             boxShadow: 'var(--shadow-glow-gold)', textAlign: isAr ? 'right' : 'left'
           }}>
-            <h3 style={{ color: 'var(--gold-400)', marginBottom: '1.5rem', fontSize: '1.3rem', fontWeight: 'bold' }}>{modalTitle}</h3>
+            <h3 style={{ color: 'var(--gold-400)', marginBottom: '1.5rem', fontSize: '1.3rem', fontWeight: 'bold' }}>
+              <TranslatedText text={modalTitle} />
+            </h3>
             <div style={{ color: 'var(--text-secondary)', lineHeight: '1.8', whiteSpace: 'pre-wrap', maxHeight: '60vh', overflowY: 'auto', marginBottom: '2rem' }}>
-              {modalContent}
+              <TranslatedText text={modalContent} />
             </div>
             <div style={{ textAlign: 'center' }}>
               <button className="btn btn-primary" onClick={() => setShowTermsModal(false)} style={{ padding: '0.8rem 2.5rem' }}>

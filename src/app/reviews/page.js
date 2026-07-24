@@ -864,7 +864,7 @@ export default function ReviewsPage() {
               paddingBottom: '0.8rem',
               paddingInlineEnd: '2.5rem'
             }}>
-              {modalConfig.title}
+              <TranslatedText text={modalConfig.title} />
             </h3>
 
             <div style={{
@@ -876,7 +876,7 @@ export default function ReviewsPage() {
               overflowY: 'auto',
               paddingInlineEnd: '8px'
             }}>
-              {modalConfig.content}
+              <TranslatedText text={modalConfig.content} />
             </div>
 
             <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
