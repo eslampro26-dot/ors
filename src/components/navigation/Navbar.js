@@ -35,20 +35,22 @@ export default function Navbar() {
     setActiveDropdown(activeDropdown === id ? null : id);
   };
 
-  // Transparent Luxury Vector Logo
+  // Official Site Logo (Using /logo_gold_icon.png with transparent blend mode)
   const Logo = () => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <svg width="34" height="34" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 8px rgba(201,162,39,0.3))' }}>
-        <circle cx="20" cy="20" r="18.5" stroke="url(#gold-gradient)" strokeWidth="2.5" fill="none" />
-        <path d="M20 7L24 16L33 20L24 24L20 33L16 24L7 20L16 16L20 7Z" fill="url(#gold-gradient)" />
-        <defs>
-          <linearGradient id="gold-gradient" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#F59E0B" />
-            <stop offset="0.5" stopColor="#FCD34D" />
-            <stop offset="1" stopColor="#D97706" />
-          </linearGradient>
-        </defs>
-      </svg>
+      <img 
+        src="/logo_gold_icon.png" 
+        alt="ORLUXUS Logo" 
+        className={styles.logoImage} 
+        style={{ 
+          height: '38px', 
+          width: 'auto', 
+          objectFit: 'contain', 
+          flexShrink: 0,
+          mixBlendMode: 'screen',
+          filter: 'drop-shadow(0 2px 6px rgba(201,162,39,0.3))'
+        }}
+      />
       <span className={styles.logoTextString}>ORLUXUS</span>
     </div>
   );
