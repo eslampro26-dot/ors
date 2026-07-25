@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import Navbar from '@/components/navigation/Navbar';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSettings } from '@/hooks/useSettings';
 import { useSearchParams } from 'next/navigation';
 
 const STATUS_COLORS = {
@@ -15,8 +16,12 @@ const STATUS_BG = {
 
 function BookingConfirmationContent() {
   const { locale, t, isReady } = useLanguage();
+  const { settings } = useSettings();
   const searchParams = useSearchParams();
   const urlRef = searchParams.get('ref') || '';
+
+  const emergencyPhone = settings?.emergencyPhone || '+201038820014';
+  const whatsappPhone = settings?.whatsapp || '+201038820019';
 
   const [refInput, setRefInput] = useState(urlRef);
   const [loading, setLoading] = useState(false);
@@ -96,7 +101,7 @@ function BookingConfirmationContent() {
     { label: t('booking.amount'), value: '€' + (Number(booking.amount || booking.finalAmount || 0) || 0).toFixed(2) },
     { label: t('booking.payStatus'), value: statusLabel },
     { label: t('booking.payMethod'), value: payLabel },
-    ...(booking.agentName ? [{ label: t('booking.agent'), value: booking.agentName }] : []),
+    ...(booking.agentName ? [{ label: t('booking.agent'), value: (booking.agentName === 'مباشر (بدون وكيل)' || booking.agentName === 'مباشر') && locale !== 'ar' ? 'Direct (No Agent)' : booking.agentName }] : []),
     ...(booking.pickup ? [{ label: t('booking.pickup'), value: booking.pickup }] : []),
     ...(booking.specialRequests ? [{ label: t('booking.specialRequests'), value: booking.specialRequests, fullWidth: true }] : []),
   ] : [];
@@ -246,10 +251,10 @@ function BookingConfirmationContent() {
                   <span><strong>{t('booking.bookingRef')}:</strong> {booking.ref}</span>
                 </div>
 
-                {/* Emergency Contact Information (Kept in Invoice) */}
-                <div style={{ marginTop: '0.8rem', paddingTop: '0.6rem', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#0f172a', fontWeight: '600' }}>
-                  <span>24/7 Emergency Support Hotline: +20 15 50507949</span>
-                  <span>WhatsApp: +20 15 50507949</span>
+                {/* Emergency Contact Information (Dynamic from settings) */}
+                <div style={{ marginTop: '0.8rem', paddingTop: '0.6rem', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', fontSize: '0.75rem', color: '#0f172a', fontWeight: '600' }}>
+                  <span>24/7 Emergency Support Hotline: {emergencyPhone}</span>
+                  <span>WhatsApp: {whatsappPhone}</span>
                 </div>
               </div>
 

@@ -51,6 +51,22 @@ export default function AdminSettings() {
     { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20, unit: 'booking', descAr: 'مصور محترف يرافقكم لالتقاط أجمل اللحظات وتسليمكم الصور بنظام رقمي عالي الجودة.', descEn: 'A professional photographer to capture your best memories.' },
   ];
   const [checkoutAddons, setCheckoutAddons] = useState(defaultAddons);
+
+  const defaultSpecialRequests = [
+    { id: 'veg_food', labelEn: 'Vegetarian Food', labelAr: 'وجبة نباتية' },
+    { id: 'halal_food', labelEn: 'Halal Food', labelAr: 'طعام حلال' },
+    { id: 'kids_menu', labelEn: 'Kids Menu', labelAr: 'وجبات أطفال' },
+    { id: 'wheelchair', labelEn: 'Wheelchair Access', labelAr: 'كراسي متحركة' },
+    { id: 'early_checkin', labelEn: 'Early Check-in', labelAr: 'تسجيل دخول مبكر' },
+    { id: 'late_checkout', labelEn: 'Late Check-out', labelAr: 'تسجيل خروج متأخر' },
+    { id: 'airport_pickup', labelEn: 'Airport Pickup', labelAr: 'توصيل من المطار' },
+    { id: 'private_guide', labelEn: 'Private Guide', labelAr: 'مرشد خاص' },
+    { id: 'photography', labelEn: 'Professional Photography', labelAr: 'تصوير احترافي' },
+    { id: 'birthday_cake', labelEn: 'Birthday Cake', labelAr: 'كعكة عيد ميلاد' },
+    { id: 'romantic_setup', labelEn: 'Romantic Setup', labelAr: 'تجهيز رومانسي' },
+    { id: 'snorkeling_gear', labelEn: 'Snorkeling Gear', labelAr: 'معدات سنوركلينج' },
+  ];
+  const [specialRequestsList, setSpecialRequestsList] = useState(defaultSpecialRequests);
   
   const [allowReg, setAllowReg] = useState(true);
   const [allowPromo, setAllowPromo] = useState(true);
@@ -101,6 +117,7 @@ export default function AdminSettings() {
           if (data.currency) setCurrency(data.currency);
           if (data.paypalEmail) setPaypalEmail(data.paypalEmail);
           if (data.checkoutAddons) setCheckoutAddons(data.checkoutAddons);
+          if (data.specialRequestsList) setSpecialRequestsList(data.specialRequestsList);
           if (data.additionalPrices) setAdditionalPrices(data.additionalPrices);
           if (data.childPrices) setChildPrices(data.childPrices);
           if (data.infantPrices) setInfantPrices(data.infantPrices);
@@ -163,6 +180,7 @@ export default function AdminSettings() {
           notifyEmail,
           commission,
           checkoutAddons,
+          specialRequestsList,
           additionalPrices,
           childPrices,
           infantPrices,
@@ -1048,12 +1066,74 @@ export default function AdminSettings() {
           <button
             className="btn btn-secondary"
             style={{ marginTop: '0.5rem' }}
-            onClick={() => setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: '', nameAr: '', price: 0, unit: 'booking', descAr: '', descEn: '' }])}
+            onClick={() => setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: 'New Add-on', nameAr: 'إضافة جديدة', price: 15, unit: 'booking', descAr: 'وصف الخدمة الإضافية', descEn: 'Description of add-on' }])}
           >
-            + Add New Add-on
+            ➕ Add New Add-on
           </button>
           <div style={{ marginTop: '1.5rem', textAlign: 'left' }}>
-            <button className="btn btn-primary" onClick={handleSaveSettings}>Save Checkout Add-ons</button>
+            <button className="btn btn-primary" onClick={handleSaveSettings}>💾 Save Checkout Add-ons</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Section 7: Trip Special Requests Management */}
+      <div className="admin-card" style={{ marginTop: 'var(--space-md)' }}>
+        <div className="admin-card-header">
+          <h2 className="admin-card-title">🎯 Trip Special Requests Options</h2>
+        </div>
+        <div className="admin-card-body">
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+            Manage the special request checkboxes (e.g., Vegetarian Food, Airport Pickup) available when creating or editing trips.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+            {specialRequestsList.map((req, idx) => (
+              <div key={req.id || idx} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--gold-400)', fontWeight: 'bold' }}>#{idx + 1} ({req.id})</span>
+                  <button
+                    onClick={() => setSpecialRequestsList(specialRequestsList.filter((_, i) => i !== idx))}
+                    style={{ background: 'rgba(239,68,68,0.15)', border: 'none', color: '#ef4444', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '0.75rem' }}
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    type="text"
+                    placeholder="Name (Arabic)"
+                    value={req.labelAr || ''}
+                    onChange={(e) => {
+                      const updated = [...specialRequestsList];
+                      updated[idx] = { ...updated[idx], labelAr: e.target.value };
+                      setSpecialRequestsList(updated);
+                    }}
+                    style={{ flex: 1, padding: '6px 10px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '4px', fontSize: '0.85rem' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Name (English)"
+                    value={req.labelEn || ''}
+                    onChange={(e) => {
+                      const updated = [...specialRequestsList];
+                      updated[idx] = { ...updated[idx], labelEn: e.target.value };
+                      setSpecialRequestsList(updated);
+                    }}
+                    style={{ flex: 1, padding: '6px 10px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '4px', fontSize: '0.85rem', fontFamily: 'var(--font-en)' }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setSpecialRequestsList([...specialRequestsList, { id: `req_${Date.now()}`, labelEn: 'New Special Request', labelAr: 'طلب خاص جديد' }])}
+            >
+              ➕ Add New Special Request Option
+            </button>
+            <button className="btn btn-primary" onClick={handleSaveSettings}>
+              💾 Save Special Requests Options
+            </button>
           </div>
         </div>
       </div>

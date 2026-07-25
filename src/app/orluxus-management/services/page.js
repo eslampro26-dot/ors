@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { cities, internalPackages, categoryTranslations } from '@/lib/data';
 import { getTrips, addTrip, updateTrip, deleteTrip, getPackages, addPackage, deletePackage } from '@/lib/db';
+import { useSettings } from '@/hooks/useSettings';
 import styles from './page.module.css';
 
 // Category Icons
@@ -18,7 +19,7 @@ const categoryIcons = {
   'entertainment': '🎭',
 };
 
-// Available special requests for selection
+// Fallback special requests
 const PRESET_SPECIAL_REQUESTS = [
   { id: 'veg_food', labelEn: 'Vegetarian Food', labelAr: 'وجبة نباتية' },
   { id: 'halal_food', labelEn: 'Halal Food', labelAr: 'طعام حلال' },
@@ -35,6 +36,8 @@ const PRESET_SPECIAL_REQUESTS = [
 ];
 
 export default function AdminServices() {
+  const { settings } = useSettings();
+  const specialRequestsOptions = settings?.specialRequestsList?.length > 0 ? settings.specialRequestsList : PRESET_SPECIAL_REQUESTS;
   const [activeTab, setActiveTab] = useState('cities'); // 'cities' or 'packages'
   const [selectedCity, setSelectedCity] = useState(cities[0].id);
   const [selectedPkgType, setSelectedPkgType] = useState(internalPackages[0].id);
@@ -1139,7 +1142,7 @@ export default function AdminServices() {
                 <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                   <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--text-primary)', fontSize: '0.95rem' }}>🎯 Special requests available to customers (select what applies to your trip)</h4>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.5rem' }}>
-                    {PRESET_SPECIAL_REQUESTS.map(req => (
+                    {specialRequestsOptions.map(req => (
                       <label key={req.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '0.85rem', padding: '0.4rem 0.5rem', borderRadius: '6px', background: formData.specialRequests.includes(req.id) ? 'rgba(217,119,6,0.1)' : 'transparent', border: formData.specialRequests.includes(req.id) ? '1px solid var(--gold-500)' : '1px solid transparent', transition: 'all 0.15s' }}>
                         <input
                           type="checkbox"

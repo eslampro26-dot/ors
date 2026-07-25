@@ -7,6 +7,7 @@ import Navbar from '@/components/navigation/Navbar';
 import { validatePromoCode, addBooking, getSettings } from '@/lib/db';
 import { createDafahCheckoutSession } from '@/lib/dafah';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSettings } from '@/hooks/useSettings';
 import DafahSimulatedGateway from '@/components/DafahSimulatedGateway';
 import TranslatedText from '@/components/TranslatedText';
 
@@ -14,6 +15,10 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { locale, t: tGlobal, isReady } = useLanguage();
+  const { settings } = useSettings();
+
+  const emergencyNum = settings?.emergencyPhone || '+201038820014';
+  const whatsappNum = settings?.whatsapp || '+201038820019';
 
   // Translations — uses global messages.js (supports all 10 languages).
   // Falls back to English only if the key is completely missing.
@@ -125,18 +130,9 @@ function CheckoutContent() {
   const [isSimulatingPayment, setIsSimulatingPayment] = useState(false);
   const [paymentTxId, setPaymentTxId] = useState('');
   const [paypalLoaded, setPaypalLoaded] = useState(false);
-  const [settings, setSettings] = useState(null);
 
   useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const data = await getSettings();
-        if (data) setSettings(data);
-      } catch (err) {
-        console.error('Error loading settings:', err);
-      }
-    };
-    loadSettings();
+    // Settings loaded via useSettings hook
   }, []);
 
   const paypalEmail = settings?.paypalEmail || 'info@orluxus.com';
@@ -926,11 +922,11 @@ function CheckoutContent() {
               <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ background: '#dc2626', color: '#fff', padding: '2px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '700' }}>EMERGENCY</span>
-                  <a href="tel:+201038820014" style={{ color: '#dc2626', fontWeight: '800', textDecoration: 'none', fontFamily: 'var(--font-en)', fontSize: '1rem' }}>+201038820014</a>
+                  <a href={`tel:${emergencyNum}`} style={{ color: '#dc2626', fontWeight: '800', textDecoration: 'none', fontFamily: 'var(--font-en)', fontSize: '1rem' }}>{emergencyNum}</a>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ background: '#10b981', color: '#fff', padding: '2px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: '700' }}>CUSTOMER SERVICE</span>
-                  <a href="tel:+201038820019" style={{ color: '#10b981', fontWeight: '800', textDecoration: 'none', fontFamily: 'var(--font-en)', fontSize: '1rem' }}>+201038820019</a>
+                  <a href={`tel:${whatsappNum}`} style={{ color: '#10b981', fontWeight: '800', textDecoration: 'none', fontFamily: 'var(--font-en)', fontSize: '1rem' }}>{whatsappNum}</a>
                 </div>
               </div>
             </div>

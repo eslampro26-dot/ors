@@ -61,6 +61,7 @@ export default function WhatsAppFloatingButton() {
 
   return (
     <div
+      className="hide-print"
       style={{
         position: 'fixed',
         bottom: '30px',
