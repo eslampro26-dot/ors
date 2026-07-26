@@ -10,12 +10,20 @@ export default function AdminTiers() {
   const [selectedTier, setSelectedTier] = useState('silver');
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [upgradeMessage, setUpgradeMessage] = useState('');
+  
+  // Editable commission rates
+  const [commissionRates, setCommissionRates] = useState({
+    bronze: 10,
+    silver: 15,
+    gold: 20,
+    platinum: 25,
+  });
 
   const tiers = [
-    { name: 'Bronze', color: 'bronze', icon: '🥉', comm: '10%', desc: 'Default tier for all new registered agents.' },
-    { name: 'Silver', color: 'silver', icon: '🥈', comm: '15%', desc: 'Automatic upgrade when criteria are met.', criteria: ['Sales of €96,000 / year', 'Or 1,920 bookings', 'Or 5-10 Silver sub-agents'] },
-    { name: 'Gold', color: 'gold', icon: '🥇', comm: '20%', desc: 'Criteria configured by administration.', criteria: ['Sales of €250,000 / year', 'Or 5,000 bookings'] },
-    { name: 'Platinum', color: 'platinum', icon: '💎', comm: '25%', desc: 'Highest available tier for top performing agents.', criteria: ['Sales of €500,000 / year'] },
+    { name: 'Bronze', color: 'bronze', icon: '🥉', comm: `${commissionRates.bronze}%`, desc: 'Default tier for all new registered agents.' },
+    { name: 'Silver', color: 'silver', icon: '🥈', comm: `${commissionRates.silver}%`, desc: 'Automatic upgrade when criteria are met.', criteria: ['Sales of €96,000 / year', 'Or 1,920 bookings', 'Or 5-10 Silver sub-agents'] },
+    { name: 'Gold', color: 'gold', icon: '🥇', comm: `${commissionRates.gold}%`, desc: 'Criteria configured by administration.', criteria: ['Sales of €250,000 / year', 'Or 5,000 bookings'] },
+    { name: 'Platinum', color: 'platinum', icon: '💎', comm: `${commissionRates.platinum}%`, desc: 'Highest available tier for top performing agents.', criteria: ['Sales of €500,000 / year'] },
   ];
 
   useEffect(() => {
@@ -100,6 +108,30 @@ export default function AdminTiers() {
 
       <div className={`${styles.manualUpgradeCard} glass-card animate-fade-in-up`}>
         <div className={styles.cardHeader}>
+          <h3>Commission Rates Configuration</h3>
+          <p>Configure commission rates for each tier</p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+          {Object.keys(commissionRates).map(tier => (
+            <div key={tier} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <label style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-secondary)', textTransform: 'capitalize' }}>
+                {tier} Commission (%)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={commissionRates[tier]}
+                onChange={(e) => setCommissionRates(prev => ({ ...prev, [tier]: Number(e.target.value) }))}
+                style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none' }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={`${styles.manualUpgradeCard} glass-card animate-fade-in-up`}>
+        <div className={styles.cardHeader}>
           <h3>Manual Exceptional Upgrade</h3>
           <p>You can manually upgrade an agent even if criteria are not fully met.</p>
         </div>
@@ -126,10 +158,10 @@ export default function AdminTiers() {
               value={selectedTier}
               onChange={(e) => setSelectedTier(e.target.value)}
             >
-              <option value="bronze">Bronze (10% Commission)</option>
-              <option value="silver">Silver (15% Commission)</option>
-              <option value="gold">Gold (20% Commission)</option>
-              <option value="platinum">Platinum (25% Commission)</option>
+              <option value="bronze">Bronze ({commissionRates.bronze}% Commission)</option>
+              <option value="silver">Silver ({commissionRates.silver}% Commission)</option>
+              <option value="gold">Gold ({commissionRates.gold}% Commission)</option>
+              <option value="platinum">Platinum ({commissionRates.platinum}% Commission)</option>
             </select>
           </div>
           <button

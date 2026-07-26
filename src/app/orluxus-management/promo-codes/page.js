@@ -184,10 +184,10 @@ export default function AdminPromoCodes() {
                       )}
                     </td>
                     <td style={{ padding: '1.2rem 1rem' }}>
-                      {promo.discountType === 'percentage' ? 'Percentage (%)' : 'Fixed Amount (€)'}
+                      {promo.discountType === 'percentage' ? 'Percentage (%)' : 'Fixed Amount (EGP)'}
                     </td>
                     <td style={{ padding: '1.2rem 1rem', fontFamily: 'var(--font-en)', fontWeight: 'bold', color: 'var(--gold-400)' }}>
-                      {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `€${promo.discountValue}`}
+                      {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `EGP${promo.discountValue}`}
                     </td>
                     <td style={{ padding: '1.2rem 1rem', fontFamily: 'var(--font-en)' }}>{promo.usedCount || 0}</td>
                     <td style={{ padding: '1.2rem 1rem', fontFamily: 'var(--font-en)' }}>{promo.maxUses || 'Unlimited'}</td>
@@ -319,7 +319,7 @@ export default function AdminPromoCodes() {
                     }}
                   >
                     <option value="percentage">Percentage (%)</option>
-                    <option value="fixed">Fixed Amount (€)</option>
+                    <option value="fixed">Fixed Amount (EGP)</option>
                   </select>
                 </div>
 

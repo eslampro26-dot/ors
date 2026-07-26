@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getSettings, saveSettings, clearAllData } from '@/lib/db';
 
 export default function AdminSettings() {
   const [siteName, setSiteName] = useState('ORLUXUS');
@@ -16,6 +17,12 @@ export default function AdminSettings() {
   const [smtpPass, setSmtpPass] = useState('');
   const [companyEmail, setCompanyEmail] = useState('info@orluxus.com');
   const [smtpTestStatus, setSmtpTestStatus] = useState(''); // '', 'testing', 'ok', 'fail'
+
+  // Paytabs Payment Gateway Settings
+  const [paytabsProfileId, setPaytabsProfileId] = useState('');
+  const [paytabsServerKey, setPaytabsServerKey] = useState('');
+  const [paytabsApiUrl, setPaytabsApiUrl] = useState('https://secure.paytabs.com/payment/request');
+  const [paytabsEnabled, setPaytabsEnabled] = useState(false);
 
   const [additionalPrices, setAdditionalPrices] = useState({
     'sea-trips': { economy: '', business: '', vip: '' },
@@ -129,6 +136,12 @@ export default function AdminSettings() {
           if (data.smtpPass) setSmtpPass(data.smtpPass);
           if (data.companyEmail) setCompanyEmail(data.companyEmail);
           
+          // Paytabs Settings
+          if (data.paytabsProfileId) setPaytabsProfileId(data.paytabsProfileId);
+          if (data.paytabsServerKey) setPaytabsServerKey(data.paytabsServerKey);
+          if (data.paytabsApiUrl) setPaytabsApiUrl(data.paytabsApiUrl);
+          if (data.paytabsEnabled !== undefined) setPaytabsEnabled(data.paytabsEnabled === true || data.paytabsEnabled === 'true');
+          
           if (data.allowReg !== undefined) setAllowReg(data.allowReg === true || data.allowReg === 'true');
           if (data.allowPromo !== undefined) setAllowPromo(data.allowPromo === true || data.allowPromo === 'true');
           if (data.notifyEmail !== undefined) setNotifyEmail(data.notifyEmail === true || data.notifyEmail === 'true');
@@ -189,6 +202,10 @@ export default function AdminSettings() {
           smtpUser,
           smtpPass,
           companyEmail,
+          paytabsProfileId,
+          paytabsServerKey,
+          paytabsApiUrl,
+          paytabsEnabled,
         })
       });
       if (res.ok) {
@@ -199,6 +216,30 @@ export default function AdminSettings() {
     } catch (err) {
       console.error('Error saving settings:', err);
       alert('❌ Failed to save settings!');
+    }
+  };
+
+  // Clear All Data
+  const handleClearAllData = async () => {
+    if (!confirm('⚠️ WARNING: This will permanently delete ALL data including bookings, agents, promo codes, reviews, and settings. This action cannot be undone. Are you absolutely sure you want to proceed?')) {
+      return;
+    }
+    
+    if (!confirm('⚠️ FINAL WARNING: All data will be deleted forever. Type "DELETE" to confirm.')) {
+      return;
+    }
+
+    try {
+      const result = await clearAllData();
+      if (result.success) {
+        alert('✅ All data has been cleared successfully! The page will now reload.');
+        window.location.reload();
+      } else {
+        alert(`❌ Failed to clear data: ${result.error}`);
+      }
+    } catch (err) {
+      console.error('Error clearing data:', err);
+      alert('❌ An error occurred while clearing data!');
     }
   };
 
@@ -645,6 +686,113 @@ export default function AdminSettings() {
           </div>
         </div>
 
+        {/* Paytabs Payment Gateway Settings */}
+        <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.16s' }}>
+          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>💳 Paytabs Payment Gateway</h3>
+          
+          {(!paytabsProfileId || !paytabsServerKey) && (
+            <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', padding: '0.8rem 1rem', borderRadius: '8px', color: '#f87171', fontSize: '0.82rem', marginBottom: '1.2rem', fontWeight: '700', lineHeight: '1.5' }}>
+              ⚠️ Important Notice: Paytabs credentials are not configured yet. Paytabs payment option will not be available to customers until valid Profile ID and Server Key are saved.
+            </div>
+          )}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+            
+            {/* Enable Paytabs */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+              <input 
+                type="checkbox" 
+                checked={paytabsEnabled}
+                onChange={(e) => setPaytabsEnabled(e.target.checked)}
+                style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+              />
+              <div>
+                <label style={{ display: 'block', color: 'var(--text-primary)', fontWeight: 'bold', cursor: 'pointer' }}>Enable Paytabs Payment</label>
+                <span style={{ display: 'block', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>Allow customers to pay using Paytabs payment gateway</span>
+              </div>
+            </div>
+
+            {/* Paytabs Profile ID */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Paytabs Profile ID</label>
+              <input 
+                type="text" 
+                value={paytabsProfileId} 
+                onChange={(e) => setPaytabsProfileId(e.target.value)}
+                placeholder="Enter your Paytabs Profile ID"
+                autoComplete="off"
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.04)', 
+                  color: 'white', 
+                  border: '1px solid var(--border-medium)', 
+                  borderRadius: '6px',
+                  outline: 'none',
+                  fontFamily: 'var(--font-en)'
+                }} 
+              />
+            </div>
+
+            {/* Paytabs Server Key */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Paytabs Server Key</label>
+              <input 
+                type="password" 
+                value={paytabsServerKey} 
+                onChange={(e) => setPaytabsServerKey(e.target.value)}
+                placeholder="Enter your Paytabs Server Key"
+                autoComplete="new-password"
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.04)', 
+                  color: 'white', 
+                  border: '1px solid var(--border-medium)', 
+                  borderRadius: '6px',
+                  outline: 'none',
+                  fontFamily: 'var(--font-en)'
+                }} 
+              />
+            </div>
+
+            {/* Paytabs API URL */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Paytabs API URL</label>
+              <input 
+                type="url" 
+                value={paytabsApiUrl} 
+                onChange={(e) => setPaytabsApiUrl(e.target.value)}
+                placeholder="https://secure.paytabs.com/payment/request"
+                autoComplete="off"
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.04)', 
+                  color: 'white', 
+                  border: '1px solid var(--border-medium)', 
+                  borderRadius: '6px',
+                  outline: 'none',
+                  fontFamily: 'var(--font-en)'
+                }} 
+              />
+            </div>
+
+            {/* Save Button */}
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <button 
+                onClick={handleSaveSettings} 
+                className="btn btn-primary" 
+                style={{ 
+                  padding: '0.8rem 1.2rem', 
+                  fontWeight: 'bold'
+                }}
+              >
+                💾 Save Paytabs Settings
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Social Media Settings */}
         <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.2s', gridColumn: 'span 1' }}>
@@ -795,96 +943,6 @@ export default function AdminSettings() {
             💾 Save Additional Guest Prices
           </button>
         </div>
-      </div>
-
-      {/* Child Prices */}
-      <div className="glass-card animate-fade-in-up" style={{ gridColumn: 'span 2', animationDelay: '0.28s', marginTop: 'var(--space-md)' }}>
-        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>👶 Child Prices (2-12 Years) by Category &amp; Tier</h3>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-          Configure child price per category and service tier. Leave empty or set to 0 if children enter for free.
-        </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-          {[
-            { id: 'sea-trips', name: '⛵ Sea Trips' },
-            { id: 'desert-trips', name: '🏜️ Desert Trips' },
-            { id: 'city-tours', name: '🏛️ City Tours' },
-            { id: 'packages', name: '📦 Egypt Packages' },
-            { id: 'restaurants', name: '🍽️ Restaurants' },
-            { id: 'entertainment', name: '🎭 Entertainment' }
-          ].map(cat => (
-            <div key={cat.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-              <h4 style={{ color: 'var(--gold-400)', marginBottom: '0.8rem', borderBottom: '1px dashed rgba(255,255,255,0.05)', paddingBottom: '0.4rem' }}>{cat.name}</h4>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {['economy', 'business', 'vip'].map(tier => (
-                  <div key={tier} style={{ flex: 1 }}>
-                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'capitalize' }}>
-                      {tier === 'economy' ? 'Economy' : tier === 'business' ? 'Business' : 'VIP'}
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="0"
-                      style={{ width: '100%', padding: '6px 10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '4px', outline: 'none', fontSize: '0.85rem' }}
-                      value={childPrices[cat.id]?.[tier] ?? ''}
-                      onChange={(e) => {
-                        const val = e.target.value === '' ? '' : Number(e.target.value);
-                        setChildPrices(prev => ({ ...prev, [cat.id]: { ...prev[cat.id], [tier]: val } }));
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <button onClick={handleSaveSettings} className="btn btn-primary" style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}>
-          💾 Save Child Prices
-        </button>
-      </div>
-
-      {/* Infant Prices */}
-      <div className="glass-card animate-fade-in-up" style={{ gridColumn: 'span 2', animationDelay: '0.3s', marginTop: 'var(--space-md)' }}>
-        <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>🍼 Infant Prices (Under 2 Years) by Category &amp; Tier</h3>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-          Infants are usually free — set to 0 to keep free, or specify a price if required.
-        </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-          {[
-            { id: 'sea-trips', name: '⛵ Sea Trips' },
-            { id: 'desert-trips', name: '🏜️ Desert Trips' },
-            { id: 'city-tours', name: '🏛️ City Tours' },
-            { id: 'packages', name: '📦 Egypt Packages' },
-            { id: 'restaurants', name: '🍽️ Restaurants' },
-            { id: 'entertainment', name: '🎭 Entertainment' }
-          ].map(cat => (
-            <div key={cat.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-              <h4 style={{ color: '#94a3b8', marginBottom: '0.8rem', borderBottom: '1px dashed rgba(255,255,255,0.05)', paddingBottom: '0.4rem' }}>{cat.name}</h4>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {['economy', 'business', 'vip'].map(tier => (
-                  <div key={tier} style={{ flex: 1 }}>
-                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'capitalize' }}>
-                      {tier === 'economy' ? 'Economy' : tier === 'business' ? 'Business' : 'VIP'}
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="0 (Free)"
-                      style={{ width: '100%', padding: '6px 10px', background: 'rgba(255,255,255,0.04)', color: 'white', border: '1px solid var(--border-medium)', borderRadius: '4px', outline: 'none', fontSize: '0.85rem' }}
-                      value={infantPrices[cat.id]?.[tier] ?? ''}
-                      onChange={(e) => {
-                        const val = e.target.value === '' ? '' : Number(e.target.value);
-                        setInfantPrices(prev => ({ ...prev, [cat.id]: { ...prev[cat.id], [tier]: val } }));
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <button onClick={handleSaveSettings} className="btn btn-primary" style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #0ea5e9, #0284c7)' }}>
-          💾 Save Infant Prices
-        </button>
       </div>
 
       {/* About Us & Policy Texts */}
@@ -1135,6 +1193,40 @@ export default function AdminSettings() {
               💾 Save Special Requests Options
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Section 8: System Reset */}
+      <div className="admin-card" style={{ marginTop: 'var(--space-md)', border: '2px solid rgba(239, 68, 68, 0.3)' }}>
+        <div className="admin-card-header" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
+          <h2 className="admin-card-title" style={{ color: '#ef4444' }}>⚠️ System Reset - Clear All Data</h2>
+        </div>
+        <div className="admin-card-body">
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+            <strong>DANGER ZONE:</strong> This will permanently delete ALL data including:
+          </p>
+          <ul style={{ color: 'var(--text-tertiary)', marginBottom: '1rem', fontSize: '0.85rem', paddingLeft: '1.5rem' }}>
+            <li>All bookings and reservations</li>
+            <li>All agents and their data</li>
+            <li>All promo codes</li>
+            <li>All reviews</li>
+            <li>All settings and configurations</li>
+          </ul>
+          <p style={{ color: '#ef4444', marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 'bold' }}>
+            This action cannot be undone. Use with extreme caution!
+          </p>
+          <button
+            className="btn"
+            style={{ 
+              background: 'linear-gradient(135deg, #ef4444, #dc2626)', 
+              color: 'white',
+              padding: '1rem 2rem',
+              fontWeight: 'bold'
+            }}
+            onClick={handleClearAllData}
+          >
+            🗑️ Clear All System Data
+          </button>
         </div>
       </div>
     </div>

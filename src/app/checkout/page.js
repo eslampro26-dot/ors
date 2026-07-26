@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Navbar from '@/components/navigation/Navbar';
 import { validatePromoCode, addBooking, getSettings } from '@/lib/db';
 import { createDafahCheckoutSession } from '@/lib/dafah';
+import { createPaytabsPayment } from '@/lib/paytabs';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSettings } from '@/hooks/useSettings';
 import DafahSimulatedGateway from '@/components/DafahSimulatedGateway';
@@ -318,6 +319,70 @@ function CheckoutContent() {
     router.push(url.pathname + url.search);
   };
 
+  // Handle Card Payment through Paytabs
+  const handlePaytabsPayment = async () => {
+    setIsSimulatingPayment(true);
+    const txId = `paytabs-tx-${Date.now()}`;
+    
+    try {
+      // First create the booking
+      await addBooking({
+        id: `BK-${txId.replace('paytabs-tx-', '')}`,
+        customer: customerName,
+        email: email,
+        phone: phone,
+        whatsapp: whatsapp || phone,
+        service: titleEn || titleAr || 'Travel Excursion',
+        city: searchParams.get('city') || 'شرم الشيخ',
+        agentId: promoDetails ? promoDetails.agentId || null : null,
+        agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
+        originalAmount: originalTotal,
+        discountAmount: discountAmount,
+        finalAmount: totalAmount,
+        travelers: travelers,
+        status: 'قيد الانتظار', // Pending until payment is confirmed
+        promoCode: promoDetails ? promoDetails.code : '',
+        paymentType: 'paytabs',
+        txId: txId,
+        pickupLocation: pickupLocation,
+        extras: getSelectedExtrasString(),
+        children: children,
+        infants: infants,
+        specialRequests: specialRequests,
+        customerLanguage: customerLanguage,
+        electronicSignature: electronicSignature,
+        signatureTimestamp: signatureTimestamp
+      });
+
+      // Create Paytabs payment
+      const paymentResult = await createPaytabsPayment({
+        amount: totalAmount,
+        currency: 'EGP',
+        customerName: customerName,
+        customerEmail: email,
+        customerPhone: phone,
+        orderId: `BK-${txId.replace('paytabs-tx-', '')}`,
+        productName: locale === 'ar' ? (titleAr || titleEn || 'Travel Excursion') : (titleEn || titleAr || 'Travel Excursion'),
+        successUrl: `${window.location.origin}/booking-confirmation?status=success&paymentType=paytabs&tx=${txId}&tripId=${tripId}&price=${basePrice}&titleAr=${encodeURIComponent(titleAr)}&titleEn=${encodeURIComponent(titleEn)}&type=${type}&category=${category}&city=${searchParams.get('city')}`,
+        cancelUrl: `${window.location.origin}/checkout?status=failed&tripId=${tripId}&price=${basePrice}&titleAr=${encodeURIComponent(titleAr)}&type=${type}`,
+        callbackUrl: `${window.location.origin}/api/paytabs/callback`
+      });
+
+      setIsSimulatingPayment(false);
+
+      if (paymentResult.success) {
+        // Redirect to Paytabs payment page
+        window.location.href = paymentResult.paymentUrl;
+      } else {
+        alert('Payment failed: ' + paymentResult.error);
+      }
+    } catch (err) {
+      console.error('Error processing Paytabs payment:', err);
+      setIsSimulatingPayment(false);
+      alert('An error occurred while processing payment');
+    }
+  };
+
   // Simulated Apple Pay / Google Pay Payment
   const handleSimulatedWalletPayment = async (walletName) => {
     setIsSimulatingPayment(true);
@@ -455,7 +520,7 @@ function CheckoutContent() {
         discountAmount: discountAmount,
         finalAmount: totalAmount,
         travelers: travelers,
-        status: 'مؤكد',
+        status: 'قيد الانتظار', // Cash payment starts as pending until confirmed on arrival
         promoCode: promoDetails ? promoDetails.code : '',
         paymentType: 'cash',
         txId: txId,
@@ -1368,6 +1433,30 @@ function CheckoutContent() {
                         Bank Transfer
                       </span>
                     </button>
+
+                    {/* Paytabs Option */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPayMethod('paytabs')}
+                      style={{
+                        padding: '1rem',
+                        borderRadius: '10px',
+                        background: 'var(--bg-secondary)',
+                        border: selectedPayMethod === 'paytabs' ? '2px solid var(--gold-500)' : '1px solid var(--border-medium)',
+                        boxShadow: selectedPayMethod === 'paytabs' ? 'var(--shadow-glow-gold)' : 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        transition: 'var(--transition-base)'
+                      }}
+                    >
+                      <span style={{ fontSize: '1.5rem' }}>💳</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                        Paytabs
+                      </span>
+                    </button>
                   </div>
 
                   {/* CARD SUB-VIEW */}
@@ -1508,6 +1597,33 @@ function CheckoutContent() {
                         }}
                       >
                         {translate('bankConfirmBtn')}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* PAYTABS SUB-VIEW */}
+                  {selectedPayMethod === 'paytabs' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                      <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.2rem', fontWeight: 'bold' }}>Paytabs Secure Payment:</h4>
+                      <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+                        {isAr ? 'ادفع بأمان باستخدام بطاقة الائتمان عبر بوابة Paytabs الموثوقة.' : 'Pay securely using your credit card through the trusted Paytabs payment gateway.'}
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={handlePaytabsPayment}
+                        className="btn btn-primary"
+                        style={{
+                          width: '100%',
+                          padding: '1.1rem',
+                          fontWeight: 'bold',
+                          fontSize: '1rem',
+                          borderRadius: '10px',
+                          background: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
+                          border: 'none'
+                        }}
+                      >
+                        Pay with Paytabs - EGP {totalAmount.toFixed(2)}
                       </button>
                     </div>
                   )}

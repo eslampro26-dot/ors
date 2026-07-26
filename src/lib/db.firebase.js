@@ -925,6 +925,34 @@ export const isFirebaseConfigured = () => {
   return !!db;
 };
 
+// تفريغ كامل النظام (للاستخدام من قبل المسؤول فقط)
+export async function clearAllData() {
+  if (!db) return { success: false, error: 'Firebase not configured' };
+  
+  try {
+    const collections = [COL.BOOKINGS, COL.AGENTS, COL.PROMO_CODES, COL.REVIEWS, COL.SOCIAL, COL.SETTINGS];
+    
+    for (const colName of collections) {
+      const colRef = collection(db, colName);
+      const snapshot = await getDocs(colRef);
+      
+      const batch = writeBatch(db);
+      snapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+      
+      if (snapshot.size > 0) {
+        await batch.commit();
+      }
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error clearing all data:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 // تصدير جميع الدوال
 export {
   getTrips,
@@ -961,14 +989,9 @@ export {
   saveSocialMedia,
   getSettings,
   saveSettings,
-  initializeDB,
+  clearAllData,
   subscribeToBookings,
   subscribeToReviews,
   subscribeToAgents,
-  DEFAULT_AGENTS,
-  DEFAULT_BOOKINGS,
-  DEFAULT_PROMO_CODES,
-  DEFAULT_REVIEWS,
-  DEFAULT_SOCIAL,
-  DEFAULT_SETTINGS
+  isFirebaseConfigured,
 };

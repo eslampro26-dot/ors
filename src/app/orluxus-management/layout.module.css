@@ -311,6 +311,56 @@
   .contentArea {
     padding: var(--space-md);
   }
+
+  .sidebar {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .mainContent {
+    margin-right: 0;
+    padding-top: 60px;
+  }
+
+  .topbar {
+    display: none;
+  }
+
+  .mobileHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    height: 60px;
+    padding: 0 var(--space-md);
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid var(--border-subtle);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+  }
+
+  .menuBtn {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    padding: 8px;
+  }
+
+  .logoText {
+    font-weight: 700;
+    font-size: var(--font-size-lg);
+    color: var(--gold-400);
+  }
+
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 95;
+  }
 }
 
 @media (max-width: 480px) {

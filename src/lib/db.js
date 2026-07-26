@@ -36,4 +36,5 @@ export {
   updateAgent,
   deleteAgent,
   deleteBooking,
+  clearAllData,
 } from './db.adapter';

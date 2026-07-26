@@ -34,6 +34,7 @@ import {
   deletePromoCode as fbDeletePromoCode,
   validatePromoCode as fbValidatePromoCode,
   consumePromoCode as fbConsumePromoCode,
+  clearAllData as fbClearAllData,
   getReviews as fbGetReviews,
   addReview as fbAddReview,
   deleteReview as fbDeleteReview,
@@ -42,12 +43,6 @@ import {
   getSettings as fbGetSettings,
   saveSettings as fbSaveSettings,
   initializeDB as fbInitializeDB,
-  DEFAULT_AGENTS,
-  DEFAULT_BOOKINGS,
-  DEFAULT_PROMO_CODES,
-  DEFAULT_REVIEWS,
-  DEFAULT_SOCIAL,
-  DEFAULT_SETTINGS,
   isFirebaseConfigured,
   subscribeToBookings,
   subscribeToReviews,
@@ -55,6 +50,35 @@ import {
 } from './db.firebase';
 
 import { sampleTrips } from './data';
+
+// Define DEFAULT constants locally since they're not in db.firebase
+const DEFAULT_SOCIAL = {
+  email: 'info@orluxus.com',
+  facebook: '',
+  instagram: '',
+  tiktok: '',
+  whatsapp: '+201038820019'
+};
+
+const DEFAULT_SETTINGS = {
+  siteName: 'ORLUXUS',
+  whatsapp: '+201038820019',
+  emergencyPhone: '+201038820014',
+  currency: 'EGP',
+  paypalEmail: 'info@orluxus.com',
+  allowReg: true,
+  allowPromo: true,
+  notifyEmail: false,
+  commission: '10'
+};
+
+const DEFAULT_REVIEWS = [];
+
+const DEFAULT_PROMO_CODES = [];
+
+const DEFAULT_AGENTS = [];
+
+const DEFAULT_BOOKINGS = [];
 
 // ==========================================
 // CLIENT-SIDE (browser) localStorage helpers
@@ -155,7 +179,8 @@ const ls = {
     const codes = lsGet('promo_codes', DEFAULT_PROMO_CODES);
     const promo = codes.find(c => c.code.toUpperCase() === codeStr.trim().toUpperCase());
     if (!promo) return { isValid: false, reason: 'كود الخصم غير صحيح!' };
-    if (!promo.isActive) return { isValid: false, reason: 'كود الخصم غير نشط!' };
+    // Default to true if isActive field doesn't exist (for backward compatibility)
+    if (promo.isActive !== undefined && !promo.isActive) return { isValid: false, reason: 'كود الخصم غير نشط حالياً!' };
     if (promo.maxUses && promo.usedCount >= promo.maxUses) return { isValid: false, reason: 'انتهى الحد الأقصى لهذا الكود!' };
     if (promo.expiryDate && new Date().toISOString().split('T')[0] > promo.expiryDate) return { isValid: false, reason: 'هذا الكود منتهي الصلاحية!' };
     const agents = lsGet('agents_data', DEFAULT_AGENTS);
@@ -169,6 +194,19 @@ const ls = {
     if (idx === -1) return false;
     codes[idx].usedCount = (codes[idx].usedCount || 0) + 1;
     return lsSet('promo_codes', codes);
+  },
+  clearAllData: () => {
+    try {
+      localStorage.removeItem('bookings_data');
+      localStorage.removeItem('agents_data');
+      localStorage.removeItem('promo_codes');
+      localStorage.removeItem('site_reviews');
+      localStorage.removeItem('settings_data');
+      return { success: true };
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+      return { success: false, error: error.message };
+    }
   },
   getReviews: () => lsGet('site_reviews', DEFAULT_REVIEWS),
   addReview: (reviewData) => {
@@ -435,6 +473,13 @@ export async function saveSettings(data) {
   if (!isClient) return fbSaveSettings(data);
   const res = await apiCall('/api/settings', 'POST', data);
   return res ? res.success : false;
+}
+
+// -- CLEAR ALL DATA --
+export async function clearAllData() {
+  if (!isClient) return fbClearAllData();
+  const res = await apiCall('/api/settings', 'POST', { action: 'clearAllData' });
+  return res || { success: false, error: 'Failed to clear data' };
 }
 
 // -- INIT --

@@ -69,6 +69,13 @@ export default function AdminServices() {
     businessPrice: '',
     vipPrice: '',
     childPrice: '',
+    economyChildPrice: '',
+    businessChildPrice: '',
+    vipChildPrice: '',
+    infantPrice: '',
+    economyInfantPrice: '',
+    businessInfantPrice: '',
+    vipInfantPrice: '',
     duration: 'Full Day',
     category: '',
     city: '',
@@ -329,6 +336,13 @@ export default function AdminServices() {
       businessPrice: String(trip.businessPrice || ''),
       vipPrice: String(trip.vipPrice || ''),
       childPrice: String(trip.childPrice || ''),
+      economyChildPrice: String(trip.economyChildPrice || ''),
+      businessChildPrice: String(trip.businessChildPrice || ''),
+      vipChildPrice: String(trip.vipChildPrice || ''),
+      infantPrice: String(trip.infantPrice || ''),
+      economyInfantPrice: String(trip.economyInfantPrice || ''),
+      businessInfantPrice: String(trip.businessInfantPrice || ''),
+      vipInfantPrice: String(trip.vipInfantPrice || ''),
       duration: trip.duration || 'Full Day',
       category: catId,
       city: cityId,
@@ -351,7 +365,7 @@ export default function AdminServices() {
     e.preventDefault();
 
     if (modalType === 'trip') {
-      const { city, category, titleEn, titleDe, price, economyPrice, businessPrice, vipPrice, childPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, specialRequests } = formData;
+      const { city, category, titleEn, titleDe, price, economyPrice, businessPrice, vipPrice, childPrice, economyChildPrice, businessChildPrice, vipChildPrice, infantPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, specialRequests } = formData;
       const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
       if (!titleEn || !titleDe || basePrice <= 0) {
         alert('Please fill all required fields (English and German titles and price)!');
@@ -422,6 +436,13 @@ export default function AdminServices() {
         businessPrice: useTierPrices ? (parseFloat(businessPrice) || null) : null,
         vipPrice: useTierPrices ? (parseFloat(vipPrice) || null) : null,
         childPrice: parseFloat(childPrice) || 0,
+        economyChildPrice: useTierPrices ? (parseFloat(economyChildPrice) || 0) : 0,
+        businessChildPrice: useTierPrices ? (parseFloat(businessChildPrice) || 0) : 0,
+        vipChildPrice: useTierPrices ? (parseFloat(vipChildPrice) || 0) : 0,
+        infantPrice: parseFloat(infantPrice) || 0,
+        economyInfantPrice: useTierPrices ? (parseFloat(economyInfantPrice) || 0) : 0,
+        businessInfantPrice: useTierPrices ? (parseFloat(businessInfantPrice) || 0) : 0,
+        vipInfantPrice: useTierPrices ? (parseFloat(vipInfantPrice) || 0) : 0,
         duration,
         image: image || '/images/trips/glass-boat.jpg',
         images: images || [],
@@ -457,7 +478,7 @@ export default function AdminServices() {
         if (success) {
           setModalOpen(false);
           setEditingTrip(null);
-          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',duration:'Full Day',category:'',city:'',description:'',tripDescription:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
+          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',duration:'Full Day',category:'',city:'',description:'',tripDescription:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
           setUseTierPrices(false);
           await reloadCurrentCity();
         }
@@ -990,7 +1011,7 @@ export default function AdminServices() {
                     onChange={handleInputChange}
                     placeholder="Write a comprehensive description of the trip: what the program includes, main landmarks, features..."
                     className={styles.input}
-                    rows="3"
+                    rows="8"
                     style={{ resize: 'vertical' }}
                   />
                 </div>
@@ -1041,7 +1062,7 @@ export default function AdminServices() {
                   </label>
 
                   {useTierPrices && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.8rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem' }}>
                       <div className={styles.formGroup} style={{ margin: 0 }}>
                         <label style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>💰 Economy (€)</label>
                         <input
@@ -1078,14 +1099,84 @@ export default function AdminServices() {
                           min="1"
                         />
                       </div>
+                    </div>
+                  )}
+
+                  {useTierPrices && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem', marginTop: '0.8rem' }}>
                       <div className={styles.formGroup} style={{ margin: 0 }}>
-                        <label style={{ color: 'var(--emerald-400)', fontSize: '0.85rem' }}>👶 Child (€)</label>
+                        <label style={{ color: 'var(--emerald-400)', fontSize: '0.85rem' }}>👶 Economy Child (€)</label>
                         <input
                           type="number"
-                          name="childPrice"
-                          value={formData.childPrice}
+                          name="economyChildPrice"
+                          value={formData.economyChildPrice}
                           onChange={handleInputChange}
                           placeholder="Example: 25"
+                          className={styles.input}
+                          min="0"
+                        />
+                      </div>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--emerald-400)', fontSize: '0.85rem' }}>👶 Business Child (€)</label>
+                        <input
+                          type="number"
+                          name="businessChildPrice"
+                          value={formData.businessChildPrice}
+                          onChange={handleInputChange}
+                          placeholder="Example: 40"
+                          className={styles.input}
+                          min="0"
+                        />
+                      </div>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--emerald-400)', fontSize: '0.85rem' }}>👶 VIP Child (€)</label>
+                        <input
+                          type="number"
+                          name="vipChildPrice"
+                          value={formData.vipChildPrice}
+                          onChange={handleInputChange}
+                          placeholder="Example: 60"
+                          className={styles.input}
+                          min="0"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {useTierPrices && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem', marginTop: '0.8rem' }}>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--pink-400)', fontSize: '0.85rem' }}>👼 Economy Infant (€)</label>
+                        <input
+                          type="number"
+                          name="economyInfantPrice"
+                          value={formData.economyInfantPrice}
+                          onChange={handleInputChange}
+                          placeholder="Example: 10"
+                          className={styles.input}
+                          min="0"
+                        />
+                      </div>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--pink-400)', fontSize: '0.85rem' }}>👼 Business Infant (€)</label>
+                        <input
+                          type="number"
+                          name="businessInfantPrice"
+                          value={formData.businessInfantPrice}
+                          onChange={handleInputChange}
+                          placeholder="Example: 20"
+                          className={styles.input}
+                          min="0"
+                        />
+                      </div>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--pink-400)', fontSize: '0.85rem' }}>👼 VIP Infant (€)</label>
+                        <input
+                          type="number"
+                          name="vipInfantPrice"
+                          value={formData.vipInfantPrice}
+                          onChange={handleInputChange}
+                          placeholder="Example: 30"
                           className={styles.input}
                           min="0"
                         />
@@ -1107,7 +1198,7 @@ export default function AdminServices() {
                       onChange={handleInputChange}
                       placeholder="Write all the details offered by Economy class here..."
                       className={styles.input}
-                      rows="3"
+                      rows="6"
                     ></textarea>
                   </div>
 
@@ -1119,7 +1210,7 @@ export default function AdminServices() {
                       onChange={handleInputChange}
                       placeholder="Write all the details offered by Business class here..."
                       className={styles.input}
-                      rows="3"
+                      rows="6"
                     ></textarea>
                   </div>
 
@@ -1131,7 +1222,7 @@ export default function AdminServices() {
                       onChange={handleInputChange}
                       placeholder="Write all the details offered by VIP class here..."
                       className={styles.input}
-                      rows="3"
+                      rows="6"
                     ></textarea>
                   </div>
                 </div>
@@ -1175,7 +1266,7 @@ export default function AdminServices() {
                       onChange={handleInputChange}
                       placeholder="Example: 5-star hotel accommodation + round-trip flights + airport transfer"
                       className={styles.input}
-                      rows="3"
+                      rows="6"
                     ></textarea>
                   </div>
                   {/* Icon */}

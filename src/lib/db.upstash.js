@@ -251,7 +251,8 @@ export async function validatePromoCode(codeStr) {
   const codes = await getPromoCodes();
   const promo = codes.find(c => c.code.toUpperCase() === codeStr.trim().toUpperCase());
   if (!promo) return { isValid: false, reason: 'كود الخصم غير صحيح!' };
-  if (!promo.isActive) return { isValid: false, reason: 'كود الخصم غير نشط حالياً!' };
+  // Default to true if isActive field doesn't exist (for backward compatibility)
+  if (promo.isActive !== undefined && !promo.isActive) return { isValid: false, reason: 'كود الخصم غير نشط حالياً!' };
   if (promo.maxUses && promo.usedCount >= promo.maxUses) return { isValid: false, reason: 'انتهى الحد الأقصى لهذا الكود!' };
   if (promo.expiryDate) {
     const today = new Date().toISOString().split('T')[0];

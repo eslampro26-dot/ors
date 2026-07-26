@@ -38,9 +38,9 @@ export default function AdminBookings() {
       b.city,
       b.agentName || 'Direct (No Agent)',
       b.promoCode || 'None',
-      `€${b.originalAmount || b.finalAmount}`,
-      `€${b.discountAmount || 0}`,
-      `€${b.finalAmount}`,
+      `EGP${b.originalAmount || b.finalAmount}`,
+      `EGP${b.discountAmount || 0}`,
+      `EGP${b.finalAmount}`,
       b.paymentType === 'cash' || b.paymentType === 'onsite' ? 'Cash' : (b.paymentType === 'card' ? 'Card' : 'PayPal'),
       b.status
     ]);
@@ -114,7 +114,10 @@ export default function AdminBookings() {
   const handlePrintAgreement = (booking) => {
     const printWindow = window.open('', '_blank');
     const bLang = booking.customerLanguage || 'en';
-    const isAr = bLang === 'ar';
+    // Ensure only supported languages are used
+    const supportedLangs = ['en', 'ar', 'de', 'fr', 'es', 'it', 'ru', 'tr', 'zh', 'ja'];
+    const safeLang = supportedLangs.includes(bLang) ? bLang : 'en';
+    const isAr = safeLang === 'ar';
     const txId = (booking.txId || booking.id || '').toUpperCase();
     const dateFormatted = new Date(booking.createdAt || Date.now()).toLocaleDateString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
     const bookingTimeFormatted = new Date(booking.createdAt || Date.now()).toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
@@ -159,7 +162,7 @@ export default function AdminBookings() {
         'Cancelled': 'Cancelled'
       }[booking.status] || booking.status,
       methodLabel: {
-        'cash': 'Cash (💵)',
+        'cash': 'Cash',
         'onsite': 'Cash on Site',
         'card': 'Credit Card',
         'bank_transfer': 'Bank Transfer'
@@ -168,7 +171,7 @@ export default function AdminBookings() {
 
     const agreementHTML = `
       <!DOCTYPE html>
-      <html dir="${isAr ? 'rtl' : 'ltr'}" lang="${bLang}">
+      <html dir="${isAr ? 'rtl' : 'ltr'}" lang="${safeLang}">
       <head>
         <meta charset="UTF-8">
         <title>${t.title} - ${txId}</title>
@@ -176,7 +179,7 @@ export default function AdminBookings() {
           body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 40px;
-            color: #1e293b;
+            color: #000000;
             background: #ffffff;
             line-height: 1.6;
             margin: 0;
@@ -184,16 +187,16 @@ export default function AdminBookings() {
           .invoice-card {
             max-width: 800px;
             margin: 0 auto;
-            border: 2px solid #cbd5e1;
+            border: 2px solid #000000;
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 0;
+            box-shadow: none;
           }
           .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid #000000;
             padding-bottom: 20px;
             margin-bottom: 25px;
           }
@@ -205,85 +208,94 @@ export default function AdminBookings() {
           .logo-text h2 {
             margin: 0;
             font-size: 1.8rem;
-            color: #b45309;
+            color: #000000;
             letter-spacing: 2px;
+            font-weight: bold;
           }
           .logo-text span {
             font-size: 0.8rem;
-            color: #64748b;
+            color: #666666;
           }
           .ref-area {
             text-align: ${isAr ? 'left' : 'right'};
           }
           .ref-area h3 {
             margin: 0 0 5px 0;
-            color: #1e293b;
+            color: #000000;
+            font-size: 1rem;
+            font-weight: bold;
           }
           .ref-area p {
             margin: 0;
             font-size: 0.85rem;
-            color: #64748b;
+            color: #666666;
           }
           .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 25px;
-            background: #f8fafc;
+            background: #f5f5f5;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 0;
+            border: 1px solid #000000;
           }
           .info-block h4 {
             margin: 0 0 10px 0;
-            color: #b45309;
+            color: #000000;
             font-size: 0.95rem;
-            border-bottom: 1px solid #cbd5e1;
+            border-bottom: 1px solid #000000;
             padding-bottom: 4px;
+            font-weight: bold;
           }
           .info-block p {
             margin: 4px 0;
             font-size: 0.88rem;
+            color: #000000;
           }
           table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 25px;
+            border: 1px solid #000000;
           }
           th, td {
             padding: 10px 12px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #000000;
             font-size: 0.88rem;
           }
           th {
-            background: #f1f5f9;
-            color: #334155;
+            background: #000000;
+            color: #ffffff;
+            font-weight: bold;
           }
           .total-block {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #fffbe6;
-            border: 1px solid #ffe58f;
+            background: #f5f5f5;
+            border: 2px solid #000000;
             padding: 15px 20px;
-            border-radius: 8px;
+            border-radius: 0;
             margin-bottom: 25px;
           }
           .total-amount {
             font-size: 1.4rem;
             font-weight: bold;
-            color: #b45309;
+            color: #000000;
           }
           .contacts {
             margin-bottom: 25px;
-            background: #f8fafc;
+            background: #f5f5f5;
             padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #b45309;
+            border-radius: 0;
+            border: 1px solid #000000;
           }
           .contacts h4 {
             margin: 0 0 10px 0;
-            color: #1e293b;
+            color: #000000;
             font-size: 0.9rem;
+            font-weight: bold;
           }
           .contacts-list {
             display: flex;
@@ -293,52 +305,56 @@ export default function AdminBookings() {
           .contact-item {
             font-size: 0.85rem;
             font-weight: bold;
+            color: #000000;
           }
           .contact-item a {
-            color: #2563eb;
+            color: #000000;
             text-decoration: none;
           }
           .agreement {
-            border: 1px solid #e2e8f0;
+            border: 1px solid #000000;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 0.78rem;
-            color: #475569;
-            background: #fafafa;
+            color: #000000;
+            background: #f5f5f5;
           }
           .agreement h4 {
             margin: 0 0 8px 0;
-            color: #1e293b;
+            color: #000000;
             font-size: 0.85rem;
+            font-weight: bold;
           }
           .signature-box {
             display: flex;
             justify-content: space-between;
             margin-top: 15px;
             padding-top: 10px;
-            border-top: 1px dashed #cbd5e1;
+            border-top: 1px dashed #000000;
             font-size: 0.8rem;
-            color: #0f172a;
+            color: #000000;
           }
           .footer {
             text-align: center;
             margin-top: 30px;
             font-size: 0.85rem;
-            color: #64748b;
+            color: #000000;
             font-weight: bold;
           }
           .badge {
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: 0;
             font-weight: bold;
             font-size: 0.75rem;
+            border: 1px solid #000000;
           }
-          .badge-green { background: #dcfce7; color: #15803d; }
-          .badge-orange { background: #ffedd5; color: #c2410c; }
-          .badge-red { background: #fee2e2; color: #b91c1c; }
+          .badge-green { background: #ffffff; color: #000000; }
+          .badge-orange { background: #ffffff; color: #000000; }
+          .badge-red { background: #ffffff; color: #000000; }
           @media print {
             body { padding: 0; }
-            .invoice-card { border: none; box-shadow: none; padding: 0; }
+            .invoice-card { border: 2px solid #000000; box-shadow: none; padding: 30px; }
+            @page { margin: 0; size: auto; }
           }
         </style>
       </head>
@@ -346,7 +362,7 @@ export default function AdminBookings() {
         <div class="invoice-card">
           <div class="header">
             <div class="logo-area">
-              <img src="/logo_gold.png" alt="Orluxus" style="height: 48px; width: auto;" onerror="this.style.display='none';" />
+              <img src="/logo_gold.png" alt="Orluxus" style="height: 48px; width: auto; filter: grayscale(100%);" onerror="this.style.display='none';" />
               <div class="logo-text">
                 <h2>ORLUXUS</h2>
                 <span>Premium Egypt Travel &amp; Tourism</span>
@@ -389,15 +405,15 @@ export default function AdminBookings() {
               <tr>
                 <td><strong>${booking.service}</strong> (${booking.city})</td>
                 <td style="text-align: center;">${booking.travelers}</td>
-                <td style="text-align: right;">€${(Number(booking.originalAmount || booking.finalAmount) / (Number(booking.travelers) || 1)).toFixed(2)}</td>
-                <td style="text-align: right; font-weight: bold;">€${Number(booking.originalAmount || booking.finalAmount).toFixed(2)}</td>
+                <td style="text-align: right;">EGP${(Number(booking.originalAmount || booking.finalAmount) / (Number(booking.travelers) || 1)).toFixed(2)}</td>
+                <td style="text-align: right; font-weight: bold;">EGP${Number(booking.originalAmount || booking.finalAmount).toFixed(2)}</td>
               </tr>
               ${booking.discountAmount > 0 ? `
-                <tr style="color: #dc2626; background: #fef2f2;">
+                <tr style="color: #000000; background: #ffffff;">
                   <td><strong>${isAr ? 'خصم الكود الترويجي' : 'Promo Discount'}</strong> ${booking.promoCode ? `(${booking.promoCode})` : ''}</td>
                   <td style="text-align: center;">-</td>
                   <td style="text-align: right;">-</td>
-                  <td style="text-align: right; font-weight: bold;">-€${Number(booking.discountAmount).toFixed(2)}</td>
+                  <td style="text-align: right; font-weight: bold;">-EGP${Number(booking.discountAmount).toFixed(2)}</td>
                 </tr>
               ` : ''}
             </tbody>
@@ -405,38 +421,38 @@ export default function AdminBookings() {
 
           <div class="total-block">
             <div>
-              <span style="font-size: 0.85rem; color: #64748b; display: block; margin-bottom: 4px;">${t.payStatus}</span>
+              <span style="font-size: 0.85rem; color: #000000; display: block; margin-bottom: 4px;">${t.payStatus}</span>
               <span class="badge ${booking.status === 'Confirmed' || booking.status === 'Completed' ? 'badge-green' : booking.status === 'Cancelled' ? 'badge-red' : 'badge-orange'}">
                 ${t.statusLabel}
               </span>
             </div>
             <div style="text-align: ${isAr ? 'left' : 'right'};">
-              <span style="font-size: 0.85rem; color: #64748b; display: block; margin-bottom: 4px;">${t.finalPrice}</span>
-              <span class="total-amount">€${Number(booking.finalAmount).toFixed(2)}</span>
+              <span style="font-size: 0.85rem; color: #000000; display: block; margin-bottom: 4px;">${t.finalPrice}</span>
+              <span class="total-amount">EGP${Number(booking.finalAmount).toFixed(2)}</span>
             </div>
           </div>
 
           <div class="contacts">
-            <h4>📞 ${t.emergency} / ${t.custService}</h4>
+            <h4>${t.emergency} / ${t.custService}</h4>
             <div class="contacts-list">
-              <div class="contact-item">🚨 ${isAr ? 'طوارئ' : 'EMERGENCY'}: <a href="tel:+201038820014">+201038820014</a></div>
-              <div class="contact-item">💬 ${isAr ? 'خدمة العملاء' : 'CUSTOMER SERVICE'}: <a href="tel:+201038820019">+201038820019</a></div>
+              <div class="contact-item">${isAr ? 'طوارئ' : 'EMERGENCY'}: <a href="tel:+201038820014">+201038820014</a></div>
+              <div class="contact-item">${isAr ? 'خدمة العملاء' : 'CUSTOMER SERVICE'}: <a href="tel:+201038820019">+201038820019</a></div>
             </div>
           </div>
 
           <div class="agreement">
-            <h4>📋 ${t.termsTitle}</h4>
+            <h4>${t.termsTitle}</h4>
             <p style="margin: 0 0 10px 0; line-height: 1.6;">${t.termsText}</p>
-            <p style="margin: 0 0 12px 0; font-style: italic; border-top: 1px solid #e2e8f0; padding-top: 8px; line-height: 1.6;">${t.disclaimer}</p>
+            <p style="margin: 0 0 12px 0; font-style: italic; border-top: 1px solid #000000; padding-top: 8px; line-height: 1.6;">${t.disclaimer}</p>
             <div class="signature-box">
-              <span>✍️ <strong>${t.agreedBy}:</strong> ${booking.customer}</span>
-              <span>🕐 <strong>${t.timeLabel}:</strong> ${bookingTimeFormatted}</span>
-              <span>🔑 <strong>${t.refLabel}:</strong> ${txId}</span>
+              <span><strong>${t.agreedBy}:</strong> ${booking.customer}</span>
+              <span><strong>${t.timeLabel}:</strong> ${bookingTimeFormatted}</span>
+              <span><strong>${t.refLabel}:</strong> ${txId}</span>
             </div>
           </div>
 
           <div class="footer">
-            ${t.footerText}
+            ${t.footerText.replace('🌟', '')}
           </div>
         </div>
       </body>
@@ -585,7 +601,7 @@ export default function AdminBookings() {
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Service &amp; Destination</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Agent</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Promo Code</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Total (€)</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Total (EGP)</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Payment</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Status</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold', textAlign: 'center' }}>Actions</th>

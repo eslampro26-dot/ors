@@ -705,16 +705,33 @@ export default function AdminAgents() {
                 </div>
               </div>
 
-              {/* Profile Photo URL */}
+              {/* Profile Photo */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Profile Photo URL</label>
-                <input
-                  type="text"
-                  value={newAgentPhoto}
-                  onChange={(e) => setNewAgentPhoto(e.target.value)}
-                  placeholder="https://example.com/photo.jpg (optional)"
-                  style={{ padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none', textAlign: 'left' }}
-                />
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Profile Photo</label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          setNewAgentPhoto(event.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    style={{ flex: 1, padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-medium)', background: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none', textAlign: 'left' }}
+                  />
+                  {newAgentPhoto && (
+                    <img 
+                      src={newAgentPhoto} 
+                      alt="Preview" 
+                      style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--gold-400)' }}
+                    />
+                  )}
+                </div>
               </div>
 
               {/* Partner ID */}
