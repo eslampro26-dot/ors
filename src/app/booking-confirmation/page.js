@@ -169,6 +169,7 @@ function BookingConfirmationContent() {
                 body { background: #ffffff !important; color: #0f172a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                 .hide-print, nav, footer, button { display: none !important; }
                 #confirmation-sheet { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; page-break-inside: avoid !important; }
+                #confirmation-sheet * { direction: ltr !important; text-align: left !important; font-family: var(--font-en) !important; }
               }
             ` }} />
 
@@ -180,10 +181,10 @@ function BookingConfirmationContent() {
               {/* Invoice Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1.2rem', borderBottom: '2px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <img src="/logo_gold.png" alt="Orluxus" style={{ height: '52px', width: 'auto', objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
+                  <img src="/logo_gold.png" alt="Orluxus" style={{ height: '60px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 2px 6px rgba(180,83,9,0.2))' }} onError={e => { e.target.style.display = 'none'; }} />
                   <div>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#d97706', margin: 0, letterSpacing: '2px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
-                    <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600' }}>ORLUXUS TOURISM AGENCY</span>
+                    <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#d97706', margin: 0, letterSpacing: '3px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: '600' }}>ORLUXUS TOURISM AGENCY</span>
                   </div>
                 </div>
                 <div style={{ textAlign: isAr ? 'left' : 'right' }}>

@@ -42,7 +42,7 @@ export default function AdminAgents() {
       
       // Calculate dynamic sales for each agent based on their active bookings
       const updatedAgents = (allAgents || []).map(agent => {
-        const agentBookings = (allBookings || []).filter(b => b.agentId === agent.id && b.status !== 'ملغي' && b.status !== 'Cancelled');
+        const agentBookings = (allBookings || []).filter(b => b.agentId === agent.id && b.status !== 'cancelled' && b.status !== 'Cancelled');
         const salesTotal = agentBookings.reduce((sum, b) => sum + b.finalAmount, 0);
         const subCount = (allAgents || []).filter(a => a.parentId === agent.id || a.parentId === agent.id.toString()).length;
         
@@ -201,7 +201,7 @@ export default function AdminAgents() {
       const allAgents = await getAgents();
       const agent = (allAgents || []).find(a => a.id === id);
       if (agent) {
-        const newStatus = agent.status === 'نشط' || agent.status === 'Active' ? 'Suspended' : 'Active';
+        const newStatus = agent.status === 'Active' ? 'Suspended' : 'Active';
         await updateAgent(id, { status: newStatus });
         alert(`Agent status updated successfully!`);
         await loadData();
@@ -226,8 +226,8 @@ export default function AdminAgents() {
                         (tierFilter === 'Platinum' && agent.tier === 'platinum');
 
     const matchesStatus = statusFilter === 'All Statuses' || 
-                          (statusFilter === 'Active' && (agent.status === 'نشط' || agent.status === 'Active')) ||
-                          (statusFilter === 'Suspended' && (agent.status === 'موقوف' || agent.status === 'Suspended'));
+                          (statusFilter === 'Active' && agent.status === 'Active') ||
+                          (statusFilter === 'Suspended' && agent.status === 'Suspended');
 
     return matchesSearch && matchesTier && matchesStatus;
   });
@@ -275,8 +275,8 @@ export default function AdminAgents() {
             <span className={`badge badge-${agent.tier === 'gold' ? 'gold' : agent.tier === 'silver' ? 'ocean' : agent.tier === 'platinum' ? 'emerald' : 'coral'}`} style={{ fontSize: '10px' }}>
               {agent.tier.toUpperCase()}
             </span>
-            <span className={`badge badge-${agent.status === 'نشط' || agent.status === 'Active' ? 'emerald' : 'coral'}`} style={{ fontSize: '10px' }}>
-              {agent.status === 'نشط' ? 'Active' : agent.status === 'موقوف' ? 'Suspended' : agent.status}
+            <span className={`badge badge-${agent.status === 'Active' ? 'emerald' : 'coral'}`} style={{ fontSize: '10px' }}>
+              {agent.status}
             </span>
           </div>
 
@@ -492,7 +492,7 @@ export default function AdminAgents() {
                       <td>{agent.subAgents}</td>
                       <td>{agent.joinDate}</td>
                       <td>
-                        <span className={`badge badge-${agent.status === 'نشط' || agent.status === 'Active' ? 'emerald' : 'coral'}`}>
+                        <span className={`badge badge-${agent.status === 'Active' ? 'emerald' : 'coral'}`}>
                           {agent.status === 'نشط' ? 'Active' : agent.status === 'موقوف' ? 'Suspended' : agent.status}
                         </span>
                       </td>
@@ -501,10 +501,10 @@ export default function AdminAgents() {
                           <button 
                             className={styles.actionBtn} 
                             onClick={() => handleToggleStatus(agent.id)}
-                            title={agent.status === 'نشط' || agent.status === 'Active' ? 'Suspend Account' : 'Activate Account'}
+                            title={agent.status === 'Active' ? 'Suspend Account' : 'Activate Account'}
                             style={{ padding: '2px 6px', fontSize: '0.75rem' }}
                           >
-                            {agent.status === 'نشط' || agent.status === 'Active' ? '🔒 Suspend' : '🔓 Activate'}
+                            {agent.status === 'Active' ? '🔒 Suspend' : '🔓 Activate'}
                           </button>
                           <button 
                             className={styles.actionBtn} 

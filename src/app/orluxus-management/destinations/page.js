@@ -75,16 +75,77 @@ export default function AdminDestinations() {
   const saveChanges = async () => {
     setIsSaving(true);
     try {
+      // Auto-translate descriptions to all languages
+      const translatedDestinations = {};
+      
+      for (const [slug, data] of Object.entries(destinations)) {
+        const sourceText = data.descriptionEn || data.description || '';
+        const sourceLang = data.descriptionEn ? 'en' : 'ar';
+        
+        let translatedDescriptions = {
+          descriptionAr: data.descriptionAr || sourceText,
+          descriptionEn: data.descriptionEn || sourceText,
+          descriptionDe: data.descriptionDe || sourceText,
+          descriptionFr: data.descriptionFr || sourceText,
+          descriptionEs: data.descriptionEs || sourceText,
+          descriptionIt: data.descriptionIt || sourceText,
+          descriptionRu: data.descriptionRu || sourceText,
+          descriptionTr: data.descriptionTr || sourceText,
+          descriptionZh: data.descriptionZh || sourceText,
+          descriptionJa: data.descriptionJa || sourceText
+        };
+
+        if (sourceText && sourceText.length > 0) {
+          try {
+            const translateResponse = await fetch('/api/auto-translate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                text: sourceText,
+                sourceLang: sourceLang,
+                targetLangs: ['ar', 'de', 'fr', 'es', 'it', 'ru', 'tr', 'zh', 'ja']
+              })
+            });
+
+            if (translateResponse.ok) {
+              const translateData = await translateResponse.json();
+              if (translateData.success && translateData.translations) {
+                translatedDescriptions = {
+                  descriptionAr: translateData.translations.ar || sourceText,
+                  descriptionEn: sourceText,
+                  descriptionDe: translateData.translations.de || sourceText,
+                  descriptionFr: translateData.translations.fr || sourceText,
+                  descriptionEs: translateData.translations.es || sourceText,
+                  descriptionIt: translateData.translations.it || sourceText,
+                  descriptionRu: translateData.translations.ru || sourceText,
+                  descriptionTr: translateData.translations.tr || sourceText,
+                  descriptionZh: translateData.translations.zh || sourceText,
+                  descriptionJa: translateData.translations.ja || sourceText
+                };
+              }
+            }
+          } catch (err) {
+            console.error('Auto-translation failed for destination:', slug, err);
+          }
+        }
+
+        translatedDestinations[slug] = {
+          ...data,
+          ...translatedDescriptions
+        };
+      }
+
       const res = await fetch('/api/settings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ destinations }),
+        body: JSON.stringify({ destinations: translatedDestinations }),
       });
       
       if (res.ok) {
-        alert('Changes saved successfully!');
+        setDestinations(translatedDestinations);
+        alert('Changes saved and translated to all languages successfully!');
       } else {
         alert('Error saving changes.');
       }
@@ -157,14 +218,21 @@ export default function AdminDestinations() {
                 />
               </div>
 
-              {/* Descriptions */}
+              {/* Descriptions - Multiple Languages */}
               <div style={{ flex: '2 1 400px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', fontSize: '1.1rem' }}>
+                  🌍 Descriptions (Auto-translated to 10 languages)
+                </h4>
+                
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Description (Arabic)</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--gold-400)', fontWeight: 'bold' }}>
+                    🇬🇧 English (Primary - used for auto-translation)
+                  </label>
                   <textarea 
-                    value={displayDescAr}
-                    onChange={(e) => handleInputChange(city.slug, 'descriptionAr', e.target.value)}
-                    dir="rtl"
+                    value={displayDescEn}
+                    onChange={(e) => handleInputChange(city.slug, 'descriptionEn', e.target.value)}
+                    dir="ltr"
+                    placeholder="Enter English description..."
                     style={{ 
                       width: '100%', 
                       background: 'rgba(255,255,255,0.05)', 
@@ -172,19 +240,20 @@ export default function AdminDestinations() {
                       color: '#fff',
                       padding: '1rem',
                       borderRadius: '8px',
-                      minHeight: '120px',
-                      fontFamily: 'inherit',
+                      minHeight: '100px',
+                      fontFamily: 'var(--font-en)',
                       resize: 'vertical'
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Description (English)</label>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>🇸🇦 Arabic</label>
                   <textarea 
-                    value={displayDescEn}
-                    onChange={(e) => handleInputChange(city.slug, 'descriptionEn', e.target.value)}
-                    dir="ltr"
+                    value={displayDescAr}
+                    onChange={(e) => handleInputChange(city.slug, 'descriptionAr', e.target.value)}
+                    dir="rtl"
+                    placeholder="الوصف بالعربية..."
                     style={{ 
                       width: '100%', 
                       background: 'rgba(255,255,255,0.05)', 
@@ -192,11 +261,79 @@ export default function AdminDestinations() {
                       color: '#fff',
                       padding: '1rem',
                       borderRadius: '8px',
-                      minHeight: '120px',
+                      minHeight: '80px',
                       fontFamily: 'inherit',
                       resize: 'vertical'
                     }}
                   />
+                </div>
+
+                {/* Other Languages - Compact Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.8rem' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>🇩🇪 German</label>
+                    <textarea
+                      value={currentData.descriptionDe || ''}
+                      onChange={(e) => handleInputChange(city.slug, 'descriptionDe', e.target.value)}
+                      style={{ width: '100%', minHeight: '50px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-medium)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.85rem', fontFamily: 'var(--font-en)' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>🇫🇷 French</label>
+                    <textarea
+                      value={currentData.descriptionFr || ''}
+                      onChange={(e) => handleInputChange(city.slug, 'descriptionFr', e.target.value)}
+                      style={{ width: '100%', minHeight: '50px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-medium)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.85rem', fontFamily: 'var(--font-en)' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>🇪🇸 Spanish</label>
+                    <textarea
+                      value={currentData.descriptionEs || ''}
+                      onChange={(e) => handleInputChange(city.slug, 'descriptionEs', e.target.value)}
+                      style={{ width: '100%', minHeight: '50px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-medium)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.85rem', fontFamily: 'var(--font-en)' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>🇮🇹 Italian</label>
+                    <textarea
+                      value={currentData.descriptionIt || ''}
+                      onChange={(e) => handleInputChange(city.slug, 'descriptionIt', e.target.value)}
+                      style={{ width: '100%', minHeight: '50px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-medium)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.85rem', fontFamily: 'var(--font-en)' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>🇷🇺 Russian</label>
+                    <textarea
+                      value={currentData.descriptionRu || ''}
+                      onChange={(e) => handleInputChange(city.slug, 'descriptionRu', e.target.value)}
+                      style={{ width: '100%', minHeight: '50px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-medium)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.85rem', fontFamily: 'var(--font-en)' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>🇹🇷 Turkish</label>
+                    <textarea
+                      value={currentData.descriptionTr || ''}
+                      onChange={(e) => handleInputChange(city.slug, 'descriptionTr', e.target.value)}
+                      style={{ width: '100%', minHeight: '50px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-medium)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.85rem', fontFamily: 'var(--font-en)' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>🇨🇳 Chinese</label>
+                    <textarea
+                      value={currentData.descriptionZh || ''}
+                      onChange={(e) => handleInputChange(city.slug, 'descriptionZh', e.target.value)}
+                      style={{ width: '100%', minHeight: '50px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-medium)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.85rem', fontFamily: 'var(--font-en)' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.3rem', color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>🇯🇵 Japanese</label>
+                    <textarea
+                      value={currentData.descriptionJa || ''}
+                      onChange={(e) => handleInputChange(city.slug, 'descriptionJa', e.target.value)}
+                      style={{ width: '100%', minHeight: '50px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-medium)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.85rem', fontFamily: 'var(--font-en)' }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

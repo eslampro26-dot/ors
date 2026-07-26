@@ -21,18 +21,18 @@ const categoryIcons = {
 
 // Fallback special requests
 const PRESET_SPECIAL_REQUESTS = [
-  { id: 'veg_food', labelEn: 'Vegetarian Food', labelAr: 'وجبة نباتية' },
-  { id: 'halal_food', labelEn: 'Halal Food', labelAr: 'طعام حلال' },
-  { id: 'kids_menu', labelEn: 'Kids Menu', labelAr: 'وجبات أطفال' },
-  { id: 'wheelchair', labelEn: 'Wheelchair Access', labelAr: 'كراسي متحركة' },
-  { id: 'early_checkin', labelEn: 'Early Check-in', labelAr: 'تسجيل دخول مبكر' },
-  { id: 'late_checkout', labelEn: 'Late Check-out', labelAr: 'تسجيل خروج متأخر' },
-  { id: 'airport_pickup', labelEn: 'Airport Pickup', labelAr: 'توصيل من المطار' },
-  { id: 'private_guide', labelEn: 'Private Guide', labelAr: 'مرشد خاص' },
-  { id: 'photography', labelEn: 'Professional Photography', labelAr: 'تصوير احترافي' },
-  { id: 'birthday_cake', labelEn: 'Birthday Cake', labelAr: 'كعكة عيد ميلاد' },
-  { id: 'romantic_setup', labelEn: 'Romantic Setup', labelAr: 'تجهيز رومانسي' },
-  { id: 'snorkeling_gear', labelEn: 'Snorkeling Gear', labelAr: 'معدات سنوركلينج' },
+  { id: 'veg_food', labelEn: 'Vegetarian Food', labelAr: 'Vegetarian Food' },
+  { id: 'halal_food', labelEn: 'Halal Food', labelAr: 'Halal Food' },
+  { id: 'kids_menu', labelEn: 'Kids Menu', labelAr: 'Kids Menu' },
+  { id: 'wheelchair', labelEn: 'Wheelchair Access', labelAr: 'Wheelchair Access' },
+  { id: 'early_checkin', labelEn: 'Early Check-in', labelAr: 'Early Check-in' },
+  { id: 'late_checkout', labelEn: 'Late Check-out', labelAr: 'Late Check-out' },
+  { id: 'airport_pickup', labelEn: 'Airport Pickup', labelAr: 'Airport Pickup' },
+  { id: 'private_guide', labelEn: 'Private Guide', labelAr: 'Private Guide' },
+  { id: 'photography', labelEn: 'Professional Photography', labelAr: 'Professional Photography' },
+  { id: 'birthday_cake', labelEn: 'Birthday Cake', labelAr: 'Birthday Cake' },
+  { id: 'romantic_setup', labelEn: 'Romantic Setup', labelAr: 'Romantic Setup' },
+  { id: 'snorkeling_gear', labelEn: 'Snorkeling Gear', labelAr: 'Snorkeling Gear' },
 ];
 
 export default function AdminServices() {

@@ -61,11 +61,11 @@ export default function AdminBookings() {
 
   // Map English display values <-> Arabic DB values
   const STATUS_EN_TO_AR = {
-    'Confirmed': 'مؤكد',
-    'Pending': 'قيد الانتظار',
-    'Completed': 'مكتمل',
-    'Cancelled': 'ملغي',
-    'Failed': 'فاشل',
+    'Confirmed': 'Confirmed',
+    'Pending': 'Pending',
+    'Completed': 'Completed',
+    'Cancelled': 'Cancelled',
+    'Failed': 'Failed',
   };
   const STATUS_AR_TO_EN = {
     'مؤكد': 'Confirmed',
@@ -526,8 +526,8 @@ export default function AdminBookings() {
               outline: 'none'
             }}
           >
-            <option value="جميع الوكلاء">All Agents</option>
-            <option value="مباشر (بدون وكيل)">Direct (No Agent)</option>
+            <option value="All Agents">All Agents</option>
+            <option value="Direct (No Agent)">Direct (No Agent)</option>
             {agents.map(a => (
               <option key={a.id} value={a.id}>{a.name} (AG-{a.id})</option>
             ))}
@@ -545,11 +545,11 @@ export default function AdminBookings() {
               outline: 'none'
             }}
           >
-            <option value="جميع المدن">All Cities</option>
-            <option value="شرم الشيخ">Sharm El Sheikh</option>
-            <option value="الغردقة">Hurghada</option>
-            <option value="مرسى علم">Marsa Alam</option>
-            <option value="دهب">Dahab &amp; El Sokhna</option>
+            <option value="All Cities">All Cities</option>
+            <option value="Sharm El Sheikh">Sharm El Sheikh</option>
+            <option value="Hurghada">Hurghada</option>
+            <option value="Marsa Alam">Marsa Alam</option>
+            <option value="Dahab & El Sokhna">Dahab &amp; El Sokhna</option>
           </select>
 
           <select 
@@ -666,7 +666,7 @@ export default function AdminBookings() {
                     </span>
                   </td>
                   <td style={{ padding: '1.2rem 1rem' }}>
-                    <span className={`badge badge-${booking.status === 'مؤكد' || booking.status === 'Confirmed' ? 'emerald' : booking.status === 'مكتمل' || booking.status === 'Completed' ? 'ocean' : booking.status === 'ملغي' || booking.status === 'Cancelled' ? 'coral' : 'gold'}`}>
+                    <span className={`badge badge-${booking.status === 'Confirmed' ? 'emerald' : booking.status === 'Completed' ? 'ocean' : booking.status === 'Cancelled' ? 'coral' : 'gold'}`}>
                       {booking.status === 'مؤكد' ? 'Confirmed' : booking.status === 'مكتمل' ? 'Completed' : booking.status === 'ملغي' ? 'Cancelled' : booking.status === 'قيد الانتظار' ? 'Pending' : booking.status}
                     </span>
                   </td>

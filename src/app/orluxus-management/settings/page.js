@@ -6,7 +6,7 @@ export default function AdminSettings() {
   const [siteName, setSiteName] = useState('ORLUXUS');
   const [whatsapp, setWhatsapp] = useState('+20100000000');
   const [emergencyPhone, setEmergencyPhone] = useState('');
-  const [currency, setCurrency] = useState('اليورو (€)');
+  const [currency, setCurrency] = useState('Euro (€)');
   const [paypalEmail, setPaypalEmail] = useState('info@orluxus.com');
 
   // SMTP Email Settings
@@ -45,26 +45,26 @@ export default function AdminSettings() {
   });
   
   const defaultAddons = [
-    { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking', descAr: 'مرشد سياحي مرخص يرافقكم طوال الرحلة لشرح المعالم وتسهيل الدخول.', descEn: 'A licensed tour guide to accompany you throughout the trip.' },
-    { id: 'lunch', nameEn: 'Lunch & Soft Drinks / person', nameAr: 'وجبة غداء ومشروبات / للفرد', price: 15, unit: 'person', descAr: 'وجبة غداء بوفيه مفتوح أو قائمة طعام محددة مع مشروبات غازية ومياه معدنية.', descEn: 'Buffet or set menu lunch with soft drinks and mineral water.' },
-    { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 30, unit: 'booking', descAr: 'سيارة خاصة حديثة ومكيفة تنقلكم من الفندق إلى مكان الرحلة وتعود بكم بعد الانتهاء.', descEn: 'Modern private air-conditioned vehicle to and from your hotel.' },
-    { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20, unit: 'booking', descAr: 'مصور محترف يرافقكم لالتقاط أجمل اللحظات وتسليمكم الصور بنظام رقمي عالي الجودة.', descEn: 'A professional photographer to capture your best memories.' },
+    { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'Private Tour Guide', price: 25, unit: 'booking', descAr: 'A licensed tour guide to accompany you throughout the trip.', descEn: 'A licensed tour guide to accompany you throughout the trip.' },
+    { id: 'lunch', nameEn: 'Lunch & Soft Drinks / person', nameAr: 'Lunch & Soft Drinks / person', price: 15, unit: 'person', descAr: 'Buffet or set menu lunch with soft drinks and mineral water.', descEn: 'Buffet or set menu lunch with soft drinks and mineral water.' },
+    { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'Round-trip Private Transfer', price: 30, unit: 'booking', descAr: 'Modern private air-conditioned vehicle to and from your hotel.', descEn: 'Modern private air-conditioned vehicle to and from your hotel.' },
+    { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'Professional Photography Session', price: 20, unit: 'booking', descAr: 'A professional photographer to capture your best memories.', descEn: 'A professional photographer to capture your best memories.' },
   ];
   const [checkoutAddons, setCheckoutAddons] = useState(defaultAddons);
 
   const defaultSpecialRequests = [
-    { id: 'veg_food', labelEn: 'Vegetarian Food', labelAr: 'وجبة نباتية' },
-    { id: 'halal_food', labelEn: 'Halal Food', labelAr: 'طعام حلال' },
-    { id: 'kids_menu', labelEn: 'Kids Menu', labelAr: 'وجبات أطفال' },
-    { id: 'wheelchair', labelEn: 'Wheelchair Access', labelAr: 'كراسي متحركة' },
-    { id: 'early_checkin', labelEn: 'Early Check-in', labelAr: 'تسجيل دخول مبكر' },
-    { id: 'late_checkout', labelEn: 'Late Check-out', labelAr: 'تسجيل خروج متأخر' },
-    { id: 'airport_pickup', labelEn: 'Airport Pickup', labelAr: 'توصيل من المطار' },
-    { id: 'private_guide', labelEn: 'Private Guide', labelAr: 'مرشد خاص' },
-    { id: 'photography', labelEn: 'Professional Photography', labelAr: 'تصوير احترافي' },
-    { id: 'birthday_cake', labelEn: 'Birthday Cake', labelAr: 'كعكة عيد ميلاد' },
-    { id: 'romantic_setup', labelEn: 'Romantic Setup', labelAr: 'تجهيز رومانسي' },
-    { id: 'snorkeling_gear', labelEn: 'Snorkeling Gear', labelAr: 'معدات سنوركلينج' },
+    { id: 'veg_food', labelEn: 'Vegetarian Food', labelAr: 'Vegetarian Food' },
+    { id: 'halal_food', labelEn: 'Halal Food', labelAr: 'Halal Food' },
+    { id: 'kids_menu', labelEn: 'Kids Menu', labelAr: 'Kids Menu' },
+    { id: 'wheelchair', labelEn: 'Wheelchair Access', labelAr: 'Wheelchair Access' },
+    { id: 'early_checkin', labelEn: 'Early Check-in', labelAr: 'Early Check-in' },
+    { id: 'late_checkout', labelEn: 'Late Check-out', labelAr: 'Late Check-out' },
+    { id: 'airport_pickup', labelEn: 'Airport Pickup', labelAr: 'Airport Pickup' },
+    { id: 'private_guide', labelEn: 'Private Guide', labelAr: 'Private Guide' },
+    { id: 'photography', labelEn: 'Professional Photography', labelAr: 'Professional Photography' },
+    { id: 'birthday_cake', labelEn: 'Birthday Cake', labelAr: 'Birthday Cake' },
+    { id: 'romantic_setup', labelEn: 'Romantic Setup', labelAr: 'Romantic Setup' },
+    { id: 'snorkeling_gear', labelEn: 'Snorkeling Gear', labelAr: 'Snorkeling Gear' },
   ];
   const [specialRequestsList, setSpecialRequestsList] = useState(defaultSpecialRequests);
   
@@ -79,25 +79,25 @@ export default function AdminSettings() {
   const [instagram, setInstagram] = useState('https://www.instagram.com/orluxus?igsh=N2lmbmg2eGJzNmVx');
 
   // Policy & Content States (Bilingual)
-  const [vision, setVision] = useState('رؤيتنا هي تقديم أرقى مستويات الخدمة السياحية الفاخرة في مصر بروح عائلية دافئة، لتكون كل رحلة قصة لا تُنسى لضيوفنا.');
+  const [vision, setVision] = useState('Our vision is to provide the highest levels of luxury tourism in Egypt with a warm family spirit, making every journey an unforgettable story.');
   const [visionEn, setVisionEn] = useState('Our vision is to provide the highest levels of luxury tourism in Egypt with a warm family spirit, making every journey an unforgettable story.');
   
-  const [goals, setGoals] = useState('نهدف إلى توفير حجز فوري آمن، وتنظيم رحلات استثنائية ذات جودة عالية، وتوفير أقصى درجات الراحة والأمان لعملائنا.');
+  const [goals, setGoals] = useState('We aim to provide secure instant bookings, organize exceptional high-quality tours, and deliver the utmost comfort and safety.');
   const [goalsEn, setGoalsEn] = useState('We aim to provide secure instant bookings, organize exceptional high-quality tours, and deliver the utmost comfort and safety.');
   
-  const [sustainability, setSustainability] = useState('نلتزم في أورلوكسوس بحماية البيئة البحرية والشواطئ المصرية، ودعم المجتمعات المحلية عبر توفير فرص عمل مستدامة وتطبيق أعلى معايير السياحة الخضراء.');
+  const [sustainability, setSustainability] = useState('We are committed to protecting the marine environment, supporting local communities through sustainable employment, and applying green tourism standards.');
   const [sustainabilityEn, setSustainabilityEn] = useState('We are committed to protecting the marine environment, supporting local communities through sustainable employment, and applying green tourism standards.');
   
-  const [staff, setStaff] = useState('فريقنا يتكون من مرشدين سياحيين محترفين وخبراء محليين مدربين على أعلى معايير الضيافة والسلامة لضمان خدمة استثنائية على مدار الساعة.');
+  const [staff, setStaff] = useState('Our team consists of professional tour guides and local experts trained to the highest hospitality standards.');
   const [staffEn, setStaffEn] = useState('Our team consists of professional tour guides and local experts trained to the highest hospitality standards.');
   
-  const [legalCompany, setLegalCompany] = useState('أورلوكسوس هي شركة سياحية مسجلة ومرخصة رسمياً من وزارة السياحة المصرية، وتخضع للقوانين المصرية المنظمة للنشاط السياحي.');
+  const [legalCompany, setLegalCompany] = useState('ORLUXUS is a fully registered and licensed tourism company operating under the regulations of the Egyptian Ministry of Tourism.');
   const [legalCompanyEn, setLegalCompanyEn] = useState('ORLUXUS is a fully registered and licensed tourism company operating under the regulations of the Egyptian Ministry of Tourism.');
   
-  const [legalCancellation, setLegalCancellation] = useState('يمكن إلغاء الحجز مجاناً قبل 48 ساعة من موعد الرحلة. في حال الإلغاء المتأخر أو عدم الحضور، يتم تطبيق رسوم إلغاء تعادل قيمة الليلة الأولى أو 50% من قيمة الرحلة حسب نوع البرنامج.');
+  const [legalCancellation, setLegalCancellation] = useState('Cancellations made 48 hours prior to the trip are free. Late cancellations or no-shows are subject to fees up to 50% depending on the program.');
   const [legalCancellationEn, setLegalCancellationEn] = useState('Cancellations made 48 hours prior to the trip are free. Late cancellations or no-shows are subject to fees up to 50% depending on the program.');
   
-  const [dataProtection, setDataProtection] = useState('نحن نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. لن يتم مشاركة معلوماتك أو تفاصيل حجزك مع أي أطراف ثالثة إلا لغرض إتمام الحجز وتقديم الخدمة.');
+  const [dataProtection, setDataProtection] = useState('We respect your privacy and commit to protecting your personal data. We do not share your information with third parties except for bookings.');
   const [dataProtectionEn, setDataProtectionEn] = useState('We respect your privacy and commit to protecting your personal data. We do not share your information with third parties except for bookings.');
 
   // Terms & Conditions
@@ -1066,7 +1066,7 @@ export default function AdminSettings() {
           <button
             className="btn btn-secondary"
             style={{ marginTop: '0.5rem' }}
-            onClick={() => setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: 'New Add-on', nameAr: 'إضافة جديدة', price: 15, unit: 'booking', descAr: 'وصف الخدمة الإضافية', descEn: 'Description of add-on' }])}
+            onClick={() => setCheckoutAddons([...checkoutAddons, { id: `custom-${Date.now()}`, nameEn: 'New Add-on', nameAr: 'New Add-on', price: 15, unit: 'booking', descAr: 'Description of add-on', descEn: 'Description of add-on' }])}
           >
             ➕ Add New Add-on
           </button>
@@ -1127,7 +1127,7 @@ export default function AdminSettings() {
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button
               className="btn btn-secondary"
-              onClick={() => setSpecialRequestsList([...specialRequestsList, { id: `req_${Date.now()}`, labelEn: 'New Special Request', labelAr: 'طلب خاص جديد' }])}
+              onClick={() => setSpecialRequestsList([...specialRequestsList, { id: `req_${Date.now()}`, labelEn: 'New Special Request', labelAr: 'New Special Request' }])}
             >
               ➕ Add New Special Request Option
             </button>

@@ -39,7 +39,7 @@ export default function AdminReports() {
     return bookings.filter(b => {
       // Exclude cancelled bookings from statistics
       const status = (b.status || '').toLowerCase();
-      if (status === 'ملغي' || status === 'cancelled') return false;
+      if (status === 'cancelled') return false;
 
       const dateStr = b.createdAt || b.date || 0;
       const d = new Date(dateStr);
@@ -47,22 +47,18 @@ export default function AdminReports() {
 
       switch (reportPeriod) {
         case 'Current Month':
-        case 'الشهر الحالي':
           return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-        case 'Last Month':
-        case 'الشهر الماضي': {
+        case 'Last Month': {
           const prevMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
           const prevYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
           return d.getMonth() === prevMonth && d.getFullYear() === prevYear;
         }
-        case 'Current Quarter':
-        case 'الربع الحالي': {
+        case 'Current Quarter': {
           const currentQuarter = Math.floor(now.getMonth() / 3);
           const bookingQuarter = Math.floor(d.getMonth() / 3);
           return bookingQuarter === currentQuarter && d.getFullYear() === now.getFullYear();
         }
         case 'Current Year':
-        case 'العام الحالي':
           return d.getFullYear() === now.getFullYear();
         default:
           return true;

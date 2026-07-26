@@ -30,13 +30,13 @@ export default function AdminDashboard() {
         // Compute real KPIs
         const activeBookings = allBookings.filter(b => {
           const status = (b.status || '').toLowerCase();
-          return status !== 'ملغي' && status !== 'cancelled' && status !== 'قيد الانتظار' && status !== 'pending' && status !== 'جديد' && status !== 'new';
+          return status !== 'cancelled' && status !== 'pending' && status !== 'new';
         });
 
         const totalRevenue = activeBookings.reduce((sum, b) => sum + (parseFloat(b.totalPrice) || parseFloat(b.price) || parseFloat(b.finalAmount) || 0), 0);
         const totalBookings = allBookings.length;
-        const activeAgents = allAgents.filter(a => a.status === 'نشط' || a.status === 'active').length;
-        const confirmedBookings = allBookings.filter(b => b.status === 'مؤكد' || b.status === 'confirmed').length;
+        const activeAgents = allAgents.filter(a => a.status === 'active').length;
+        const confirmedBookings = allBookings.filter(b => b.status === 'confirmed').length;
 
         // This month revenue
         const now = new Date();

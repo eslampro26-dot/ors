@@ -1379,6 +1379,23 @@ html[dir="rtl"] .luxury-experience-card:hover .explore-label-cta {
     gap: 1.5rem !important;
   }
   [class*="checkoutForm"] { padding: 1rem !important; }
+  
+  /* Fix order summary on mobile */
+  .glass-card {
+    padding: 1.5rem !important;
+    max-width: 100% !important;
+  }
+  
+  /* Fix form layout on mobile */
+  [style*="flex-wrap: wrap"] {
+    flex-direction: column !important;
+  }
+  
+  /* Fix order summary card on mobile */
+  [style*="flex: 1 1 320px"] {
+    flex: 1 1 100% !important;
+    min-width: 100% !important;
+  }
 }
 
 /* === ADMIN SERVICES PAGE === */

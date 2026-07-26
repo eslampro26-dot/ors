@@ -37,16 +37,39 @@ export default function Navbar() {
 
   // Official Site Logo — Orluxus gold logo
   const Logo = () => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
       <img 
         src="/logo_gold.png" 
         alt="ORLUXUS Logo" 
         className={styles.logoImage} 
         style={{ 
-          height: '44px', 
+          height: '48px', 
           width: 'auto', 
           objectFit: 'contain', 
           flexShrink: 0,
+          filter: 'drop-shadow(0 2px 4px rgba(180,83,9,0.3))',
+          backgroundColor: 'transparent',
+        }}
+        onLoad={(e) => {
+          // Remove white background using canvas
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = e.target.naturalWidth;
+          canvas.height = e.target.naturalHeight;
+          ctx.drawImage(e.target, 0, 0);
+          
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          
+          for (let i = 0; i < data.length; i += 4) {
+            // If pixel is white or very light, make it transparent
+            if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) {
+              data[i + 3] = 0; // Set alpha to 0 (transparent)
+            }
+          }
+          
+          ctx.putImageData(imageData, 0, 0);
+          e.target.src = canvas.toDataURL('image/png');
         }}
       />
     </div>
