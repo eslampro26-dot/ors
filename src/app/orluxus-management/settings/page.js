@@ -23,33 +23,6 @@ export default function AdminSettings() {
   const [paytabsServerKey, setPaytabsServerKey] = useState('');
   const [paytabsApiUrl, setPaytabsApiUrl] = useState('https://secure.paytabs.com/payment/request');
   const [paytabsEnabled, setPaytabsEnabled] = useState(false);
-
-  const [additionalPrices, setAdditionalPrices] = useState({
-    'sea-trips': { economy: '', business: '', vip: '' },
-    'desert-trips': { economy: '', business: '', vip: '' },
-    'city-tours': { economy: '', business: '', vip: '' },
-    'packages': { economy: '', business: '', vip: '' },
-    'restaurants': { economy: '', business: '', vip: '' },
-    'entertainment': { economy: '', business: '', vip: '' }
-  });
-
-  const [childPrices, setChildPrices] = useState({
-    'sea-trips': { economy: '', business: '', vip: '' },
-    'desert-trips': { economy: '', business: '', vip: '' },
-    'city-tours': { economy: '', business: '', vip: '' },
-    'packages': { economy: '', business: '', vip: '' },
-    'restaurants': { economy: '', business: '', vip: '' },
-    'entertainment': { economy: '', business: '', vip: '' }
-  });
-
-  const [infantPrices, setInfantPrices] = useState({
-    'sea-trips': { economy: '', business: '', vip: '' },
-    'desert-trips': { economy: '', business: '', vip: '' },
-    'city-tours': { economy: '', business: '', vip: '' },
-    'packages': { economy: '', business: '', vip: '' },
-    'restaurants': { economy: '', business: '', vip: '' },
-    'entertainment': { economy: '', business: '', vip: '' }
-  });
   
   const defaultAddons = [
     { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'Private Tour Guide', price: 25, unit: 'booking', descAr: 'A licensed tour guide to accompany you throughout the trip.', descEn: 'A licensed tour guide to accompany you throughout the trip.' },
@@ -125,9 +98,6 @@ export default function AdminSettings() {
           if (data.paypalEmail) setPaypalEmail(data.paypalEmail);
           if (data.checkoutAddons) setCheckoutAddons(data.checkoutAddons);
           if (data.specialRequestsList) setSpecialRequestsList(data.specialRequestsList);
-          if (data.additionalPrices) setAdditionalPrices(data.additionalPrices);
-          if (data.childPrices) setChildPrices(data.childPrices);
-          if (data.infantPrices) setInfantPrices(data.infantPrices);
 
           // SMTP Settings
           if (data.smtpHost) setSmtpHost(data.smtpHost);
@@ -194,9 +164,6 @@ export default function AdminSettings() {
           commission,
           checkoutAddons,
           specialRequestsList,
-          additionalPrices,
-          childPrices,
-          infantPrices,
           smtpHost,
           smtpPort,
           smtpUser,
@@ -882,66 +849,6 @@ export default function AdminSettings() {
               💾 Save Social Media
             </button>
           </div>
-        </div>
-
-        {/* Additional Guest Prices */}
-        <div className="glass-card animate-fade-in-up" style={{ gridColumn: 'span 2', animationDelay: '0.25s' }}>
-          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>💰 Additional Guest Pricing by Category &amp; Tier</h3>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-            Configure additional guest fee (from 2nd guest onwards) per category and service tier. Leave empty to charge full price.
-          </p>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-            {[
-              { id: 'sea-trips', name: '⛵ Sea Trips' },
-              { id: 'desert-trips', name: '🏜️ Desert Trips' },
-              { id: 'city-tours', name: '🏛️ City Tours' },
-              { id: 'packages', name: '📦 Egypt Packages' },
-              { id: 'restaurants', name: '🍽️ Restaurants' },
-              { id: 'entertainment', name: '🎭 Entertainment' }
-            ].map(cat => (
-              <div key={cat.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                <h4 style={{ color: 'var(--gold-400)', marginBottom: '0.8rem', borderBottom: '1px dashed rgba(255,255,255,0.05)', paddingBottom: '0.4rem' }}>{cat.name}</h4>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {['economy', 'business', 'vip'].map(tier => (
-                    <div key={tier} style={{ flex: 1 }}>
-                      <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'capitalize' }}>
-                        {tier === 'economy' ? 'Economy' : tier === 'business' ? 'Business' : 'VIP'}
-                      </label>
-                      <input
-                        type="number"
-                        style={{ 
-                          width: '100%', 
-                          padding: '6px 10px', 
-                          background: 'rgba(255,255,255,0.04)', 
-                          color: 'white', 
-                          border: '1px solid var(--border-medium)', 
-                          borderRadius: '4px',
-                          outline: 'none',
-                          fontSize: '0.85rem'
-                        }}
-                        value={additionalPrices[cat.id]?.[tier] || ''}
-                        onChange={(e) => {
-                          const val = e.target.value === '' ? '' : Number(e.target.value);
-                          setAdditionalPrices(prev => ({
-                            ...prev,
-                            [cat.id]: {
-                              ...prev[cat.id],
-                              [tier]: val
-                            }
-                          }));
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <button onClick={handleSaveSettings} className="btn btn-primary" style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem' }}>
-            💾 Save Additional Guest Prices
-          </button>
         </div>
       </div>
 

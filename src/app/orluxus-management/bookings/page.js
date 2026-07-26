@@ -61,11 +61,11 @@ export default function AdminBookings() {
 
   // Map English display values <-> Arabic DB values
   const STATUS_EN_TO_AR = {
-    'Confirmed': 'Confirmed',
-    'Pending': 'Pending',
-    'Completed': 'Completed',
-    'Cancelled': 'Cancelled',
-    'Failed': 'Failed',
+    'Confirmed': 'مؤكد',
+    'Pending': 'قيد الانتظار',
+    'Completed': 'مكتمل',
+    'Cancelled': 'ملغي',
+    'Failed': 'فاشل',
   };
   const STATUS_AR_TO_EN = {
     'مؤكد': 'Confirmed',
@@ -111,50 +111,56 @@ export default function AdminBookings() {
   };
 
   // Print Digital Agreement
-  const handlePrintAgreement = (booking) => {
+  const handlePrintAgreement = async (booking) => {
     const printWindow = window.open('', '_blank');
-    const bLang = booking.customerLanguage || 'en';
-    // Ensure only supported languages are used
-    const supportedLangs = ['en', 'ar', 'de', 'fr', 'es', 'it', 'ru', 'tr', 'zh', 'ja'];
-    const safeLang = supportedLangs.includes(bLang) ? bLang : 'en';
-    const isAr = safeLang === 'ar';
+    // Always use English for invoice
     const txId = (booking.txId || booking.id || '').toUpperCase();
-    const dateFormatted = new Date(booking.createdAt || Date.now()).toLocaleDateString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-    const bookingTimeFormatted = new Date(booking.createdAt || Date.now()).toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+    const dateFormatted = new Date(booking.createdAt || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    const bookingTimeFormatted = new Date(booking.createdAt || Date.now()).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+
+    // Fetch custom terms from settings
+    let customTermsAr = '';
+    let customTermsEn = '';
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        customTermsAr = data.termsAr || '';
+        customTermsEn = data.termsEn || '';
+      }
+    } catch (err) {
+      console.error('Error fetching terms:', err);
+    }
 
     const t = {
-      title: isAr ? 'فاتورة الحجز الإلكترونية' : 'Booking Invoice',
-      ref: isAr ? 'رقم المرجع' : 'Booking Ref',
-      traveler: isAr ? 'بيانات المسافر' : 'Traveler Details',
-      name: isAr ? 'الاسم بالكامل' : 'Full Name',
-      phone: isAr ? 'رقم الجوال' : 'Phone Number',
-      email: isAr ? 'البريد الإلكتروني' : 'Email Address',
-      whatsapp: isAr ? 'الواتساب' : 'WhatsApp',
-      info: isAr ? 'معلومات الحجز' : 'Booking Info',
-      service: isAr ? 'الخدمة المطلوبة' : 'Service Requested',
-      city: isAr ? 'الوجهة / المدينة' : 'City',
-      date: isAr ? 'التاريخ المجدول' : 'Scheduled Date',
-      travelersCount: isAr ? 'عدد المسافرين' : 'Travelers Count',
-      pickup: isAr ? 'موقع الالتقاط' : 'Pickup Location',
-      payment: isAr ? 'طريقة الدفع' : 'Payment Method',
-      payStatus: isAr ? 'حالة الدفع' : 'Payment Status',
-      originalPrice: isAr ? 'السعر الأصلي' : 'Original Price',
-      discount: isAr ? 'قيمة الخصم' : 'Discount',
-      finalPrice: isAr ? 'إجمالي الحساب' : 'Total Invoice Value',
-      agent: isAr ? 'الوكيل المحيل' : 'Referred Agent',
-      emergency: isAr ? 'خط طوارئ' : 'EMERGENCY',
-      custService: isAr ? 'خدمة العملاء' : 'CUSTOMER SERVICE',
-      termsTitle: isAr ? 'الشروط والأحكام — الاتفاقية الإلكترونية' : 'Terms & Conditions — Electronic Agreement',
-      termsText: isAr 
-        ? `باستكمال هذا الحجز، يؤكد ${booking.customer} إلكترونياً قبوله لشروط وأحكام ORLUXUS وسياسة الإلغاء (يجب الإلغاء قبل 24 ساعة) وسياسة حماية البيانات (GDPR). يُعدّ هذا المستند عقداً رقمياً صالحاً مع ORLUXUS GROUP Ltd. (رقم السجل: 7291-B).`
-        : `By completing this booking, ${booking.customer} hereby electronically confirms acceptance of ORLUXUS Terms & Conditions, Cancellation Policy (cancellations must be made 24+ hours in advance), and Data Protection Policy (GDPR compliant). This document constitutes a valid digital contract between the traveler and ORLUXUS GROUP Ltd. (Reg. No. 7291-B).`,
-      disclaimer: isAr
-        ? `في ORLUXUS، نقوم بتنظيم تجارب استثنائية من خلال شبكتنا من الشركاء الموثوقين. يتم تقديم تجربتك المختارة من قبل شريك ORLUXUS المعتمد، بينما نضمن لك رحلة حجز سلسة، وتنسيقاً متميزاً، ودعماً مخصصاً للضيوف من الحجز وحتى إتمام الرحلة.`
-        : `At ORLUXUS, we curate exceptional experiences through our network of trusted partners. Your selected experience is delivered by an authorized ORLUXUS partner, while we ensure a seamless booking journey, quality coordination, and dedicated guest support from reservation to completion.`,
-      agreedBy: isAr ? 'تمت الموافقة إلكترونياً بواسطة' : 'Digitally agreed by',
-      timeLabel: isAr ? 'وقت التوقيع' : 'Signing Time',
-      refLabel: isAr ? 'رمز التوقيع' : 'Signature Key',
-      footerText: isAr ? 'شكراً لاختيارك ORLUXUS. نتمنى لك رحلة عائلية رائعة. 🌟' : 'Thank you for choosing ORLUXUS. We wish you an amazing family trip. 🌟',
+      title: 'BOOKING INVOICE',
+      ref: 'Booking Reference',
+      traveler: 'Traveler Details',
+      name: 'Full Name',
+      phone: 'Phone Number',
+      email: 'Email Address',
+      whatsapp: 'WhatsApp',
+      info: 'Booking Information',
+      service: 'Service Requested',
+      city: 'City / Destination',
+      date: 'Scheduled Date',
+      travelersCount: 'Number of Travelers',
+      pickup: 'Pickup Location',
+      payment: 'Payment Method',
+      payStatus: 'Payment Status',
+      originalPrice: 'Original Price',
+      discount: 'Discount Amount',
+      finalPrice: 'Total Invoice Value',
+      agent: 'Referred Agent',
+      emergency: 'EMERGENCY',
+      custService: 'CUSTOMER SERVICE',
+      termsTitle: 'Terms & Conditions — Electronic Agreement',
+      termsText: customTermsEn || `By completing this booking, ${booking.customer} hereby electronically confirms acceptance of ORLUXUS Terms & Conditions, Cancellation Policy (cancellations must be made 24+ hours in advance), and Data Protection Policy (GDPR compliant). This document constitutes a valid digital contract between the traveler and ORLUXUS GROUP Ltd. (Reg. No. 7291-B).`,
+      disclaimer: `At ORLUXUS, we curate exceptional experiences through our network of trusted partners. Your selected experience is delivered by an authorized ORLUXUS partner, while we ensure a seamless booking journey, quality coordination, and dedicated guest support from reservation to completion.`,
+      agreedBy: 'Digitally agreed by',
+      timeLabel: 'Signing Time',
+      refLabel: 'Signature Key',
+      footerText: 'Thank you for choosing ORLUXUS. We wish you an amazing family trip.',
       statusLabel: {
         'Confirmed': 'Confirmed',
         'Pending': 'Pending',
@@ -171,7 +177,7 @@ export default function AdminBookings() {
 
     const agreementHTML = `
       <!DOCTYPE html>
-      <html dir="${isAr ? 'rtl' : 'ltr'}" lang="${safeLang}">
+      <html dir="ltr" lang="en">
       <head>
         <meta charset="UTF-8">
         <title>${t.title} - ${txId}</title>
@@ -362,9 +368,9 @@ export default function AdminBookings() {
         <div class="invoice-card">
           <div class="header">
             <div class="logo-area">
-              <img src="/logo_gold.png" alt="Orluxus" style="height: 48px; width: auto; filter: grayscale(100%);" onerror="this.style.display='none';" />
+              <img src="/logo_gold.png" alt="Orluxus" style="height: 60px; width: auto; object-fit: contain;" onerror="this.style.display='none';" />
               <div class="logo-text">
-                <h2>ORLUXUS</h2>
+                <h2>ORLUXUS MARKETING TOURISM AGENCY</h2>
                 <span>Premium Egypt Travel &amp; Tourism</span>
               </div>
             </div>
@@ -387,18 +393,29 @@ export default function AdminBookings() {
               <h4>${t.info}</h4>
               <p><strong>${t.date}:</strong> ${booking.date}</p>
               <p><strong>${t.travelersCount}:</strong> ${booking.travelers}</p>
+              ${booking.children ? `<p><strong>Children:</strong> ${booking.children}</p>` : ''}
+              ${booking.infants ? `<p><strong>Infants:</strong> ${booking.infants}</p>` : ''}
               ${booking.pickupLocation ? `<p><strong>${t.pickup}:</strong> ${booking.pickupLocation}</p>` : ''}
               <p><strong>${t.payment}:</strong> ${t.methodLabel}</p>
             </div>
           </div>
 
+          ${booking.addons && booking.addons.length > 0 ? `
+          <div class="info-grid" style="margin-top: 20px;">
+            <div class="info-block" style="grid-column: span 2;">
+              <h4>Additional Services</h4>
+              ${booking.addons.map(addon => `<p>• ${addon.name || addon.nameEn || addon.nameAr}: ${addon.price ? addon.price + ' EGP' : ''}</p>`).join('')}
+            </div>
+          </div>
+          ` : ''}
+
           <table>
             <thead>
               <tr>
                 <th>${t.service}</th>
-                <th style="text-align: center; width: 80px;">${isAr ? 'الكمية' : 'Qty'}</th>
-                <th style="text-align: right; width: 100px;">${isAr ? 'السعر' : 'Rate'}</th>
-                <th style="text-align: right; width: 100px;">${isAr ? 'الإجمالي' : 'Total'}</th>
+                <th style="text-align: center; width: 80px;">Qty</th>
+                <th style="text-align: right; width: 100px;">Rate</th>
+                <th style="text-align: right; width: 100px;">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -410,7 +427,7 @@ export default function AdminBookings() {
               </tr>
               ${booking.discountAmount > 0 ? `
                 <tr style="color: #000000; background: #ffffff;">
-                  <td><strong>${isAr ? 'خصم الكود الترويجي' : 'Promo Discount'}</strong> ${booking.promoCode ? `(${booking.promoCode})` : ''}</td>
+                  <td><strong>Promo Discount</strong> ${booking.promoCode ? `(${booking.promoCode})` : ''}</td>
                   <td style="text-align: center;">-</td>
                   <td style="text-align: right;">-</td>
                   <td style="text-align: right; font-weight: bold;">-EGP${Number(booking.discountAmount).toFixed(2)}</td>
@@ -426,7 +443,7 @@ export default function AdminBookings() {
                 ${t.statusLabel}
               </span>
             </div>
-            <div style="text-align: ${isAr ? 'left' : 'right'};">
+            <div style="text-align: right;">
               <span style="font-size: 0.85rem; color: #000000; display: block; margin-bottom: 4px;">${t.finalPrice}</span>
               <span class="total-amount">EGP${Number(booking.finalAmount).toFixed(2)}</span>
             </div>
@@ -435,8 +452,8 @@ export default function AdminBookings() {
           <div class="contacts">
             <h4>${t.emergency} / ${t.custService}</h4>
             <div class="contacts-list">
-              <div class="contact-item">${isAr ? 'طوارئ' : 'EMERGENCY'}: <a href="tel:+201038820014">+201038820014</a></div>
-              <div class="contact-item">${isAr ? 'خدمة العملاء' : 'CUSTOMER SERVICE'}: <a href="tel:+201038820019">+201038820019</a></div>
+              <div class="contact-item">EMERGENCY: <a href="tel:+201038820014">+201038820014</a></div>
+              <div class="contact-item">CUSTOMER SERVICE: <a href="tel:+201038820019">+201038820019</a></div>
             </div>
           </div>
 
