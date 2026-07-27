@@ -181,10 +181,10 @@ function BookingConfirmationContent() {
               {/* Invoice Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1.2rem', borderBottom: '2px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <img src="/logo_gold.png" alt="Orluxus" style={{ height: '60px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 2px 6px rgba(180,83,9,0.2))' }} onError={e => { e.target.style.display = 'none'; }} />
+                  <img src="/logo_orluxus_marketing.png" alt="Orluxus Marketing Tourism Agency" style={{ height: '60px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 2px 6px rgba(180,83,9,0.2))' }} onError={e => { e.target.style.display = 'none'; }} />
                   <div>
                     <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#d97706', margin: 0, letterSpacing: '3px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
-                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: '600' }}>ORLUXUS TOURISM AGENCY</span>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: '600' }}>ORLUXUS MARKETING TOURISM AGENCY</span>
                   </div>
                 </div>
                 <div style={{ textAlign: isAr ? 'left' : 'right' }}>

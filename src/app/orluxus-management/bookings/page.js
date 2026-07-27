@@ -368,7 +368,7 @@ export default function AdminBookings() {
         <div class="invoice-card">
           <div class="header">
             <div class="logo-area">
-              <img src="/logo_gold.png" alt="Orluxus" style="height: 60px; width: auto; object-fit: contain;" onerror="this.style.display='none';" />
+              <img src="/logo_orluxus_marketing.png" alt="Orluxus Marketing Tourism Agency" style="height: 80px; width: auto; object-fit: contain;" onerror="this.style.display='none';" />
               <div class="logo-text">
                 <h2>ORLUXUS MARKETING TOURISM AGENCY</h2>
                 <span>Premium Egypt Travel &amp; Tourism</span>

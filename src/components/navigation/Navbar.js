@@ -35,12 +35,12 @@ export default function Navbar() {
     setActiveDropdown(activeDropdown === id ? null : id);
   };
 
-  // Official Site Logo — Orluxus gold logo
+  // Official Site Logo — Orluxus Marketing Tourism Agency
   const Logo = () => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
       <img 
-        src="/logo_gold.png" 
-        alt="ORLUXUS Logo" 
+        src="/logo_orluxus_marketing.png" 
+        alt="ORLUXUS MARKETING TOURISM AGENCY" 
         className={styles.logoImage} 
         style={{ 
           height: '48px', 

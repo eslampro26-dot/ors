@@ -834,10 +834,10 @@ function CheckoutContent() {
             {/* Invoice Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #f1f5f9', paddingBottom: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <img src="/logo_gold.png" alt="Orluxus" style={{ height: '56px', width: 'auto', objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
+                <img src="/logo_orluxus_marketing.png" alt="Orluxus Marketing Tourism Agency" style={{ height: '56px', width: 'auto', objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
                 <div>
                   <h2 style={{ fontSize: '1.6rem', fontWeight: '900', color: '#b45309', margin: 0, letterSpacing: '2px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', display: 'block', fontWeight: 'bold' }}>ORLUXUS TOURISM MARKETING AGENCY</span>
+                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', display: 'block', fontWeight: 'bold' }}>ORLUXUS MARKETING TOURISM AGENCY</span>
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
