@@ -297,20 +297,31 @@ export async function addTrip(slug, category, tripData) {
       ...tripData,
     };
     const docRef = await safeAddDoc(collection(db, COL.TRIPS), newTrip);
+    console.log('Trip added successfully with ID:', docRef.id);
     return { id: docRef.id, ...newTrip };
   } catch (e) {
     console.error('Error saving trip to Firebase:', e);
+    // Reset circuit breaker on explicit user action
+    _circuitBreaker.tripped = false;
+    _circuitBreaker.trippedAt = null;
+    _circuitBreaker.errorLogged = false;
     return false;
   }
 }
 
 export async function updateTrip(tripId, tripData) {
   try {
+    // Reset circuit breaker for update operations
+    _circuitBreaker.tripped = false;
+    _circuitBreaker.trippedAt = null;
+    _circuitBreaker.errorLogged = false;
+
     // 1. Check if document exists by ID
     const tripRef = doc(db, COL.TRIPS, String(tripId));
     const tripSnap = await safeGetDoc(tripRef);
     if (tripSnap && tripSnap.exists()) {
       await safeUpdateDoc(tripRef, tripData);
+      console.log('Trip updated successfully with ID:', tripId);
       return true;
     }
     
@@ -319,11 +330,13 @@ export async function updateTrip(tripId, tripData) {
     const snapshot = await safeGetDocs(q);
     if (snapshot && !snapshot.empty) {
       await safeUpdateDoc(doc(db, COL.TRIPS, snapshot.docs[0].id), tripData);
+      console.log('Trip updated successfully (legacy) with ID:', tripId);
       return true;
     }
 
     // 3. Upsert fallback: if trip document does not exist yet (e.g. editing a static sample trip for the first time), save it to Firestore!
     await safeSetDoc(tripRef, { id: tripId, ...tripData }, { merge: true });
+    console.log('Trip upserted successfully with ID:', tripId);
     return true;
   } catch (e) {
     console.error('Error updating trip:', e);
@@ -379,15 +392,25 @@ export async function addPackage(pkgId, packageData) {
       ...packageData,
     };
     const docRef = await safeAddDoc(collection(db, COL.PACKAGES), newPackage);
+    console.log('Package added successfully with ID:', docRef.id);
     return { id: docRef.id, ...newPackage };
   } catch (e) {
     console.error('Error saving package to Firebase:', e);
+    // Reset circuit breaker on explicit user action
+    _circuitBreaker.tripped = false;
+    _circuitBreaker.trippedAt = null;
+    _circuitBreaker.errorLogged = false;
     return false;
   }
 }
 
 export async function updatePackage(pkgId, packageId, packageData) {
   try {
+    // Reset circuit breaker for update operations
+    _circuitBreaker.tripped = false;
+    _circuitBreaker.trippedAt = null;
+    _circuitBreaker.errorLogged = false;
+
     // البحث عن الباقة باستخدام packageId
     const q = query(collection(db, COL.PACKAGES), where('id', '==', packageId));
     const snapshot = await getDocs(q);
@@ -395,6 +418,7 @@ export async function updatePackage(pkgId, packageId, packageData) {
     if (!snapshot.empty) {
       // تحديث أول تطابق
       await safeUpdateDoc(doc(db, COL.PACKAGES, snapshot.docs[0].id), packageData);
+      console.log('Package updated successfully with ID:', packageId);
       return true;
     }
     

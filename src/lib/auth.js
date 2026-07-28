@@ -150,8 +150,10 @@ export function getCookieFromRequest(request, cookieName) {
 export function verifyApiSecret(request) {
   const headerToken = request.headers.get('x-api-secret');
   const adminToken  = getCookieFromRequest(request, 'admin_session');
-  if (headerToken === getApiSecret()) return true;
+  // Allow requests with valid admin session cookie
   if (verifyAdminToken(adminToken)) return true;
+  // Allow requests with API secret header (for internal calls)
+  if (headerToken && headerToken === getApiSecret()) return true;
   return false;
 }
 

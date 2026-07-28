@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getSettings, saveSettings, clearAllData } from '@/lib/db';
+import { getSettings, saveSettings } from '@/lib/db';
 
 export default function AdminSettings() {
   const [siteName, setSiteName] = useState('ORLUXUS');
@@ -186,29 +186,6 @@ export default function AdminSettings() {
     }
   };
 
-  // Clear All Data
-  const handleClearAllData = async () => {
-    if (!confirm('⚠️ WARNING: This will permanently delete ALL data including bookings, agents, promo codes, reviews, and settings. This action cannot be undone. Are you absolutely sure you want to proceed?')) {
-      return;
-    }
-    
-    if (!confirm('⚠️ FINAL WARNING: All data will be deleted forever. Type "DELETE" to confirm.')) {
-      return;
-    }
-
-    try {
-      const result = await clearAllData();
-      if (result.success) {
-        alert('✅ All data has been cleared successfully! The page will now reload.');
-        window.location.reload();
-      } else {
-        alert(`❌ Failed to clear data: ${result.error}`);
-      }
-    } catch (err) {
-      console.error('Error clearing data:', err);
-      alert('❌ An error occurred while clearing data!');
-    }
-  };
 
   // Save Social Media
   const handleSaveSocialMedia = async () => {
@@ -1103,39 +1080,6 @@ export default function AdminSettings() {
         </div>
       </div>
 
-      {/* Section 8: System Reset */}
-      <div className="admin-card" style={{ marginTop: 'var(--space-md)', border: '2px solid rgba(239, 68, 68, 0.3)' }}>
-        <div className="admin-card-header" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
-          <h2 className="admin-card-title" style={{ color: '#ef4444' }}>⚠️ System Reset - Clear All Data</h2>
-        </div>
-        <div className="admin-card-body">
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-            <strong>DANGER ZONE:</strong> This will permanently delete ALL data including:
-          </p>
-          <ul style={{ color: 'var(--text-tertiary)', marginBottom: '1rem', fontSize: '0.85rem', paddingLeft: '1.5rem' }}>
-            <li>All bookings and reservations</li>
-            <li>All agents and their data</li>
-            <li>All promo codes</li>
-            <li>All reviews</li>
-            <li>All settings and configurations</li>
-          </ul>
-          <p style={{ color: '#ef4444', marginBottom: '1rem', fontSize: '0.85rem', fontWeight: 'bold' }}>
-            This action cannot be undone. Use with extreme caution!
-          </p>
-          <button
-            className="btn"
-            style={{ 
-              background: 'linear-gradient(135deg, #ef4444, #dc2626)', 
-              color: 'white',
-              padding: '1rem 2rem',
-              fontWeight: 'bold'
-            }}
-            onClick={handleClearAllData}
-          >
-            🗑️ Clear All System Data
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
