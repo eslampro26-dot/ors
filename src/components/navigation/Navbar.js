@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { cities, internalPackages, getLocalizedCity, getLocalizedPackage, getCategoryName } from '@/lib/data';
 import styles from './Navbar.module.css';
 import LanguageSwitcher from './LanguageSwitcher';
-import ThemeToggle from '@/components/ThemeToggle';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function Navbar() {
@@ -35,43 +34,10 @@ export default function Navbar() {
     setActiveDropdown(activeDropdown === id ? null : id);
   };
 
-  // Official Site Logo — Orluxus Marketing Tourism Agency
+  // Official Site Logo — Orluxus Marketing Tourism Agency (Text Only)
   const Logo = () => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <img 
-        src="/logo_orluxus_marketing.png" 
-        alt="ORLUXUS MARKETING TOURISM AGENCY" 
-        className={styles.logoImage} 
-        style={{ 
-          height: '48px', 
-          width: 'auto', 
-          objectFit: 'contain', 
-          flexShrink: 0,
-          filter: 'drop-shadow(0 2px 4px rgba(180,83,9,0.3))',
-          backgroundColor: 'transparent',
-        }}
-        onLoad={(e) => {
-          // Remove white background using canvas
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          canvas.width = e.target.naturalWidth;
-          canvas.height = e.target.naturalHeight;
-          ctx.drawImage(e.target, 0, 0);
-          
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const data = imageData.data;
-          
-          for (let i = 0; i < data.length; i += 4) {
-            // If pixel is white or very light, make it transparent
-            if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) {
-              data[i + 3] = 0; // Set alpha to 0 (transparent)
-            }
-          }
-          
-          ctx.putImageData(imageData, 0, 0);
-          e.target.src = canvas.toDataURL('image/png');
-        }}
-      />
+      <span className={styles.logoTextString}>ORLUXUS</span>
     </div>
   );
 
@@ -190,10 +156,9 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Right Header Actions (Mobile Toggle FIRST, then Language, Theme) - Always visible at top */}
+        {/* Right Header Actions (Mobile Toggle FIRST, then Language) - Always visible at top */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', zIndex: 60, flexShrink: 0 }}>
           <LanguageSwitcher onLanguageChange={() => setMobileOpen(false)} />
-          <ThemeToggle />
           <button 
             className={styles.mobileToggle} 
             onClick={() => setMobileOpen(!mobileOpen)} 

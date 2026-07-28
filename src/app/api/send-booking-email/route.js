@@ -70,9 +70,6 @@ function buildInvoiceHTML(data) {
     
     <!-- HEADER -->
     <div style="background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);padding:40px 40px 30px;text-align:center;">
-      <div style="margin:0 auto 20px;width:80px;height:80px;background:rgba(201,162,39,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #c9a227;">
-        <span style="font-size:2rem;font-weight:900;color:#c9a227;">O</span>
-      </div>
       <h1 style="margin:0;font-size:2.2rem;font-weight:900;color:#c9a227;letter-spacing:4px;">ORLUXUS</h1>
       <p style="margin:6px 0 0;color:rgba(255,255,255,0.6);font-size:0.85rem;letter-spacing:1px;">WITH A FAMILY SPIRIT — Luxury Services & Experiences</p>
       <div style="margin:20px auto 0;display:inline-block;background:rgba(201,162,39,0.15);border:1px solid #c9a227;border-radius:8px;padding:8px 24px;">
@@ -116,6 +113,17 @@ function buildInvoiceHTML(data) {
           </td>
         </tr>
       </table>
+
+      <!-- ADDITIONAL INFO -->
+      ${extras ? `
+      <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:0.9rem;color:#0369a1;">
+        <strong>Add-ons:</strong> ${extras}
+      </div>` : ''}
+
+      ${promoCode ? `
+      <div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:0.9rem;color:#92400e;">
+        <strong>Promo Code Applied:</strong> ${promoCode}
+      </div>` : ''}
 
       <!-- SERVICE TABLE -->
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;border-radius:12px;overflow:hidden;">

@@ -97,12 +97,17 @@ function BookingConfirmationContent() {
     { label: t('booking.customer'), value: booking.customerName || booking.customer || '—' },
     { label: t('booking.service'), value: booking.service || '—' },
     { label: t('booking.date'), value: booking.date || '—' },
-    { label: t('booking.travelers'), value: (booking.travelers || 1) + ' ' + t('booking.persons') },
+    { label: t('booking.travelers'), value: (booking.travelers || 1) + ' ' + t('booking.persons') + (booking.children > 0 ? ` | ${booking.children} Child(ren)` : '') + (booking.infants > 0 ? ` | ${booking.infants} Infant(s)` : '') },
     { label: t('booking.amount'), value: '€' + (Number(booking.amount || booking.finalAmount || 0) || 0).toFixed(2) },
     { label: t('booking.payStatus'), value: statusLabel },
     { label: t('booking.payMethod'), value: payLabel },
+    ...(booking.email ? [{ label: 'Email', value: booking.email }] : []),
+    ...(booking.phone ? [{ label: 'Phone', value: booking.phone }] : []),
+    ...(booking.whatsapp ? [{ label: 'WhatsApp', value: booking.whatsapp }] : []),
     ...(booking.agentName ? [{ label: t('booking.agent'), value: (booking.agentName === 'مباشر (بدون وكيل)' || booking.agentName === 'مباشر') && locale !== 'ar' ? 'Direct (No Agent)' : booking.agentName }] : []),
     ...(booking.pickup ? [{ label: t('booking.pickup'), value: booking.pickup }] : []),
+    ...(booking.extras ? [{ label: 'Add-ons', value: booking.extras, fullWidth: true }] : []),
+    ...(booking.promoCode ? [{ label: 'Promo Code', value: booking.promoCode }] : []),
     ...(booking.specialRequests ? [{ label: t('booking.specialRequests'), value: booking.specialRequests, fullWidth: true }] : []),
   ] : [];
 
@@ -176,12 +181,11 @@ function BookingConfirmationContent() {
             <div id="confirmation-sheet" className="glass-card animate-scale-in" style={{
               padding: '2rem 2.5rem', background: '#ffffff', color: '#0f172a',
               borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: 'var(--shadow-xl)',
-              maxWidth: '750px', margin: '0 auto'
+              maxWidth: '100%', margin: '0 auto', width: '100%'
             }}>
               {/* Invoice Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1.2rem', borderBottom: '2px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <img src="/logo_orluxus_marketing.png" alt="Orluxus Marketing Tourism Agency" style={{ height: '60px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 2px 6px rgba(180,83,9,0.2))' }} onError={e => { e.target.style.display = 'none'; }} />
                   <div>
                     <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#d97706', margin: 0, letterSpacing: '3px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
                     <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: '600' }}>ORLUXUS MARKETING TOURISM AGENCY</span>

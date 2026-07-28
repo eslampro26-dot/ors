@@ -1,7 +1,6 @@
 import "./globals.css";
 import SplashScreen from "@/components/SplashScreen";
 import LocaleProvider from "@/components/LocaleProvider";
-import ThemeProvider from "@/components/ThemeProvider";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ToastProvider from "@/components/Toast";
@@ -86,16 +85,14 @@ export default function RootLayout({ children, params }) {
       <body suppressHydrationWarning>
         <GlobalBackground />
         <LanguageProvider>
-          <ThemeProvider>
-            <SkipToContent />
-            <SplashScreen />
-            <LocaleProvider />
-            <ServiceWorkerRegistrar />
-            <ErrorBoundary>
-              {children}
-            </ErrorBoundary>
-            <WhatsAppFloatingButton />
-          </ThemeProvider>
+          <SkipToContent />
+          <SplashScreen />
+          <LocaleProvider />
+          <ServiceWorkerRegistrar />
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+          <WhatsAppFloatingButton />
           <ToastProvider />
         </LanguageProvider>
       </body>
