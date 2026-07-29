@@ -24,11 +24,15 @@ try {
   if (customDbId === "9Evrgg7IPODZgBc21XKQ") {
     customDbId = "(default)";
   }
+  // Initialize Firestore with better connection settings
   db = initializeFirestore(app, { 
     experimentalForceLongPolling: true,
-    databaseId: customDbId
+    databaseId: customDbId,
+    cacheSizeBytes: 40 * 1024 * 1024, // 40MB cache
+    ignoreUndefinedProperties: true
   });
 } catch (e) {
+  console.error('Firestore initialization error:', e);
   db = getFirestore(app);
 }
 
