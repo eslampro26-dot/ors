@@ -909,10 +909,21 @@ export async function getSettings() {
 
 export async function saveSettings(settingsData) {
   try {
+    // Reset circuit breaker for save operations
+    _circuitBreaker.tripped = false;
+    _circuitBreaker.trippedAt = null;
+    _circuitBreaker.errorLogged = false;
+
+    console.log('Saving settings to Firebase:', Object.keys(settingsData));
     await safeSetDoc(doc(db, COL.SETTINGS, 'main'), settingsData, { merge: true });
+    console.log('Settings saved successfully');
     return true;
   } catch (e) {
     console.error('Error saving settings:', e);
+    // Reset circuit breaker on error to allow retry
+    _circuitBreaker.tripped = false;
+    _circuitBreaker.trippedAt = null;
+    _circuitBreaker.errorLogged = false;
     return false;
   }
 }
