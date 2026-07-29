@@ -27,10 +27,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  // TEMPORARY: Disable auth for debugging
-  // if (!verifyApiSecret(request)) {
-  //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  // }
+  if (!verifyApiSecret(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     const { slug, category, ...tripData } = await request.json();
     if (!slug || !category) {
@@ -55,10 +54,9 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  // TEMPORARY: Disable auth for debugging
-  // if (!verifyApiSecret(request)) {
-  //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  // }
+  if (!verifyApiSecret(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     const { id, slug, category, ...tripData } = await request.json();
     if (!id) {

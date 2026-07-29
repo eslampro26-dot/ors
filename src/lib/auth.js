@@ -148,18 +148,13 @@ export function getCookieFromRequest(request, cookieName) {
  * @returns {boolean}
  */
 export function verifyApiSecret(request) {
-  // TEMPORARY: Always return true for debugging admin panel issues
-  console.log('verifyApiSecret: TEMPORARILY DISABLED for debugging');
-  return true;
-  
-  // Original logic (commented out for debugging):
-  // const headerToken = request.headers.get('x-api-secret');
-  // const adminToken  = getCookieFromRequest(request, 'admin_session');
-  // // Allow requests with valid admin session cookie
-  // if (verifyAdminToken(adminToken)) return true;
-  // // Allow requests with API secret header (for internal calls)
-  // if (headerToken && headerToken === getApiSecret()) return true;
-  // return false;
+  const headerToken = request.headers.get('x-api-secret');
+  const adminToken  = getCookieFromRequest(request, 'admin_session');
+  // Allow requests with valid admin session cookie
+  if (verifyAdminToken(adminToken)) return true;
+  // Allow requests with API secret header (for internal calls)
+  if (headerToken && headerToken === getApiSecret()) return true;
+  return false;
 }
 
 /**
