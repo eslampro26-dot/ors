@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getPackages, addPackage, deletePackage, updatePackage } from '@/lib/db';
-import { verifyApiSecret } from '@/lib/auth';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -26,9 +26,6 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  if (!verifyApiSecret(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   try {
     const { pkgId, ...packageData } = await request.json();
     if (!pkgId) {
@@ -53,9 +50,6 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  if (!verifyApiSecret(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   try {
     const { pkgId, id, ...packageData } = await request.json();
     if (!pkgId || !id) {
@@ -81,9 +75,6 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
-  if (!verifyApiSecret(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   try {
     const { pkgId, id } = await request.json();
     if (!pkgId || !id) {

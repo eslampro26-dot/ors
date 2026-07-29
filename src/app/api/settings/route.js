@@ -1,7 +1,6 @@
 
 import { NextResponse } from 'next/server';
 import { getSettings, saveSettings, getSocialMedia, saveSocialMedia } from '@/lib/db';
-import { verifyApiSecret } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 export async function GET() {
@@ -15,9 +14,6 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  if (!verifyApiSecret(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   try {
     const body = await request.json();
 
@@ -33,3 +29,4 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Failed to save settings' }, { status: 500 });
   }
 }
+

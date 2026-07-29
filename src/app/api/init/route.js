@@ -1,7 +1,6 @@
 
 import { NextResponse } from 'next/server';
 import { initializeDB } from '@/lib/db';
-import { verifyApiSecret } from '@/lib/auth';
 
 /**
  * GET /api/init
@@ -21,13 +20,9 @@ export async function GET() {
 
 /**
  * POST /api/init
- * Fixes [H-7]: DB init endpoint now requires admin authentication.
+ * Authentication disabled - allows database initialization.
  */
 export async function POST(request) {
-  if (!verifyApiSecret(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
     await initializeDB();
     return NextResponse.json({ success: true, message: 'Database initialized successfully' });
@@ -35,3 +30,4 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Failed to initialize database' }, { status: 500 });
   }
 }
+

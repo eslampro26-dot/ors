@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getBookings, addBooking, updateBookingStatus, deleteBooking } from '@/lib/db';
-import { verifyApiSecret, getCookieFromRequest, verifyAgentToken } from '@/lib/auth';
+import { getCookieFromRequest, verifyAgentToken } from '@/lib/auth'
 
 function isAdmin(request) {
   return verifyApiSecret(request);

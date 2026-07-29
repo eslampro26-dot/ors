@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getTrips, addTrip, updateTrip, deleteTrip } from '@/lib/db';
-import { verifyApiSecret } from '@/lib/auth';
+
 
 export const dynamic = 'force-dynamic';
 
@@ -27,9 +27,6 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  if (!verifyApiSecret(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   try {
     const { slug, category, ...tripData } = await request.json();
     if (!slug || !category) {
@@ -54,9 +51,6 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  if (!verifyApiSecret(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   try {
     const { id, slug, category, ...tripData } = await request.json();
     if (!id) {
@@ -84,9 +78,6 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
-  if (!verifyApiSecret(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   try {
     const { slug, category, id } = await request.json();
     if (!slug || !category || !id) {
