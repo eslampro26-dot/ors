@@ -602,12 +602,13 @@ export async function saveBookings(bookings) {
 
 export async function addBooking(bookingData) {
   try {
-    const nextId = `BK-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 10)}`;
+    // Use bookingData.id if provided (ensures document path matches data field id)
+    const nextId = bookingData.id || `BK-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 10)}`;
     const newBooking = {
-      id: nextId,
       date: new Date().toISOString().split('T')[0],
       status: 'مؤكد',
       ...bookingData,
+      id: nextId, // Always sync id field with document path
     };
 
     await setDoc(doc(db, COL.BOOKINGS, nextId), newBooking);
@@ -635,9 +636,21 @@ export async function addBooking(bookingData) {
 
 export async function updateBookingStatus(id, newStatus) {
   try {
-    const bookingRef = doc(db, COL.BOOKINGS, id);
-    const bookingSnap = await getDoc(bookingRef);
-    if (!bookingSnap.exists()) return false;
+    // 1) Try direct document path lookup first
+    let bookingRef = doc(db, COL.BOOKINGS, id);
+    let bookingSnap = await safeGetDoc(bookingRef);
+
+    // 2) If not found by path, query by data field 'id' (handles legacy bookings)
+    if (!bookingSnap.exists()) {
+      const q = query(collection(db, COL.BOOKINGS), where('id', '==', id), limit(1));
+      const snapshot = await safeGetDocs(q);
+      if (snapshot.empty) {
+        console.error('updateBookingStatus: booking not found for id:', id);
+        return false;
+      }
+      bookingRef = snapshot.docs[0].ref;
+      bookingSnap = snapshot.docs[0];
+    }
 
     const oldBooking = bookingSnap.data();
     const oldStatus = oldBooking.status;
@@ -650,7 +663,7 @@ export async function updateBookingStatus(id, newStatus) {
       await safeUpdateDoc(agentRef, { sales: increment(-(oldBooking.finalAmount || 0)) });
     } else if (oldStatus === 'ملغي' && newStatus !== 'ملغي' && newStatus !== 'فاشل' && oldBooking.agentId) {
       const agentRef = doc(db, COL.AGENTS, String(oldBooking.agentId));
-      await updateDoc(agentRef, { sales: increment(oldBooking.finalAmount || 0) });
+      await safeUpdateDoc(agentRef, { sales: increment(oldBooking.finalAmount || 0) });
     }
 
     return true;

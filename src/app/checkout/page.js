@@ -2098,11 +2098,59 @@ function CheckoutContent() {
               {/* Special Requests */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.2rem' }}>
                 <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{translate('specialRequestsLabel')}</label>
-                <textarea 
+
+                {/* Quick-select special request checkboxes from settings */}
+                {settings?.specialRequestsList && settings.specialRequestsList.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                    {settings.specialRequestsList.map((req) => {
+                      const label = locale === 'ar' ? (req.labelAr || req.labelEn) : (req.labelEn || req.labelAr);
+                      const isChecked = specialRequests.includes(label);
+                      return (
+                        <label
+                          key={req.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            cursor: 'pointer',
+                            fontSize: '0.88rem',
+                            color: 'var(--text-secondary)',
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '8px',
+                            border: `1px solid ${isChecked ? 'var(--gold-500)' : 'var(--border-subtle)'}`,
+                            background: isChecked ? 'rgba(245,158,11,0.08)' : 'rgba(255,255,255,0.02)',
+                            transition: 'all 0.15s ease',
+                            flexDirection: locale === 'ar' ? 'row-reverse' : 'row',
+                            userSelect: 'none',
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSpecialRequests(prev => prev ? `${prev}, ${label}` : label);
+                              } else {
+                                setSpecialRequests(prev =>
+                                  prev.split(', ').filter(r => r !== label).join(', ')
+                                );
+                              }
+                            }}
+                            style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: 'var(--gold-500)' }}
+                          />
+                          <span>{label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <textarea
                   value={specialRequests}
                   onChange={(e) => setSpecialRequests(e.target.value)}
-                  placeholder={translate('specialRequestsPlaceholder')} 
+                  placeholder={translate('specialRequestsPlaceholder')}
                   rows="3"
+
                   style={{
                     padding: '0.8rem 1rem',
                     borderRadius: 'var(--radius-md)',
