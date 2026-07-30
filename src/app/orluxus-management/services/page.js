@@ -487,8 +487,9 @@ export default function AdminServices() {
         alert('Error saving trip.');
       }
     } else {
-      const { category, titleAr, titleEn, price, duration, description, icon, image, images } = formData;
-      if (!titleAr || !titleEn || !price) {
+      const { category, titleAr, titleEn, price, duration, description, icon, image, images, economyPrice, businessPrice, vipPrice, economyChildPrice, businessChildPrice, vipChildPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice } = formData;
+      const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
+      if (!titleAr || !titleEn || basePrice <= 0) {
         alert('Please fill all required fields!');
         return;
       }
@@ -539,7 +540,7 @@ export default function AdminServices() {
       }
 
       try {
-        const success = await addPackage(category, {
+        const packagePayload = {
           titleAr,
           titleEn,
           titleDe: translatedTitles.titleDe,
@@ -550,18 +551,33 @@ export default function AdminServices() {
           titleTr: translatedTitles.titleTr,
           titleZh: translatedTitles.titleZh,
           titleJa: translatedTitles.titleJa,
-          price: parseFloat(price),
+          price: basePrice,
+          enableTiers: useTierPrices,
+          economyPrice: useTierPrices ? (parseFloat(economyPrice) || basePrice) : basePrice,
+          businessPrice: useTierPrices ? (parseFloat(businessPrice) || null) : null,
+          vipPrice: useTierPrices ? (parseFloat(vipPrice) || null) : null,
+          childPrice: 0,
+          economyChildPrice: useTierPrices ? (parseFloat(economyChildPrice) || 0) : 0,
+          businessChildPrice: useTierPrices ? (parseFloat(businessChildPrice) || 0) : 0,
+          vipChildPrice: useTierPrices ? (parseFloat(vipChildPrice) || 0) : 0,
+          infantPrice: 0,
+          economyInfantPrice: useTierPrices ? (parseFloat(economyInfantPrice) || 0) : 0,
+          businessInfantPrice: useTierPrices ? (parseFloat(businessInfantPrice) || 0) : 0,
+          vipInfantPrice: useTierPrices ? (parseFloat(vipInfantPrice) || 0) : 0,
           duration: duration || '3 Nights / 4 Days',
           description,
           icon: icon || '✈️',
           image: image || '',
           images: images || []
-        });
+        };
+
+        const success = await addPackage(category, packagePayload);
 
         if (success) {
           alert('Package added successfully!');
           setModalOpen(false);
-          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',duration:'Full Day',category:'',city:'',description:'',icon:'✈️',image:'',images:[] });
+          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',duration:'Full Day',category:'',city:'',description:'',icon:'✈️',image:'',images:[] });
+          setUseTierPrices(false);
           await reloadCurrentPackage();
         } else {
           alert('Error saving package.');
@@ -1269,6 +1285,143 @@ export default function AdminServices() {
                       rows="6"
                     ></textarea>
                   </div>
+
+                  {/* Tier Prices Toggle for Package */}
+                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', marginBottom: useTierPrices ? '1rem' : 0 }}>
+                      <input
+                        type="checkbox"
+                        checked={useTierPrices}
+                        onChange={(e) => setUseTierPrices(e.target.checked)}
+                        style={{ width: '18px', height: '18px' }}
+                      />
+                      <span style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>Enable separate prices for each category (Economy / Business / VIP)</span>
+                    </label>
+
+                    {useTierPrices && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem' }}>
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>💰 Economy (€)</label>
+                          <input
+                            type="number"
+                            name="economyPrice"
+                            value={formData.economyPrice}
+                            onChange={handleInputChange}
+                            placeholder="Example: 45"
+                            className={styles.input}
+                            min="1"
+                          />
+                        </div>
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--gold-400)', fontSize: '0.85rem' }}>💼 Business (€)</label>
+                          <input
+                            type="number"
+                            name="businessPrice"
+                            value={formData.businessPrice}
+                            onChange={handleInputChange}
+                            placeholder="Example: 75"
+                            className={styles.input}
+                            min="1"
+                          />
+                        </div>
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--coral-400)', fontSize: '0.85rem' }}>👑 VIP (€)</label>
+                          <input
+                            type="number"
+                            name="vipPrice"
+                            value={formData.vipPrice}
+                            onChange={handleInputChange}
+                            placeholder="Example: 120"
+                            className={styles.input}
+                            min="1"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {useTierPrices && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem', marginTop: '0.8rem' }}>
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--emerald-400)', fontSize: '0.85rem' }}>👶 Economy Child (€)</label>
+                          <input
+                            type="number"
+                            name="economyChildPrice"
+                            value={formData.economyChildPrice}
+                            onChange={handleInputChange}
+                            placeholder="Example: 25"
+                            className={styles.input}
+                            min="0"
+                          />
+                        </div>
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--emerald-400)', fontSize: '0.85rem' }}>👶 Business Child (€)</label>
+                          <input
+                            type="number"
+                            name="businessChildPrice"
+                            value={formData.businessChildPrice}
+                            onChange={handleInputChange}
+                            placeholder="Example: 40"
+                            className={styles.input}
+                            min="0"
+                          />
+                        </div>
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--emerald-400)', fontSize: '0.85rem' }}>👶 VIP Child (€)</label>
+                          <input
+                            type="number"
+                            name="vipChildPrice"
+                            value={formData.vipChildPrice}
+                            onChange={handleInputChange}
+                            placeholder="Example: 60"
+                            className={styles.input}
+                            min="0"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {useTierPrices && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem', marginTop: '0.8rem' }}>
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--pink-400)', fontSize: '0.85rem' }}>👼 Economy Infant (€)</label>
+                          <input
+                            type="number"
+                            name="economyInfantPrice"
+                            value={formData.economyInfantPrice}
+                            onChange={handleInputChange}
+                            placeholder="Example: 10"
+                            className={styles.input}
+                            min="0"
+                          />
+                        </div>
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--pink-400)', fontSize: '0.85rem' }}>👼 Business Infant (€)</label>
+                          <input
+                            type="number"
+                            name="businessInfantPrice"
+                            value={formData.businessInfantPrice}
+                            onChange={handleInputChange}
+                            placeholder="Example: 20"
+                            className={styles.input}
+                            min="0"
+                          />
+                        </div>
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--pink-400)', fontSize: '0.85rem' }}>👼 VIP Infant (€)</label>
+                          <input
+                            type="number"
+                            name="vipInfantPrice"
+                            value={formData.vipInfantPrice}
+                            onChange={handleInputChange}
+                            placeholder="Example: 30"
+                            className={styles.input}
+                            min="0"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Icon */}
                   <div className={styles.formGroup}>
                     <label>Distinctive emoji</label>
