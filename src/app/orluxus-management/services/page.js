@@ -80,7 +80,9 @@ export default function AdminServices() {
     category: '',
     city: '',
     description: '',
+    descriptionEn: '',
     tripDescription: '',
+    tripDescriptionEn: '',
     icon: '✈️',
     image: '',
     images: [],
@@ -418,6 +420,52 @@ export default function AdminServices() {
         console.error('Auto-translation failed, using fallbacks:', err);
       }
 
+      // Auto-translate trip description to all languages
+      let translatedDescriptions = {
+        tripDescriptionAr: tripDescriptionEn,
+        tripDescriptionDe: tripDescriptionEn,
+        tripDescriptionFr: tripDescriptionEn,
+        tripDescriptionEs: tripDescriptionEn,
+        tripDescriptionIt: tripDescriptionEn,
+        tripDescriptionRu: tripDescriptionEn,
+        tripDescriptionTr: tripDescriptionEn,
+        tripDescriptionZh: tripDescriptionEn,
+        tripDescriptionJa: tripDescriptionEn
+      };
+
+      if (tripDescriptionEn) {
+        try {
+          const descTranslateResponse = await fetch('/api/auto-translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: tripDescriptionEn,
+              sourceLang: 'en',
+              targetLangs: ['ar', 'de', 'fr', 'es', 'it', 'ru', 'tr', 'zh', 'ja']
+            })
+          });
+
+          if (descTranslateResponse.ok) {
+            const data = await descTranslateResponse.json();
+            if (data.success && data.translations) {
+              translatedDescriptions = {
+                tripDescriptionAr: data.translations.ar || tripDescriptionEn,
+                tripDescriptionDe: data.translations.de || tripDescriptionEn,
+                tripDescriptionFr: data.translations.fr || tripDescriptionEn,
+                tripDescriptionEs: data.translations.es || tripDescriptionEn,
+                tripDescriptionIt: data.translations.it || tripDescriptionEn,
+                tripDescriptionRu: data.translations.ru || tripDescriptionEn,
+                tripDescriptionTr: data.translations.tr || tripDescriptionEn,
+                tripDescriptionZh: data.translations.zh || tripDescriptionEn,
+                tripDescriptionJa: data.translations.ja || tripDescriptionEn
+              };
+            }
+          }
+        } catch (err) {
+          console.error('Auto-translation of description failed, using fallbacks:', err);
+        }
+      }
+
       const tripPayload = {
         category: category,
         titleAr: translatedTitles.titleAr,
@@ -448,7 +496,17 @@ export default function AdminServices() {
         images: images || [],
         locationUrl: locationUrl || '',
         videoUrl: videoUrl || '',
-        tripDescription: tripDescription || '',
+        tripDescription: tripDescriptionEn || '',
+        tripDescriptionAr: translatedDescriptions.tripDescriptionAr,
+        tripDescriptionEn: tripDescriptionEn,
+        tripDescriptionDe: translatedDescriptions.tripDescriptionDe,
+        tripDescriptionFr: translatedDescriptions.tripDescriptionFr,
+        tripDescriptionEs: translatedDescriptions.tripDescriptionEs,
+        tripDescriptionIt: translatedDescriptions.tripDescriptionIt,
+        tripDescriptionRu: translatedDescriptions.tripDescriptionRu,
+        tripDescriptionTr: translatedDescriptions.tripDescriptionTr,
+        tripDescriptionZh: translatedDescriptions.tripDescriptionZh,
+        tripDescriptionJa: translatedDescriptions.tripDescriptionJa,
         economyDesc: economyDesc || '',
         businessDesc: businessDesc || '',
         vipDesc: vipDesc || '',
@@ -478,7 +536,7 @@ export default function AdminServices() {
         if (success) {
           setModalOpen(false);
           setEditingTrip(null);
-          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',duration:'Full Day',category:'',city:'',description:'',tripDescription:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
+          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
           setUseTierPrices(false);
           await reloadCurrentCity();
         }
@@ -487,7 +545,7 @@ export default function AdminServices() {
         alert('Error saving trip.');
       }
     } else {
-      const { category, titleAr, titleEn, price, duration, description, icon, image, images, economyPrice, businessPrice, vipPrice, economyChildPrice, businessChildPrice, vipChildPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice } = formData;
+      const { category, titleAr, titleEn, price, duration, descriptionEn, icon, image, images, economyPrice, businessPrice, vipPrice, economyChildPrice, businessChildPrice, vipChildPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice } = formData;
       const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
       if (!titleAr || !titleEn || basePrice <= 0) {
         alert('Please fill all required fields!');
@@ -539,6 +597,52 @@ export default function AdminServices() {
         console.error('Auto-translation failed for package, using fallbacks:', err);
       }
 
+      // Auto-translate package description to all languages
+      let translatedDescriptions = {
+        descriptionAr: descriptionEn,
+        descriptionDe: descriptionEn,
+        descriptionFr: descriptionEn,
+        descriptionEs: descriptionEn,
+        descriptionIt: descriptionEn,
+        descriptionRu: descriptionEn,
+        descriptionTr: descriptionEn,
+        descriptionZh: descriptionEn,
+        descriptionJa: descriptionEn
+      };
+
+      if (descriptionEn) {
+        try {
+          const descTranslateResponse = await fetch('/api/auto-translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: descriptionEn,
+              sourceLang: 'en',
+              targetLangs: ['ar', 'de', 'fr', 'es', 'it', 'ru', 'tr', 'zh', 'ja']
+            })
+          });
+
+          if (descTranslateResponse.ok) {
+            const data = await descTranslateResponse.json();
+            if (data.success && data.translations) {
+              translatedDescriptions = {
+                descriptionAr: data.translations.ar || descriptionEn,
+                descriptionDe: data.translations.de || descriptionEn,
+                descriptionFr: data.translations.fr || descriptionEn,
+                descriptionEs: data.translations.es || descriptionEn,
+                descriptionIt: data.translations.it || descriptionEn,
+                descriptionRu: data.translations.ru || descriptionEn,
+                descriptionTr: data.translations.tr || descriptionEn,
+                descriptionZh: data.translations.zh || descriptionEn,
+                descriptionJa: data.translations.ja || descriptionEn
+              };
+            }
+          }
+        } catch (err) {
+          console.error('Auto-translation of package description failed, using fallbacks:', err);
+        }
+      }
+
       try {
         const packagePayload = {
           titleAr,
@@ -565,7 +669,17 @@ export default function AdminServices() {
           businessInfantPrice: useTierPrices ? (parseFloat(businessInfantPrice) || 0) : 0,
           vipInfantPrice: useTierPrices ? (parseFloat(vipInfantPrice) || 0) : 0,
           duration: duration || '3 Nights / 4 Days',
-          description,
+          description: descriptionEn,
+          descriptionAr: translatedDescriptions.descriptionAr,
+          descriptionEn: descriptionEn,
+          descriptionDe: translatedDescriptions.descriptionDe,
+          descriptionFr: translatedDescriptions.descriptionFr,
+          descriptionEs: translatedDescriptions.descriptionEs,
+          descriptionIt: translatedDescriptions.descriptionIt,
+          descriptionRu: translatedDescriptions.descriptionRu,
+          descriptionTr: translatedDescriptions.descriptionTr,
+          descriptionZh: translatedDescriptions.descriptionZh,
+          descriptionJa: translatedDescriptions.descriptionJa,
           icon: icon || '✈️',
           image: image || '',
           images: images || []
@@ -576,7 +690,7 @@ export default function AdminServices() {
         if (success) {
           alert('Package added successfully!');
           setModalOpen(false);
-          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',duration:'Full Day',category:'',city:'',description:'',icon:'✈️',image:'',images:[] });
+          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[] });
           setUseTierPrices(false);
           await reloadCurrentPackage();
         } else {
@@ -1020,10 +1134,10 @@ export default function AdminServices() {
               {/* Trip Description */}
               {modalType === 'trip' && (
                 <div className={styles.formGroup}>
-                  <label>Detailed trip description (shown to customers)</label>
+                  <label>Detailed trip description in English (shown to customers - will be auto-translated to all languages)</label>
                   <textarea
-                    name="tripDescription"
-                    value={formData.tripDescription}
+                    name="tripDescriptionEn"
+                    value={formData.tripDescriptionEn}
                     onChange={handleInputChange}
                     placeholder="Write a comprehensive description of the trip: what the program includes, main landmarks, features..."
                     className={styles.input}
@@ -1275,10 +1389,10 @@ export default function AdminServices() {
                 <>
                   {/* Description */}
                   <div className={styles.formGroup}>
-                    <label>Description / Comprehensive benefits</label>
-                    <textarea 
-                      name="description" 
-                      value={formData.description} 
+                    <label>Description in English (will be auto-translated to all languages)</label>
+                    <textarea
+                      name="descriptionEn"
+                      value={formData.descriptionEn}
                       onChange={handleInputChange}
                       placeholder="Example: 5-star hotel accommodation + round-trip flights + airport transfer"
                       className={styles.input}
