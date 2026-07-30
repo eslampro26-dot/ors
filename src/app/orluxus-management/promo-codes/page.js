@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from './page.module.css';
-import { getPromoCodes, addPromoCode, deletePromoCode, savePromoCodes, getAgents } from '@/lib/db';
+import { getPromoCodes, addPromoCode, deletePromoCode, savePromoCodes, getAgents } from '@/lib/db.firebase';
 
 export default function AdminPromoCodes() {
   const [searchTerm, setSearchTerm] = useState('');
