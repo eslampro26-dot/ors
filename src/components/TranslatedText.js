@@ -29,8 +29,9 @@ export default function TranslatedText({ text, fallback = '', className = '', st
       return;
     }
     
-    // No translation needed for English if already English
-    if (locale === 'en') {
+    // If locale is English and text is already non-Arabic, no translation needed
+    const hasArabic = /[\u0600-\u06FF]/.test(rawText);
+    if (locale === 'en' && !hasArabic) {
       setTranslated(rawText);
       return;
     }

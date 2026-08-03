@@ -1371,34 +1371,48 @@ html[dir="rtl"] .luxury-experience-card:hover .explore-label-cta {
 }
 
 /* =========================================================
-   ADMIN DASHBOARD INPUT FIELDS VISIBILITY FIX
-   Removes dark inner shadows, drop-shadows, & obscuring overlays
+   ADMIN DASHBOARD INPUT FIELDS HIGH-VISIBILITY CONTRAST FIX
+   Eliminates all dark shadows, overlays, & obscuring dark boxes
    ========================================================= */
-input,
-select,
-textarea {
-  box-shadow: none !important;
-  filter: none !important;
-  text-shadow: none !important;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  box-shadow: 0 0 0 2px var(--gold-400) !important;
-}
-
-/* Specific contrast fix for Admin Dashboard Inputs */
 [class*="orluxus-management"] input,
 [class*="orluxus-management"] select,
 [class*="orluxus-management"] textarea,
+[class*="admin"] input,
+[class*="admin"] select,
+[class*="admin"] textarea,
 .adminContainer input,
 .adminContainer select,
 .adminContainer textarea {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--border-medium) !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
   opacity: 1 !important;
+  font-weight: 600 !important;
+}
+
+[class*="orluxus-management"] input::placeholder,
+[class*="orluxus-management"] textarea::placeholder,
+[class*="admin"] input::placeholder,
+[class*="admin"] textarea::placeholder {
+  color: #64748b !important;
+  opacity: 0.8 !important;
+}
+
+[class*="orluxus-management"] select option,
+[class*="admin"] select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[class*="orluxus-management"] input:focus,
+[class*="orluxus-management"] select:focus,
+[class*="orluxus-management"] textarea:focus {
+  border-color: #C9A227 !important;
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.25) !important;
+  outline: none !important;
 }
 
 

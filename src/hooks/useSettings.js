@@ -67,18 +67,20 @@ export function useSettings() {
  * @returns {string}
  */
 export function getPolicyText(settings, arField, enField, locale, t, msgKey) {
+  if (!settings) settings = {};
+
   // Normalize locale key for DB property lookup (e.g. 'De', 'Fr', 'Es', 'It', 'Ru', 'Tr', 'Zh', 'Ja')
   const localeSuffix = locale ? (locale.charAt(0).toUpperCase() + locale.slice(1).toLowerCase()) : 'En';
-  const customFieldForLocale = arField.replace(/Ar$/, '') + localeSuffix; // e.g. visionDe, goalsFr
+  const customFieldForLocale = arField ? arField.replace(/Ar$/, '') + localeSuffix : null;
 
-  // 1. If custom DB text exists specifically for current locale, use it
-  if (locale === 'ar' && settings?.[arField]) return settings[arField];
-  if (locale === 'en' && settings?.[enField]) return settings[enField];
-  if (settings?.[customFieldForLocale]) return settings[customFieldForLocale];
+  // 1. If custom DB text exists specifically for current locale
+  if (locale === 'ar' && settings[arField]) return settings[arField];
+  if (locale === 'en' && settings[enField]) return settings[enField];
+  if (customFieldForLocale && settings[customFieldForLocale]) return settings[customFieldForLocale];
 
-  // 2. For non-ar/en locales (de, fr, ru, etc.): if admin customized the text in DB, return that text (so <TranslatedText> translates it dynamically)
-  if (settings?.[enField]) return settings[enField];
-  if (settings?.[arField]) return settings[arField];
+  // 2. Return admin custom text (English first, then Arabic) so <TranslatedText> translates it dynamically
+  if (settings[enField]) return settings[enField];
+  if (settings[arField]) return settings[arField];
 
   // 3. Fallback: try messages.js if no custom DB text exists
   if (msgKey && typeof t === 'function') {
