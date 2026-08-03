@@ -76,21 +76,15 @@ export function getPolicyText(settings, arField, enField, locale, t, msgKey) {
   if (locale === 'en' && settings?.[enField]) return settings[enField];
   if (settings?.[customFieldForLocale]) return settings[customFieldForLocale];
 
-  // 2. For non-ar/en locales (de, fr, ru, etc.): prioritize messages.js localization
-  if (locale !== 'ar' && locale !== 'en' && msgKey && typeof t === 'function') {
-    const translated = t(msgKey);
-    if (translated && translated !== msgKey) return translated;
-  }
+  // 2. For non-ar/en locales (de, fr, ru, etc.): if admin customized the text in DB, return that text (so <TranslatedText> translates it dynamically)
+  if (settings?.[enField]) return settings[enField];
+  if (settings?.[arField]) return settings[arField];
 
-  // 3. Fallback: try messages.js for ar/en
+  // 3. Fallback: try messages.js if no custom DB text exists
   if (msgKey && typeof t === 'function') {
     const translated = t(msgKey);
     if (translated && translated !== msgKey) return translated;
   }
-
-  // 4. Final DB fallbacks
-  if (settings?.[enField]) return settings[enField];
-  if (settings?.[arField]) return settings[arField];
 
   return '';
 }

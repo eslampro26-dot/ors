@@ -571,7 +571,7 @@ export default function OurStoryPage() {
               overflowY: 'auto',
               paddingInlineEnd: '8px'
             }}>
-              {modalConfig.content}
+              <TranslatedText text={modalConfig.content} />
             </div>
 
             <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end' }}>

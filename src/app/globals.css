@@ -1370,4 +1370,36 @@ html[dir="rtl"] .luxury-experience-card:hover .explore-label-cta {
   }
 }
 
+/* =========================================================
+   ADMIN DASHBOARD INPUT FIELDS VISIBILITY FIX
+   Removes dark inner shadows, drop-shadows, & obscuring overlays
+   ========================================================= */
+input,
+select,
+textarea {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 2px var(--gold-400) !important;
+}
+
+/* Specific contrast fix for Admin Dashboard Inputs */
+[class*="orluxus-management"] input,
+[class*="orluxus-management"] select,
+[class*="orluxus-management"] textarea,
+.adminContainer input,
+.adminContainer select,
+.adminContainer textarea {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-medium) !important;
+  opacity: 1 !important;
+}
+
+
 

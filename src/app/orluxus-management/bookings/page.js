@@ -477,7 +477,14 @@ export default function AdminBookings() {
     `;
     printWindow.document.write(agreementHTML);
     printWindow.document.close();
-    printWindow.print();
+    printWindow.focus();
+    setTimeout(() => {
+      try {
+        printWindow.print();
+      } catch (err) {
+        console.error('Error triggering invoice print:', err);
+      }
+    }, 350);
   };
 
   // Filters
