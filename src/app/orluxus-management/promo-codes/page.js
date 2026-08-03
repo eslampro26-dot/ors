@@ -320,8 +320,8 @@ export default function AdminPromoCodes() {
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(0,0,0,0.75)',
-          backdropFilter: 'blur(8px)',
+          background: 'rgba(15, 23, 42, 0.4)',
+          backdropFilter: 'blur(6px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -331,12 +331,13 @@ export default function AdminPromoCodes() {
         }}
           onClick={e => { if (e.target === e.currentTarget) { setIsModalOpen(false); resetForm(); } }}
         >
-          <div className="glass-card" style={{
+          <div style={{
             width: '100%',
             maxWidth: '520px',
-            background: 'var(--bg-secondary)',
-            border: `1px solid ${editingCode ? 'rgba(251,191,36,0.5)' : 'var(--border-accent)'}`,
-            boxShadow: 'var(--shadow-xl)',
+            background: '#FFFFFF',
+            borderRadius: '16px',
+            border: `1px solid ${editingCode ? 'rgba(251,191,36,0.5)' : 'var(--border-medium)'}`,
+            boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
             padding: '2.5rem',
             maxHeight: '90vh',
             overflowY: 'auto',

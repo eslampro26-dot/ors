@@ -684,44 +684,7 @@ body {
   visibility: hidden !important;
 }
 
-/* ======================== DARK MODE OVERRIDES ======================== */
-[data-theme="dark"] .glass-card:hover {
-  background: var(--bg-card-hover);
-}
-
-[data-theme="dark"] input,
-[data-theme="dark"] textarea,
-[data-theme="dark"] select {
-  background: rgba(255, 255, 255, 0.04) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-medium) !important;
-}
-
-[data-theme="dark"] input::placeholder,
-[data-theme="dark"] textarea::placeholder {
-  color: var(--text-tertiary) !important;
-}
-
-[data-theme="dark"] .destination-row-card:hover {
-  background: var(--bg-card-hover) !important;
-}
-
-[data-theme="dark"] .quick-chip:hover {
-  background: var(--gold-400) !important;
-  color: #07111b !important;
-}
-
-[data-theme="dark"] footer {
-  background: #050810 !important;
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
-}
+/* ======================== LIGHT THEME ONLY ======================== */
 
 @keyframes slideInLeft {
   from {
