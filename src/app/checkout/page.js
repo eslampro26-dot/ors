@@ -181,9 +181,13 @@ function CheckoutContent() {
   };
 
   
-  // Resolve additional person price from settings or fallback to basePrice
-  let additionalPersonPrice = basePrice;
-  if (settings?.additionalPrices) {
+  // Resolve additional person price, child price, and infant price from query params or settings
+  const paramChildPrice = parseFloat(searchParams.get('childPrice'));
+  const paramInfantPrice = parseFloat(searchParams.get('infantPrice'));
+  const paramAddPersonPrice = parseFloat(searchParams.get('additionalPersonPrice'));
+
+  let additionalPersonPrice = (!isNaN(paramAddPersonPrice) && paramAddPersonPrice >= 0) ? paramAddPersonPrice : basePrice;
+  if (isNaN(paramAddPersonPrice) && settings?.additionalPrices) {
     const resolvedCategory = category || (type === 'package' ? 'packages' : '');
     if (resolvedCategory && settings.additionalPrices[resolvedCategory]) {
       const tierPrices = settings.additionalPrices[resolvedCategory];
@@ -194,9 +198,8 @@ function CheckoutContent() {
     }
   }
 
-  // Resolve child price (2-12 years) from settings
-  let childPrice = 0;
-  if (settings?.childPrices) {
+  let childPrice = (!isNaN(paramChildPrice) && paramChildPrice >= 0) ? paramChildPrice : 0;
+  if (isNaN(paramChildPrice) && settings?.childPrices) {
     const resolvedCategory = category || (type === 'package' ? 'packages' : '');
     if (resolvedCategory && settings.childPrices[resolvedCategory]) {
       const cp = parseFloat(settings.childPrices[resolvedCategory][tier]);
@@ -204,9 +207,8 @@ function CheckoutContent() {
     }
   }
 
-  // Resolve infant price (under 2 years) from settings — defaults to 0 (free)
-  let infantPrice = 0;
-  if (settings?.infantPrices) {
+  let infantPrice = (!isNaN(paramInfantPrice) && paramInfantPrice >= 0) ? paramInfantPrice : 0;
+  if (isNaN(paramInfantPrice) && settings?.infantPrices) {
     const resolvedCategory = category || (type === 'package' ? 'packages' : '');
     if (resolvedCategory && settings.infantPrices[resolvedCategory]) {
       const ip = parseFloat(settings.infantPrices[resolvedCategory][tier]);

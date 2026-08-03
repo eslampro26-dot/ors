@@ -367,37 +367,38 @@ export default function AdminServices() {
     e.preventDefault();
 
     if (modalType === 'trip') {
-      const { city, category, titleEn, titleDe, price, economyPrice, businessPrice, vipPrice, childPrice, economyChildPrice, businessChildPrice, vipChildPrice, infantPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, specialRequests } = formData;
+      const { city, category, titleEn, titleDe, titleAr, price, economyPrice, businessPrice, vipPrice, childPrice, economyChildPrice, businessChildPrice, vipChildPrice, infantPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice, additionalPersonPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, specialRequests } = formData;
       const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
-      if (!titleEn || !titleDe || basePrice <= 0) {
-        alert('Please fill all required fields (English and German titles and price)!');
+      
+      const effectiveTitleEn = titleEn || titleAr || titleDe;
+      if (!effectiveTitleEn || basePrice <= 0) {
+        alert('Please fill in the title and base price!');
         return;
       }
 
+      setIsTranslating(true);
+
       // Auto-translate to other languages
       let translatedTitles = {
-        titleAr: titleEn, // Default fallback
-        titleFr: titleEn,
-        titleEs: titleEn,
-        titleIt: titleEn,
-        titleRu: titleEn,
-        titleTr: titleEn,
-        titleZh: titleEn,
-        titleJa: titleEn
+        titleAr: titleAr || effectiveTitleEn,
+        titleFr: effectiveTitleEn,
+        titleEs: effectiveTitleEn,
+        titleIt: effectiveTitleEn,
+        titleRu: effectiveTitleEn,
+        titleTr: effectiveTitleEn,
+        titleZh: effectiveTitleEn,
+        titleJa: effectiveTitleEn
       };
 
       try {
-        // Try to translate from English first, then German
-        const sourceText = titleEn || titleDe;
-        const sourceLang = titleEn ? 'en' : 'de';
-
+        const sourceText = effectiveTitleEn;
         const translateResponse = await fetch('/api/auto-translate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: sourceText,
-            sourceLang: sourceLang,
-            targetLangs: ['ar', 'fr', 'es', 'it', 'ru', 'tr', 'zh', 'ja']
+            sourceLang: 'en',
+            targetLangs: ['ar', 'de', 'fr', 'es', 'it', 'ru', 'tr', 'zh', 'ja']
           })
         });
 
@@ -405,14 +406,15 @@ export default function AdminServices() {
           const data = await translateResponse.json();
           if (data.success && data.translations) {
             translatedTitles = {
-              titleAr: data.translations.ar || titleEn,
-              titleFr: data.translations.fr || titleEn,
-              titleEs: data.translations.es || titleEn,
-              titleIt: data.translations.it || titleEn,
-              titleRu: data.translations.ru || titleEn,
-              titleTr: data.translations.tr || titleEn,
-              titleZh: data.translations.zh || titleEn,
-              titleJa: data.translations.ja || titleEn
+              titleAr: titleAr || data.translations.ar || effectiveTitleEn,
+              titleDe: titleDe || data.translations.de || effectiveTitleEn,
+              titleFr: data.translations.fr || effectiveTitleEn,
+              titleEs: data.translations.es || effectiveTitleEn,
+              titleIt: data.translations.it || effectiveTitleEn,
+              titleRu: data.translations.ru || effectiveTitleEn,
+              titleTr: data.translations.tr || effectiveTitleEn,
+              titleZh: data.translations.zh || effectiveTitleEn,
+              titleJa: data.translations.ja || effectiveTitleEn
             };
           }
         }
@@ -469,8 +471,8 @@ export default function AdminServices() {
       const tripPayload = {
         category: category,
         titleAr: translatedTitles.titleAr,
-        titleEn: titleEn,
-        titleDe: titleDe,
+        titleEn: effectiveTitleEn,
+        titleDe: titleDe || translatedTitles.titleDe || effectiveTitleEn,
         titleFr: translatedTitles.titleFr,
         titleEs: translatedTitles.titleEs,
         titleIt: translatedTitles.titleIt,
@@ -491,6 +493,7 @@ export default function AdminServices() {
         economyInfantPrice: useTierPrices ? (parseFloat(economyInfantPrice) || 0) : 0,
         businessInfantPrice: useTierPrices ? (parseFloat(businessInfantPrice) || 0) : 0,
         vipInfantPrice: useTierPrices ? (parseFloat(vipInfantPrice) || 0) : 0,
+        additionalPersonPrice: parseFloat(additionalPersonPrice) || 0,
         duration,
         image: image || '/images/trips/glass-boat.jpg',
         images: images || [],
@@ -516,7 +519,6 @@ export default function AdminServices() {
       try {
         let success;
         if (editingTrip) {
-          // Update mode
           success = await updateTrip(editingTrip.tripId, tripPayload);
           if (success) {
             alert('Trip updated successfully!');
@@ -524,7 +526,6 @@ export default function AdminServices() {
             alert('Error updating trip.');
           }
         } else {
-          // Add mode
           success = await addTrip(city, category, tripPayload);
           if (success) {
             alert('Trip added successfully!');
@@ -536,44 +537,49 @@ export default function AdminServices() {
         if (success) {
           setModalOpen(false);
           setEditingTrip(null);
-          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
+          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',additionalPersonPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
           setUseTierPrices(false);
           await reloadCurrentCity();
         }
       } catch (err) {
         console.error('Error saving trip:', err);
         alert('Error saving trip.');
+      } finally {
+        setIsTranslating(false);
       }
     } else {
-      const { category, titleAr, titleEn, price, duration, descriptionEn, icon, image, images, economyPrice, businessPrice, vipPrice, economyChildPrice, businessChildPrice, vipChildPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice } = formData;
+      const { category, titleAr, titleEn, price, duration, descriptionEn, icon, image, images, economyPrice, businessPrice, vipPrice, childPrice, economyChildPrice, businessChildPrice, vipChildPrice, infantPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice, additionalPersonPrice } = formData;
       const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
-      if (!titleAr || !titleEn || basePrice <= 0) {
-        alert('Please fill all required fields!');
+      
+      const effectiveTitleEn = titleEn || titleAr;
+      const effectiveTitleAr = titleAr || titleEn;
+      if (!effectiveTitleEn || basePrice <= 0) {
+        alert('Please fill in the title and price!');
         return;
       }
 
+      setIsTranslating(true);
+
       // Auto-translate package titles to other languages
       let translatedTitles = {
-        titleDe: titleEn,
-        titleFr: titleEn,
-        titleEs: titleEn,
-        titleIt: titleEn,
-        titleRu: titleEn,
-        titleTr: titleEn,
-        titleZh: titleEn,
-        titleJa: titleEn
+        titleDe: effectiveTitleEn,
+        titleFr: effectiveTitleEn,
+        titleEs: effectiveTitleEn,
+        titleIt: effectiveTitleEn,
+        titleRu: effectiveTitleEn,
+        titleTr: effectiveTitleEn,
+        titleZh: effectiveTitleEn,
+        titleJa: effectiveTitleEn
       };
 
       try {
-        const sourceText = titleEn || titleAr;
-        const sourceLang = titleEn ? 'en' : 'ar';
-
+        const sourceText = effectiveTitleEn;
         const translateResponse = await fetch('/api/auto-translate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: sourceText,
-            sourceLang: sourceLang,
+            sourceLang: 'en',
             targetLangs: ['de', 'fr', 'es', 'it', 'ru', 'tr', 'zh', 'ja']
           })
         });
@@ -582,14 +588,14 @@ export default function AdminServices() {
           const data = await translateResponse.json();
           if (data.success && data.translations) {
             translatedTitles = {
-              titleDe: data.translations.de || titleEn,
-              titleFr: data.translations.fr || titleEn,
-              titleEs: data.translations.es || titleEn,
-              titleIt: data.translations.it || titleEn,
-              titleRu: data.translations.ru || titleEn,
-              titleTr: data.translations.tr || titleEn,
-              titleZh: data.translations.zh || titleEn,
-              titleJa: data.translations.ja || titleEn
+              titleDe: data.translations.de || effectiveTitleEn,
+              titleFr: data.translations.fr || effectiveTitleEn,
+              titleEs: data.translations.es || effectiveTitleEn,
+              titleIt: data.translations.it || effectiveTitleEn,
+              titleRu: data.translations.ru || effectiveTitleEn,
+              titleTr: data.translations.tr || effectiveTitleEn,
+              titleZh: data.translations.zh || effectiveTitleEn,
+              titleJa: data.translations.ja || effectiveTitleEn
             };
           }
         }
@@ -645,8 +651,8 @@ export default function AdminServices() {
 
       try {
         const packagePayload = {
-          titleAr,
-          titleEn,
+          titleAr: effectiveTitleAr,
+          titleEn: effectiveTitleEn,
           titleDe: translatedTitles.titleDe,
           titleFr: translatedTitles.titleFr,
           titleEs: translatedTitles.titleEs,
@@ -660,14 +666,15 @@ export default function AdminServices() {
           economyPrice: useTierPrices ? (parseFloat(economyPrice) || basePrice) : basePrice,
           businessPrice: useTierPrices ? (parseFloat(businessPrice) || null) : null,
           vipPrice: useTierPrices ? (parseFloat(vipPrice) || null) : null,
-          childPrice: 0,
+          childPrice: parseFloat(childPrice) || 0,
           economyChildPrice: useTierPrices ? (parseFloat(economyChildPrice) || 0) : 0,
           businessChildPrice: useTierPrices ? (parseFloat(businessChildPrice) || 0) : 0,
           vipChildPrice: useTierPrices ? (parseFloat(vipChildPrice) || 0) : 0,
-          infantPrice: 0,
+          infantPrice: parseFloat(infantPrice) || 0,
           economyInfantPrice: useTierPrices ? (parseFloat(economyInfantPrice) || 0) : 0,
           businessInfantPrice: useTierPrices ? (parseFloat(businessInfantPrice) || 0) : 0,
           vipInfantPrice: useTierPrices ? (parseFloat(vipInfantPrice) || 0) : 0,
+          additionalPersonPrice: parseFloat(additionalPersonPrice) || 0,
           duration: duration || '3 Nights / 4 Days',
           description: descriptionEn,
           descriptionAr: translatedDescriptions.descriptionAr,
@@ -690,7 +697,7 @@ export default function AdminServices() {
         if (success) {
           alert('Package added successfully!');
           setModalOpen(false);
-          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[] });
+          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',additionalPersonPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[] });
           setUseTierPrices(false);
           await reloadCurrentPackage();
         } else {
@@ -699,6 +706,8 @@ export default function AdminServices() {
       } catch (err) {
         console.error('Error adding package:', err);
         alert('Error saving package.');
+      } finally {
+        setIsTranslating(false);
       }
     }
   };
@@ -1164,7 +1173,7 @@ export default function AdminServices() {
                 {/* Base Price */}
                 {!useTierPrices && (
                   <div className={styles.formGroup}>
-                    <label>Base price (€) *</label>
+                    <label>Base price (€) * <span style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)', fontWeight: 'normal' }}>(Price from 1 person)</span></label>
                     <input 
                       type="number" 
                       name="price" 
@@ -1176,6 +1185,46 @@ export default function AdminServices() {
                     />
                   </div>
                 )}
+              </div>
+
+              {/* Child, Infant, Additional Person Prices — always visible */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.8rem', padding: '0.8rem 1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                <div className={styles.formGroup} style={{ margin: 0 }}>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--emerald-400)' }}>👶 Child Price (€) <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>Ages 2-12</span></label>
+                  <input
+                    type="number"
+                    name="childPrice"
+                    value={formData.childPrice}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 25"
+                    className={styles.input}
+                    min="0"
+                  />
+                </div>
+                <div className={styles.formGroup} style={{ margin: 0 }}>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--pink-400)' }}>👼 Infant Price (€) <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>Under 2</span></label>
+                  <input
+                    type="number"
+                    name="infantPrice"
+                    value={formData.infantPrice}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 0"
+                    className={styles.input}
+                    min="0"
+                  />
+                </div>
+                <div className={styles.formGroup} style={{ margin: 0 }}>
+                  <label style={{ fontSize: '0.82rem', color: 'var(--gold-400)' }}>➕ Extra Person (€) <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>2nd+ adult</span></label>
+                  <input
+                    type="number"
+                    name="additionalPersonPrice"
+                    value={formData.additionalPersonPrice || ''}
+                    onChange={handleInputChange}
+                    placeholder="e.g. 40"
+                    className={styles.input}
+                    min="0"
+                  />
+                </div>
               </div>
 
               {/* Tier Prices Toggle */}
@@ -1398,6 +1447,46 @@ export default function AdminServices() {
                       className={styles.input}
                       rows="6"
                     ></textarea>
+                  </div>
+
+                  {/* Child, Infant, Additional Person Prices for Package */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.8rem', padding: '0.8rem 1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                    <div className={styles.formGroup} style={{ margin: 0 }}>
+                      <label style={{ fontSize: '0.82rem', color: 'var(--emerald-400)' }}>👶 Child Price (€) <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>Ages 2-12</span></label>
+                      <input
+                        type="number"
+                        name="childPrice"
+                        value={formData.childPrice}
+                        onChange={handleInputChange}
+                        placeholder="e.g. 25"
+                        className={styles.input}
+                        min="0"
+                      />
+                    </div>
+                    <div className={styles.formGroup} style={{ margin: 0 }}>
+                      <label style={{ fontSize: '0.82rem', color: 'var(--pink-400)' }}>👼 Infant Price (€) <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>Under 2</span></label>
+                      <input
+                        type="number"
+                        name="infantPrice"
+                        value={formData.infantPrice}
+                        onChange={handleInputChange}
+                        placeholder="e.g. 0"
+                        className={styles.input}
+                        min="0"
+                      />
+                    </div>
+                    <div className={styles.formGroup} style={{ margin: 0 }}>
+                      <label style={{ fontSize: '0.82rem', color: 'var(--gold-400)' }}>➕ Extra Person (€) <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>2nd+ adult</span></label>
+                      <input
+                        type="number"
+                        name="additionalPersonPrice"
+                        value={formData.additionalPersonPrice || ''}
+                        onChange={handleInputChange}
+                        placeholder="e.g. 40"
+                        className={styles.input}
+                        min="0"
+                      />
+                    </div>
                   </div>
 
                   {/* Tier Prices Toggle for Package */}
@@ -1644,8 +1733,10 @@ export default function AdminServices() {
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'flex-end', width: '100%' }}>
-                <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">➕ Confirm Addition</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)} disabled={isTranslating}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={isTranslating}>
+                  {isTranslating ? '⏳ Saving & Translating...' : (editingTrip ? '💾 Save Changes' : '➕ Confirm Addition')}
+                </button>
               </div>
             </form>
           </div>

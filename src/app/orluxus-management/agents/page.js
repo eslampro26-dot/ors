@@ -30,6 +30,7 @@ export default function AdminAgents() {
   const [newAgentPartnerId, setNewAgentPartnerId] = useState('');
   const [newAgentPhoto, setNewAgentPhoto] = useState('');
   const [newAgentJoinDate, setNewAgentJoinDate] = useState(new Date().toISOString().split('T')[0]);
+  const [newAgentPromoDiscount, setNewAgentPromoDiscount] = useState(10);
   
   // Details Modal State
   const [selectedAgentDetails, setSelectedAgentDetails] = useState(null);
@@ -73,6 +74,7 @@ export default function AdminAgents() {
     setNewAgentPassword(agent.password || '');
     setNewAgentTier(agent.tier || 'bronze');
     setNewAgentPromo(agent.promoCodes?.[0] || '');
+    setNewAgentPromoDiscount(agent.promoDiscount || 10);
     setParentAgentId(agent.parentId ? String(agent.parentId) : '');
     setNewAgentPhone(agent.phone || '');
     setNewAgentBank(agent.bankAccount || '');
@@ -130,6 +132,7 @@ export default function AdminAgents() {
         tier: newAgentTier,
         parentId: parentIdParsed,
         promoCodes: cleanPromo ? [cleanPromo] : [],
+        promoDiscount: Number(newAgentPromoDiscount) || 10,
         phone: newAgentPhone,
         bankAccount: newAgentBank,
         country: newAgentCountry,
@@ -157,10 +160,10 @@ export default function AdminAgents() {
               code: cleanPromo,
               agentId: createdAgent.id,
               discountType: 'percentage',
-              discountValue: newAgentTier === 'platinum' ? 20 : newAgentTier === 'gold' ? 15 : 10,
+              discountValue: Number(newAgentPromoDiscount) || 10,
               maxUses: 100,
               isActive: true,
-              expiryDate: '2026-12-31',
+              expiryDate: '2027-12-31',
               createdBy: 'admin'
             });
           }
@@ -180,6 +183,7 @@ export default function AdminAgents() {
       setNewAgentPassword('');
       setNewAgentTier('bronze');
       setNewAgentPromo('');
+      setNewAgentPromoDiscount(10);
       setParentAgentId('');
       setNewAgentPhone('');
       setNewAgentBank('');
@@ -812,6 +816,29 @@ export default function AdminAgents() {
                     textTransform: 'uppercase'
                   }}
                 />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <label style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Promo Code Discount Rate (%) <span style={{ color: 'var(--gold-400)' }}>*</span></label>
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={newAgentPromoDiscount}
+                  onChange={(e) => setNewAgentPromoDiscount(e.target.value)}
+                  placeholder="e.g. 10"
+                  style={{
+                    padding: '0.8rem 1rem',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-medium)',
+                    background: 'var(--bg-primary)',
+                    color: 'var(--text-primary)',
+                    outline: 'none',
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                  }}
+                />
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>This % will be applied as discount when customer uses the agent\'s promo code.</span>
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>

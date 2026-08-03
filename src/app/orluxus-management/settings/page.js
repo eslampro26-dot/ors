@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getSettings, saveSettings } from '@/lib/db';
+import { invalidateSettingsCache } from '@/hooks/useSettings';
 
 export default function AdminSettings() {
   const [siteName, setSiteName] = useState('ORLUXUS');
@@ -176,6 +177,7 @@ export default function AdminSettings() {
         })
       });
       if (res.ok) {
+        invalidateSettingsCache();
         alert('✅ All settings saved successfully in the database!');
       } else {
         alert('❌ Failed to save settings!');
