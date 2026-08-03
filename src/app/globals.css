@@ -1378,5 +1378,30 @@ html[dir="rtl"] .luxury-experience-card:hover .explore-label-cta {
   outline: none !important;
 }
 
+/* =========================================================
+   PURE LIGHT MODE ENFORCEMENT FOR ADMIN DASHBOARD & CARDS
+   ========================================================= */
+[class*="orluxus-management"] [class*="tableCard"],
+[class*="orluxus-management"] [class*="categoryCard"],
+[class*="orluxus-management"] [class*="tierCard"],
+[class*="orluxus-management"] [class*="termsCard"],
+[class*="orluxus-management"] [class*="modalCard"],
+[class*="orluxus-management"] [class*="agentModalCard"] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+[class*="orluxus-management"] th {
+  background-color: #f8fafc !important;
+  color: #334155 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+
+[class*="orluxus-management"] tr:hover {
+  background-color: #f1f5f9 !important;
+}
+
 
 

@@ -112,13 +112,7 @@ export default function AdminBookings() {
 
   // Print Digital Agreement
   const handlePrintAgreement = async (booking) => {
-    const printWindow = window.open('', '_blank');
-    // Always use English for invoice
-    const txId = (booking.txId || booking.id || '').toUpperCase();
-    const dateFormatted = new Date(booking.createdAt || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-    const bookingTimeFormatted = new Date(booking.createdAt || Date.now()).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
-
-    // Fetch custom terms from settings
+    // 1. Fetch custom terms from settings BEFORE opening popup window
     let customTermsAr = '';
     let customTermsEn = '';
     try {
@@ -131,6 +125,18 @@ export default function AdminBookings() {
     } catch (err) {
       console.error('Error fetching terms:', err);
     }
+
+    // 2. Open print window AFTER async fetch is complete (prevents about:blank detached window)
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('الرجاء السماح بالنوافذ المنبثقة لطباعة الفاتورة / Please allow popups to print ticket');
+      return;
+    }
+
+    // Always use English for invoice
+    const txId = (booking.txId || booking.id || '').toUpperCase();
+    const dateFormatted = new Date(booking.createdAt || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    const bookingTimeFormatted = new Date(booking.createdAt || Date.now()).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
 
     const t = {
       title: 'BOOKING INVOICE',

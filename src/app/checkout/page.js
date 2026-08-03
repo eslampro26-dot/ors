@@ -16,6 +16,7 @@ function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { locale, t: tGlobal, isReady } = useLanguage();
+  const isAr = locale === 'ar';
   const { settings } = useSettings();
 
   const emergencyNum = settings?.emergencyPhone || '+201038820014';
@@ -1684,7 +1685,6 @@ function CheckoutContent() {
   }
 
   // 4. DEFAULT INFO FORM STEP (Step 1: details)
-  const isAr = locale === 'ar';
   return (
     <main style={{ minHeight: '100vh', paddingBottom: '5rem', background: 'transparent' }}>
       <Navbar />
