@@ -23,7 +23,7 @@ export default function CategoryPage({ params }) {
   if (!catInfo) notFound();
 
   const [trips, setTrips] = useState([]);
-  const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', richDesc: '', images: [] });
+  const [modalConfig, setModalConfig] = useState({ isOpen: false, trip: null, tier: null, images: [], videos: [] });
   const [activeVideoUrl, setActiveVideoUrl] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   // Per-card image carousel index: { [tripId]: number }
@@ -347,33 +347,37 @@ export default function CategoryPage({ params }) {
                         {activeTier.descriptions[locale?.toLowerCase()] || activeTier.descriptions[locale] || activeTier.descriptions.en}
                       </p>
                       
-                      {activeTier.richDesc && (
-                        <button 
-                          onClick={() => {
-                            setModalConfig({
-                              isOpen: true,
-                              title: locale === 'ar' 
-                                ? (trip.titleAr + ' - ' + activeTier.names.ar) 
-                                : ((trip.titleEn || trip.titleAr) + ' - ' + activeTier.names.en),
-                              richDesc: activeTier.richDesc,
-                              images: trip.images && trip.images.length > 0 ? trip.images : [trip.image || '/images/trips/glass-boat.jpg']
-                            });
-                          }}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--gold-500)',
-                            fontSize: '0.8rem',
-                            fontWeight: 'bold',
-                            marginTop: '0.5rem',
-                            cursor: 'pointer',
-                            padding: 0,
-                            textDecoration: 'underline'
-                          }}
-                        >
-                          {t('common.showMoreDetails')}
-                        </button>
-                      )}
+                      {/* Always-visible full details button */}
+                      <button 
+                        onClick={() => {
+                          setCurrentImageIndex(0);
+                          setModalConfig({
+                            isOpen: true,
+                            trip,
+                            tier: activeTier,
+                            images: trip.images && trip.images.length > 0 ? trip.images : (trip.image ? [trip.image] : ['/images/trips/glass-boat.jpg']),
+                            videos: trip.videos && trip.videos.length > 0 ? trip.videos : (trip.videoUrl ? [trip.videoUrl] : [])
+                          });
+                        }}
+                        style={{
+                          background: 'rgba(201,162,39,0.08)',
+                          border: '1px solid rgba(201,162,39,0.4)',
+                          color: 'var(--gold-400)',
+                          fontSize: '0.8rem',
+                          fontWeight: '700',
+                          marginTop: '0.6rem',
+                          cursor: 'pointer',
+                          padding: '7px 14px',
+                          borderRadius: '8px',
+                          width: '100%',
+                          transition: 'all 0.2s ease',
+                          letterSpacing: '0.3px'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,162,39,0.18)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'rgba(201,162,39,0.08)'}
+                      >
+                        🔍 {locale === 'ar' ? 'عرض التفاصيل الكاملة' : 'View Full Details'}
+                      </button>
                     </div>
 
                     {/* Stats */}
@@ -418,205 +422,214 @@ export default function CategoryPage({ params }) {
         ) : null}
       </div>
 
-      {/* Rich Description Modal */}
-      {modalConfig.isOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1rem'
-        }}>
-          <div className="glass-card animate-scale-in" style={{
-            background: 'var(--bg-primary)',
-            padding: '2rem',
-            borderRadius: '16px',
-            maxWidth: '600px',
-            width: '100%',
-            maxHeight: '80vh',
-            overflowY: 'auto',
-            border: '1px solid var(--gold-500)',
-            position: 'relative'
-          }}>
-            <button 
-              onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
-              style={{
-                position: 'absolute',
-                top: '15px',
-                right: '15px',
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-secondary)',
-                fontSize: '1.5rem',
-                cursor: 'pointer',
-                zIndex: 10
-              }}
-            >
-              ×
-            </button>
-            <h3 style={{ color: 'var(--gold-500)', marginBottom: '1.5rem', marginTop: 0, paddingRight: '20px', textAlign: locale === 'ar' ? 'right' : 'left' }}>
-              {modalConfig.title}
-            </h3>
+      {/* Full-Screen Trip Details Panel */}
+      {modalConfig.isOpen && modalConfig.trip && (() => {
+        const mdTrip = modalConfig.trip;
+        const mdTier = modalConfig.tier;
+        const isAr = locale === 'ar';
+        const allImages = modalConfig.images;
+        const allVideos = modalConfig.videos;
+        const mdTiers = getTripTiers(mdTrip, locale);
+        const tripTitle = isAr ? (mdTrip.titleAr || mdTrip.titleEn) : (mdTrip.titleEn || mdTrip.titleAr);
+        const tierLabel = mdTier ? (isAr ? mdTier.names?.ar : mdTier.names?.en) : '';
+        const richDesc = mdTier?.richDesc || '';
+        const locKey = locale?.toLowerCase();
+        const tripDesc = mdTrip[`tripDescription${locale?.charAt(0)?.toUpperCase() + locale?.slice(1)}`]
+          || mdTrip[`tripDescription${locKey}`]
+          || mdTrip.tripDescriptionEn
+          || mdTrip.tripDescriptionAr
+          || mdTrip.tripDescription
+          || '';
 
-            {/* Gallery Images - Professional Slider */}
-            {modalConfig.images && modalConfig.images.length > 0 && (
-              <div style={{ marginBottom: '1.5rem' }}>
-                <div style={{ 
-                  position: 'relative',
-                  width: '100%',
-                  height: '400px',
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  background: '#000'
-                }}>
-                  {/* Main Image */}
-                  <img 
-                    src={modalConfig.images[currentImageIndex]} 
-                    alt={`Gallery ${currentImageIndex + 1}`}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                      transition: 'opacity 0.3s ease'
-                    }}
+        return (
+          <div
+            onClick={e => { if (e.target === e.currentTarget) setModalConfig(prev => ({ ...prev, isOpen: false })); }}
+            style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.88)',
+              zIndex: 99990,
+              overflowY: 'auto',
+              backdropFilter: 'blur(6px)',
+              WebkitOverflowScrolling: 'touch'
+            }}
+          >
+            <div style={{
+              background: 'var(--bg-primary)',
+              width: '100%',
+              maxWidth: '900px',
+              margin: '0 auto',
+              minHeight: '100vh',
+              direction: isAr ? 'rtl' : 'ltr',
+              position: 'relative'
+            }}>
+
+              {/* Close Button */}
+              <button
+                onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
+                style={{
+                  position: 'fixed',
+                  top: '14px',
+                  right: isAr ? 'auto' : '14px',
+                  left: isAr ? '14px' : 'auto',
+                  background: 'rgba(0,0,0,0.75)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  color: '#fff',
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '50%',
+                  fontSize: '1.4rem',
+                  cursor: 'pointer',
+                  zIndex: 99999,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  lineHeight: 1,
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.9)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.75)'}
+              >×</button>
+
+              {/* Hero Image Gallery */}
+              <div style={{ position: 'relative', width: '100%', height: 'min(55vw, 460px)', background: '#111', overflow: 'hidden' }}>
+                {allImages.length > 0 && (
+                  <img
+                    src={allImages[currentImageIndex]}
+                    alt={tripTitle}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.35s ease' }}
                   />
+                )}
+                {/* Bottom gradient */}
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '45%', background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)', pointerEvents: 'none' }} />
 
-                  {/* Navigation Arrows */}
-                  {modalConfig.images.length > 1 && (
-                    <>
-                      <button
-                        onClick={handlePrevImage}
-                        style={{
-                          position: 'absolute',
-                          top: '50%',
-                          left: '16px',
-                          transform: 'translateY(-50%)',
-                          width: '48px',
-                          height: '48px',
-                          borderRadius: '50%',
-                          background: 'rgba(255, 255, 255, 0.9)',
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '24px',
-                          color: '#000',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                          transition: 'all 0.2s ease',
-                          zIndex: 10
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = '#fff'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)'}
-                      >
-                        {locale === 'ar' ? '›' : '‹'}
-                      </button>
-                      <button
-                        onClick={handleNextImage}
-                        style={{
-                          position: 'absolute',
-                          top: '50%',
-                          right: '16px',
-                          transform: 'translateY(-50%)',
-                          width: '48px',
-                          height: '48px',
-                          borderRadius: '50%',
-                          background: 'rgba(255, 255, 255, 0.9)',
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '24px',
-                          color: '#000',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                          transition: 'all 0.2s ease',
-                          zIndex: 10
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = '#fff'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)'}
-                      >
-                        {locale === 'ar' ? '‹' : '›'}
-                      </button>
-                    </>
-                  )}
+                {/* Navigation arrows */}
+                {allImages.length > 1 && (
+                  <>
+                    <button onClick={handlePrevImage} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.88)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', fontSize: '1.3rem', cursor: 'pointer', zIndex: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.3)', transition: 'background 0.2s' }}>‹</button>
+                    <button onClick={handleNextImage} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.88)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', fontSize: '1.3rem', cursor: 'pointer', zIndex: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.3)', transition: 'background 0.2s' }}>›</button>
+                  </>
+                )}
 
-                  {/* Image Counter */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '16px',
-                    right: locale === 'ar' ? 'auto' : '16px',
-                    left: locale === 'ar' ? '16px' : 'auto',
-                    background: 'rgba(0, 0, 0, 0.7)',
-                    color: '#fff',
-                    padding: '6px 14px',
-                    borderRadius: '20px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    backdropFilter: 'blur(4px)'
-                  }}>
-                    {currentImageIndex + 1} / {modalConfig.images.length}
+                {/* Image counter badge */}
+                {allImages.length > 1 && (
+                  <div style={{ position: 'absolute', top: '14px', left: isAr ? '14px' : 'auto', right: isAr ? 'auto' : '14px', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', color: '#fff', padding: '4px 12px', borderRadius: '20px', fontSize: '0.82rem', fontWeight: '600', fontFamily: 'var(--font-en)' }}>
+                    📷 {currentImageIndex + 1} / {allImages.length}
                   </div>
-                </div>
+                )}
 
-                {/* Dots Navigation */}
-                {modalConfig.images.length > 1 && (
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    marginTop: '1rem'
-                  }}>
-                    {modalConfig.images.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handleImageDotClick(idx)}
-                        style={{
-                          width: '10px',
-                          height: '10px',
-                          borderRadius: '50%',
-                          background: idx === currentImageIndex ? '#C9A227' : 'rgba(0, 0, 0, 0.3)',
-                          border: 'none',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (idx !== currentImageIndex) {
-                            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.5)';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (idx !== currentImageIndex) {
-                            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.3)';
-                          }
-                        }}
-                      />
+                {/* Dot indicators */}
+                {allImages.length > 1 && allImages.length <= 12 && (
+                  <div style={{ position: 'absolute', bottom: '14px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '6px', zIndex: 5 }}>
+                    {allImages.map((_, i) => (
+                      <button key={i} onClick={() => setCurrentImageIndex(i)} style={{ width: i === currentImageIndex ? '22px' : '8px', height: '8px', borderRadius: '4px', background: i === currentImageIndex ? 'var(--gold-400)' : 'rgba(255,255,255,0.55)', border: 'none', cursor: 'pointer', transition: 'all 0.25s ease', padding: 0, flexShrink: 0 }} />
                     ))}
                   </div>
                 )}
               </div>
-            )}
 
-            <div style={{ 
-              color: 'var(--text-primary)', 
-              lineHeight: '1.8', 
-              fontSize: '0.95rem',
-              textAlign: locale === 'ar' ? 'right' : 'left',
-              whiteSpace: 'pre-wrap'
-            }}>
-              <TranslatedText text={modalConfig.richDesc} />
-            </div>
-            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-              <button className="btn btn-primary" onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}>
-                {t('common.close') || (locale === 'ar' ? 'إغلاق' : 'Close')}
-              </button>
+              {/* Thumbnail strip (when 4+ images) */}
+              {allImages.length >= 4 && (
+                <div style={{ display: 'flex', gap: '5px', padding: '8px 12px', overflowX: 'auto', background: '#0a0a0a', borderBottom: '1px solid var(--border-subtle)' }}>
+                  {allImages.map((img, i) => (
+                    <img key={i} src={img} alt="" onClick={() => setCurrentImageIndex(i)} style={{ width: '60px', height: '46px', objectFit: 'cover', borderRadius: '6px', cursor: 'pointer', flexShrink: 0, border: i === currentImageIndex ? '2px solid var(--gold-400)' : '2px solid transparent', opacity: i === currentImageIndex ? 1 : 0.65, transition: 'all 0.2s' }} />
+                  ))}
+                </div>
+              )}
+
+              {/* Content Area */}
+              <div style={{ padding: 'clamp(1.2rem, 4vw, 2.5rem)', maxWidth: '800px', margin: '0 auto' }}>
+
+                {/* Title + Tier badge */}
+                <div style={{ marginBottom: '1.25rem' }}>
+                  {mdTiers.length > 1 && tierLabel && (
+                    <span style={{ background: 'rgba(201,162,39,0.12)', color: 'var(--gold-400)', padding: '3px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700', display: 'inline-block', marginBottom: '0.6rem', border: '1px solid rgba(201,162,39,0.3)' }}>{tierLabel}</span>
+                  )}
+                  <h2 style={{ fontSize: 'clamp(1.4rem, 4vw, 2rem)', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 0.75rem', lineHeight: 1.25 }}>{tripTitle}</h2>
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    <span>⏱️ {translateDuration(mdTrip, locale)}</span>
+                    <span>⭐ {mdTrip.rating || '5.0'} ({mdTrip.reviews || '1'} {isAr ? 'تقييم' : 'reviews'})</span>
+                    <span style={{ fontFamily: 'var(--font-en)', fontWeight: '800', color: 'var(--gold-500)', fontSize: '1.15rem', direction: 'ltr' }}>
+                      {mdTrip.currency || '€'}{mdTier?.price || mdTrip.price}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Description */}
+                {(richDesc || tripDesc) && (
+                  <div style={{ marginBottom: '1.75rem', padding: '1.25rem', background: 'rgba(255,255,255,0.025)', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
+                    <h4 style={{ color: 'var(--gold-400)', fontSize: '0.82rem', fontWeight: '800', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 0.75rem' }}>
+                      📋 {isAr ? 'تفاصيل الرحلة' : 'Trip Details'}
+                    </h4>
+                    <div style={{ color: 'var(--text-secondary)', lineHeight: '1.85', fontSize: '0.95rem', whiteSpace: 'pre-wrap', textAlign: isAr ? 'right' : 'left' }}>
+                      {richDesc || tripDesc}
+                    </div>
+                  </div>
+                )}
+
+                {/* Embedded Videos */}
+                {allVideos.length > 0 && (
+                  <div style={{ marginBottom: '1.75rem' }}>
+                    <h4 style={{ color: 'var(--gold-400)', fontSize: '0.82rem', fontWeight: '800', marginBottom: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                      🎬 {isAr ? 'فيديوهات الرحلة' : 'Trip Videos'}
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {allVideos.map((vUrl, vi) => {
+                        const url = vUrl.trim();
+                        let embedUrl = null;
+                        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                          let videoId = '';
+                          if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0];
+                          else if (url.includes('watch')) { try { videoId = new URLSearchParams(url.split('?')[1]).get('v') || ''; } catch(e){} }
+                          else if (url.includes('embed/')) videoId = url.split('embed/')[1]?.split('?')[0];
+                          else if (url.includes('shorts/')) videoId = url.split('shorts/')[1]?.split('?')[0];
+                          if (videoId && videoId.length >= 11) embedUrl = `https://www.youtube.com/embed/${videoId.substring(0,11)}?rel=0&modestbranding=1`;
+                        } else if (url.includes('vimeo.com')) {
+                          const m = url.match(/vimeo\.com\/(\d+)/);
+                          if (m) embedUrl = `https://player.vimeo.com/video/${m[1]}`;
+                        }
+                        return (
+                          <div key={vi} style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: '12px', overflow: 'hidden', background: '#000', border: '1px solid var(--border-subtle)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                            {embedUrl ? (
+                              <iframe src={embedUrl} style={{ width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={`Video ${vi + 1}`} loading="lazy" />
+                            ) : (
+                              <video src={url} controls style={{ width: '100%', height: '100%' }} />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Location link */}
+                {mdTrip.locationUrl && (
+                  <a href={mdTrip.locationUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                    📍 {isAr ? 'الموقع على الخريطة' : 'View on Map'}
+                  </a>
+                )}
+
+                {/* Book Now */}
+                <a
+                  href={`/checkout?tripId=${mdTrip.id}&price=${mdTier?.price || mdTrip.price}&titleAr=${encodeURIComponent(mdTiers.length > 1 ? (mdTrip.titleAr + ' - ' + (mdTier?.names?.ar || '')) : mdTrip.titleAr)}&titleEn=${encodeURIComponent(mdTiers.length > 1 ? ((mdTrip.titleEn || mdTrip.titleAr) + ' - ' + (mdTier?.names?.en || '')) : (mdTrip.titleEn || mdTrip.titleAr))}&type=trip&city=${encodeURIComponent(city.nameAr)}&category=${category}&tier=${mdTier?.id || 'economy'}&childPrice=${mdTrip.childPrice || 0}&infantPrice=${mdTrip.infantPrice || 0}&additionalPersonPrice=${mdTrip.additionalPersonPrice || 0}`}
+                  className="btn btn-primary"
+                  style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem', padding: '15px', fontSize: '1.05rem', fontWeight: '800', borderRadius: '12px', boxShadow: '0 4px 20px rgba(201,162,39,0.3)', textDecoration: 'none' }}
+                >
+                  🛒 {isAr ? 'احجز الآن' : 'Book Now'}
+                </a>
+
+                <div style={{ marginTop: '1rem', textAlign: 'center', paddingBottom: '2rem' }}>
+                  <button onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer', fontSize: '0.82rem', textDecoration: 'underline' }}>
+                    {isAr ? 'إغلاق' : 'Close'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
+
 
       {/* Video Modal */}
       {activeVideoUrl && (

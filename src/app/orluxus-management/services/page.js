@@ -86,6 +86,7 @@ export default function AdminServices() {
     icon: '✈️',
     image: '',
     images: [],
+    videos: [],
     locationUrl: '',
     videoUrl: '',
     economyDesc: '',
@@ -96,6 +97,9 @@ export default function AdminServices() {
   const [useTierPrices, setUseTierPrices] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState('ar');
   const [isTranslating, setIsTranslating] = useState(false);
+  const [newVideoUrl, setNewVideoUrl] = useState('');
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
 
   // Load data only for the selected city (lazy loading for performance)
   const loadCityData = async (cityId) => {
@@ -218,90 +222,70 @@ export default function AdminServices() {
     }
   }, [modalOpen, modalType, selectedCity, selectedPkgType]);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const uploadImageToStorage = async (file) => {
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) return data.url;
+      }
+    } catch (e) {
+      console.error('Cloud upload failed, falling back to base64:', e);
+    }
+    return await compressImageToBase64(file);
+  };
 
+  const compressImageToBase64 = (file) => new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 800;
-        const MAX_HEIGHT = 800;
+        const MAX_DIM = 1200;
         let width = img.width;
         let height = img.height;
-
         if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
-          }
+          if (width > MAX_DIM) { height = Math.round(height * MAX_DIM / width); width = MAX_DIM; }
         } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
-          }
+          if (height > MAX_DIM) { width = Math.round(width * MAX_DIM / height); height = MAX_DIM; }
         }
-
         canvas.width = width;
         canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% quality jpeg
-        setFormData(prev => ({ ...prev, image: dataUrl }));
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.78));
       };
       img.src = event.target.result;
     };
     reader.readAsDataURL(file);
+  });
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingImages(true);
+    setUploadProgress('Uploading main image...');
+    try {
+      const url = await uploadImageToStorage(file);
+      setFormData(prev => ({ ...prev, image: url }));
+    } finally {
+      setUploadingImages(false);
+      setUploadProgress('');
+    }
   };
 
   const handleMultipleImagesUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
-
-    for (const file of files) {
-      await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 800;
-            const MAX_HEIGHT = 800;
-            let width = img.width;
-            let height = img.height;
-
-            if (width > height) {
-              if (width > MAX_WIDTH) {
-                height *= MAX_WIDTH / width;
-                width = MAX_WIDTH;
-              }
-            } else {
-              if (height > MAX_HEIGHT) {
-                width *= MAX_HEIGHT / height;
-                height = MAX_HEIGHT;
-              }
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
-            setFormData(prev => ({
-              ...prev,
-              images: [...(prev.images || []), dataUrl]
-            }));
-            resolve();
-          };
-          img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
+    setUploadingImages(true);
+    for (let i = 0; i < files.length; i++) {
+      setUploadProgress(`Uploading image ${i + 1} of ${files.length}...`);
+      const url = await uploadImageToStorage(files[i]);
+      setFormData(prev => ({ ...prev, images: [...(prev.images || []), url] }));
     }
+    setUploadingImages(false);
+    setUploadProgress('');
   };
 
   const handleRemoveGalleryImage = (idxToRemove) => {
@@ -353,6 +337,7 @@ export default function AdminServices() {
       icon: trip.icon || '✈️',
       image: trip.image || '',
       images: trip.images || [],
+      videos: trip.videos || [],
       locationUrl: trip.locationUrl || '',
       videoUrl: trip.videoUrl || '',
       economyDesc: trip.economyDesc || '',
@@ -497,6 +482,7 @@ export default function AdminServices() {
         duration,
         image: image || '/images/trips/glass-boat.jpg',
         images: images || [],
+        videos: formData.videos || [],
         locationUrl: locationUrl || '',
         videoUrl: videoUrl || '',
         tripDescription: tripDescriptionEn || '',
@@ -689,7 +675,8 @@ export default function AdminServices() {
           descriptionJa: translatedDescriptions.descriptionJa,
           icon: icon || '✈️',
           image: image || '',
-          images: images || []
+          images: images || [],
+          videos: formData.videos || []
         };
 
         const success = await addPackage(category, packagePayload);
@@ -697,7 +684,7 @@ export default function AdminServices() {
         if (success) {
           alert('Package added successfully!');
           setModalOpen(false);
-          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',additionalPersonPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[] });
+          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',additionalPersonPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[],videos:[] });
           setUseTierPrices(false);
           await reloadCurrentPackage();
         } else {
@@ -1688,31 +1675,82 @@ export default function AdminServices() {
                     />
                   </div>
 
-                  {/* Video URL */}
+                  {/* Video URL (main) */}
                   <div className={styles.formGroup}>
-                    <label>Trip video link (YouTube video or direct link) (optional)</label>
+                    <label>Trip video link (YouTube/Vimeo or direct link) (optional)</label>
                     <input 
                       type="text" 
                       name="videoUrl" 
                       value={formData.videoUrl} 
                       onChange={handleInputChange}
-                      placeholder="Example: https://www.youtube.com/watch?v=... or direct mp4 link"
+                      placeholder="Example: https://www.youtube.com/watch?v=..."
                       className={styles.input}
                     />
+                  </div>
+
+                  {/* Multiple Video URLs */}
+                  <div className={styles.formGroup} style={{ padding: '0.85rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px dashed var(--border-medium)' }}>
+                    <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.6rem', color: 'var(--gold-400)' }}>🎬 Additional video links (YouTube/Vimeo - unlimited)</label>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                      <input
+                        type="text"
+                        value={newVideoUrl}
+                        onChange={e => setNewVideoUrl(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (newVideoUrl.trim()) {
+                              setFormData(prev => ({ ...prev, videos: [...(prev.videos || []), newVideoUrl.trim()] }));
+                              setNewVideoUrl('');
+                            }
+                          }
+                        }}
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        className={styles.input}
+                        style={{ flex: 1 }}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        style={{ whiteSpace: 'nowrap', padding: '0 1rem', fontSize: '0.9rem' }}
+                        onClick={() => {
+                          if (newVideoUrl.trim()) {
+                            setFormData(prev => ({ ...prev, videos: [...(prev.videos || []), newVideoUrl.trim()] }));
+                            setNewVideoUrl('');
+                          }
+                        }}
+                      >+ Add</button>
+                    </div>
+                    {(formData.videos || []).length === 0 && (
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)', margin: 0 }}>No videos added yet. Paste a YouTube or Vimeo link and click Add.</p>
+                    )}
+                    {(formData.videos || []).map((vUrl, vIdx) => (
+                      <div key={vIdx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem', background: 'rgba(255,255,255,0.04)', padding: '0.4rem 0.6rem', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
+                        <span style={{ flex: 1, fontSize: '0.78rem', color: 'var(--gold-400)', wordBreak: 'break-all', fontFamily: 'var(--font-en)', direction: 'ltr' }}>🎥 {vUrl}</span>
+                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, videos: prev.videos.filter((_, i) => i !== vIdx) }))} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1rem', flexShrink: 0 }}>×</button>
+                      </div>
+                    ))}
                   </div>
                 </>
               )}
 
               {/* Multiple Images Gallery for both Trip and Package */}
               <div className={styles.formGroup} style={{ width: '100%', marginTop: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px dashed var(--border-medium)', boxSizing: 'border-box' }}>
-                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--gold-400)' }}>📷 Additional images gallery (upload multiple images)</label>
+                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem', color: 'var(--gold-400)' }}>📷 Images gallery — unlimited (upload as many as you want)</label>
+                {uploadingImages && uploadProgress && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem', color: 'var(--gold-400)', fontSize: '0.85rem', fontWeight: '600' }}>
+                    <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid var(--gold-400)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                    {uploadProgress}
+                  </div>
+                )}
                 <input 
                   type="file" 
                   accept="image/*"
                   multiple
+                  disabled={uploadingImages}
                   onChange={handleMultipleImagesUpload}
                   className={styles.input}
-                  style={{ marginBottom: '1rem' }}
+                  style={{ marginBottom: '1rem', opacity: uploadingImages ? 0.5 : 1 }}
                 />
                 {formData.images && formData.images.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem' }}>
