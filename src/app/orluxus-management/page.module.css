@@ -14,7 +14,9 @@
   padding: var(--space-lg);
   display: flex;
   flex-direction: column;
-  background: rgba(15, 23, 42, 0.8);
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
 .kpiHeader {
@@ -89,16 +91,18 @@
 
 .select {
   padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+  border: 1px solid #d1d5db;
   border-radius: var(--radius-sm);
-  color: var(--text-primary);
+  color: #111827;
   outline: none;
 }
 
 .chartCard {
   padding: var(--space-xl);
-  background: rgba(15, 23, 42, 0.8);
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
 .chartContainer {
@@ -154,7 +158,9 @@
 
 .tableCard {
   padding: var(--space-xl);
-  background: rgba(15, 23, 42, 0.8);
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
   height: 100%;
 }
 
@@ -169,7 +175,7 @@
   align-items: center;
   gap: var(--space-md);
   padding-bottom: var(--space-md);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .agentRow:last-child {

@@ -37,20 +37,24 @@ export default function AdminTiers() {
 
   // Load saved settings on mount
   useEffect(() => {
+    const controller = new AbortController();
     const loadAll = async () => {
       try {
         const [agentsData, settingsRes] = await Promise.all([
           getAgents(),
-          fetch('/api/settings').then(r => r.ok ? r.json() : {})
+          fetch('/api/settings', { signal: controller.signal }).then(r => r.ok ? r.json() : {})
         ]);
         setAgents(agentsData || []);
         if (settingsRes.tierCommissions) setCommissionRates(settingsRes.tierCommissions);
         if (settingsRes.tierCriteria) setTierCriteria(settingsRes.tierCriteria);
       } catch (e) {
-        console.error('Error loading tiers data:', e);
+        if (e.name !== 'AbortError') {
+          console.error('Error loading tiers data:', e);
+        }
       }
     };
     loadAll();
+    return () => controller.abort();
   }, []);
 
   // Save commission rates & criteria to settings

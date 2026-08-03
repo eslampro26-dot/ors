@@ -76,7 +76,8 @@
   gap: var(--space-sm);
   margin-bottom: var(--space-md);
   padding: var(--space-sm);
-  background: rgba(255, 255, 255, 0.05);
+  background: #f8fafc;
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
 }
 
@@ -135,7 +136,9 @@
 
 .manualUpgradeCard {
   padding: var(--space-xl);
-  background: rgba(15, 23, 42, 0.8);
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
   margin-top: var(--space-xl);
 }
 
@@ -176,10 +179,10 @@
 
 .input {
   padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+  border: 1px solid #d1d5db;
   border-radius: var(--radius-md);
-  color: var(--text-primary);
+  color: #111827;
   font-size: var(--font-size-sm);
   outline: none;
   width: 100%;

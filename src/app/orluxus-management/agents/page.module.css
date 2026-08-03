@@ -77,10 +77,10 @@
 .searchInput {
   width: 100%;
   padding: 10px 16px 10px 40px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+  border: 1px solid #d1d5db;
   border-radius: var(--radius-md);
-  color: var(--text-primary);
+  color: #111827;
   outline: none;
 }
 
@@ -95,16 +95,18 @@
 
 .select {
   padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
+  background: #ffffff;
+  border: 1px solid #d1d5db;
   border-radius: var(--radius-md);
-  color: var(--text-primary);
+  color: #111827;
   outline: none;
 }
 
 .tableCard {
   padding: var(--space-xl);
-  background: rgba(15, 23, 42, 0.8);
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
 .tableResponsive {
@@ -196,7 +198,7 @@
 }
 
 .actionBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   transform: translateY(-2px);
 }
 
@@ -207,7 +209,9 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-md);
-  background: rgba(15, 23, 42, 0.8);
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
 .treeViewPlaceholder h3 {
