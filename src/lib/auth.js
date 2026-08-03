@@ -18,7 +18,7 @@ function getAdminPassword() {
 }
 
 function getApiSecret() {
-  return process.env.API_SECRET_TOKEN || crypto.randomBytes(32).toString('hex');
+  return process.env.API_SECRET_TOKEN || 'ORLUXUS_SECURE_API_SECRET_KEY_PROD_2026_STABLE';
 }
 
 /**
