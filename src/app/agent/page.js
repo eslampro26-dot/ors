@@ -223,7 +223,7 @@ export default function AgentDashboard() {
       </div>
 
       {/* ── Referral Link + Available Balance ── */}
-      <div className={styles.dualGrid}>
+      <div style={{ marginBottom: '1.5rem' }}>
         {/* Referral Link Card */}
         <div className={styles.sectionCard} style={{ border:'1px solid var(--gold-500)30', background:'rgba(201,162,39,0.04)' }}>
           <div className={styles.sectionHeader}>
@@ -258,33 +258,6 @@ export default function AgentDashboard() {
               <div style={{ fontSize:'1.1rem', fontWeight:'800', color:'var(--gold-400)', fontFamily:'var(--font-en)', marginTop:'4px' }}>€{availableBalance.toFixed(2)}</div>
             </div>
           </div>
-        </div>
-
-        {/* Sub-agent Registration */}
-        <div className={styles.sectionCard} style={{ background:'var(--bg-glass-strong)', border:'1px solid var(--border-accent)' }}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>◉ تسجيل وكلاء فرعيين</h3>
-          </div>
-          <p style={{ color:'var(--text-secondary)', fontSize:'12px', marginBottom:'1.2rem', lineHeight:'1.5' }}>
-            أضف أشخاصاً يعملون تحت حسابك وسجل لهم أكواد خصم خاصة. ستحصل على عمولة إضافية تلقائياً!
-          </p>
-          <form onSubmit={handleAddSubAgent} style={{ display:'flex', flexDirection:'column', gap:'0.8rem' }}>
-            <input type="text" placeholder="الاسم الكامل للوكيل الجديد *" value={subName} onChange={e => setSubName(e.target.value)} required
-              style={{ padding:'8px 12px', borderRadius:'6px', border:'1px solid var(--border-medium)', background:'var(--bg-primary)', color:'var(--text-primary)', outline:'none', fontSize:'13px' }} />
-            <input type="email" placeholder="البريد الإلكتروني *" value={subEmail} onChange={e => setSubEmail(e.target.value)} required
-              style={{ padding:'8px 12px', borderRadius:'6px', border:'1px solid var(--border-medium)', background:'var(--bg-primary)', color:'var(--text-primary)', outline:'none', fontSize:'13px', textAlign:'left' }} />
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.5rem' }}>
-              <input type="text" placeholder="اسم المستخدم *" value={subUsername} onChange={e => setSubUsername(e.target.value)} required
-                style={{ padding:'8px 12px', borderRadius:'6px', border:'1px solid var(--border-medium)', background:'var(--bg-primary)', color:'var(--text-primary)', outline:'none', fontSize:'13px', textAlign:'left' }} />
-              <input type="password" placeholder="كلمة المرور *" value={subPassword} onChange={e => setSubPassword(e.target.value)} required
-                style={{ padding:'8px 12px', borderRadius:'6px', border:'1px solid var(--border-medium)', background:'var(--bg-primary)', color:'var(--text-primary)', outline:'none', fontSize:'13px' }} />
-            </div>
-            <input type="text" placeholder="كود الخصم المخصص (مثال: YOUSSEF10)" value={subPromo} onChange={e => setSubPromo(e.target.value)}
-              style={{ padding:'8px 12px', borderRadius:'6px', border:'1px solid var(--border-medium)', background:'var(--bg-primary)', color:'var(--text-primary)', outline:'none', fontSize:'13px', textAlign:'center', fontWeight:'bold', textTransform:'uppercase' }} />
-            <button type="submit" className="btn btn-primary" style={{ padding:'8px', fontSize:'13px', fontWeight:'bold', marginTop:'0.5rem' }} disabled={addingAgent}>
-              {addingAgent ? 'جاري الإضافة...' : '+ تسجيل وتفعيل'}
-            </button>
-          </form>
         </div>
       </div>
 
