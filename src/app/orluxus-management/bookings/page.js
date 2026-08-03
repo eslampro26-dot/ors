@@ -134,6 +134,7 @@ export default function AdminBookings() {
     }
 
     // Always use English for invoice
+    const isAr = false;
     const txId = (booking.txId || booking.id || '').toUpperCase();
     const dateFormatted = new Date(booking.createdAt || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
     const bookingTimeFormatted = new Date(booking.createdAt || Date.now()).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
