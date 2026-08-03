@@ -12,7 +12,13 @@ export async function GET(request) {
     if (pkgId) {
       const pkgs = await getPackages(pkgId);
       if (pkgs && pkgs.length > 0) {
-        return NextResponse.json(pkgs);
+        return NextResponse.json(pkgs, {
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        });
       } else {
         return NextResponse.json({ error: 'لم يتم العثور على باقات لهذا النوع', data: [] }, { status: 404 });
       }

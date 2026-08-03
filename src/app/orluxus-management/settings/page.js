@@ -206,6 +206,7 @@ export default function AdminSettings() {
         })
       });
       if (res.ok) {
+        invalidateSettingsCache();
         alert('✅ Social media links saved successfully!');
       } else {
         alert('❌ Failed to save social media links!');
@@ -242,6 +243,7 @@ export default function AdminSettings() {
         })
       });
       if (res.ok) {
+        invalidateSettingsCache();
         alert('✅ Policies and description texts saved successfully!');
       } else {
         alert('❌ Failed to save policy texts!');

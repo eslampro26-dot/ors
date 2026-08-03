@@ -13,7 +13,13 @@ export async function GET(request) {
     if (slug && category) {
       const trips = await getTrips(slug, category);
       if (trips && trips.length > 0) {
-        return NextResponse.json(trips);
+        return NextResponse.json(trips, {
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        });
       } else {
         return NextResponse.json({ error: 'لم يتم العثور على رحلات لهذا القسم', data: [] }, { status: 404 });
       }

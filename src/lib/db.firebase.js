@@ -14,6 +14,14 @@ import {
 } from 'firebase/firestore';
 import { sampleTrips } from './data';
 
+// Helper for exact local date YYYY-MM-DD (prevents UTC timezone offset date shift)
+export function getLocalDateString(d = new Date()) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // ==========================================
 // CIRCUIT BREAKER - منع تكرار أخطاء Firebase
 // ==========================================
@@ -522,7 +530,7 @@ export async function addAgent(agentData) {
       id,
       sales: 0,
       subAgents: 0,
-      joinDate: new Date().toISOString().split('T')[0],
+      joinDate: getLocalDateString(),
       status: 'نشط',
       promoCodes: [],
       parentId: null,
@@ -605,7 +613,7 @@ export async function addBooking(bookingData) {
     // Use bookingData.id if provided (ensures document path matches data field id)
     const nextId = bookingData.id || `BK-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 10)}`;
     const newBooking = {
-      date: new Date().toISOString().split('T')[0],
+      date: getLocalDateString(),
       status: 'مؤكد',
       ...bookingData,
       id: nextId, // Always sync id field with document path
@@ -727,7 +735,7 @@ export async function addPromoCode(codeData) {
       code: cleanCode,
       usedCount: 0,
       isActive: true,
-      createdAt: new Date().toISOString().split('T')[0],
+      createdAt: getLocalDateString(),
       ...codeData,
       code: cleanCode,
     };
@@ -802,7 +810,7 @@ export async function validatePromoCode(codeStr) {
     }
 
     if (promo.expiryDate) {
-      const today = new Date().toISOString().split('T')[0];
+      const today = getLocalDateString();
       if (today > promo.expiryDate) {
         return { isValid: false, reason: 'عذراً، هذا الكود منتهي الصلاحية!' };
       }
@@ -864,7 +872,7 @@ export async function addReview(reviewData) {
     const id = `rev-${Date.now()}`;
     const newReview = {
       id,
-      date: new Date().toISOString().split('T')[0],
+      date: getLocalDateString(),
       image: null,
       ...reviewData,
     };

@@ -133,7 +133,7 @@ const ls = {
   addAgent: (agentData) => {
     const agents = lsGet('agents_data', DEFAULT_AGENTS);
     const nextId = String(agents.length > 0 ? Math.max(...agents.map(a => parseInt(a.id) || 0)) + 1 : 1);
-    const newAgent = { id: nextId, sales: 0, subAgents: 0, joinDate: new Date().toISOString().split('T')[0], status: 'نشط', promoCodes: [], parentId: null, ...agentData };
+    const newAgent = { id: nextId, sales: 0, subAgents: 0, joinDate: getLocalDateString(), status: 'نشط', promoCodes: [], parentId: null, ...agentData };
     lsSet('agents_data', [...agents, newAgent]);
     return newAgent;
   },
