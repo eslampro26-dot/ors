@@ -50,9 +50,9 @@ export async function POST(request) {
       console.error('Firebase agent lookup failed:', e);
     }
 
-    // 2) Fallback to hardcoded default agents if Firebase returned nothing
+    // 2) Fallback to default agents if not found in Firebase
     if (!agent) {
-      const fallback = DEFAULT_AGENTS.find(a => a.username === cleanUsername);
+      const fallback = DEFAULT_AGENTS.find(a => a.username.toLowerCase() === cleanUsername);
       if (fallback) agent = { ...fallback };
     }
 

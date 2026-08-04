@@ -171,10 +171,24 @@ export default function AgentDashboard() {
     ? rawAgentTier
     : (rawAgentTier === 'ذهبي' ? 'gold' : (rawAgentTier === 'فضي' ? 'silver' : (rawAgentTier === 'بلاتيني' ? 'platinum' : 'bronze')));
   const currentTierData = tierConfig[agentTierKey] || tierConfig.bronze;
-  const agentName = currentAgent?.name?.split(' ')[0] || 'الوكيل';
   const promoCode = currentAgent?.promoCodes?.[0] || 'بدون كود';
   const referralLink = `${typeof window !== 'undefined' ? window.location.origin : 'https://orluxus.com'}?promo=${promoCode}`;
-  const commissionRate = currentTierData.commission;
+  const commissionRate = (customCommissions && customCommissions[agentTierKey]) ? Number(customCommissions[agentTierKey]) : currentTierData.commission;
+
+  // Dynamic Next Tier Calculation & Upgrade Criteria
+  const nextTierMap = { bronze: 'silver', silver: 'gold', gold: 'platinum', platinum: 'platinum' };
+  const nextTierKey = nextTierMap[agentTierKey] || 'silver';
+  const nextTierData = tierConfig[nextTierKey] || tierConfig.silver;
+  const nextTierCommission = (customCommissions && customCommissions[nextTierKey]) ? Number(customCommissions[nextTierKey]) : nextTierData.commission;
+
+  const defaultCriteria = {
+    silver: ['مبيعات سنوية بقيمة €96,000 / سنة', 'أو 1,920 حجز مؤكد', 'أو 5-10 شركاء فضيين نشطين'],
+    gold: ['مبيعات سنوية بقيمة €250,000 / سنة', 'أو 5,000 حجز مؤكد'],
+    platinum: ['مبيعات سنوية بقيمة €500,000 / سنة'],
+  };
+  const activeCriteriaList = (customCriteria && customCriteria[nextTierKey] && customCriteria[nextTierKey].length > 0)
+    ? customCriteria[nextTierKey]
+    : (defaultCriteria[nextTierKey] || defaultCriteria.silver);
 
   return (
     <div className={styles.dashboard}>
@@ -313,12 +327,27 @@ export default function AgentDashboard() {
           </div>
           <div className={styles.tierProgress}>
             <div className={styles.tierCurrentInfo}>
-              <span className={styles.tierEmoji} style={{ fontSize:'28px', color:'var(--gold-400)' }}>◈</span>
+              <span className={styles.tierEmoji} style={{ fontSize:'28px', color: nextTierData.color || 'var(--gold-400)' }}>
+                {nextTierData.icon || '◈'}
+              </span>
               <div>
-                <div className={styles.tierName}>هدف المستوى الفضي (SILVER)</div>
-                <div className={styles.tierCommission}>عمولة مرتفعة: 15% على المبيعات</div>
+                <div className={styles.tierName}>هدف المستوى {nextTierData.nameAr} ({nextTierKey.toUpperCase()})</div>
+                <div className={styles.tierCommission}>عمولة مستهدفة: {nextTierCommission}% على المبيعات</div>
               </div>
             </div>
+
+            {/* Criteria List configured by Admin */}
+            <div style={{ background:'rgba(251,191,36,0.04)', border:'1px solid var(--border-subtle)', borderRadius:'10px', padding:'1rem', marginTop:'0.8rem', marginBottom:'1.2rem' }}>
+              <div style={{ fontSize:'0.85rem', fontWeight:'700', color:'var(--gold-400)', marginBottom:'0.6rem', display:'flex', alignItems:'center', gap:'6px' }}>
+                <span>📋 شروط الترقي إلى المستوى {nextTierData.nameAr}:</span>
+              </div>
+              <ul style={{ paddingRight:'1.2rem', margin:0, fontSize:'0.85rem', color:'var(--text-secondary)', lineHeight:'1.8' }}>
+                {activeCriteriaList.map((crit, idx) => (
+                  <li key={idx} style={{ marginBottom:'4px' }}>{crit}</li>
+                ))}
+              </ul>
+            </div>
+
             <div className={styles.progressItem}>
               <div className={styles.progressLabel}>
                 <span className={styles.progressText}>الهدف المالي السنوي</span>

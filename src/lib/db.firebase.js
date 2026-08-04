@@ -568,11 +568,16 @@ export async function getAgentById(id) {
 
 export async function getAgentByUsername(username) {
   try {
-    const q = query(collection(db, COL.AGENTS), where('username', '==', username.toLowerCase()), limit(1));
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) return null;
-    const d = snapshot.docs[0];
-    return { id: d.id, ...d.data() };
+    const clean = String(username).trim().toLowerCase();
+    const snapshot = await safeGetDocs(collection(db, COL.AGENTS));
+    if (!snapshot || snapshot.empty) return null;
+    const match = snapshot.docs.find(d => {
+      const data = d.data();
+      const u = String(data.username || '').trim().toLowerCase();
+      const e = String(data.email || '').trim().toLowerCase();
+      return u === clean || e === clean;
+    });
+    return match ? { id: match.id, ...match.data() } : null;
   } catch (e) {
     console.error('Error getting agent by username:', e);
     return null;
@@ -684,22 +689,32 @@ export async function saveBookings(bookings) {
 
 export async function addBooking(bookingData) {
   try {
-    // Use bookingData.id if provided (ensures document path matches data field id)
     const nextId = bookingData.id || `BK-${Date.now().toString().slice(-4)}${Math.floor(Math.random() * 10)}`;
     const newBooking = {
       date: getLocalDateString(),
       status: 'مؤكد',
       ...bookingData,
-      id: nextId, // Always sync id field with document path
+      id: nextId,
     };
+
+    // If promoCode is present but agentId is missing, resolve agent
+    if (newBooking.promoCode && !newBooking.agentId) {
+      const val = await validatePromoCode(newBooking.promoCode);
+      if (val && val.isValid && val.agentId) {
+        newBooking.agentId = val.agentId;
+        if (!newBooking.agentName || newBooking.agentName === 'مباشر (بدون وكيل)' || newBooking.agentName === 'directAgent') {
+          newBooking.agentName = val.agentName;
+        }
+      }
+    }
 
     await setDoc(doc(db, COL.BOOKINGS, nextId), newBooking);
 
     // Update agent sales
     if (newBooking.agentId) {
       const agentRef = doc(db, COL.AGENTS, String(newBooking.agentId));
-      const agentSnap = await getDoc(agentRef);
-      if (agentSnap.exists()) {
+      const agentSnap = await safeGetDoc(agentRef);
+      if (agentSnap && agentSnap.exists()) {
         await safeUpdateDoc(agentRef, { sales: increment(newBooking.finalAmount || 0) });
       }
     }
@@ -868,47 +883,82 @@ export async function validatePromoCode(codeStr) {
   if (!codeStr) return { isValid: false, reason: 'الرجاء إدخال كود الخصم' };
 
   try {
-    const codeSnap = await getDoc(doc(db, COL.PROMO_CODES, codeStr.trim().toUpperCase()));
-    if (!codeSnap.exists()) {
-      return { isValid: false, reason: 'كود الخصم غير صحيح!' };
-    }
+    const cleanCode = codeStr.trim().toUpperCase();
 
-    const promo = codeSnap.data();
+    // 1. Check in PROMO_CODES collection first
+    const codeSnap = await safeGetDoc(doc(db, COL.PROMO_CODES, cleanCode));
+    if (codeSnap && codeSnap.exists()) {
+      const promo = codeSnap.data();
 
-    if (!promo.isActive) {
-      return { isValid: false, reason: 'كود الخصم غير نشط حالياً!' };
-    }
-
-    if (promo.maxUses && promo.usedCount >= promo.maxUses) {
-      return { isValid: false, reason: 'عذراً، انتهت صلاحية استخدام هذا الكود لتجاوز الحد الأقصى!' };
-    }
-
-    if (promo.expiryDate) {
-      const today = getLocalDateString();
-      if (today > promo.expiryDate) {
+      if (promo.isActive === false) {
+        return { isValid: false, reason: 'كود الخصم غير نشط حالياً!' };
+      }
+      if (promo.maxUses && promo.usedCount >= promo.maxUses) {
+        return { isValid: false, reason: 'عذراً، انتهت صلاحية استخدام هذا الكود لتجاوز الحد الأقصى!' };
+      }
+      if (promo.expiryDate && getLocalDateString() > promo.expiryDate) {
         return { isValid: false, reason: 'عذراً، هذا الكود منتهي الصلاحية!' };
       }
-    }
 
-    let agentName = 'مباشر (بدون وكيل)';
-    if (promo.agentId) {
-      const agent = await getAgentById(promo.agentId);
-      if (agent) {
-        if (agent.status !== 'نشط') {
-          return { isValid: false, reason: 'كود الخصم هذا تابع لوكيل موقوف حالياً!' };
+      let agentName = 'مباشر (بدون وكيل)';
+      if (promo.agentId) {
+        const agent = await getAgentById(promo.agentId);
+        if (agent) {
+          if (agent.status === 'موقوف' || agent.status === 'مرفوض') {
+            return { isValid: false, reason: 'كود الخصم هذا تابع لوكيل غير نشط حالياً!' };
+          }
+          agentName = agent.name;
         }
-        agentName = agent.name;
       }
+
+      return {
+        isValid: true,
+        code: promo.code || cleanCode,
+        agentId: promo.agentId || null,
+        agentName,
+        discountType: promo.discountType || 'percentage',
+        discountValue: Number(promo.discountValue) || 10
+      };
     }
 
-    return {
-      isValid: true,
-      code: promo.code,
-      agentId: promo.agentId,
-      agentName,
-      discountType: promo.discountType,
-      discountValue: promo.discountValue
-    };
+    // 2. Fallback: Search in AGENTS collection by promoCodes array or username or code
+    const agents = await getAgents();
+    const matchingAgent = (agents || []).find(a => {
+      const codes = (a.promoCodes || []).map(c => String(c).trim().toUpperCase());
+      const usernameMatch = a.username && String(a.username).trim().toUpperCase() === cleanCode;
+      const codeMatch = a.code && String(a.code).trim().toUpperCase() === cleanCode;
+      return codes.includes(cleanCode) || usernameMatch || codeMatch;
+    });
+
+    if (matchingAgent) {
+      if (matchingAgent.status === 'موقوف' || matchingAgent.status === 'مرفوض') {
+        return { isValid: false, reason: 'كود الخصم هذا تابع لوكيل غير نشط حالياً!' };
+      }
+
+      // Auto-create document in PROMO_CODES so future lookups are instant
+      try {
+        await setDoc(doc(db, COL.PROMO_CODES, cleanCode), {
+          code: cleanCode,
+          agentId: matchingAgent.id,
+          discountType: 'percentage',
+          discountValue: Number(matchingAgent.promoDiscount) || 10,
+          usedCount: 0,
+          isActive: true,
+          createdAt: getLocalDateString(),
+        });
+      } catch (_) {}
+
+      return {
+        isValid: true,
+        code: cleanCode,
+        agentId: matchingAgent.id,
+        agentName: matchingAgent.name,
+        discountType: 'percentage',
+        discountValue: Number(matchingAgent.promoDiscount) || 10
+      };
+    }
+
+    return { isValid: false, reason: 'كود الخصم غير صحيح!' };
   } catch (e) {
     console.error('Error validating promo code:', e);
     return { isValid: false, reason: 'حدث خطأ في التحقق من الكود' };
@@ -917,8 +967,13 @@ export async function validatePromoCode(codeStr) {
 
 export async function consumePromoCode(codeStr) {
   try {
-    const codeRef = doc(db, COL.PROMO_CODES, codeStr.trim().toUpperCase());
-    await updateDoc(codeRef, { usedCount: increment(1) });
+    if (!codeStr) return false;
+    const cleanCode = codeStr.trim().toUpperCase();
+    const codeRef = doc(db, COL.PROMO_CODES, cleanCode);
+    const codeSnap = await safeGetDoc(codeRef);
+    if (codeSnap && codeSnap.exists()) {
+      await updateDoc(codeRef, { usedCount: increment(1) });
+    }
     return true;
   } catch (e) {
     console.error('Error using promo code:', e);
