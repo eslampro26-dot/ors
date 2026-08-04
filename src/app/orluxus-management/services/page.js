@@ -722,15 +722,20 @@ export default function AdminServices() {
   const handleDeletePackage = async (pkgId, itemUniqueId) => {
     if (confirm('Are you sure you want to delete this package?')) {
       try {
-        const success = await deletePackage(pkgId, itemUniqueId);
-        if (success) {
-          await reloadCurrentPackage();
-        } else {
-          alert('Error deleting package.');
-        }
+        // Optimistically remove from UI state immediately
+        setPackagesData(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            items: (prev.items || []).filter(item => String(item.id) !== String(itemUniqueId))
+          };
+        });
+
+        await deletePackage(pkgId, itemUniqueId);
+        await reloadCurrentPackage();
       } catch (err) {
         console.error('Error deleting package:', err);
-        alert('Error deleting package.');
+        await reloadCurrentPackage();
       }
     }
   };

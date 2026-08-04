@@ -252,6 +252,7 @@ export async function initializeDB() {
 }
 
 // ==========================================
+// ==========================================
 // TRIPS CRUD
 // ==========================================
 
@@ -278,10 +279,10 @@ export async function getTrips(slug, category) {
       t => String(t.slug) === String(slug) && String(t.category) === String(category)
     );
 
-    // Collect all deleted IDs for this slug + category (tombstones)
+    // Collect all deleted IDs across all tombstones
     const deletedIds = new Set(
       allCustomDocs
-        .filter(t => t.deleted && String(t.slug) === String(slug) && String(t.category) === String(category))
+        .filter(t => t.deleted)
         .map(t => String(t.id))
     );
 
@@ -324,9 +325,11 @@ export async function getAllTrips() {
 
 export async function addTrip(slug, category, tripData) {
   try {
+    const newId = tripData.id || `custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const newTrip = {
-      slug,
-      category,
+      id: newId,
+      slug: String(slug),
+      category: String(category),
       currency: 'EUR',
       rating: 5.0,
       reviews: 1,
@@ -334,47 +337,40 @@ export async function addTrip(slug, category, tripData) {
       createdAt: new Date().toISOString(),
       ...tripData,
     };
-    const docRef = await safeAddDoc(collection(db, COL.TRIPS), newTrip);
-    console.log('Trip added successfully with ID:', docRef.id);
-    return { id: docRef.id, ...newTrip };
+    await safeSetDoc(doc(db, COL.TRIPS, String(newId)), newTrip, { merge: true });
+    console.log('Trip added successfully with ID:', newId);
+    return { id: newId, ...newTrip };
   } catch (e) {
     console.error('Error saving trip to Firebase:', e);
-    // Reset circuit breaker on explicit user action
-    _circuitBreaker.tripped = false;
-    _circuitBreaker.trippedAt = null;
-    _circuitBreaker.errorLogged = false;
     return false;
   }
 }
 
 export async function updateTrip(tripId, tripData) {
   try {
-    // Reset circuit breaker for update operations
-    _circuitBreaker.tripped = false;
-    _circuitBreaker.trippedAt = null;
-    _circuitBreaker.errorLogged = false;
-
-    // 1. Check if document exists by ID
-    const tripRef = doc(db, COL.TRIPS, String(tripId));
+    const tripIdStr = String(tripId);
+    const tripRef = doc(db, COL.TRIPS, tripIdStr);
     const tripSnap = await safeGetDoc(tripRef);
     if (tripSnap && tripSnap.exists()) {
       await safeUpdateDoc(tripRef, tripData);
-      console.log('Trip updated successfully with ID:', tripId);
+      console.log('Trip updated successfully with ID:', tripIdStr);
       return true;
     }
     
-    // 2. Query fallback for legacy trips stored with id field
-    const q = query(collection(db, COL.TRIPS), where('id', '==', tripId));
-    const snapshot = await safeGetDocs(q);
+    // Query fallback
+    const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
     if (snapshot && !snapshot.empty) {
-      await safeUpdateDoc(doc(db, COL.TRIPS, snapshot.docs[0].id), tripData);
-      console.log('Trip updated successfully (legacy) with ID:', tripId);
-      return true;
+      const match = snapshot.docs.find(d => d.id === tripIdStr || String(d.data().id) === tripIdStr);
+      if (match) {
+        await safeUpdateDoc(doc(db, COL.TRIPS, match.id), tripData);
+        console.log('Trip updated via matching doc ID:', match.id);
+        return true;
+      }
     }
 
-    // 3. Upsert fallback: if trip document does not exist yet (e.g. editing a static sample trip for the first time), save it to Firestore!
-    await safeSetDoc(tripRef, { id: tripId, ...tripData }, { merge: true });
-    console.log('Trip upserted successfully with ID:', tripId);
+    // Upsert fallback
+    await safeSetDoc(tripRef, { id: tripIdStr, ...tripData }, { merge: true });
+    console.log('Trip upserted successfully with ID:', tripIdStr);
     return true;
   } catch (e) {
     console.error('Error updating trip:', e);
@@ -385,49 +381,28 @@ export async function updateTrip(tripId, tripData) {
 export async function deleteTrip(slug, category, tripId) {
   try {
     const tripIdStr = String(tripId);
-    let deletedDoc = false;
 
-    // 1. Try to delete by document ID directly
+    // 1. Try to delete document by ID directly
     const tripRef = doc(db, COL.TRIPS, tripIdStr);
     const tripSnap = await safeGetDoc(tripRef);
     if (tripSnap && tripSnap.exists()) {
       await safeDeleteDoc(tripRef);
-      deletedDoc = true;
     }
 
-    // 2. Fallback: query by slug+category+id field
-    if (!deletedDoc) {
-      const q = query(
-        collection(db, COL.TRIPS),
-        where('slug', '==', slug),
-        where('category', '==', category),
-        where('id', '==', tripId)
-      );
-      const snapshot = await safeGetDocs(q);
-      if (snapshot && !snapshot.empty) {
-        await safeDeleteDoc(doc(db, COL.TRIPS, snapshot.docs[0].id));
-        deletedDoc = true;
+    // 2. Query fallback: delete matching documents
+    const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
+    if (snapshot && !snapshot.empty) {
+      const matches = snapshot.docs.filter(d => d.id === tripIdStr || String(d.data().id) === tripIdStr);
+      for (const m of matches) {
+        await safeDeleteDoc(doc(db, COL.TRIPS, m.id));
       }
     }
 
-    // 3. Fallback: query by matching id
-    if (!deletedDoc) {
-      const q2 = query(collection(db, COL.TRIPS), where('slug', '==', slug), where('category', '==', category));
-      const snapshot2 = await safeGetDocs(q2);
-      if (snapshot2 && !snapshot2.empty) {
-        const match = snapshot2.docs.find(d => d.id === tripIdStr || String(d.data().id) === tripIdStr);
-        if (match) {
-          await safeDeleteDoc(doc(db, COL.TRIPS, match.id));
-          deletedDoc = true;
-        }
-      }
-    }
-
-    // 4. Create tombstone document so static sample trips are hidden permanently
+    // 3. Create tombstone document so static sample trips are hidden permanently
     await safeSetDoc(doc(db, COL.TRIPS, `del_${slug}_${category}_${tripIdStr}`), {
-      id: tripId,
-      slug: slug,
-      category: category,
+      id: tripIdStr,
+      slug: String(slug),
+      category: String(category),
       deleted: true,
       deletedAt: new Date().toISOString()
     });
@@ -444,61 +419,78 @@ export async function deleteTrip(slug, category, tripId) {
 // ==========================================
 
 export async function getPackages(pkgId) {
-  // Circuit breaker: skip Firebase if previously failed
-  if (_circuitBreaker.isOpen()) return [];
   try {
-    const q = query(collection(db, COL.PACKAGES), where('pkgId', '==', pkgId));
-    const snapshot = await withTimeout(getDocs(q), 5000);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    const snapshot = await safeGetDocs(collection(db, COL.PACKAGES));
+    if (!snapshot || snapshot.empty) return [];
+
+    const allDocs = snapshot.docs.map(d => ({
+      id: d.data().id || d.id,
+      firestoreDocId: d.id,
+      ...d.data()
+    }));
+
+    const deletedIds = new Set(
+      allDocs.filter(p => p.deleted).map(p => String(p.id))
+    );
+
+    const filtered = allDocs.filter(
+      p => String(p.pkgId) === String(pkgId) && !p.deleted && !deletedIds.has(String(p.id))
+    );
+
+    return filtered;
   } catch (e) {
-    _circuitBreaker.trip(e);
+    console.error('Error fetching packages:', e);
     return [];
   }
 }
 
 export async function addPackage(pkgId, packageData) {
   try {
+    const newId = packageData.id || `pkg_custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const newPackage = {
-      pkgId,
+      id: newId,
+      pkgId: String(pkgId),
       currency: 'EUR',
       rating: 5.0,
       reviews: 1,
-      icon: packageData.icon || 'plane',
+      icon: packageData.icon || '✈️',
       createdAt: new Date().toISOString(),
       ...packageData,
     };
-    const docRef = await safeAddDoc(collection(db, COL.PACKAGES), newPackage);
-    console.log('Package added successfully with ID:', docRef.id);
-    return { id: docRef.id, ...newPackage };
+    await safeSetDoc(doc(db, COL.PACKAGES, String(newId)), newPackage, { merge: true });
+    console.log('Package added successfully with ID:', newId);
+    return { id: newId, ...newPackage };
   } catch (e) {
     console.error('Error saving package to Firebase:', e);
-    // Reset circuit breaker on explicit user action
-    _circuitBreaker.tripped = false;
-    _circuitBreaker.trippedAt = null;
-    _circuitBreaker.errorLogged = false;
     return false;
   }
 }
 
 export async function updatePackage(pkgId, packageId, packageData) {
   try {
-    // Reset circuit breaker for update operations
-    _circuitBreaker.tripped = false;
-    _circuitBreaker.trippedAt = null;
-    _circuitBreaker.errorLogged = false;
-
-    // البحث عن الباقة باستخدام packageId
-    const q = query(collection(db, COL.PACKAGES), where('id', '==', packageId));
-    const snapshot = await getDocs(q);
-    
-    if (!snapshot.empty) {
-      // تحديث أول تطابق
-      await safeUpdateDoc(doc(db, COL.PACKAGES, snapshot.docs[0].id), packageData);
-      console.log('Package updated successfully with ID:', packageId);
+    const pkgIdStr = String(packageId);
+    const pkgRef = doc(db, COL.PACKAGES, pkgIdStr);
+    const snap = await safeGetDoc(pkgRef);
+    if (snap && snap.exists()) {
+      await safeUpdateDoc(pkgRef, packageData);
+      console.log('Package updated successfully with ID:', pkgIdStr);
       return true;
     }
-    
-    return false;
+
+    const snapshot = await safeGetDocs(collection(db, COL.PACKAGES));
+    if (snapshot && !snapshot.empty) {
+      const match = snapshot.docs.find(d => d.id === pkgIdStr || String(d.data().id) === pkgIdStr);
+      if (match) {
+        await safeUpdateDoc(doc(db, COL.PACKAGES, match.id), packageData);
+        console.log('Package updated via matching doc ID:', match.id);
+        return true;
+      }
+    }
+
+    // Upsert fallback
+    await safeSetDoc(pkgRef, { id: pkgIdStr, pkgId: String(pkgId), ...packageData }, { merge: true });
+    console.log('Package upserted with ID:', pkgIdStr);
+    return true;
   } catch (e) {
     console.error('Error updating package:', e);
     return false;
@@ -507,17 +499,33 @@ export async function updatePackage(pkgId, packageId, packageData) {
 
 export async function deletePackage(pkgId, packageId) {
   try {
-    // البحث عن الباقة باستخدام pkgId
-    const q = query(collection(db, COL.PACKAGES), where('pkgId', '==', pkgId));
-    const snapshot = await getDocs(q);
+    const pkgIdStr = String(packageId);
     
-    if (!snapshot.empty) {
-      // حذف أول تطابق
-      await safeDeleteDoc(doc(db, COL.PACKAGES, snapshot.docs[0].id));
-      return true;
+    // 1. Try to delete document by ID directly
+    const pkgRef = doc(db, COL.PACKAGES, pkgIdStr);
+    const snap = await safeGetDoc(pkgRef);
+    if (snap && snap.exists()) {
+      await safeDeleteDoc(pkgRef);
     }
-    
-    return false;
+
+    // 2. Delete all matching docs by id
+    const snapshot = await safeGetDocs(collection(db, COL.PACKAGES));
+    if (snapshot && !snapshot.empty) {
+      const matches = snapshot.docs.filter(d => d.id === pkgIdStr || String(d.data().id) === pkgIdStr);
+      for (const m of matches) {
+        await safeDeleteDoc(doc(db, COL.PACKAGES, m.id));
+      }
+    }
+
+    // 3. Write tombstone doc so deleted packages stay deleted
+    await safeSetDoc(doc(db, COL.PACKAGES, `del_pkg_${pkgId}_${pkgIdStr}`), {
+      id: pkgIdStr,
+      pkgId: String(pkgId),
+      deleted: true,
+      deletedAt: new Date().toISOString()
+    });
+
+    return true;
   } catch (e) {
     console.error('Error deleting package:', e);
     return false;
