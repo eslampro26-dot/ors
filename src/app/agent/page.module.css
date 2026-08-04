@@ -439,17 +439,123 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1024px) {
+  .sidebar {
+    transform: translateX(100%);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .mainArea {
+    margin-right: 0;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .menuToggle {
+    display: flex;
+  }
+
+  .overlay {
+    display: block;
+  }
+
+  .content {
+    padding: var(--space-lg);
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 768px) {
   .kpiGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+  }
+
+  .sectionCard {
+    padding: var(--space-md);
+  }
+
+  .tableWrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    min-width: 500px;
+    font-size: 0.78rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 8px 6px;
+  }
+
+  .sectionTitle {
+    font-size: var(--font-size-base);
+  }
+
+  .progressItem {
+    margin-bottom: var(--space-md);
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    width: min(260px, 85vw);
+  }
+
+  .topBar {
+    height: 56px;
+    padding: 0 var(--space-md);
+  }
+
+  .agentGreeting {
+    display: none;
+  }
+
+  .content {
+    padding: var(--space-sm) var(--space-md);
+    overflow-x: hidden;
+  }
+
+  .pageTitle {
+    font-size: var(--font-size-base);
+  }
+
+  .topBarRight {
+    gap: var(--space-sm);
+  }
+
+  .kpiGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+  }
+
+  .kpiCard {
+    padding: var(--space-md);
   }
 
   .kpiValue {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
+  }
+
+  .kpiLabel {
+    font-size: 0.7rem;
+  }
+
+  .kpiIcon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
   }
 
   .chart {
-    height: 150px;
+    height: 130px;
   }
 
   .chartSummary {
@@ -458,7 +564,35 @@
   }
 
   .sectionCard {
-    padding: var(--space-lg);
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .tierProgress {
+    padding: var(--space-sm) 0;
+  }
+
+  .agentMiniCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .tableWrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .table {
+    min-width: 450px;
+    font-size: 0.72rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 7px 5px;
+    white-space: nowrap;
   }
 }
 

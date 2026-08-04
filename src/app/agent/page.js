@@ -171,6 +171,7 @@ export default function AgentDashboard() {
     ? rawAgentTier
     : (rawAgentTier === 'ذهبي' ? 'gold' : (rawAgentTier === 'فضي' ? 'silver' : (rawAgentTier === 'بلاتيني' ? 'platinum' : 'bronze')));
   const currentTierData = tierConfig[agentTierKey] || tierConfig.bronze;
+  const agentName = currentAgent?.name?.split(' ')[0] || 'الوكيل';
   const promoCode = currentAgent?.promoCodes?.[0] || 'بدون كود';
   const referralLink = `${typeof window !== 'undefined' ? window.location.origin : 'https://orluxus.com'}?promo=${promoCode}`;
   const commissionRate = (customCommissions && customCommissions[agentTierKey]) ? Number(customCommissions[agentTierKey]) : currentTierData.commission;
