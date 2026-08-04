@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import translate from 'google-translate-api-x';
 
+export const dynamic = 'force-dynamic';
+export const maxDuration = 15;
+
 // Supported languages mapping
 const LANGUAGES = {
   ar: 'ar',
@@ -15,6 +18,20 @@ const LANGUAGES = {
   ja: 'ja'
 };
 
+// Helper for fast translate with timeout
+async function translateWithTimeout(text, fromCode, toCode, timeoutMs = 2500) {
+  try {
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Translation timeout')), timeoutMs)
+    );
+    const translationPromise = translate(text, { from: fromCode, to: toCode });
+    const result = await Promise.race([translationPromise, timeoutPromise]);
+    return result?.text || text;
+  } catch (err) {
+    return text; // Fallback to original text on error/timeout
+  }
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -26,26 +43,22 @@ export async function POST(request) {
 
     // Default target languages if not specified (all except source)
     const targets = targetLangs || Object.keys(LANGUAGES).filter(lang => lang !== sourceLang);
-
-    const translations = {};
     const sourceCode = LANGUAGES[sourceLang] || sourceLang;
 
-    // Translate to each target language
-    for (const targetLang of targets) {
-      try {
-        const targetCode = LANGUAGES[targetLang] || targetLang;
-        
-        if (sourceCode === targetCode) {
-          translations[targetLang] = text;
-          continue;
-        }
-
-        const result = await translate(text, { from: sourceCode, to: targetCode });
-        translations[targetLang] = result.text;
-      } catch (err) {
-        console.error(`Translation error for ${targetLang}:`, err);
-        translations[targetLang] = text; // Fallback to original text
+    // Run all target translations in parallel for maximum speed
+    const translationPromises = targets.map(async (targetLang) => {
+      const targetCode = LANGUAGES[targetLang] || targetLang;
+      if (sourceCode === targetCode) {
+        return { targetLang, text };
       }
+      const translatedText = await translateWithTimeout(text, sourceCode, targetCode, 2500);
+      return { targetLang, text: translatedText };
+    });
+
+    const results = await Promise.all(translationPromises);
+    const translations = {};
+    for (const res of results) {
+      translations[res.targetLang] = res.text;
     }
 
     return NextResponse.json({
@@ -57,6 +70,6 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Auto-translate API error:', error);
-    return NextResponse.json({ error: 'Translation failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Translation failed', success: false, translations: {} }, { status: 200 });
   }
 }

@@ -352,10 +352,12 @@ export default function AdminServices() {
     e.preventDefault();
 
     if (modalType === 'trip') {
-      const { city, category, titleEn, titleDe, titleAr, price, economyPrice, businessPrice, vipPrice, childPrice, economyChildPrice, businessChildPrice, vipChildPrice, infantPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice, additionalPersonPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, specialRequests } = formData;
+      const { city, category, titleEn, titleDe, titleAr, price, economyPrice, businessPrice, vipPrice, childPrice, economyChildPrice, businessChildPrice, vipChildPrice, infantPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice, additionalPersonPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, tripDescriptionEn, specialRequests } = formData;
       const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
       
       const effectiveTitleEn = titleEn || titleAr || titleDe;
+      const effectiveDesc = tripDescriptionEn || tripDescription || '';
+
       if (!effectiveTitleEn || basePrice <= 0) {
         alert('Please fill in the title and base price!');
         return;
@@ -376,12 +378,11 @@ export default function AdminServices() {
       };
 
       try {
-        const sourceText = effectiveTitleEn;
         const translateResponse = await fetch('/api/auto-translate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            text: sourceText,
+            text: effectiveTitleEn,
             sourceLang: 'en',
             targetLangs: ['ar', 'de', 'fr', 'es', 'it', 'ru', 'tr', 'zh', 'ja']
           })
@@ -409,24 +410,24 @@ export default function AdminServices() {
 
       // Auto-translate trip description to all languages
       let translatedDescriptions = {
-        tripDescriptionAr: tripDescriptionEn,
-        tripDescriptionDe: tripDescriptionEn,
-        tripDescriptionFr: tripDescriptionEn,
-        tripDescriptionEs: tripDescriptionEn,
-        tripDescriptionIt: tripDescriptionEn,
-        tripDescriptionRu: tripDescriptionEn,
-        tripDescriptionTr: tripDescriptionEn,
-        tripDescriptionZh: tripDescriptionEn,
-        tripDescriptionJa: tripDescriptionEn
+        tripDescriptionAr: effectiveDesc,
+        tripDescriptionDe: effectiveDesc,
+        tripDescriptionFr: effectiveDesc,
+        tripDescriptionEs: effectiveDesc,
+        tripDescriptionIt: effectiveDesc,
+        tripDescriptionRu: effectiveDesc,
+        tripDescriptionTr: effectiveDesc,
+        tripDescriptionZh: effectiveDesc,
+        tripDescriptionJa: effectiveDesc
       };
 
-      if (tripDescriptionEn) {
+      if (effectiveDesc) {
         try {
           const descTranslateResponse = await fetch('/api/auto-translate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              text: tripDescriptionEn,
+              text: effectiveDesc,
               sourceLang: 'en',
               targetLangs: ['ar', 'de', 'fr', 'es', 'it', 'ru', 'tr', 'zh', 'ja']
             })
@@ -436,15 +437,15 @@ export default function AdminServices() {
             const data = await descTranslateResponse.json();
             if (data.success && data.translations) {
               translatedDescriptions = {
-                tripDescriptionAr: data.translations.ar || tripDescriptionEn,
-                tripDescriptionDe: data.translations.de || tripDescriptionEn,
-                tripDescriptionFr: data.translations.fr || tripDescriptionEn,
-                tripDescriptionEs: data.translations.es || tripDescriptionEn,
-                tripDescriptionIt: data.translations.it || tripDescriptionEn,
-                tripDescriptionRu: data.translations.ru || tripDescriptionEn,
-                tripDescriptionTr: data.translations.tr || tripDescriptionEn,
-                tripDescriptionZh: data.translations.zh || tripDescriptionEn,
-                tripDescriptionJa: data.translations.ja || tripDescriptionEn
+                tripDescriptionAr: data.translations.ar || effectiveDesc,
+                tripDescriptionDe: data.translations.de || effectiveDesc,
+                tripDescriptionFr: data.translations.fr || effectiveDesc,
+                tripDescriptionEs: data.translations.es || effectiveDesc,
+                tripDescriptionIt: data.translations.it || effectiveDesc,
+                tripDescriptionRu: data.translations.ru || effectiveDesc,
+                tripDescriptionTr: data.translations.tr || effectiveDesc,
+                tripDescriptionZh: data.translations.zh || effectiveDesc,
+                tripDescriptionJa: data.translations.ja || effectiveDesc
               };
             }
           }
@@ -485,9 +486,9 @@ export default function AdminServices() {
         videos: formData.videos || [],
         locationUrl: locationUrl || '',
         videoUrl: videoUrl || '',
-        tripDescription: tripDescriptionEn || '',
+        tripDescription: effectiveDesc,
         tripDescriptionAr: translatedDescriptions.tripDescriptionAr,
-        tripDescriptionEn: tripDescriptionEn,
+        tripDescriptionEn: effectiveDesc,
         tripDescriptionDe: translatedDescriptions.tripDescriptionDe,
         tripDescriptionFr: translatedDescriptions.tripDescriptionFr,
         tripDescriptionEs: translatedDescriptions.tripDescriptionEs,
@@ -503,33 +504,22 @@ export default function AdminServices() {
       };
       
       try {
-        let success;
+        let result;
         if (editingTrip) {
-          success = await updateTrip(editingTrip.tripId, tripPayload);
-          if (success) {
-            alert('Trip updated successfully!');
-          } else {
-            alert('Error updating trip.');
-          }
+          result = await updateTrip(editingTrip.tripId, tripPayload);
         } else {
-          success = await addTrip(city, category, tripPayload);
-          if (success) {
-            alert('Trip added successfully!');
-          } else {
-            alert('Error saving trip.');
-          }
+          result = await addTrip(city, category, tripPayload);
         }
 
-        if (success) {
-          setModalOpen(false);
-          setEditingTrip(null);
-          setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',additionalPersonPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
-          setUseTierPrices(false);
-          await reloadCurrentCity();
-        }
+        setModalOpen(false);
+        setEditingTrip(null);
+        setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',additionalPersonPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
+        setUseTierPrices(false);
+        alert(editingTrip ? '✅ تم تحديث الرحلة بنجاح!' : '✅ تم إضافة الرحلة بنجاح!');
+        await reloadCurrentCity();
       } catch (err) {
         console.error('Error saving trip:', err);
-        alert('Error saving trip.');
+        alert('❌ حدث خطأ أثناء حفظ الرحلة.');
       } finally {
         setIsTranslating(false);
       }

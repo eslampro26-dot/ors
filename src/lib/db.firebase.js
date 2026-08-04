@@ -264,16 +264,21 @@ export async function getTrips(slug, category) {
     const snapshot = await withTimeout(getDocs(q), 5000);
     const customTrips = snapshot.docs.map(d => {
       const data = d.data();
-      // Ensure rich description fields are present
       return {
-        id: d.id,
+        id: data.id || d.id,
+        firestoreDocId: d.id,
         ...data,
         economyDesc: data.economyDesc || '',
         businessDesc: data.businessDesc || '',
         vipDesc: data.vipDesc || ''
       };
     });
-    return [...staticTrips, ...customTrips];
+
+    // Custom/edited trips override static trips with matching ID
+    const customTripIds = new Set(customTrips.map(t => String(t.id)));
+    const filteredStatic = staticTrips.filter(t => !customTripIds.has(String(t.id)));
+
+    return [...filteredStatic, ...customTrips];
   } catch (e) {
     _circuitBreaker.trip(e);
     return staticTrips;
