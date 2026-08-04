@@ -54,21 +54,26 @@ export default function AgentDashboard() {
       const totalSales = activeBookings.reduce((sum, b) => sum + b.finalAmount, 0);
       const transactionCount = activeBookings.length;
 
-      const commissionRate = tierConfig[agent?.tier || 'bronze'].commission;
+      const rawTier = (agent?.tier || 'bronze').toString().trim().toLowerCase();
+      const agentTierKey = ['bronze', 'silver', 'gold', 'platinum'].includes(rawTier)
+        ? rawTier
+        : (rawTier === 'ذهبي' ? 'gold' : (rawTier === 'فضي' ? 'silver' : (rawTier === 'بلاتيني' ? 'platinum' : 'bronze')));
+      
+      const currentTierData = tierConfig[agentTierKey] || tierConfig.bronze;
+      const commissionRate = currentTierData.commission;
       const totalCommission = totalSales * (commissionRate / 100);
-      // Available balance = commission earned (simplified — can be adjusted for withdrawals)
       setAvailableBalance(totalCommission);
 
-      // Progress toward Silver
-      const targetSales = 96000;
-      const targetTrx = 1920;
+      // Target sales progress dynamic by tier
+      const targetSales = agentTierKey === 'bronze' ? 48000 : (agentTierKey === 'silver' ? 96000 : 150000);
+      const targetTrx = agentTierKey === 'bronze' ? 960 : (agentTierKey === 'silver' ? 1920 : 3000);
       setSalesProgress(Math.min(100, Math.round((totalSales / targetSales) * 100)));
       setTrxProgress(Math.min(100, Math.round((transactionCount / targetTrx) * 100)));
 
       // KPI cards
       setKpis([
         { label: 'الرصيد المتاح للسحب', value: `€${totalCommission.toLocaleString(undefined, { maximumFractionDigits: 2 })}`, target: `عمولة ${commissionRate}%`, icon: '◆', colorClass: styles.kpiCardGold, trend: 'متاح' },
-        { label: 'إجمالي المبيعات النشطة', value: `€${totalSales.toLocaleString()}`, target: 'الهدف: €96,000', icon: '▲', colorClass: styles.kpiCardOcean, trend: `${salesProgress}%` },
+        { label: 'إجمالي المبيعات النشطة', value: `€${totalSales.toLocaleString()}`, target: `الهدف: €${targetSales.toLocaleString()}`, icon: '▲', colorClass: styles.kpiCardOcean, trend: `${salesProgress}%` },
         { label: 'إجمالي الحجوزات', value: allBookings.length.toString(), target: `${newBookings.length} جديد · ${confirmedBookings.length} مؤكد`, icon: '▣', colorClass: styles.kpiCardEmerald, trend: `${cancelledBookings.length} ملغي` },
         { label: 'شركاء نشطين تحتي', value: activeSubAgentsCount.toString(), target: 'شجرة تسويقية', icon: '◉', colorClass: styles.kpiCardCoral, trend: `+${activeSubAgentsCount}` },
       ]);
@@ -157,10 +162,15 @@ export default function AgentDashboard() {
     return <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'300px', color:'var(--coral-400)' }}>{error}</div>;
   }
 
+  const rawAgentTier = (currentAgent?.tier || 'bronze').toString().trim().toLowerCase();
+  const agentTierKey = ['bronze', 'silver', 'gold', 'platinum'].includes(rawAgentTier)
+    ? rawAgentTier
+    : (rawAgentTier === 'ذهبي' ? 'gold' : (rawAgentTier === 'فضي' ? 'silver' : (rawAgentTier === 'بلاتيني' ? 'platinum' : 'bronze')));
+  const currentTierData = tierConfig[agentTierKey] || tierConfig.bronze;
   const agentName = currentAgent?.name?.split(' ')[0] || 'الوكيل';
   const promoCode = currentAgent?.promoCodes?.[0] || 'بدون كود';
   const referralLink = `${typeof window !== 'undefined' ? window.location.origin : 'https://orluxus.com'}?promo=${promoCode}`;
-  const commissionRate = tierConfig[currentAgent?.tier || 'bronze'].commission;
+  const commissionRate = currentTierData.commission;
 
   return (
     <div className={styles.dashboard}>
@@ -179,8 +189,8 @@ export default function AgentDashboard() {
           </div>
           <div style={{ background:'var(--bg-glass-strong)', padding:'10px 20px', borderRadius:'12px', border:'1px solid var(--border-subtle)', textAlign:'center' }}>
             <span style={{ fontSize:'12px', color:'var(--text-tertiary)', display:'block' }}>مستواك الحالي:</span>
-            <strong style={{ color: tierConfig[currentAgent?.tier]?.color || 'var(--gold-400)', fontSize:'1.2rem', display:'flex', alignItems:'center', gap:'6px', marginTop:'4px' }}>
-              {tierConfig[currentAgent?.tier]?.icon || '◆'} {tierConfig[currentAgent?.tier]?.nameAr || 'برونزي'}
+            <strong style={{ color: currentTierData.color || 'var(--gold-400)', fontSize:'1.2rem', display:'flex', alignItems:'center', gap:'6px', marginTop:'4px' }}>
+              {currentTierData.icon || '◆'} {currentTierData.nameAr || 'برونزي'}
             </strong>
           </div>
         </div>

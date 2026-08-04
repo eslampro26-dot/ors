@@ -370,39 +370,55 @@ export async function updateTrip(tripId, tripData) {
 
 export async function deleteTrip(slug, category, tripId) {
   try {
+    const tripIdStr = String(tripId);
+    let deletedDoc = false;
+
     // 1. Try to delete by document ID directly
-    const tripRef = doc(db, COL.TRIPS, String(tripId));
+    const tripRef = doc(db, COL.TRIPS, tripIdStr);
     const tripSnap = await safeGetDoc(tripRef);
     if (tripSnap && tripSnap.exists()) {
       await safeDeleteDoc(tripRef);
-      return true;
+      deletedDoc = true;
     }
 
     // 2. Fallback: query by slug+category+id field
-    const q = query(
-      collection(db, COL.TRIPS),
-      where('slug', '==', slug),
-      where('category', '==', category),
-      where('id', '==', tripId)
-    );
-    const snapshot = await safeGetDocs(q);
-    if (snapshot && !snapshot.empty) {
-      await safeDeleteDoc(doc(db, COL.TRIPS, snapshot.docs[0].id));
-      return true;
-    }
-
-    // 3. Fallback: query by firestoreDocId
-    const q2 = query(collection(db, COL.TRIPS), where('slug', '==', slug), where('category', '==', category));
-    const snapshot2 = await safeGetDocs(q2);
-    if (snapshot2 && !snapshot2.empty) {
-      const match = snapshot2.docs.find(d => d.id === String(tripId) || d.data().id === String(tripId));
-      if (match) {
-        await safeDeleteDoc(doc(db, COL.TRIPS, match.id));
-        return true;
+    if (!deletedDoc) {
+      const q = query(
+        collection(db, COL.TRIPS),
+        where('slug', '==', slug),
+        where('category', '==', category),
+        where('id', '==', tripId)
+      );
+      const snapshot = await safeGetDocs(q);
+      if (snapshot && !snapshot.empty) {
+        await safeDeleteDoc(doc(db, COL.TRIPS, snapshot.docs[0].id));
+        deletedDoc = true;
       }
     }
 
-    return false;
+    // 3. Fallback: query by matching id
+    if (!deletedDoc) {
+      const q2 = query(collection(db, COL.TRIPS), where('slug', '==', slug), where('category', '==', category));
+      const snapshot2 = await safeGetDocs(q2);
+      if (snapshot2 && !snapshot2.empty) {
+        const match = snapshot2.docs.find(d => d.id === tripIdStr || String(d.data().id) === tripIdStr);
+        if (match) {
+          await safeDeleteDoc(doc(db, COL.TRIPS, match.id));
+          deletedDoc = true;
+        }
+      }
+    }
+
+    // 4. Create tombstone document so static sample trips are hidden permanently
+    await safeSetDoc(doc(db, COL.TRIPS, `del_${slug}_${category}_${tripIdStr}`), {
+      id: tripId,
+      slug: slug,
+      category: category,
+      deleted: true,
+      deletedAt: new Date().toISOString()
+    });
+
+    return true;
   } catch (e) {
     console.error('Error deleting trip:', e);
     return false;
