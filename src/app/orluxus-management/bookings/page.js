@@ -384,7 +384,6 @@ export default function AdminBookings() {
               </div>
             </div>
             <div class="ref-area">
-              <h3>${t.title}</h3>
               <p>${t.ref}: <strong>${txId}</strong></p>
               <p>${dateFormatted}</p>
             </div>

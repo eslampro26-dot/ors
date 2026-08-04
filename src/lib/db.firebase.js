@@ -277,15 +277,17 @@ export async function getTrips(slug, category) {
     // Custom/edited trips override static trips with matching ID
     const customTripMap = new Map(customTrips.map(t => [String(t.id), t]));
     
-    // Replace static trips with their edited version if available
-    const mergedStaticTrips = staticTrips.map(st => {
-      const edited = customTripMap.get(String(st.id));
-      return edited ? { ...st, ...edited } : st;
-    });
+    // Replace static trips with their edited version if available, filter out deleted
+    const mergedStaticTrips = staticTrips
+      .map(st => {
+        const edited = customTripMap.get(String(st.id));
+        return edited ? { ...st, ...edited } : st;
+      })
+      .filter(t => !t.deleted);
 
-    // Add pure custom trips (not in sampleTrips)
+    // Add pure custom trips (not in sampleTrips), filter out deleted
     const staticTripIds = new Set(staticTrips.map(st => String(st.id)));
-    const brandNewTrips = customTrips.filter(ct => !staticTripIds.has(String(ct.id)));
+    const brandNewTrips = customTrips.filter(ct => !staticTripIds.has(String(ct.id)) && !ct.deleted);
 
     return [...mergedStaticTrips, ...brandNewTrips];
   } catch (e) {
@@ -619,12 +621,18 @@ export async function deleteAgent(id) {
 
 export async function getBookings() {
   try {
-    const q = query(collection(db, COL.BOOKINGS), orderBy('date', 'desc'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Fetch without orderBy to avoid Firestore composite index requirement
+    const snapshot = await getDocs(collection(db, COL.BOOKINGS));
+    const bookings = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Sort in memory: newest first by createdAt, then by date
+    return bookings.sort((a, b) => {
+      const da = a.createdAt ? new Date(a.createdAt) : new Date(a.date || 0);
+      const db_ = b.createdAt ? new Date(b.createdAt) : new Date(b.date || 0);
+      return db_ - da;
+    });
   } catch (e) {
-    // Silently fallback to LS on timeout
-    return DEFAULT_BOOKINGS;
+    console.error('Error fetching bookings:', e);
+    return [];
   }
 }
 

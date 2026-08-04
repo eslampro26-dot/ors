@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getCookieFromRequest, verifyAgentToken } from '@/lib/auth';
-import { getBookings, getAgents, getAgentById } from '@/lib/db';
+import { getBookings, getAgents, getAgentById, getPromoCodes } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/agent/dashboard
- * Returns the current agent's bookings, stats, and sub-agents count.
+ * Returns the current agent's bookings, stats, sub-agents count, and promo codes.
  * Requires a valid agent_session HttpOnly cookie.
  */
 export async function GET(request) {
@@ -21,10 +21,11 @@ export async function GET(request) {
     const agentId = payload.id;
 
     // Fetch data in parallel
-    const [allBookings, agent, allAgents] = await Promise.all([
+    const [allBookings, agent, allAgents, allPromoCodes] = await Promise.all([
       getBookings(),
       getAgentById(agentId),
       getAgents(),
+      getPromoCodes().catch(() => []),
     ]);
 
     if (!agent) {
@@ -32,9 +33,22 @@ export async function GET(request) {
     }
 
     // Filter bookings for this agent only (prevent IDOR)
-    const myBookings = (allBookings || []).filter(
-      b => String(b.agentId) === String(agentId)
-    );
+    // Match by agentId OR promoCode belonging to this agent
+    const agentPromoCodesFromDb = (allPromoCodes || [])
+      .filter(pc => String(pc.agentId) === String(agentId))
+      .map(pc => pc.code);
+
+    // Merge agent.promoCodes (array of strings) with DB-queried promo codes
+    const mergedPromoCodes = Array.from(new Set([
+      ...(agent.promoCodes || []),
+      ...agentPromoCodesFromDb,
+    ]));
+
+    const myBookings = (allBookings || []).filter(b => {
+      const byAgentId = String(b.agentId) === String(agentId);
+      const byPromo = b.promoCode && mergedPromoCodes.includes(b.promoCode);
+      return byAgentId || byPromo;
+    });
 
     // Count active sub-agents
     const activeSubAgents = (allAgents || []).filter(
@@ -44,7 +58,7 @@ export async function GET(request) {
     const { password, ...safeAgent } = agent;
 
     return NextResponse.json({
-      agent: safeAgent,
+      agent: { ...safeAgent, promoCodes: mergedPromoCodes },
       bookings: myBookings,
       activeSubAgentsCount: activeSubAgents,
     });

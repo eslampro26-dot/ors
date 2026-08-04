@@ -697,7 +697,13 @@ export default function AdminServices() {
         if (success) {
           await reloadCurrentCity();
         } else {
-          alert('Error deleting service.');
+          // For static/sample trips not yet in Firestore, write a tombstone to hide them
+          // and reload — they will be filtered out by getTrips
+          try {
+            const { default: db_ } = await import('@/lib/db');
+            await db_.addTrip(cityId, catId, { id: tripId, deleted: true, slug: cityId, category: catId });
+          } catch (_) {}
+          await reloadCurrentCity();
         }
       } catch (err) {
         console.error('Error deleting trip:', err);

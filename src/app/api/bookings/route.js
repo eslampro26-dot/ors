@@ -2,15 +2,6 @@ import { NextResponse } from 'next/server';
 import { getBookings, addBooking, updateBookingStatus, deleteBooking } from '@/lib/db';
 import { getCookieFromRequest, verifyAgentToken } from '@/lib/auth'
 
-function isAdmin(request) {
-  return verifyApiSecret(request);
-}
-
-function isAgent(request) {
-  const token = getCookieFromRequest(request, 'agent_session');
-  return verifyAgentToken(token) !== null;
-}
-
 export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
@@ -25,31 +16,36 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const isUserAdmin = isAdmin(request);
-    let sessionAgentId = null;
-    
-    if (!isUserAdmin) {
-      const token = getCookieFromRequest(request, 'agent_session');
+
+    // If an agent session cookie is present, attribute booking to that agent
+    // Public customers (no cookie) are still allowed — only override agentId if not already set
+    const token = getCookieFromRequest(request, 'agent_session');
+    if (token) {
       const agentPayload = verifyAgentToken(token);
-      if (!agentPayload) {
-        return NextResponse.json({ error: 'Unauthorized session' }, { status: 401 });
+      if (agentPayload && !body.agentId) {
+        body.agentId = agentPayload.id;
+        body.agentName = agentPayload.name || body.agentName;
       }
-      sessionAgentId = agentPayload.id;
-      body.agentId = sessionAgentId;
     }
 
     if (!body.customer || !body.service) {
       return NextResponse.json({ error: 'بيانات الحجز ناقصة.' }, { status: 400 });
     }
-    if (typeof body.finalAmount !== 'number' || body.finalAmount < 0) {
+
+    // Accept both number and string amounts
+    const finalAmount = Number(body.finalAmount);
+    if (isNaN(finalAmount) || finalAmount < 0) {
       return NextResponse.json({ error: 'قيمة الحجز غير صحيحة.' }, { status: 400 });
     }
+    body.finalAmount = finalAmount;
+
     const result = await addBooking(body);
     if (!result) {
       return NextResponse.json({ error: 'Failed to add booking' }, { status: 500 });
     }
     return NextResponse.json(result, { status: 201 });
   } catch (e) {
+    console.error('API Error adding booking:', e);
     return NextResponse.json({ error: 'Failed to add booking' }, { status: 500 });
   }
 }
