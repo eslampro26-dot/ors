@@ -89,8 +89,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'هذا الحساب موقوف. تواصل مع الإدارة.' }, { status: 403 });
     }
 
-    // 4) Generate signed session token
-    const token = generateAgentToken(agent.id);
+    // 4) Generate signed session token (embed username to prevent wrong account fallback)
+    const token = generateAgentToken(agent.id, agent.username || cleanUsername);
     const response = NextResponse.json({
       success: true,
       agent: { id: agent.id, name: agent.name, tier: agent.tier },

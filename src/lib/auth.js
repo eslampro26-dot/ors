@@ -104,12 +104,14 @@ export function verifyAdminToken(token) {
 /**
  * Generate a cryptographically signed token for an agent session.
  * @param {number|string} agentId
+ * @param {string} username
  * @returns {string}
  */
-export function generateAgentToken(agentId) {
+export function generateAgentToken(agentId, username) {
   const payload = {
     role: 'agent',
     id: agentId,
+    username: username || '',
     iat: Date.now(),
     exp: Date.now() + 1000 * 60 * 60 * 8, // 8 hours
   };
@@ -119,12 +121,12 @@ export function generateAgentToken(agentId) {
 /**
  * Verify and decode a signed agent session token.
  * @param {string|null} token
- * @returns {{ id: number|string } | null}
+ * @returns {{ id: number|string, username: string } | null}
  */
 export function verifyAgentToken(token) {
   const payload = verifySignedToken(token);
   if (payload && payload.role === 'agent') {
-    return { id: payload.id };
+    return { id: payload.id, username: payload.username || '' };
   }
   return null;
 }
