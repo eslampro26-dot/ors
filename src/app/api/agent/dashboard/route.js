@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getCookieFromRequest, verifyAgentToken } from '@/lib/auth';
-import { getBookings, getAgents, getAgentById, getPromoCodes } from '@/lib/db';
+import { getBookings, getAgents, getAgentById, getPromoCodes, getSettings } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/agent/dashboard
- * Returns the current agent's bookings, stats, sub-agents count, and promo codes.
+ * Returns the current agent's bookings, stats, sub-agents count, promo codes, and admin tier settings.
  * Requires a valid agent_session HttpOnly cookie.
  */
 export async function GET(request) {
@@ -21,11 +21,12 @@ export async function GET(request) {
     const agentId = payload.id;
 
     // Fetch data in parallel
-    const [allBookings, agent, allAgents, allPromoCodes] = await Promise.all([
+    const [allBookings, agent, allAgents, allPromoCodes, settings] = await Promise.all([
       getBookings(),
       getAgentById(agentId),
       getAgents(),
       getPromoCodes().catch(() => []),
+      getSettings().catch(() => ({})),
     ]);
 
     if (!agent) {
@@ -61,6 +62,8 @@ export async function GET(request) {
       agent: { ...safeAgent, promoCodes: mergedPromoCodes },
       bookings: myBookings,
       activeSubAgentsCount: activeSubAgents,
+      tierCommissions: settings.tierCommissions || null,
+      tierCriteria: settings.tierCriteria || null,
     });
   } catch (e) {
     console.error('agent dashboard error:', e);

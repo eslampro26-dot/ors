@@ -15,7 +15,8 @@ export default function AgentDashboard() {
   const [availableBalance, setAvailableBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [referralCopied, setReferralCopied] = useState(false);
+  const [customCommissions, setCustomCommissions] = useState(null);
+  const [customCriteria, setCustomCriteria] = useState(null);
 
   // Quick sub-agent form states
   const [subName, setSubName] = useState('');
@@ -34,9 +35,11 @@ export default function AgentDashboard() {
         return;
       }
       const data = await res.json();
-      const { agent, bookings, activeSubAgentsCount } = data;
+      const { agent, bookings, activeSubAgentsCount, tierCommissions, tierCriteria } = data;
 
       setCurrentAgent(agent);
+      if (tierCommissions) setCustomCommissions(tierCommissions);
+      if (tierCriteria) setCustomCriteria(tierCriteria);
 
       const allBookings = bookings || [];
       const activeBookings = allBookings.filter(b => b.status !== 'ملغي');
@@ -60,7 +63,7 @@ export default function AgentDashboard() {
         : (rawTier === 'ذهبي' ? 'gold' : (rawTier === 'فضي' ? 'silver' : (rawTier === 'بلاتيني' ? 'platinum' : 'bronze')));
       
       const currentTierData = tierConfig[agentTierKey] || tierConfig.bronze;
-      const commissionRate = currentTierData.commission;
+      const commissionRate = (tierCommissions && tierCommissions[agentTierKey]) ? Number(tierCommissions[agentTierKey]) : currentTierData.commission;
       const totalCommission = totalSales * (commissionRate / 100);
       setAvailableBalance(totalCommission);
 

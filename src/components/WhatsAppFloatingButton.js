@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSettings } from '@/hooks/useSettings';
 
@@ -38,6 +39,7 @@ export default function WhatsAppFloatingButton() {
   const [isVisible, setIsVisible] = useState(false);
   const { locale } = useLanguage();
   const { settings } = useSettings();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,8 +49,8 @@ export default function WhatsAppFloatingButton() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Hide WhatsApp button on admin pages
-  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/orluxus-management')) {
+  // Hide WhatsApp button on admin and agent dashboard pages
+  if (pathname && (pathname.startsWith('/orluxus-management') || pathname.startsWith('/agent'))) {
     return null;
   }
 
