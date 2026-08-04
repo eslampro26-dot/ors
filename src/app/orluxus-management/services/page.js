@@ -455,6 +455,7 @@ export default function AdminServices() {
       }
 
       const tripPayload = {
+        slug: city,
         category: category,
         titleAr: translatedTitles.titleAr,
         titleEn: effectiveTitleEn,

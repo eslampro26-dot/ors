@@ -578,23 +578,47 @@ export default function CategoryPage({ params }) {
                       {allVideos.map((vUrl, vi) => {
                         const url = vUrl.trim();
                         let embedUrl = null;
+                        let rawVideoUrl = url;
                         if (url.includes('youtube.com') || url.includes('youtu.be')) {
                           let videoId = '';
                           if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0];
                           else if (url.includes('watch')) { try { videoId = new URLSearchParams(url.split('?')[1]).get('v') || ''; } catch(e){} }
                           else if (url.includes('embed/')) videoId = url.split('embed/')[1]?.split('?')[0];
                           else if (url.includes('shorts/')) videoId = url.split('shorts/')[1]?.split('?')[0];
-                          if (videoId && videoId.length >= 11) embedUrl = `https://www.youtube.com/embed/${videoId.substring(0,11)}?rel=0&modestbranding=1`;
+                          if (videoId && videoId.length >= 11) {
+                            const cleanId = videoId.substring(0, 11);
+                            embedUrl = `https://www.youtube-nocookie.com/embed/${cleanId}?rel=0&modestbranding=1&enablejsapi=1`;
+                            rawVideoUrl = `https://www.youtube.com/watch?v=${cleanId}`;
+                          }
                         } else if (url.includes('vimeo.com')) {
                           const m = url.match(/vimeo\.com\/(\d+)/);
                           if (m) embedUrl = `https://player.vimeo.com/video/${m[1]}`;
                         }
                         return (
-                          <div key={vi} style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: '12px', overflow: 'hidden', background: '#000', border: '1px solid var(--border-subtle)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
-                            {embedUrl ? (
-                              <iframe src={embedUrl} style={{ width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={`Video ${vi + 1}`} loading="lazy" />
-                            ) : (
-                              <video src={url} controls style={{ width: '100%', height: '100%' }} />
+                          <div key={vi} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                            <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: '12px', overflow: 'hidden', background: '#000', border: '1px solid var(--border-subtle)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+                              {embedUrl ? (
+                                <iframe
+                                  src={embedUrl}
+                                  style={{ width: '100%', height: '100%', border: 'none' }}
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                  allowFullScreen
+                                  title={`Video ${vi + 1}`}
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <video src={url} controls style={{ width: '100%', height: '100%' }} />
+                              )}
+                            </div>
+                            {embedUrl && (
+                              <a
+                                href={rawVideoUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.3rem', alignSelf: 'flex-end' }}
+                              >
+                                ↗️ {isAr ? 'مشاهدة الفيديو على يوتيوب مباشرة' : 'Watch directly on YouTube'}
+                              </a>
                             )}
                           </div>
                         );

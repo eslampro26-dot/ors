@@ -275,10 +275,19 @@ export async function getTrips(slug, category) {
     });
 
     // Custom/edited trips override static trips with matching ID
-    const customTripIds = new Set(customTrips.map(t => String(t.id)));
-    const filteredStatic = staticTrips.filter(t => !customTripIds.has(String(t.id)));
+    const customTripMap = new Map(customTrips.map(t => [String(t.id), t]));
+    
+    // Replace static trips with their edited version if available
+    const mergedStaticTrips = staticTrips.map(st => {
+      const edited = customTripMap.get(String(st.id));
+      return edited ? { ...st, ...edited } : st;
+    });
 
-    return [...filteredStatic, ...customTrips];
+    // Add pure custom trips (not in sampleTrips)
+    const staticTripIds = new Set(staticTrips.map(st => String(st.id)));
+    const brandNewTrips = customTrips.filter(ct => !staticTripIds.has(String(ct.id)));
+
+    return [...mergedStaticTrips, ...brandNewTrips];
   } catch (e) {
     _circuitBreaker.trip(e);
     return staticTrips;
@@ -359,16 +368,38 @@ export async function updateTrip(tripId, tripData) {
 
 export async function deleteTrip(slug, category, tripId) {
   try {
-    // البحث عن الرحلة باستخدام slug و category
-    const q = query(collection(db, COL.TRIPS), where('slug', '==', slug), where('category', '==', category));
-    const snapshot = await getDocs(q);
-    
-    if (!snapshot.empty) {
-      // حذف أول تطابق
+    // 1. Try to delete by document ID directly
+    const tripRef = doc(db, COL.TRIPS, String(tripId));
+    const tripSnap = await safeGetDoc(tripRef);
+    if (tripSnap && tripSnap.exists()) {
+      await safeDeleteDoc(tripRef);
+      return true;
+    }
+
+    // 2. Fallback: query by slug+category+id field
+    const q = query(
+      collection(db, COL.TRIPS),
+      where('slug', '==', slug),
+      where('category', '==', category),
+      where('id', '==', tripId)
+    );
+    const snapshot = await safeGetDocs(q);
+    if (snapshot && !snapshot.empty) {
       await safeDeleteDoc(doc(db, COL.TRIPS, snapshot.docs[0].id));
       return true;
     }
-    
+
+    // 3. Fallback: query by firestoreDocId
+    const q2 = query(collection(db, COL.TRIPS), where('slug', '==', slug), where('category', '==', category));
+    const snapshot2 = await safeGetDocs(q2);
+    if (snapshot2 && !snapshot2.empty) {
+      const match = snapshot2.docs.find(d => d.id === String(tripId) || d.data().id === String(tripId));
+      if (match) {
+        await safeDeleteDoc(doc(db, COL.TRIPS, match.id));
+        return true;
+      }
+    }
+
     return false;
   } catch (e) {
     console.error('Error deleting trip:', e);

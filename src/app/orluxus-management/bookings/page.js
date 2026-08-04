@@ -24,6 +24,11 @@ export default function AdminBookings() {
 
   useEffect(() => {
     loadData();
+    // Auto-refresh every 5 seconds to show new bookings in realtime
+    const interval = setInterval(() => {
+      loadData();
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   // Export Bookings to CSV (Excel compatible with UTF-8 BOM)
@@ -38,9 +43,9 @@ export default function AdminBookings() {
       b.city,
       b.agentName || 'Direct (No Agent)',
       b.promoCode || 'None',
-      `EGP${b.originalAmount || b.finalAmount}`,
-      `EGP${b.discountAmount || 0}`,
-      `EGP${b.finalAmount}`,
+      `${b.currency || '€'}${b.originalAmount || b.finalAmount}`,
+      `${b.currency || '€'}${b.discountAmount || 0}`,
+      `${b.currency || '€'}${b.finalAmount}`,
       b.paymentType === 'cash' || b.paymentType === 'onsite' ? 'Cash' : (b.paymentType === 'card' ? 'Card' : 'PayPal'),
       b.status
     ]);
@@ -119,11 +124,13 @@ export default function AdminBookings() {
       const res = await fetch('/api/settings');
       if (res.ok) {
         const data = await res.json();
-        customTermsAr = data.termsAr || '';
-        customTermsEn = data.termsEn || '';
+        if (data.settings) {
+          customTermsAr = data.settings.customTermsAr || '';
+          customTermsEn = data.settings.customTermsEn || '';
+        }
       }
-    } catch (err) {
-      console.error('Error fetching terms:', err);
+    } catch (e) {
+      console.warn('Could not load custom terms from settings, using default:', e);
     }
 
     // 2. Open print window AFTER async fetch is complete (prevents about:blank detached window)
@@ -135,6 +142,7 @@ export default function AdminBookings() {
 
     // Always use English for invoice
     const isAr = false;
+    const currSym = (booking.currency === 'EGP' || booking.currency === 'ج.م') ? 'EGP ' : (booking.currency || '€');
     const txId = (booking.txId || booking.id || '').toUpperCase();
     const dateFormatted = new Date(booking.createdAt || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
     const bookingTimeFormatted = new Date(booking.createdAt || Date.now()).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
@@ -201,17 +209,17 @@ export default function AdminBookings() {
             max-width: 800px;
             margin: 0 auto;
             border: 2px solid #000000;
-            padding: 30px;
-            border-radius: 0;
-            box-shadow: none;
+            padding: 40px;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
           }
           .header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             border-bottom: 2px solid #000000;
             padding-bottom: 20px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
           }
           .logo-area {
             display: flex;
@@ -220,34 +228,31 @@ export default function AdminBookings() {
           }
           .logo-text h2 {
             margin: 0;
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             color: #000000;
-            letter-spacing: 2px;
-            font-weight: bold;
-          }
-          .logo-text span {
-            font-size: 0.8rem;
-            color: #666666;
+            font-weight: 800;
+            letter-spacing: 1px;
           }
           .ref-area {
-            text-align: ${isAr ? 'left' : 'right'};
+            text-align: right;
           }
           .ref-area h3 {
             margin: 0 0 5px 0;
             color: #000000;
-            font-size: 1rem;
-            font-weight: bold;
+            font-size: 1.2rem;
           }
           .ref-area p {
-            margin: 0;
+            margin: 2px 0;
             font-size: 0.85rem;
-            color: #666666;
+            color: #000000;
           }
           .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 25px;
+          }
+          .info-block {
             background: #f5f5f5;
             padding: 15px;
             border-radius: 0;
@@ -258,12 +263,11 @@ export default function AdminBookings() {
             color: #000000;
             font-size: 0.95rem;
             border-bottom: 1px solid #000000;
-            padding-bottom: 4px;
-            font-weight: bold;
+            padding-bottom: 5px;
           }
           .info-block p {
             margin: 4px 0;
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             color: #000000;
           }
           table {
@@ -375,10 +379,8 @@ export default function AdminBookings() {
         <div class="invoice-card">
           <div class="header">
             <div class="logo-area">
-              <img src="/logo_orluxus_marketing.png" alt="Orluxus Marketing Tourism Agency" style="height: 80px; width: auto; object-fit: contain;" onerror="this.style.display='none';" />
               <div class="logo-text">
                 <h2>ORLUXUS MARKETING TOURISM AGENCY</h2>
-                <span>Premium Egypt Travel &amp; Tourism</span>
               </div>
             </div>
             <div class="ref-area">
@@ -411,7 +413,7 @@ export default function AdminBookings() {
           <div class="info-grid" style="margin-top: 20px;">
             <div class="info-block" style="grid-column: span 2;">
               <h4>Additional Services</h4>
-              ${booking.addons.map(addon => `<p>• ${addon.name || addon.nameEn || addon.nameAr}: ${addon.price ? addon.price + ' EGP' : ''}</p>`).join('')}
+              ${booking.addons.map(addon => `<p>• ${addon.name || addon.nameEn || addon.nameAr}: ${addon.price ? currSym + addon.price : ''}</p>`).join('')}
             </div>
           </div>
           ` : ''}
@@ -427,17 +429,33 @@ export default function AdminBookings() {
             </thead>
             <tbody>
               <tr>
-                <td><strong>${booking.service}</strong> (${booking.city})</td>
-                <td style="text-align: center;">${booking.travelers}</td>
-                <td style="text-align: right;">EGP${(Number(booking.originalAmount || booking.finalAmount) / (Number(booking.travelers) || 1)).toFixed(2)}</td>
-                <td style="text-align: right; font-weight: bold;">EGP${Number(booking.originalAmount || booking.finalAmount).toFixed(2)}</td>
+                <td><strong>${booking.service}</strong> (${booking.city}) — Adults</td>
+                <td style="text-align: center;">${booking.travelers || 1}</td>
+                <td style="text-align: right;">${currSym}${Number(booking.adultPrice || (Number(booking.travelers || 1) > 1 ? (Number(booking.originalAmount || booking.finalAmount) - (Number(booking.children || 0) * Number(booking.childPrice || 0)) - (Number(booking.infants || 0) * Number(booking.infantPrice || 0))) / Number(booking.travelers || 1) : Number(booking.originalAmount || booking.finalAmount) - (Number(booking.children || 0) * Number(booking.childPrice || 0)) - (Number(booking.infants || 0) * Number(booking.infantPrice || 0)))).toFixed(2)}</td>
+                <td style="text-align: right; font-weight: bold;">${currSym}${(Number(booking.travelers || 1) * Number(booking.adultPrice || ((Number(booking.originalAmount || booking.finalAmount) - (Number(booking.children || 0) * Number(booking.childPrice || 0)) - (Number(booking.infants || 0) * Number(booking.infantPrice || 0))) / Number(booking.travelers || 1)))).toFixed(2)}</td>
               </tr>
+              ${(booking.children > 0 || Number(booking.children) > 0) ? `
+                <tr>
+                  <td><strong>Children Ticket</strong></td>
+                  <td style="text-align: center;">${booking.children}</td>
+                  <td style="text-align: right;">${currSym}${Number(booking.childPrice || 0).toFixed(2)}</td>
+                  <td style="text-align: right; font-weight: bold;">${currSym}${(Number(booking.children || 0) * Number(booking.childPrice || 0)).toFixed(2)}</td>
+                </tr>
+              ` : ''}
+              ${(booking.infants > 0 || Number(booking.infants) > 0) ? `
+                <tr>
+                  <td><strong>Infants Ticket</strong></td>
+                  <td style="text-align: center;">${booking.infants}</td>
+                  <td style="text-align: right;">${currSym}${Number(booking.infantPrice || 0).toFixed(2)}</td>
+                  <td style="text-align: right; font-weight: bold;">${currSym}${(Number(booking.infants || 0) * Number(booking.infantPrice || 0)).toFixed(2)}</td>
+                </tr>
+              ` : ''}
               ${booking.discountAmount > 0 ? `
                 <tr style="color: #000000; background: #ffffff;">
                   <td><strong>Promo Discount</strong> ${booking.promoCode ? `(${booking.promoCode})` : ''}</td>
                   <td style="text-align: center;">-</td>
                   <td style="text-align: right;">-</td>
-                  <td style="text-align: right; font-weight: bold;">-EGP${Number(booking.discountAmount).toFixed(2)}</td>
+                  <td style="text-align: right; font-weight: bold;">-${currSym}${Number(booking.discountAmount).toFixed(2)}</td>
                 </tr>
               ` : ''}
             </tbody>
@@ -452,7 +470,7 @@ export default function AdminBookings() {
             </div>
             <div style="text-align: right;">
               <span style="font-size: 0.85rem; color: #000000; display: block; margin-bottom: 4px;">${t.finalPrice}</span>
-              <span class="total-amount">EGP${Number(booking.finalAmount).toFixed(2)}</span>
+              <span class="total-amount">${currSym}${Number(booking.finalAmount).toFixed(2)}</span>
             </div>
           </div>
 
