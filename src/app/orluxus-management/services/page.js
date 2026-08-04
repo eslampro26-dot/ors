@@ -693,21 +693,28 @@ export default function AdminServices() {
   const handleDeleteTrip = async (cityId, catId, tripId) => {
     if (confirm('Are you sure you want to delete this service?')) {
       try {
-        const success = await deleteTrip(cityId, catId, tripId);
-        if (success) {
-          await reloadCurrentCity();
-        } else {
-          // For static/sample trips not yet in Firestore, write a tombstone to hide them
-          // and reload — they will be filtered out by getTrips
-          try {
-            const { default: db_ } = await import('@/lib/db');
-            await db_.addTrip(cityId, catId, { id: tripId, deleted: true, slug: cityId, category: catId });
-          } catch (_) {}
-          await reloadCurrentCity();
-        }
+        // Optimistically remove from screen state immediately
+        setCityData(prev => {
+          if (!prev || !prev.categories) return prev;
+          return {
+            ...prev,
+            categories: prev.categories.map(cat => {
+              if (cat.id === catId) {
+                return {
+                  ...cat,
+                  items: (cat.items || []).filter(item => String(item.id) !== String(tripId))
+                };
+              }
+              return cat;
+            })
+          };
+        });
+
+        await deleteTrip(cityId, catId, tripId);
+        await reloadCurrentCity();
       } catch (err) {
         console.error('Error deleting trip:', err);
-        alert('Error deleting service.');
+        await reloadCurrentCity();
       }
     }
   };

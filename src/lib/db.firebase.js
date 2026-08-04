@@ -257,12 +257,11 @@ export async function initializeDB() {
 
 export async function getTrips(slug, category) {
   const staticTrips = (sampleTrips[slug] && sampleTrips[slug][category]) || [];
-  // Circuit breaker: skip Firebase if previously failed
-  if (_circuitBreaker.isOpen()) return staticTrips;
   try {
-    const q = query(collection(db, COL.TRIPS), where('slug', '==', slug), where('category', '==', category));
-    const snapshot = await withTimeout(getDocs(q), 5000);
-    const customTrips = snapshot.docs.map(d => {
+    const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
+    if (!snapshot || snapshot.empty) return staticTrips;
+
+    const allCustomDocs = snapshot.docs.map(d => {
       const data = d.data();
       return {
         id: data.id || d.id,
@@ -274,36 +273,51 @@ export async function getTrips(slug, category) {
       };
     });
 
-    // Custom/edited trips override static trips with matching ID
-    const customTripMap = new Map(customTrips.map(t => [String(t.id), t]));
-    
-    // Replace static trips with their edited version if available, filter out deleted
+    // Filter by current slug & category
+    const categoryTrips = allCustomDocs.filter(
+      t => String(t.slug) === String(slug) && String(t.category) === String(category)
+    );
+
+    // Collect all deleted IDs for this slug + category (tombstones)
+    const deletedIds = new Set(
+      allCustomDocs
+        .filter(t => t.deleted && String(t.slug) === String(slug) && String(t.category) === String(category))
+        .map(t => String(t.id))
+    );
+
+    const customTripMap = new Map();
+    categoryTrips.forEach(t => {
+      if (!t.deleted) customTripMap.set(String(t.id), t);
+    });
+
+    // 1. Merge static trips: if edited -> override; if in deletedIds -> exclude!
     const mergedStaticTrips = staticTrips
       .map(st => {
         const edited = customTripMap.get(String(st.id));
         return edited ? { ...st, ...edited } : st;
       })
-      .filter(t => !t.deleted);
+      .filter(st => !deletedIds.has(String(st.id)) && !st.deleted);
 
-    // Add pure custom trips (not in sampleTrips), filter out deleted
+    // 2. Add brand new custom trips (not in sampleTrips), excluding deleted
     const staticTripIds = new Set(staticTrips.map(st => String(st.id)));
-    const brandNewTrips = customTrips.filter(ct => !staticTripIds.has(String(ct.id)) && !ct.deleted);
+    const brandNewTrips = categoryTrips.filter(
+      ct => !staticTripIds.has(String(ct.id)) && !ct.deleted && !deletedIds.has(String(ct.id))
+    );
 
     return [...mergedStaticTrips, ...brandNewTrips];
   } catch (e) {
-    _circuitBreaker.trip(e);
+    console.error('Error in getTrips:', e);
     return staticTrips;
   }
 }
 
 export async function getAllTrips() {
-  // Circuit breaker: skip Firebase if previously failed
-  if (_circuitBreaker.isOpen()) return [];
   try {
-    const snapshot = await withTimeout(getDocs(collection(db, COL.TRIPS)), 10000);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
+    if (!snapshot || snapshot.empty) return [];
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(t => !t.deleted);
   } catch (e) {
-    _circuitBreaker.trip(e);
+    console.error('Error in getAllTrips:', e);
     return [];
   }
 }

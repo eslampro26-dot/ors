@@ -17,6 +17,7 @@ export default function AgentDashboard() {
   const [error, setError] = useState('');
   const [customCommissions, setCustomCommissions] = useState(null);
   const [customCriteria, setCustomCriteria] = useState(null);
+  const [referralCopied, setReferralCopied] = useState(false);
 
   // Quick sub-agent form states
   const [subName, setSubName] = useState('');
