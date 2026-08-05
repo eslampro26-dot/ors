@@ -1,6 +1,10 @@
-
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, initializeFirestore } from 'firebase/firestore';
+import { 
+  getFirestore, 
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyA3Q9bwzj9Xr05ha_gMIMrg-pOTIhSeCTI',
@@ -12,28 +16,45 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || 'G-RHDWKRF546'
 };
 
-// معرف قاعدة البيانات الافتراضي لمشروع Firebase المجاني
+// Default database ID
 const databaseId = "(default)";
 
 // Initialize Firebase (prevent re-initialization in dev hot reload)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+
 let db;
 try {
-  // استخدام معرف قاعدة البيانات الجديد إذا كان متاحاً (مع تصحيح التلقائي للمعرف القديم الخاطئ)
   let customDbId = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || databaseId;
   if (customDbId === "9Evrgg7IPODZgBc21XKQ") {
     customDbId = "(default)";
   }
-  // Initialize Firestore with better connection settings
-  db = initializeFirestore(app, { 
+
+  // ✅ Enable IndexedDB offline persistence - THIS IS CRITICAL
+  // Without this, pending writes are lost on page reload, causing edits to disappear.
+  // With this, all writes are stored in IndexedDB and synced to Firebase when online.
+  db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    }),
     experimentalForceLongPolling: true,
     databaseId: customDbId,
-    cacheSizeBytes: 40 * 1024 * 1024, // 40MB cache
     ignoreUndefinedProperties: true
   });
 } catch (e) {
-  console.error('Firestore initialization error:', e);
-  db = getFirestore(app);
+  // Fallback: persistence might fail in Safari private mode or SSR
+  console.warn('Firestore persistence unavailable, using memory cache:', e?.message);
+  try {
+    let customDbId = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || databaseId;
+    if (customDbId === "9Evrgg7IPODZgBc21XKQ") customDbId = "(default)";
+    db = initializeFirestore(app, {
+      experimentalForceLongPolling: true,
+      databaseId: customDbId,
+      ignoreUndefinedProperties: true
+    });
+  } catch (e2) {
+    console.error('Firestore initialization error:', e2);
+    db = getFirestore(app);
+  }
 }
 
 export { db };
