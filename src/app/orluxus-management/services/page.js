@@ -507,7 +507,7 @@ export default function AdminServices() {
       try {
         let result;
         if (editingTrip) {
-          // Inject slug & category so Firestore doc is queryable by getTrips
+          // --- EDIT TRIP ---
           const payloadWithMeta = {
             ...tripPayload,
             slug: editingTrip.cityId,
@@ -517,8 +517,7 @@ export default function AdminServices() {
           result = await updateTrip(editingTrip.tripId, payloadWithMeta);
 
           if (result) {
-            // ✅ IMMEDIATE LOCAL STATE UPDATE — guaranteed to show changes
-            // without depending on Firebase cache/network
+            // ✅ Immediate local state update - no Firebase reload needed
             setTripsData(prev => {
               const cityTrips = prev[editingTrip.cityId] || {};
               const catTrips = cityTrips[editingTrip.catId] || [];
@@ -529,19 +528,30 @@ export default function AdminServices() {
                 : [...catTrips, { ...payloadWithMeta }];
               return {
                 ...prev,
-                [editingTrip.cityId]: {
-                  ...cityTrips,
-                  [editingTrip.catId]: updatedList,
-                },
+                [editingTrip.cityId]: { ...cityTrips, [editingTrip.catId]: updatedList },
               };
             });
           }
         } else {
+          // --- ADD NEW TRIP ---
           result = await addTrip(city, category, tripPayload);
+
+          if (result) {
+            // ✅ Immediately add new trip to local state - no Firebase reload needed
+            const newTrip = { ...tripPayload, id: result.id || result, slug: city, category };
+            setTripsData(prev => {
+              const cityTrips = prev[city] || {};
+              const catTrips = cityTrips[category] || [];
+              return {
+                ...prev,
+                [city]: { ...cityTrips, [category]: [...catTrips, newTrip] },
+              };
+            });
+          }
         }
 
         if (!result) {
-          alert('❌ حدث خطأ أثناء حفظ الرحلة في قاعدة البيانات. حاول مرة أخرى.');
+          alert('❌ فشل الحفظ في قاعدة البيانات. تأكد من الاتصال بالإنترنت وحاول مرة أخرى.');
           setIsTranslating(false);
           return;
         }
@@ -551,8 +561,7 @@ export default function AdminServices() {
         setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',additionalPersonPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
         setUseTierPrices(false);
         alert(editingTrip ? '✅ تم تحديث الرحلة بنجاح!' : '✅ تم إضافة الرحلة بنجاح!');
-        // Background sync with Firebase (won't revert local changes)
-        reloadCurrentCity().catch(() => {});
+        // ✅ NO reloadCurrentCity() - local state is already updated correctly above
       } catch (err) {
         console.error('Error saving trip:', err);
         alert('❌ حدث خطأ أثناء حفظ الرحلة.');
