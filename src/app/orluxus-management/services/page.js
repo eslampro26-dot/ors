@@ -512,10 +512,38 @@ export default function AdminServices() {
             ...tripPayload,
             slug: editingTrip.cityId,
             category: editingTrip.catId,
+            id: editingTrip.tripId,
           };
           result = await updateTrip(editingTrip.tripId, payloadWithMeta);
+
+          if (result) {
+            // ✅ IMMEDIATE LOCAL STATE UPDATE — guaranteed to show changes
+            // without depending on Firebase cache/network
+            setTripsData(prev => {
+              const cityTrips = prev[editingTrip.cityId] || {};
+              const catTrips = cityTrips[editingTrip.catId] || [];
+              const tripIdStr = String(editingTrip.tripId);
+              const existsInList = catTrips.some(t => String(t.id) === tripIdStr);
+              const updatedList = existsInList
+                ? catTrips.map(t => String(t.id) === tripIdStr ? { ...t, ...payloadWithMeta } : t)
+                : [...catTrips, { ...payloadWithMeta }];
+              return {
+                ...prev,
+                [editingTrip.cityId]: {
+                  ...cityTrips,
+                  [editingTrip.catId]: updatedList,
+                },
+              };
+            });
+          }
         } else {
           result = await addTrip(city, category, tripPayload);
+        }
+
+        if (!result) {
+          alert('❌ حدث خطأ أثناء حفظ الرحلة في قاعدة البيانات. حاول مرة أخرى.');
+          setIsTranslating(false);
+          return;
         }
 
         setModalOpen(false);
@@ -523,7 +551,8 @@ export default function AdminServices() {
         setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',additionalPersonPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
         setUseTierPrices(false);
         alert(editingTrip ? '✅ تم تحديث الرحلة بنجاح!' : '✅ تم إضافة الرحلة بنجاح!');
-        await reloadCurrentCity();
+        // Background sync with Firebase (won't revert local changes)
+        reloadCurrentCity().catch(() => {});
       } catch (err) {
         console.error('Error saving trip:', err);
         alert('❌ حدث خطأ أثناء حفظ الرحلة.');
