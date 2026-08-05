@@ -693,20 +693,16 @@ export default function AdminServices() {
   const handleDeleteTrip = async (cityId, catId, tripId) => {
     if (confirm('Are you sure you want to delete this service?')) {
       try {
-        // Optimistically remove from screen state immediately
-        setCityData(prev => {
-          if (!prev || !prev.categories) return prev;
+        // Optimistically remove from screen state immediately using correct state: tripsData
+        setTripsData(prev => {
+          const cityTrips = prev[cityId];
+          if (!cityTrips) return prev;
           return {
             ...prev,
-            categories: prev.categories.map(cat => {
-              if (cat.id === catId) {
-                return {
-                  ...cat,
-                  items: (cat.items || []).filter(item => String(item.id) !== String(tripId))
-                };
-              }
-              return cat;
-            })
+            [cityId]: {
+              ...cityTrips,
+              [catId]: (cityTrips[catId] || []).filter(item => String(item.id) !== String(tripId))
+            }
           };
         });
 
