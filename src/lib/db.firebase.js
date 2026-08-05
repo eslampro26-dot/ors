@@ -353,34 +353,41 @@ export async function addTrip(slug, category, tripData) {
 export async function updateTrip(tripId, tripData) {
   try {
     const tripIdStr = String(tripId);
+    // Always ensure slug & category are stored so getTrips can find this doc later
+    const slug = tripData.slug || tripData.city || '';
+    const category = tripData.category || '';
+    const dataToSave = { ...tripData, id: tripIdStr, slug, category };
+
+    // 1. Try direct doc ID
     const tripRef = doc(db, COL.TRIPS, tripIdStr);
     const tripSnap = await safeGetDoc(tripRef);
     if (tripSnap && tripSnap.exists()) {
-      await safeUpdateDoc(tripRef, tripData);
+      await safeSetDoc(tripRef, dataToSave, { merge: true });
       console.log('Trip updated successfully with ID:', tripIdStr);
       return true;
     }
-    
-    // Query fallback
+
+    // 2. Query fallback: find by data.id field
     const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
     if (snapshot && !snapshot.empty) {
       const match = snapshot.docs.find(d => d.id === tripIdStr || String(d.data().id) === tripIdStr);
       if (match) {
-        await safeUpdateDoc(doc(db, COL.TRIPS, match.id), tripData);
+        await safeSetDoc(doc(db, COL.TRIPS, match.id), dataToSave, { merge: true });
         console.log('Trip updated via matching doc ID:', match.id);
         return true;
       }
     }
 
-    // Upsert fallback
-    await safeSetDoc(tripRef, { id: tripIdStr, ...tripData }, { merge: true });
-    console.log('Trip upserted successfully with ID:', tripIdStr);
+    // 3. Upsert: create new doc for this tripId (handles static sample trips being edited for first time)
+    await safeSetDoc(tripRef, dataToSave, { merge: true });
+    console.log('Trip upserted (new doc) with ID:', tripIdStr);
     return true;
   } catch (e) {
     console.error('Error updating trip:', e);
     return false;
   }
 }
+
 
 export async function deleteTrip(slug, category, tripId) {
   try {

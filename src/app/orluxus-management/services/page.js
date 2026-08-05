@@ -507,7 +507,13 @@ export default function AdminServices() {
       try {
         let result;
         if (editingTrip) {
-          result = await updateTrip(editingTrip.tripId, tripPayload);
+          // Inject slug & category so Firestore doc is queryable by getTrips
+          const payloadWithMeta = {
+            ...tripPayload,
+            slug: editingTrip.cityId,
+            category: editingTrip.catId,
+          };
+          result = await updateTrip(editingTrip.tripId, payloadWithMeta);
         } else {
           result = await addTrip(city, category, tripPayload);
         }
