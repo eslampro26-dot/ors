@@ -98,6 +98,65 @@ export default function Home() {
   const [hoverRating, setHoverRating] = useState(0);
   const [emergencyPhone, setEmergencyPhone] = useState('');
 
+  // Live Global Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [allTripsList, setAllTripsList] = useState([]);
+
+  useEffect(() => {
+    import('@/lib/db').then(db => {
+      if (db && db.getAllTrips) {
+        db.getAllTrips().then(trips => {
+          if (trips && Array.isArray(trips)) {
+            setAllTripsList(trips);
+          }
+        }).catch(() => {});
+      }
+    }).catch(() => {});
+  }, []);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery || searchQuery.trim().length < 1) return [];
+    const q = searchQuery.trim().toLowerCase();
+    
+    // 1. Search cities
+    const cityMatches = (cities || []).filter(c => 
+      (c.name && c.name.toLowerCase().includes(q)) || 
+      (c.nameAr && c.nameAr.toLowerCase().includes(q)) || 
+      (c.slug && c.slug.toLowerCase().includes(q))
+    ).map(c => ({
+      id: `city-${c.slug}`,
+      title: locale === 'ar' ? c.nameAr : c.name,
+      type: locale === 'ar' ? '🗺️ وجهة سياحية' : '🗺️ Destination',
+      url: `/city/${c.slug}`,
+      image: c.heroImage || 'https://images.unsplash.com/photo-1572252821143-035a02484666?auto=format&fit=crop&w=400&q=80',
+      price: null
+    }));
+
+    // 2. Search packages
+    const packageMatches = [
+      { id: 'pkg-relaxation', title: locale === 'ar' ? 'باقات استرخاء استثنائية' : 'Relaxation Packages', type: locale === 'ar' ? '✨ باكج سياحي' : '✨ Package', url: '/packages#relaxation', image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=400&q=80', price: 299 },
+      { id: 'pkg-cultural', title: locale === 'ar' ? 'جولات سياحية ثقافية' : 'Cultural Packages', type: locale === 'ar' ? '🏺 باكج سياحي' : '🏺 Package', url: '/packages#cultural', image: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=400&q=80', price: 349 },
+      { id: 'pkg-nile', title: locale === 'ar' ? 'باقات كروز النيل الفاخرة' : 'Nile Cruise Packages', type: locale === 'ar' ? '🛳️ كروز النيل' : '🛳️ Nile Cruise', url: '/packages#nile-cruise', image: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=400&q=80', price: 499 }
+    ].filter(p => p.title.toLowerCase().includes(q));
+
+    // 3. Search trips
+    const tripMatches = (allTripsList || []).filter(t => 
+      (t.titleAr && t.titleAr.toLowerCase().includes(q)) || 
+      (t.titleEn && t.titleEn.toLowerCase().includes(q)) ||
+      (t.description && t.description.toLowerCase().includes(q)) ||
+      (t.category && t.category.toLowerCase().includes(q))
+    ).map(t => ({
+      id: t.id,
+      title: locale === 'ar' ? (t.titleAr || t.titleEn) : (t.titleEn || t.titleAr),
+      type: locale === 'ar' ? '✈️ رحلة سياحية' : '✈️ Excursion',
+      url: (t.slug && t.category) ? `/city/${t.slug}/${t.category}` : `/checkout?tripId=${t.id}&price=${t.price || 50}&titleAr=${encodeURIComponent(t.titleAr || '')}&titleEn=${encodeURIComponent(t.titleEn || '')}`,
+      image: t.image || 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80',
+      price: t.price
+    }));
+
+    return [...cityMatches, ...packageMatches, ...tripMatches].slice(0, 8);
+  }, [searchQuery, allTripsList, locale]);
+
   const handleReviewImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -283,14 +342,14 @@ export default function Home() {
               <TranslatedText text="Curated experiences for the discerning traveler, where sophistication meets unparalleled adventure." />
             </p>
             
-            <div style={{ marginTop: '2rem' }}>
+            <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', width: '100%', maxWidth: '600px' }}>
               <a href="#destinations" className="btn" style={{ 
                 padding: '16px 40px', 
                 fontSize: '16px', 
                 borderRadius: '999px',
                 fontWeight: '700',
                 background: 'var(--gold-500)',
-                color: '#FFFFFF', // Keep it white for premium visibility
+                color: '#FFFFFF',
                 boxShadow: '0 8px 30px rgba(201, 162, 39, 0.4)', 
                 transition: 'all 0.3s ease',
                 textTransform: 'uppercase',
@@ -309,6 +368,114 @@ export default function Home() {
               >
                 <TranslatedText text="DISCOVER YOUR JOURNEY" />
               </a>
+
+              {/* 🔍 LUXURY LIVE SEARCH BAR */}
+              <div style={{ position: 'relative', width: '100%', zIndex: 100 }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: 'rgba(15, 15, 15, 0.85)',
+                  backdropFilter: 'blur(16px)',
+                  border: '1px solid var(--gold-500)',
+                  borderRadius: '999px',
+                  padding: '6px 12px 6px 20px',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
+                  transition: 'all 0.3s ease'
+                }}>
+                  <span style={{ fontSize: '1.2rem', marginRight: locale === 'ar' ? '0' : '10px', marginLeft: locale === 'ar' ? '10px' : '0' }}>🔍</span>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={locale === 'ar' ? 'ابحث عن أي رحلة، مدينة، كروز، أو تجربة فاخرة...' : 'Search any trip, city, cruise, or experience...'}
+                    style={{
+                      flex: 1,
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      color: '#FFFFFF',
+                      fontSize: '0.95rem',
+                      fontFamily: 'inherit',
+                      padding: '8px 0'
+                    }}
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'var(--text-tertiary)',
+                        fontSize: '1.1rem',
+                        cursor: 'pointer',
+                        padding: '0 8px'
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Autocomplete Results Dropdown */}
+                {searchResults.length > 0 && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 8px)',
+                    left: 0,
+                    right: 0,
+                    background: 'rgba(18, 18, 18, 0.96)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid var(--border-accent)',
+                    borderRadius: '16px',
+                    boxShadow: 'var(--shadow-glow-gold)',
+                    maxHeight: '380px',
+                    overflowY: 'auto',
+                    zIndex: 200,
+                    textAlign: locale === 'ar' ? 'right' : 'left',
+                    padding: '8px'
+                  }}>
+                    {searchResults.map(item => (
+                      <Link
+                        key={item.id}
+                        href={item.url}
+                        onClick={() => setSearchQuery('')}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          padding: '10px 14px',
+                          borderRadius: '10px',
+                          textDecoration: 'none',
+                          color: '#FFFFFF',
+                          transition: 'background 0.2s ease',
+                          borderBottom: '1px solid rgba(255,255,255,0.05)'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212, 175, 55, 0.12)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          style={{ width: '44px', height: '44px', borderRadius: '8px', objectFit: 'cover' }}
+                        />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#FFFFFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {item.title}
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--gold-400)' }}>
+                            {item.type}
+                          </div>
+                        </div>
+                        {item.price && (
+                          <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--emerald-400)', fontFamily: 'var(--font-en)' }}>
+                            €{item.price}
+                          </div>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

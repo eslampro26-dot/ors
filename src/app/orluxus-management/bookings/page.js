@@ -405,6 +405,8 @@ export default function AdminBookings() {
               ${booking.infants ? `<p><strong>Infants:</strong> ${booking.infants}</p>` : ''}
               ${booking.pickupLocation ? `<p><strong>${t.pickup}:</strong> ${booking.pickupLocation}</p>` : ''}
               <p><strong>${t.payment}:</strong> ${t.methodLabel}</p>
+              ${booking.agentName ? `<p><strong>Agent:</strong> ${booking.agentName}</p>` : ''}
+              ${booking.promoCode ? `<p><strong>Promo Code:</strong> ${booking.promoCode}</p>` : ''}
             </div>
           </div>
 

@@ -61,11 +61,14 @@ const _circuitBreaker = {
   }
 };
 
-// Timeout helper for Firebase Firestore operations
-async function withTimeout(promise, timeoutMs = 25000) {
+// Read operations: no artificial timeout - let Firestore use its native offline cache
+// Write operations: generous 60s safety limit to prevent hanging
+const WRITE_TIMEOUT_MS = 60000;
+
+async function withWriteTimeout(promise) {
   let timeoutId;
   const timeoutPromise = new Promise((_, reject) => {
-    timeoutId = setTimeout(() => reject(new Error('Firebase operation timed out')), timeoutMs);
+    timeoutId = setTimeout(() => reject(new Error('Firebase write timed out after 60s')), WRITE_TIMEOUT_MS);
   });
   try {
     return await Promise.race([promise, timeoutPromise]);
@@ -74,17 +77,18 @@ async function withTimeout(promise, timeoutMs = 25000) {
   }
 }
 
-// Intercepted safe functions with timeout circuit breakers
-const safeGetDoc = (ref) => withTimeout(getDoc(ref));
-const safeGetDocs = (q) => withTimeout(getDocs(q));
-const safeSetDoc = (ref, data, options) => withTimeout(setDoc(ref, data, options));
-const safeAddDoc = (collRef, data) => withTimeout(addDoc(collRef, data));
-const safeUpdateDoc = (ref, data) => withTimeout(updateDoc(ref, data));
-const safeDeleteDoc = (ref) => withTimeout(deleteDoc(ref));
+// Reads: pure Firestore (uses offline cache automatically on slow/no network)
+const safeGetDoc = (ref) => getDoc(ref);
+const safeGetDocs = (q) => getDocs(q);
+// Writes: 60s safety timeout
+const safeSetDoc = (ref, data, options) => withWriteTimeout(setDoc(ref, data, options));
+const safeAddDoc = (collRef, data) => withWriteTimeout(addDoc(collRef, data));
+const safeUpdateDoc = (ref, data) => withWriteTimeout(updateDoc(ref, data));
+const safeDeleteDoc = (ref) => withWriteTimeout(deleteDoc(ref));
 const safeWriteBatch = (firestoreDb) => {
   const batch = writeBatch(firestoreDb);
   const originalCommit = batch.commit.bind(batch);
-  batch.commit = () => withTimeout(originalCommit());
+  batch.commit = () => withWriteTimeout(originalCommit());
   return batch;
 };
 
@@ -599,7 +603,7 @@ export async function addAgent(agentData) {
     const nextId = agents.length > 0 ? Math.max(...agents.map(a => parseInt(a.id, 10) || 0)) + 1 : 1;
     const id = String(nextId);
 
-    // Hash password if not already hashed (C-2, C-5)
+    // Hash password if not already hashed
     let hashedPassword = agentData.password;
     if (hashedPassword && !hashedPassword.startsWith('$2a$') && !hashedPassword.startsWith('$2b$')) {
       const bcrypt = require('bcryptjs');
@@ -607,20 +611,51 @@ export async function addAgent(agentData) {
       hashedPassword = bcrypt.hashSync(hashedPassword, salt);
     }
 
+    // Auto-generate unique promo code if not provided
+    let promoCodes = agentData.promoCodes || [];
+    if (!promoCodes.length) {
+      const prefix = String(agentData.username || agentData.name || 'AGT')
+        .replace(/[^a-zA-Z]/g, '')
+        .toUpperCase()
+        .slice(0, 4);
+      const suffix = Math.floor(1000 + Math.random() * 9000);
+      const autoCode = `${prefix}${suffix}`;
+      promoCodes = [autoCode];
+    }
+
     const newAgent = {
       id,
       sales: 0,
+      totalSalesAmount: 0,
       subAgents: 0,
       joinDate: getLocalDateString(),
       status: 'نشط',
-      promoCodes: [],
+      promoCodes,
       parentId: null,
       ...agentData,
       password: hashedPassword,
+      promoCodes, // override with generated ones
       id,
     };
 
     await setDoc(doc(db, COL.AGENTS, id), newAgent);
+
+    // Register promo code(s) in PROMO_CODES collection so they work at checkout
+    for (const code of promoCodes) {
+      const promoDocId = `agent_${id}_${code}`;
+      await setDoc(doc(db, COL.PROMO_CODES, promoDocId), {
+        code: code.toUpperCase(),
+        type: 'agent',
+        agentId: id,
+        agentName: agentData.name || '',
+        discount: agentData.commissionRate || 10,
+        discountType: 'percentage',
+        maxUses: 9999,
+        usedCount: 0,
+        active: true,
+        createdAt: new Date().toISOString(),
+      });
+    }
 
     // If agent has parent, increment parent subAgents count
     if (newAgent.parentId) {
@@ -637,6 +672,7 @@ export async function addAgent(agentData) {
     return false;
   }
 }
+
 
 export async function updateAgent(id, agentData) {
   try {

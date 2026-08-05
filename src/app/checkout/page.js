@@ -98,6 +98,7 @@ function CheckoutContent() {
   const type = searchParams.get('type') || 'trip';
   const category = searchParams.get('category') || '';
   const tier = searchParams.get('tier') || 'economy';
+  const tierDesc = searchParams.get('tierDesc') || searchParams.get('desc') || '';
 
   // Customer State
   const [travelers, setTravelers] = useState(1);
@@ -1184,6 +1185,27 @@ function CheckoutContent() {
                   <h4 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '0.2rem' }}>
                     <TranslatedText text={titleEn || titleAr} fallback="Travel Excursion" />
                   </h4>
+                  {tier && (
+                    <div style={{ marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '2px 10px',
+                        borderRadius: '20px',
+                        fontSize: '0.75rem',
+                        fontWeight: '700',
+                        background: tier === 'vip' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : (tier === 'business' ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : 'rgba(255,255,255,0.1)'),
+                        color: '#ffffff',
+                        textTransform: 'uppercase'
+                      }}>
+                        {tier === 'vip' ? '👑 VIP' : (tier === 'business' ? '💼 Business' : '🎫 Economy')}
+                      </span>
+                      {tierDesc && (
+                        <p style={{ fontSize: '0.85rem', color: 'var(--gold-400)', margin: 0, fontWeight: '500' }}>
+                          {tierDesc}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
@@ -1306,18 +1328,32 @@ function CheckoutContent() {
                   style={{
                     flex: 1,
                     padding: '0.8rem',
-                    border: 'none',
+                    border: paymentTab === 'later' ? '2px solid var(--gold-500)' : '1px solid rgba(212, 175, 55, 0.4)',
                     borderRadius: '8px',
                     fontWeight: 'bold',
                     cursor: 'pointer',
                     fontSize: '0.95rem',
                     transition: 'var(--transition-base)',
-                    background: paymentTab === 'later' ? 'var(--bg-secondary)' : 'transparent',
-                    color: paymentTab === 'later' ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                    boxShadow: paymentTab === 'later' ? 'var(--shadow-sm)' : 'none'
+                    background: paymentTab === 'later' ? 'var(--gradient-gold)' : 'rgba(212, 175, 55, 0.12)',
+                    color: paymentTab === 'later' ? '#000000' : 'var(--gold-400)',
+                    boxShadow: paymentTab === 'later' ? 'var(--shadow-glow-gold)' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
                   }}
                 >
-                  {translate('payLaterTab')}
+                  <span>💵 {translate('payLaterTab')}</span>
+                  <span style={{
+                    background: paymentTab === 'later' ? '#000000' : 'var(--gold-500)',
+                    color: paymentTab === 'later' ? '#ffffff' : '#000000',
+                    fontSize: '0.7rem',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    fontWeight: '800'
+                  }}>
+                    {isAr ? 'موصى به ⭐' : 'Popular ⭐'}
+                  </span>
                 </button>
               </div>
 
@@ -1646,26 +1682,71 @@ function CheckoutContent() {
                 </div>
               )}
 
-              {/* TAB 2: PAY LATER */}
+              {/* TAB 2: PAY LATER (CASH) - PROMINENTLY HIGHLIGHTED */}
               {paymentTab === 'later' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  <h4 style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>{translate('payLaterTitle')}</h4>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6' }}>{translate('payLaterDesc')}</p>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.5rem',
+                  padding: '2rem',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(0, 0, 0, 0.4) 100%)',
+                  border: '2px solid var(--gold-500)',
+                  boxShadow: '0 0 30px rgba(212, 175, 55, 0.25)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '0',
+                    right: isAr ? 'auto' : '0',
+                    left: isAr ? '0' : 'auto',
+                    background: 'var(--gradient-gold)',
+                    color: '#000',
+                    fontWeight: '800',
+                    fontSize: '0.75rem',
+                    padding: '4px 16px',
+                    borderRadius: isAr ? '0 0 12px 0' : '0 0 0 12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px'
+                  }}>
+                    {isAr ? '🎉 خيار آمن ومفضل لعملائنا' : '🎉 Recommended & Secure'}
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginTop: '0.5rem' }}>
+                    <span style={{ fontSize: '2rem' }}>💵</span>
+                    <div>
+                      <h4 style={{ color: 'var(--gold-400)', fontWeight: 'bold', fontSize: '1.2rem', margin: 0 }}>
+                        {translate('payLaterTitle')}
+                      </h4>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', margin: 0, marginTop: '0.2rem' }}>
+                        {isAr ? 'حجزك مؤكد فوراً بدون أي خصم كارت الآن. ستقوم بالدفع نقداً لمندوبنا عند بدء الرحلة.' : translate('payLaterDesc')}
+                      </p>
+                    </div>
+                  </div>
                   
                   <button 
                     onClick={handleCashPayment} 
-                    className="btn btn-secondary" 
+                    className="btn" 
                     style={{ 
                       width: '100%', 
-                      padding: '1.1rem', 
-                      fontWeight: 'bold', 
-                      fontSize: '1rem',
-                      border: '1px solid var(--border-medium)',
-                      color: 'var(--text-primary)',
-                      cursor: 'pointer'
+                      padding: '1.2rem', 
+                      fontWeight: '800', 
+                      fontSize: '1.1rem',
+                      background: 'var(--gradient-gold)',
+                      color: '#000000',
+                      border: 'none',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      boxShadow: 'var(--shadow-glow-gold)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem'
                     }}
                   >
-                    {translate('cashBtn')}
+                    <span>✅</span>
+                    <span>{translate('cashBtn')}</span>
                   </button>
                 </div>
               )}

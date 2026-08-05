@@ -228,23 +228,8 @@ export default function CategoryPage({ params }) {
                             📷 {cardIdx + 1}/{cardImages.length}
                           </div>
 
-                          {/* Left Arrow Button */}
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleCardImagePrev(trip.id, cardImages); }}
-                            style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 6, opacity: 0.8 }}
-                          >
-                            &#10094;
-                          </button>
-
-                          {/* Right Arrow Button */}
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleCardImageNext(trip.id, cardImages); }}
-                            style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 6, opacity: 0.8 }}
-                          >
-                            &#10095;
-                          </button>
+                          {/* Touch swipeable image layer without prominent side arrows */}
+                          {/* Dot indicators below provide visual page context */}
 
                           {/* Dots */}
                           <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '5px', zIndex: 5 }}>
@@ -408,7 +393,7 @@ export default function CategoryPage({ params }) {
                     )}
                     
                     <Link 
-                      href={`/checkout?tripId=${trip.id}&price=${activeTier.price}&titleAr=${encodeURIComponent(tiers.length > 1 ? (trip.titleAr + ' - ' + activeTier.names.ar) : trip.titleAr)}&titleEn=${encodeURIComponent(tiers.length > 1 ? ((trip.titleEn || trip.titleAr) + ' - ' + activeTier.names.en) : (trip.titleEn || trip.titleAr))}&type=trip&city=${encodeURIComponent(city.nameAr)}&category=${category}&tier=${activeTier.id}`} 
+                      href={`/checkout?tripId=${trip.id}&price=${activeTier.price}&titleAr=${encodeURIComponent(tiers.length > 1 ? (trip.titleAr + ' - ' + activeTier.names.ar) : trip.titleAr)}&titleEn=${encodeURIComponent(tiers.length > 1 ? ((trip.titleEn || trip.titleAr) + ' - ' + activeTier.names.en) : (trip.titleEn || trip.titleAr))}&type=trip&city=${encodeURIComponent(city.nameAr)}&category=${category}&tier=${activeTier.id}&tierDesc=${encodeURIComponent(activeTier.descriptions.ar || activeTier.descriptions.en || '')}`} 
                       className="btn btn-primary" 
                       style={{ width: '100%', display: 'inline-flex', justifyContent: 'center' }}
                     >
