@@ -262,9 +262,14 @@ export async function initializeDB() {
 
 export async function getTrips(slug, category) {
   const staticTrips = (sampleTrips[slug] && sampleTrips[slug][category]) || [];
+  console.log('getTrips called with slug:', slug, 'category:', category);
+  console.log('Static trips count:', staticTrips.length);
   try {
     const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
-    if (!snapshot || snapshot.empty) return staticTrips;
+    if (!snapshot || snapshot.empty) {
+      console.log('No custom trips found, returning static trips only');
+      return staticTrips;
+    }
 
     const allCustomDocs = snapshot.docs.map(d => {
       const data = d.data();
@@ -278,10 +283,15 @@ export async function getTrips(slug, category) {
       };
     });
 
+    console.log('All custom docs count:', allCustomDocs.length);
+
     // Filter by current slug & category (case-insensitive)
     const categoryTrips = allCustomDocs.filter(
       t => String(t.slug).toLowerCase() === String(slug).toLowerCase() && String(t.category).toLowerCase() === String(category).toLowerCase()
     );
+
+    console.log('Filtered categoryTrips count:', categoryTrips.length);
+    console.log('CategoryTrips IDs:', categoryTrips.map(t => ({ id: t.id, slug: t.slug, category: t.category })));
 
     // Collect all deleted IDs across all tombstones
     const deletedIds = new Set(
@@ -295,10 +305,13 @@ export async function getTrips(slug, category) {
       if (!t.deleted) customTripMap.set(String(t.id), t);
     });
 
+    console.log('CustomTripMap keys:', Array.from(customTripMap.keys()));
+
     // 1. Merge static trips: if edited -> override; if in deletedIds -> exclude!
     const mergedStaticTrips = staticTrips
       .map(st => {
         const edited = customTripMap.get(String(st.id));
+        if (edited) console.log('Found edited version for static trip:', st.id);
         return edited ? { ...st, ...edited } : st;
       })
       .filter(st => !deletedIds.has(String(st.id)) && !st.deleted);
@@ -308,6 +321,9 @@ export async function getTrips(slug, category) {
     const brandNewTrips = categoryTrips.filter(
       ct => !staticTripIds.has(String(ct.id)) && !ct.deleted && !deletedIds.has(String(ct.id))
     );
+
+    console.log('Brand new trips count:', brandNewTrips.length);
+    console.log('Final trips count:', mergedStaticTrips.length + brandNewTrips.length);
 
     return [...mergedStaticTrips, ...brandNewTrips];
   } catch (e) {
