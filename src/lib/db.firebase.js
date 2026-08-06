@@ -358,24 +358,25 @@ export async function updateTrip(tripId, tripData) {
     const category = tripData.category || '';
     const dataToSave = { ...tripData, id: tripIdStr, slug, category };
 
-    // 1. Try direct doc ID
+    // 1. Query fallback first: find by data.id field (more reliable for edited trips)
+    const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
+    if (snapshot && !snapshot.empty) {
+      const match = snapshot.docs.find(d => String(d.data().id) === tripIdStr);
+      if (match) {
+        // Update using the found doc ID, but keep the tripId as the data.id
+        await safeSetDoc(doc(db, COL.TRIPS, match.id), dataToSave, { merge: true });
+        console.log('Trip updated via matching data.id:', match.id, 'with tripId:', tripIdStr);
+        return true;
+      }
+    }
+
+    // 2. Try direct doc ID (for newly created trips)
     const tripRef = doc(db, COL.TRIPS, tripIdStr);
     const tripSnap = await safeGetDoc(tripRef);
     if (tripSnap && tripSnap.exists()) {
       await safeSetDoc(tripRef, dataToSave, { merge: true });
-      console.log('Trip updated successfully with ID:', tripIdStr);
+      console.log('Trip updated successfully with doc ID:', tripIdStr);
       return true;
-    }
-
-    // 2. Query fallback: find by data.id field
-    const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
-    if (snapshot && !snapshot.empty) {
-      const match = snapshot.docs.find(d => d.id === tripIdStr || String(d.data().id) === tripIdStr);
-      if (match) {
-        await safeSetDoc(doc(db, COL.TRIPS, match.id), dataToSave, { merge: true });
-        console.log('Trip updated via matching doc ID:', match.id);
-        return true;
-      }
     }
 
     // 3. Upsert: create new doc for this tripId (handles static sample trips being edited for first time)
