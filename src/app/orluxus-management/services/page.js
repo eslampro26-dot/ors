@@ -278,6 +278,8 @@ export default function AdminServices() {
   const handleMultipleImagesUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
+    
+    // No limit on number of images - allow unlimited uploads
     setUploadingImages(true);
     for (let i = 0; i < files.length; i++) {
       setUploadProgress(`Uploading image ${i + 1} of ${files.length}...`);
