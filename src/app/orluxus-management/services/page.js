@@ -517,20 +517,8 @@ export default function AdminServices() {
           result = await updateTrip(editingTrip.tripId, payloadWithMeta);
 
           if (result) {
-            // ✅ Immediate local state update - no Firebase reload needed
-            setTripsData(prev => {
-              const cityTrips = prev[editingTrip.cityId] || {};
-              const catTrips = cityTrips[editingTrip.catId] || [];
-              const tripIdStr = String(editingTrip.tripId);
-              const existsInList = catTrips.some(t => String(t.id) === tripIdStr);
-              const updatedList = existsInList
-                ? catTrips.map(t => String(t.id) === tripIdStr ? { ...t, ...payloadWithMeta } : t)
-                : [...catTrips, { ...payloadWithMeta }];
-              return {
-                ...prev,
-                [editingTrip.cityId]: { ...cityTrips, [editingTrip.catId]: updatedList },
-              };
-            });
+            // ✅ Force reload from database to ensure data consistency
+            await reloadCurrentCity();
           }
         } else {
           // --- ADD NEW TRIP ---

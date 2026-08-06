@@ -978,7 +978,8 @@ export async function validatePromoCode(codeStr) {
       const codes = (a.promoCodes || []).map(c => String(c).trim().toUpperCase());
       const usernameMatch = a.username && String(a.username).trim().toUpperCase() === cleanCode;
       const codeMatch = a.code && String(a.code).trim().toUpperCase() === cleanCode;
-      return codes.includes(cleanCode) || usernameMatch || codeMatch;
+      const idMatch = String(a.id) === cleanCode;
+      return codes.includes(cleanCode) || usernameMatch || codeMatch || idMatch;
     });
 
     if (matchingAgent) {

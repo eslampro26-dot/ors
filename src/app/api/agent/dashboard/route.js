@@ -53,7 +53,7 @@ export async function GET(request) {
 
     // Match bookings by agentId OR promo code (case-insensitive)
     const myBookings = (allBookings || []).filter(b => {
-      const byAgentId = b.agentId && String(b.agentId) === String(agentId);
+      const byAgentId = b.agentId && (String(b.agentId) === String(agentId) || String(b.agentId) === String(agent.id));
       const byPromo = b.promoCode && mergedPromoCodes.includes(String(b.promoCode).toUpperCase());
       return byAgentId || byPromo;
     });

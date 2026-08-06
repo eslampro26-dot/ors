@@ -763,7 +763,7 @@ export function getTripTiers(trip) {
       zh: "标准游览包含导游。",
       ja: "標準的なガイド付きツアー。"
     },
-    richDesc: trip.economyDesc || trip.tripDescription || null
+    richDesc: trip.economyDesc || trip.tripDescriptionEn || trip.tripDescription || null
   };
 
   if (!hasCustomTiers) {

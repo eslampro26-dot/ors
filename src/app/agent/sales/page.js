@@ -35,7 +35,8 @@ export default function AgentSales() {
           amount: `€${b.finalAmount.toLocaleString()}`,
           commission: `€${(b.finalAmount * (commissionRate / 100)).toFixed(2)}`,
           status: b.status,
-          rawAmount: b.finalAmount
+          rawAmount: b.finalAmount,
+          rawCommission: b.finalAmount * (commissionRate / 100)
         }));
 
         // Sort by date descending

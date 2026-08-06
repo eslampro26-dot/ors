@@ -126,7 +126,11 @@ export function generateAgentToken(agentId, username) {
 export function verifyAgentToken(token) {
   const payload = verifySignedToken(token);
   if (payload && payload.role === 'agent') {
-    return { id: payload.id, username: payload.username || '' };
+    // Prefer username for more reliable agent identification
+    if (payload.username) {
+      return { id: payload.id, username: payload.username };
+    }
+    return { id: payload.id, username: '' };
   }
   return null;
 }
