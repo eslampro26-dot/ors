@@ -152,19 +152,13 @@ export default function AdminServices() {
 
   // Force reload after add/delete
   const reloadCurrentCity = async () => {
-    const city = cities.find(c => c.id === selectedCity);
-    if (!city) return;
-    
-    // Clear the current city data first to force fresh load
-    setTripsData(prev => ({ ...prev, [selectedCity]: undefined }));
-    
+    const cityData = cities.find(c => c.id === selectedCity);
+    if (!cityData) return;
     const cityTrips = {};
-    await Promise.all(
-      city.categories.map(async (cat) => {
-        const trips = await getTrips(selectedCity, cat.id);
-        cityTrips[cat.id] = trips || [];
-      })
-    );
+    for (const cat of cityData.categories) {
+      const trips = await getTrips(selectedCity, cat.id);
+      cityTrips[cat.id] = trips || [];
+    }
     setTripsData(prev => ({ ...prev, [selectedCity]: cityTrips }));
   };
 
