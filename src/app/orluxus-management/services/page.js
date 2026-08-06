@@ -478,7 +478,7 @@ export default function AdminServices() {
         vipInfantPrice: useTierPrices ? (parseFloat(vipInfantPrice) || 0) : 0,
         additionalPersonPrice: parseFloat(additionalPersonPrice) || 0,
         duration,
-        image: image || '/images/trips/glass-boat.jpg',
+        image: image || 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80',
         images: images || [],
         videos: formData.videos || [],
         locationUrl: locationUrl || '',
@@ -513,8 +513,21 @@ export default function AdminServices() {
           result = await updateTrip(editingTrip.tripId, payloadWithMeta);
 
           if (result) {
-            // ✅ Force reload from database to ensure data consistency
-            await reloadCurrentCity();
+            // ✅ Update local state directly instead of reload to avoid display issues
+            setTripsData(prev => {
+              const cityTrips = prev[editingTrip.cityId] || {};
+              const catTrips = cityTrips[editingTrip.catId] || [];
+              const updatedTrips = catTrips.map(t => 
+                String(t.id) === String(editingTrip.tripId) ? { ...t, ...payloadWithMeta } : t
+              );
+              return {
+                ...prev,
+                [editingTrip.cityId]: {
+                  ...cityTrips,
+                  [editingTrip.catId]: updatedTrips
+                }
+              };
+            });
           }
         } else {
           // --- ADD NEW TRIP ---

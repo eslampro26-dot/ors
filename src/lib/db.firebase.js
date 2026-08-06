@@ -278,9 +278,9 @@ export async function getTrips(slug, category) {
       };
     });
 
-    // Filter by current slug & category
+    // Filter by current slug & category (case-insensitive)
     const categoryTrips = allCustomDocs.filter(
-      t => String(t.slug) === String(slug) && String(t.category) === String(category)
+      t => String(t.slug).toLowerCase() === String(slug).toLowerCase() && String(t.category).toLowerCase() === String(category).toLowerCase()
     );
 
     // Collect all deleted IDs across all tombstones
