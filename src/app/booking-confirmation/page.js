@@ -188,7 +188,7 @@ function BookingConfirmationContent() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div>
                     <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#d97706', margin: 0, letterSpacing: '3px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
-                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: '600' }}>ORLUXUS MARKETING TOURISM AGENCY</span>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: '600' }}>MARKETING TOURISM AGENCY</span>
                   </div>
                 </div>
                 <div style={{ textAlign: isAr ? 'left' : 'right' }}>
