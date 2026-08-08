@@ -513,8 +513,19 @@ export default function AdminServices() {
           result = await updateTrip(editingTrip.tripId, payloadWithMeta);
 
           if (result) {
-            // ✅ Force reload from database to ensure data consistency
-            await reloadCurrentCity();
+            // ✅ Update local state directly to avoid reload issues
+            setTripsData(prev => {
+              const cityTrips = { ...(prev[editingTrip.cityId] || {}) };
+              const catTrips = [...(cityTrips[editingTrip.catId] || [])];
+              const updatedTrips = catTrips.map(t => 
+                String(t.id) === String(editingTrip.tripId) ? { ...t, ...payloadWithMeta } : t
+              );
+              cityTrips[editingTrip.catId] = updatedTrips;
+              return {
+                ...prev,
+                [editingTrip.cityId]: cityTrips
+              };
+            });
           }
         } else {
           // --- ADD NEW TRIP ---
