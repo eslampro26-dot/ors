@@ -509,25 +509,38 @@ export default function AdminServices() {
           // --- EDIT TRIP ---
           const payloadWithMeta = {
             ...tripPayload,
-            slug: editingTrip.cityId,
-            category: editingTrip.catId,
+            slug: targetCity,
+            category: targetCategory,
             id: editingTrip.tripId,
           };
           result = await updateTrip(editingTrip.tripId, payloadWithMeta);
 
           if (result) {
-            // ✅ Update local state directly to avoid reload issues
+            // ✅ Update local state directly
             setTripsData(prev => {
-              const cityTrips = { ...(prev[editingTrip.cityId] || {}) };
-              const catTrips = [...(cityTrips[editingTrip.catId] || [])];
-              const updatedTrips = catTrips.map(t => 
-                String(t.id) === String(editingTrip.tripId) ? { ...t, ...payloadWithMeta } : t
-              );
-              cityTrips[editingTrip.catId] = updatedTrips;
-              return {
-                ...prev,
-                [editingTrip.cityId]: cityTrips
-              };
+              const nextState = { ...prev };
+              // Remove old trip entry if city/cat changed
+              if (prev[editingTrip.cityId]?.[editingTrip.catId]) {
+                const oldCatTrips = prev[editingTrip.cityId][editingTrip.catId].filter(
+                  t => String(t.id) !== String(editingTrip.tripId)
+                );
+                nextState[editingTrip.cityId] = {
+                  ...(nextState[editingTrip.cityId] || {}),
+                  [editingTrip.catId]: oldCatTrips
+                };
+              }
+              // Insert/update in target city & category
+              const targetCityTrips = { ...(nextState[targetCity] || {}) };
+              const targetCatTrips = [...(targetCityTrips[targetCategory] || [])];
+              const existsIndex = targetCatTrips.findIndex(t => String(t.id) === String(editingTrip.tripId));
+              if (existsIndex >= 0) {
+                targetCatTrips[existsIndex] = { ...targetCatTrips[existsIndex], ...payloadWithMeta };
+              } else {
+                targetCatTrips.push({ ...payloadWithMeta });
+              }
+              targetCityTrips[targetCategory] = targetCatTrips;
+              nextState[targetCity] = targetCityTrips;
+              return nextState;
             });
           }
         } else {
@@ -789,7 +802,11 @@ export default function AdminServices() {
         <div style={{ display: 'flex', gap: '0.8rem' }}>
           <button 
             className="btn btn-primary" 
-            onClick={() => { setModalType('trip'); setModalOpen(true); }}
+            onClick={() => {
+              setEditingTrip(null);
+              setModalType('trip');
+              setModalOpen(true);
+            }}
           >
             <span>➕</span> Add New Trip
           </button>
@@ -932,6 +949,7 @@ export default function AdminServices() {
                             className="btn btn-secondary btn-sm" 
                             style={{ marginTop: '0.5rem' }}
                             onClick={() => {
+                              setEditingTrip(null);
                               setFormData(prev => ({ ...prev, city: city.id, category: cat.id }));
                               setModalType('trip');
                               setModalOpen(true);

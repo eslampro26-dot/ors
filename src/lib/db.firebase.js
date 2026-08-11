@@ -361,10 +361,12 @@ export async function getAgentById(id) {
       const match = snapshot.docs.find(d => d.id === idStr || String(d.data().id) === idStr);
       if (match) return { id: match.id, ...match.data() };
     }
-    return null;
+    const fallback = DEFAULT_AGENTS.find(a => String(a.id) === idStr);
+    return fallback ? { ...fallback } : null;
   } catch (e) {
-    console.error('Error getting agent by ID:', e);
-    return null;
+    const idStr = String(id);
+    const fallback = DEFAULT_AGENTS.find(a => String(a.id) === idStr);
+    return fallback ? { ...fallback } : null;
   }
 }
 
@@ -594,17 +596,21 @@ export async function getAgentByUsername(username) {
   try {
     const clean = String(username).trim().toLowerCase();
     const snapshot = await safeGetDocs(collection(db, COL.AGENTS));
-    if (!snapshot || snapshot.empty) return null;
-    const match = snapshot.docs.find(d => {
-      const data = d.data();
-      const u = String(data.username || '').trim().toLowerCase();
-      const e = String(data.email || '').trim().toLowerCase();
-      return u === clean || e === clean;
-    });
-    return match ? { id: match.id, ...match.data() } : null;
+    if (snapshot && !snapshot.empty) {
+      const match = snapshot.docs.find(d => {
+        const data = d.data();
+        const u = String(data.username || '').trim().toLowerCase();
+        const e = String(data.email || '').trim().toLowerCase();
+        return u === clean || e === clean;
+      });
+      if (match) return { id: match.id, ...match.data() };
+    }
+    const fallback = DEFAULT_AGENTS.find(a => String(a.username || '').trim().toLowerCase() === clean);
+    return fallback ? { ...fallback } : null;
   } catch (e) {
-    console.error('Error getting agent by username:', e);
-    return null;
+    const clean = String(username).trim().toLowerCase();
+    const fallback = DEFAULT_AGENTS.find(a => String(a.username || '').trim().toLowerCase() === clean);
+    return fallback ? { ...fallback } : null;
   }
 }
 

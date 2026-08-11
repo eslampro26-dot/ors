@@ -393,7 +393,7 @@ export default function CategoryPage({ params }) {
                     )}
                     
                     <Link 
-                      href={`/checkout?tripId=${trip.id}&price=${activeTier.price}&titleAr=${encodeURIComponent(tiers.length > 1 ? (trip.titleAr + ' - ' + activeTier.names.ar) : trip.titleAr)}&titleEn=${encodeURIComponent(tiers.length > 1 ? ((trip.titleEn || trip.titleAr) + ' - ' + activeTier.names.en) : (trip.titleEn || trip.titleAr))}&type=trip&city=${encodeURIComponent(city.nameAr)}&category=${category}&tier=${activeTier.id}&tierDesc=${encodeURIComponent(activeTier.descriptions.ar || activeTier.descriptions.en || '')}`} 
+                      href={`/checkout?tripId=${trip.id}&price=${activeTier.price}&titleAr=${encodeURIComponent(tiers.length > 1 ? (trip.titleAr + ' - ' + activeTier.names.ar) : trip.titleAr)}&titleEn=${encodeURIComponent(tiers.length > 1 ? ((trip.titleEn || trip.titleAr) + ' - ' + activeTier.names.en) : (trip.titleEn || trip.titleAr))}&type=trip&city=${encodeURIComponent(city.nameAr)}&category=${category}&tier=${activeTier.id}&tierDesc=${encodeURIComponent(activeTier.descriptions.ar || activeTier.descriptions.en || '')}&childPrice=${trip.childPrice || 0}&infantPrice=${trip.infantPrice || 0}&additionalPersonPrice=${trip.additionalPersonPrice || 0}&allowedRequests=${encodeURIComponent(JSON.stringify(trip.specialRequests || []))}`} 
                       className="btn btn-primary" 
                       style={{ width: '100%', display: 'inline-flex', justifyContent: 'center' }}
                     >

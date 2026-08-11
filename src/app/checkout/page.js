@@ -188,7 +188,7 @@ function CheckoutContent() {
   const paramInfantPrice = parseFloat(searchParams.get('infantPrice'));
   const paramAddPersonPrice = parseFloat(searchParams.get('additionalPersonPrice'));
 
-  let additionalPersonPrice = (!isNaN(paramAddPersonPrice) && paramAddPersonPrice >= 0) ? paramAddPersonPrice : basePrice;
+  let additionalPersonPrice = (!isNaN(paramAddPersonPrice) && paramAddPersonPrice > 0) ? paramAddPersonPrice : basePrice;
   if (isNaN(paramAddPersonPrice) && settings?.additionalPrices) {
     const resolvedCategory = category || (type === 'package' ? 'packages' : '');
     if (resolvedCategory && settings.additionalPrices[resolvedCategory]) {
@@ -254,7 +254,10 @@ function CheckoutContent() {
         setPromoDetails(null);
       } else {
         setPromoDetails(validation);
-        setPromoSuccess(`${translate('promoSuccess') || 'Discount code applied successfully!'} ${valueStr}`);
+        const valStr = validation.discountType === 'percentage'
+          ? `${validation.discountValue}%`
+          : `€${validation.discountValue}`;
+        setPromoSuccess(`${translate('promoSuccess') || 'Discount code applied successfully!'} (${valStr})`);
       }
     } catch (err) {
       console.error('Error applying promo:', err);
