@@ -2,6 +2,9 @@ import { cities, internalPackages } from '@/lib/data';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function sitemap() {
   const SITE_URL = 'https://orluxus.com';
   const entries = [];

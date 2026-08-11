@@ -261,7 +261,10 @@ export async function initializeDB() {
 // ==========================================
 
 export async function getTrips(slug, category) {
-  const staticTrips = (sampleTrips[slug] && sampleTrips[slug][category]) || [];
+  const cleanSlug = String(slug || '').toLowerCase();
+  const cleanCat = String(category || '').toLowerCase();
+  const staticTrips = (sampleTrips[cleanSlug] && sampleTrips[cleanSlug][cleanCat]) || [];
+
   try {
     const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
     if (!snapshot || snapshot.empty) return staticTrips;
@@ -278,35 +281,41 @@ export async function getTrips(slug, category) {
       };
     });
 
-    // Filter by current slug & category (case-insensitive)
-    const categoryTrips = allCustomDocs.filter(
-      t => String(t.slug).toLowerCase() === String(slug).toLowerCase() && String(t.category).toLowerCase() === String(category).toLowerCase()
-    );
-
-    // Collect all deleted IDs across all tombstones
+    // 1. Filter deleted tombstones SCOPED TO THIS CITY & CATEGORY
     const deletedIds = new Set(
       allCustomDocs
-        .filter(t => t.deleted)
+        .filter(t => t.deleted && (
+          !t.slug || String(t.slug).toLowerCase() === cleanSlug
+        ) && (
+          !t.category || String(t.category).toLowerCase() === cleanCat
+        ))
         .map(t => String(t.id))
+    );
+
+    // 2. Filter custom/edited docs SCOPED TO THIS CITY & CATEGORY
+    const categoryTrips = allCustomDocs.filter(t =>
+      !t.deleted &&
+      String(t.slug || '').toLowerCase() === cleanSlug &&
+      String(t.category || '').toLowerCase() === cleanCat
     );
 
     const customTripMap = new Map();
     categoryTrips.forEach(t => {
-      if (!t.deleted) customTripMap.set(String(t.id), t);
+      customTripMap.set(String(t.id), t);
     });
 
-    // 1. Merge static trips: if edited -> override; if in deletedIds -> exclude!
+    // 3. Merge static trips with custom/edited docs
     const mergedStaticTrips = staticTrips
+      .filter(st => !deletedIds.has(String(st.id)))
       .map(st => {
         const edited = customTripMap.get(String(st.id));
         return edited ? { ...st, ...edited } : st;
-      })
-      .filter(st => !deletedIds.has(String(st.id)) && !st.deleted);
+      });
 
-    // 2. Add brand new custom trips (not in sampleTrips), excluding deleted
+    // 4. Add brand-new custom trips (IDs not in staticTrips), excluding deleted
     const staticTripIds = new Set(staticTrips.map(st => String(st.id)));
     const brandNewTrips = categoryTrips.filter(
-      ct => !staticTripIds.has(String(ct.id)) && !ct.deleted && !deletedIds.has(String(ct.id))
+      ct => !staticTripIds.has(String(ct.id)) && !deletedIds.has(String(ct.id))
     );
 
     return [...mergedStaticTrips, ...brandNewTrips];
@@ -332,8 +341,8 @@ export async function addTrip(slug, category, tripData) {
     const newId = tripData.id || `custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const newTrip = {
       id: newId,
-      slug: String(slug),
-      category: String(category),
+      slug: String(slug).toLowerCase(),
+      category: String(category).toLowerCase(),
       currency: 'EUR',
       rating: 5.0,
       reviews: 1,
@@ -351,20 +360,20 @@ export async function addTrip(slug, category, tripData) {
 }
 
 export async function getAgentById(id) {
+  if (!id) return null;
+  const idStr = String(id).trim();
   try {
-    const idStr = String(id);
     const snap = await safeGetDoc(doc(db, COL.AGENTS, idStr));
     if (snap && snap.exists()) return { id: snap.id, ...snap.data() };
 
     const snapshot = await safeGetDocs(collection(db, COL.AGENTS));
     if (snapshot && !snapshot.empty) {
-      const match = snapshot.docs.find(d => d.id === idStr || String(d.data().id) === idStr);
+      const match = snapshot.docs.find(d => String(d.id) === idStr || String(d.data().id) === idStr);
       if (match) return { id: match.id, ...match.data() };
     }
     const fallback = DEFAULT_AGENTS.find(a => String(a.id) === idStr);
     return fallback ? { ...fallback } : null;
   } catch (e) {
-    const idStr = String(id);
     const fallback = DEFAULT_AGENTS.find(a => String(a.id) === idStr);
     return fallback ? { ...fallback } : null;
   }
@@ -377,37 +386,11 @@ export async function updateTrip(tripId, tripData) {
     const category = String(tripData.category || '').toLowerCase();
     const dataToSave = { ...tripData, id: tripIdStr, slug, category };
 
-    // 1. Try direct doc ID lookup first (fastest path)
-    const directRef = doc(db, COL.TRIPS, tripIdStr);
-    const directSnap = await safeGetDoc(directRef);
-    if (directSnap && directSnap.exists()) {
-      await safeSetDoc(directRef, dataToSave, { merge: true });
-      console.log('Trip updated via direct ID:', tripIdStr);
-      return true;
-    }
+    // Composite doc ID for deterministic city-scoped storage
+    const targetDocId = tripIdStr.startsWith('custom') ? tripIdStr : `${slug}_${category}_${tripIdStr}`;
 
-    // 2. Scan all docs — match by data.id OR doc.id containing tripIdStr (ID only, no slug/cat restriction)
-    const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
-    if (snapshot && !snapshot.empty) {
-      const match = snapshot.docs.find(d => {
-        const data = d.data();
-        return (
-          String(data.id) === tripIdStr ||
-          d.id === tripIdStr ||
-          d.id.endsWith(`_${tripIdStr}`)
-        );
-      });
-      if (match) {
-        await safeSetDoc(doc(db, COL.TRIPS, match.id), dataToSave, { merge: true });
-        console.log('Trip updated via scan match:', match.id);
-        return true;
-      }
-    }
-
-    // 3. Not found → create new doc with deterministic ID
-    const targetDocId = `${slug}_${category}_${tripIdStr}`;
     await safeSetDoc(doc(db, COL.TRIPS, targetDocId), dataToSave, { merge: true });
-    console.log('Trip upserted with new ID:', targetDocId);
+    console.log('Trip updated in Firestore with docId:', targetDocId);
     return true;
   } catch (e) {
     console.error('Error updating trip:', e);
@@ -419,28 +402,19 @@ export async function updateTrip(tripId, tripData) {
 export async function deleteTrip(slug, category, tripId) {
   try {
     const tripIdStr = String(tripId);
+    const cleanSlug = String(slug).toLowerCase();
+    const cleanCat = String(category).toLowerCase();
 
-    // 1. Try to delete document by ID directly
-    const tripRef = doc(db, COL.TRIPS, tripIdStr);
-    const tripSnap = await safeGetDoc(tripRef);
-    if (tripSnap && tripSnap.exists()) {
-      await safeDeleteDoc(tripRef);
-    }
+    // 1. Delete matching doc
+    const targetDocId = `${cleanSlug}_${cleanCat}_${tripIdStr}`;
+    await safeDeleteDoc(doc(db, COL.TRIPS, targetDocId));
+    await safeDeleteDoc(doc(db, COL.TRIPS, tripIdStr));
 
-    // 2. Query fallback: delete matching documents
-    const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
-    if (snapshot && !snapshot.empty) {
-      const matches = snapshot.docs.filter(d => d.id === tripIdStr || String(d.data().id) === tripIdStr);
-      for (const m of matches) {
-        await safeDeleteDoc(doc(db, COL.TRIPS, m.id));
-      }
-    }
-
-    // 3. Create tombstone document so static sample trips are hidden permanently
-    await safeSetDoc(doc(db, COL.TRIPS, `del_${slug}_${category}_${tripIdStr}`), {
+    // 2. Create scoped tombstone document so static sample trips in THIS city/category are hidden permanently
+    await safeSetDoc(doc(db, COL.TRIPS, `del_${cleanSlug}_${cleanCat}_${tripIdStr}`), {
       id: tripIdStr,
-      slug: String(slug),
-      category: String(category),
+      slug: cleanSlug,
+      category: cleanCat,
       deleted: true,
       deletedAt: new Date().toISOString()
     });
@@ -628,10 +602,11 @@ export async function getAgentByUsername(username) {
 
 export async function addAgent(agentData) {
   try {
-    const snapshot = await getDocs(collection(db, COL.AGENTS));
-    const agents = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-    const nextId = agents.length > 0 ? Math.max(...agents.map(a => parseInt(a.id, 10) || 0)) + 1 : 1;
-    const id = String(nextId);
+    const snapshot = await safeGetDocs(collection(db, COL.AGENTS));
+    const agents = (snapshot && !snapshot.empty) ? snapshot.docs.map(d => ({ id: d.id, ...d.data() })) : [];
+    const numericIds = agents.map(a => parseInt(a.id, 10)).filter(n => !isNaN(n) && n > 0);
+    const maxNumeric = numericIds.length > 0 ? Math.max(...numericIds, 7) : 7;
+    const id = String(maxNumeric + 1);
 
     // Hash password if not already hashed
     let hashedPassword = agentData.password;
