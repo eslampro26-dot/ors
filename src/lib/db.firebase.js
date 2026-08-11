@@ -377,25 +377,37 @@ export async function updateTrip(tripId, tripData) {
     const category = String(tripData.category || '').toLowerCase();
     const dataToSave = { ...tripData, id: tripIdStr, slug, category };
 
+    // 1. Try direct doc ID lookup first (fastest path)
+    const directRef = doc(db, COL.TRIPS, tripIdStr);
+    const directSnap = await safeGetDoc(directRef);
+    if (directSnap && directSnap.exists()) {
+      await safeSetDoc(directRef, dataToSave, { merge: true });
+      console.log('Trip updated via direct ID:', tripIdStr);
+      return true;
+    }
+
+    // 2. Scan all docs — match by data.id OR doc.id containing tripIdStr (ID only, no slug/cat restriction)
     const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
     if (snapshot && !snapshot.empty) {
       const match = snapshot.docs.find(d => {
         const data = d.data();
-        const sameId = String(data.id) === tripIdStr || d.id === tripIdStr || d.id === `${slug}_${category}_${tripIdStr}`;
-        const sameSlug = !data.slug || String(data.slug).toLowerCase() === slug;
-        const sameCat = !data.category || String(data.category).toLowerCase() === category;
-        return sameId && sameSlug && sameCat;
+        return (
+          String(data.id) === tripIdStr ||
+          d.id === tripIdStr ||
+          d.id.endsWith(`_${tripIdStr}`)
+        );
       });
       if (match) {
         await safeSetDoc(doc(db, COL.TRIPS, match.id), dataToSave, { merge: true });
-        console.log('Trip updated via matching doc:', match.id);
+        console.log('Trip updated via scan match:', match.id);
         return true;
       }
     }
 
-    const targetDocId = tripIdStr.startsWith('custom') ? tripIdStr : `${slug}_${category}_${tripIdStr}`;
+    // 3. Not found → create new doc with deterministic ID
+    const targetDocId = `${slug}_${category}_${tripIdStr}`;
     await safeSetDoc(doc(db, COL.TRIPS, targetDocId), dataToSave, { merge: true });
-    console.log('Trip upserted with target ID:', targetDocId);
+    console.log('Trip upserted with new ID:', targetDocId);
     return true;
   } catch (e) {
     console.error('Error updating trip:', e);

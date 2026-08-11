@@ -196,9 +196,9 @@ export default function AdminServices() {
     setPackagesData(prev => ({ ...prev, [selectedPkgType]: pkgs || [] }));
   };
 
-  // Sync Category when Modal opens
+  // Sync Category when Modal opens — only for NEW trips (not edit)
   useEffect(() => {
-    if (modalOpen) {
+    if (modalOpen && !editingTrip) {
       if (modalType === 'trip') {
         const cityData = cities.find(c => c.id === selectedCity);
         setFormData(prev => ({
@@ -567,12 +567,14 @@ export default function AdminServices() {
           return;
         }
 
+        const wasEditing = !!editingTrip;
         setModalOpen(false);
         setEditingTrip(null);
         setFormData({ titleAr:'',titleEn:'',titleDe:'',titleFr:'',titleEs:'',titleIt:'',titleRu:'',titleTr:'',titleZh:'',titleJa:'',price:'',economyPrice:'',businessPrice:'',vipPrice:'',childPrice:'',economyChildPrice:'',businessChildPrice:'',vipChildPrice:'',infantPrice:'',economyInfantPrice:'',businessInfantPrice:'',vipInfantPrice:'',additionalPersonPrice:'',duration:'Full Day',category:'',city:'',description:'',descriptionEn:'',tripDescription:'',tripDescriptionEn:'',icon:'✈️',image:'',images:[],locationUrl:'',videoUrl:'', economyDesc:'', businessDesc:'', vipDesc:'', specialRequests:[] });
         setUseTierPrices(false);
-        alert(editingTrip ? '✅ تم تحديث الرحلة بنجاح!' : '✅ تم إضافة الرحلة بنجاح!');
-        // ✅ NO reloadCurrentCity() - local state is already updated correctly above
+        alert(wasEditing ? '✅ تم تحديث الرحلة بنجاح!' : '✅ تم إضافة الرحلة بنجاح!');
+        // ✅ Always reload from Firestore after save to ensure correct state
+        await reloadCurrentCity();
       } catch (err) {
         console.error('Error saving trip:', err);
         alert('❌ حدث خطأ أثناء حفظ الرحلة.');
