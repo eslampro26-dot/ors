@@ -2193,13 +2193,27 @@ function CheckoutContent() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.2rem' }}>
                 <label style={{ fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.9rem' }}>{translate('specialRequestsLabel')}</label>
 
-                {/* Quick-select special request checkboxes from settings */}
-                {settings?.specialRequestsList && settings.specialRequestsList.length > 0 && (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                    {settings.specialRequestsList.map((req) => {
-                      const label = locale === 'ar' ? (req.labelAr || req.labelEn) : (req.labelEn || req.labelAr);
-                      const isChecked = specialRequests.includes(label);
-                      return (
+                {/* Quick-select special request checkboxes from settings (filtered by trip's allowed requests if specified) */}
+                {(() => {
+                  const allowedRequestsParam = searchParams.get('allowedRequests');
+                  let allowedRequests = null;
+                  if (allowedRequestsParam) {
+                    try { allowedRequests = JSON.parse(allowedRequestsParam); } catch (_) {}
+                  }
+
+                  const rawList = settings?.specialRequestsList || [];
+                  const filteredList = (allowedRequests && Array.isArray(allowedRequests) && allowedRequests.length > 0)
+                    ? rawList.filter(req => allowedRequests.includes(req.id) || allowedRequests.includes(req.labelAr) || allowedRequests.includes(req.labelEn))
+                    : rawList;
+
+                  if (filteredList.length === 0) return null;
+
+                  return (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                      {filteredList.map((req) => {
+                        const label = locale === 'ar' ? (req.labelAr || req.labelEn) : (req.labelEn || req.labelAr);
+                        const isChecked = specialRequests.includes(label);
+                        return (
                         <label
                           key={req.id}
                           style={{
@@ -2236,8 +2250,9 @@ function CheckoutContent() {
                         </label>
                       );
                     })}
-                  </div>
-                )}
+                    </div>
+                  );
+                })()}
 
                 <textarea
                   value={specialRequests}

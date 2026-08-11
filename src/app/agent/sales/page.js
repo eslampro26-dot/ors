@@ -25,19 +25,22 @@ export default function AgentSales() {
 
         const commissionRate = tierConfig[agent?.tier || 'bronze'].commission;
 
-        // Map to transaction structure
-        const mapped = (bookings || []).map(b => ({
-          id: b.id,
-          date: b.date,
-          customer: b.customer,
-          service: b.service,
-          city: b.city || 'شرم الشيخ',
-          amount: `€${b.finalAmount.toLocaleString()}`,
-          commission: `€${(b.finalAmount * (commissionRate / 100)).toFixed(2)}`,
-          status: b.status,
-          rawAmount: b.finalAmount,
-          rawCommission: b.finalAmount * (commissionRate / 100)
-        }));
+        const mapped = (bookings || []).map(b => {
+          const amt = Number(b.finalAmount) || Number(b.amount) || Number(b.originalAmount) || 0;
+          const comm = amt * (commissionRate / 100);
+          return {
+            id: b.id,
+            date: b.date,
+            customer: b.customer,
+            service: b.service,
+            city: b.city || 'شرم الشيخ',
+            amount: `€${amt.toLocaleString()}`,
+            commission: `€${comm.toFixed(2)}`,
+            status: b.status,
+            rawAmount: amt,
+            rawCommission: comm
+          };
+        });
 
         // Sort by date descending
         mapped.sort((a, b) => new Date(b.date) - new Date(a.date));

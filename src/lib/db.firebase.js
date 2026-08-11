@@ -350,38 +350,50 @@ export async function addTrip(slug, category, tripData) {
   }
 }
 
+export async function getAgentById(id) {
+  try {
+    const idStr = String(id);
+    const snap = await safeGetDoc(doc(db, COL.AGENTS, idStr));
+    if (snap && snap.exists()) return { id: snap.id, ...snap.data() };
+
+    const snapshot = await safeGetDocs(collection(db, COL.AGENTS));
+    if (snapshot && !snapshot.empty) {
+      const match = snapshot.docs.find(d => d.id === idStr || String(d.data().id) === idStr);
+      if (match) return { id: match.id, ...match.data() };
+    }
+    return null;
+  } catch (e) {
+    console.error('Error getting agent by ID:', e);
+    return null;
+  }
+}
+
 export async function updateTrip(tripId, tripData) {
   try {
     const tripIdStr = String(tripId);
-    // Always ensure slug & category are stored so getTrips can find this doc later
-    const slug = tripData.slug || tripData.city || '';
-    const category = tripData.category || '';
+    const slug = String(tripData.slug || tripData.city || '').toLowerCase();
+    const category = String(tripData.category || '').toLowerCase();
     const dataToSave = { ...tripData, id: tripIdStr, slug, category };
 
-    // 1. Query fallback first: find by data.id field (more reliable for edited trips)
     const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
     if (snapshot && !snapshot.empty) {
-      const match = snapshot.docs.find(d => String(d.data().id) === tripIdStr);
+      const match = snapshot.docs.find(d => {
+        const data = d.data();
+        const sameId = String(data.id) === tripIdStr || d.id === tripIdStr || d.id === `${slug}_${category}_${tripIdStr}`;
+        const sameSlug = !data.slug || String(data.slug).toLowerCase() === slug;
+        const sameCat = !data.category || String(data.category).toLowerCase() === category;
+        return sameId && sameSlug && sameCat;
+      });
       if (match) {
-        // Update using the found doc ID, but keep the tripId as the data.id
         await safeSetDoc(doc(db, COL.TRIPS, match.id), dataToSave, { merge: true });
-        console.log('Trip updated via matching data.id:', match.id, 'with tripId:', tripIdStr);
+        console.log('Trip updated via matching doc:', match.id);
         return true;
       }
     }
 
-    // 2. Try direct doc ID (for newly created trips)
-    const tripRef = doc(db, COL.TRIPS, tripIdStr);
-    const tripSnap = await safeGetDoc(tripRef);
-    if (tripSnap && tripSnap.exists()) {
-      await safeSetDoc(tripRef, dataToSave, { merge: true });
-      console.log('Trip updated successfully with doc ID:', tripIdStr);
-      return true;
-    }
-
-    // 3. Upsert: create new doc for this tripId (handles static sample trips being edited for first time)
-    await safeSetDoc(tripRef, dataToSave, { merge: true });
-    console.log('Trip upserted (new doc) with ID:', tripIdStr);
+    const targetDocId = tripIdStr.startsWith('custom') ? tripIdStr : `${slug}_${category}_${tripIdStr}`;
+    await safeSetDoc(doc(db, COL.TRIPS, targetDocId), dataToSave, { merge: true });
+    console.log('Trip upserted with target ID:', targetDocId);
     return true;
   } catch (e) {
     console.error('Error updating trip:', e);
@@ -576,15 +588,7 @@ export async function saveAgents(agents) {
   }
 }
 
-export async function getAgentById(id) {
-  try {
-    const snap = await getDoc(doc(db, COL.AGENTS, String(id)));
-    return snap.exists() ? { id: snap.id, ...snap.data() } : null;
-  } catch (e) {
-    console.error('Error getting agent by ID:', e);
-    return null;
-  }
-}
+
 
 export async function getAgentByUsername(username) {
   try {
@@ -649,20 +653,25 @@ export async function addAgent(agentData) {
     await setDoc(doc(db, COL.AGENTS, id), newAgent);
 
     // Register promo code(s) in PROMO_CODES collection so they work at checkout
+    // Use the code itself as the document ID so validatePromoCode can find it directly
     for (const code of promoCodes) {
-      const promoDocId = `agent_${id}_${code}`;
-      await setDoc(doc(db, COL.PROMO_CODES, promoDocId), {
-        code: code.toUpperCase(),
+      const upperCode = code.toUpperCase();
+      const promoData = {
+        code: upperCode,
         type: 'agent',
         agentId: id,
         agentName: agentData.name || '',
-        discount: agentData.commissionRate || 10,
+        discountValue: Number(agentData.commissionRate || agentData.promoDiscount) || 10,
         discountType: 'percentage',
         maxUses: 9999,
         usedCount: 0,
-        active: true,
+        isActive: true,  // ✅ correct field name for validatePromoCode
         createdAt: new Date().toISOString(),
-      });
+      };
+      // Save with code as doc ID (for direct lookup in validatePromoCode)
+      await setDoc(doc(db, COL.PROMO_CODES, upperCode), promoData);
+      // Also save with legacy ID format for backwards compatibility
+      await setDoc(doc(db, COL.PROMO_CODES, `agent_${id}_${upperCode}`), promoData);
     }
 
     // If agent has parent, increment parent subAgents count
@@ -937,12 +946,14 @@ export async function validatePromoCode(codeStr) {
   try {
     const cleanCode = codeStr.trim().toUpperCase();
 
-    // 1. Check in PROMO_CODES collection first
+    // 1. Check in PROMO_CODES collection by direct doc ID (code itself)
     const codeSnap = await safeGetDoc(doc(db, COL.PROMO_CODES, cleanCode));
     if (codeSnap && codeSnap.exists()) {
       const promo = codeSnap.data();
 
-      if (promo.isActive === false) {
+      // Handle both isActive (new) and active (legacy) field names
+      const isActive = promo.isActive !== undefined ? promo.isActive : (promo.active !== undefined ? promo.active : true);
+      if (isActive === false) {
         return { isValid: false, reason: 'كود الخصم غير نشط حالياً!' };
       }
       if (promo.maxUses && promo.usedCount >= promo.maxUses) {
@@ -969,8 +980,42 @@ export async function validatePromoCode(codeStr) {
         agentId: promo.agentId || null,
         agentName,
         discountType: promo.discountType || 'percentage',
-        discountValue: Number(promo.discountValue) || 10
+        // Handle both discountValue (new) and discount (legacy) field names
+        discountValue: Number(promo.discountValue || promo.discount) || 10
       };
+    }
+
+    // 1b. Scan PROMO_CODES collection by code field value (handles legacy agent_id_code doc IDs)
+    const allPromoSnap = await safeGetDocs(collection(db, COL.PROMO_CODES));
+    if (allPromoSnap && !allPromoSnap.empty) {
+      const matchedPromoDoc = allPromoSnap.docs.find(d => {
+        const data = d.data();
+        return String(data.code || '').toUpperCase() === cleanCode;
+      });
+      if (matchedPromoDoc) {
+        const promo = matchedPromoDoc.data();
+        const isActive = promo.isActive !== undefined ? promo.isActive : (promo.active !== undefined ? promo.active : true);
+        if (isActive === false) return { isValid: false, reason: 'كود الخصم غير نشط حالياً!' };
+        if (promo.maxUses && promo.usedCount >= promo.maxUses) return { isValid: false, reason: 'عذراً، انتهت صلاحية استخدام هذا الكود!' };
+        if (promo.expiryDate && getLocalDateString() > promo.expiryDate) return { isValid: false, reason: 'عذراً، هذا الكود منتهي الصلاحية!' };
+
+        let agentName = 'مباشر (بدون وكيل)';
+        if (promo.agentId) {
+          const agent = await getAgentById(promo.agentId);
+          if (agent) {
+            if (agent.status === 'موقوف' || agent.status === 'مرفوض') return { isValid: false, reason: 'كود الخصم هذا تابع لوكيل غير نشط!' };
+            agentName = agent.name;
+          }
+        }
+        return {
+          isValid: true,
+          code: promo.code || cleanCode,
+          agentId: promo.agentId || null,
+          agentName,
+          discountType: promo.discountType || 'percentage',
+          discountValue: Number(promo.discountValue || promo.discount) || 10
+        };
+      }
     }
 
     // 2. Fallback: Search in AGENTS collection by promoCodes array or username or code

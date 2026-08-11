@@ -349,6 +349,9 @@ export default function AdminServices() {
 
     if (modalType === 'trip') {
       const { city, category, titleEn, titleDe, titleAr, price, economyPrice, businessPrice, vipPrice, childPrice, economyChildPrice, businessChildPrice, vipChildPrice, infantPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice, additionalPersonPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, tripDescriptionEn, specialRequests } = formData;
+      
+      const targetCity = city || selectedCity || 'hurghada';
+      const targetCategory = category || 'sea-trips';
       const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
       
       const effectiveTitleEn = titleEn || titleAr || titleDe;
@@ -451,8 +454,8 @@ export default function AdminServices() {
       }
 
       const tripPayload = {
-        slug: city,
-        category: category,
+        slug: targetCity,
+        category: targetCategory,
         titleAr: translatedTitles.titleAr,
         titleEn: effectiveTitleEn,
         titleDe: titleDe || translatedTitles.titleDe || effectiveTitleEn,
@@ -529,17 +532,17 @@ export default function AdminServices() {
           }
         } else {
           // --- ADD NEW TRIP ---
-          result = await addTrip(city, category, tripPayload);
+          result = await addTrip(targetCity, targetCategory, tripPayload);
 
           if (result) {
             // ✅ Immediately add new trip to local state - no Firebase reload needed
-            const newTrip = { ...tripPayload, id: result.id || result, slug: city, category };
+            const newTrip = { ...tripPayload, id: result.id || result, slug: targetCity, category: targetCategory };
             setTripsData(prev => {
-              const cityTrips = prev[city] || {};
-              const catTrips = cityTrips[category] || [];
+              const cityTrips = prev[targetCity] || {};
+              const catTrips = cityTrips[targetCategory] || [];
               return {
                 ...prev,
-                [city]: { ...cityTrips, [category]: [...catTrips, newTrip] },
+                [targetCity]: { ...cityTrips, [targetCategory]: [...catTrips, newTrip] },
               };
             });
           }

@@ -55,7 +55,7 @@ export default function AgentDashboard() {
         total: allBookings.length,
       });
 
-      const totalSales = activeBookings.reduce((sum, b) => sum + b.finalAmount, 0);
+      const totalSales = activeBookings.reduce((sum, b) => sum + (Number(b.finalAmount) || Number(b.amount) || Number(b.originalAmount) || 0), 0);
       const transactionCount = activeBookings.length;
 
       const rawTier = (agent?.tier || 'bronze').toString().trim().toLowerCase();
@@ -86,15 +86,18 @@ export default function AgentDashboard() {
       const recent = [...allBookings]
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 5)
-        .map(b => ({
-          id: b.id,
-          date: b.date,
-          service: b.service,
-          customer: b.customer || '—',
-          amount: `€${b.finalAmount}`,
-          commission: `€${(b.finalAmount * (commissionRate / 100)).toFixed(2)}`,
-          status: b.status,
-        }));
+        .map(b => {
+          const amt = Number(b.finalAmount) || Number(b.amount) || Number(b.originalAmount) || 0;
+          return {
+            id: b.id,
+            date: b.date,
+            service: b.service,
+            customer: b.customer || '—',
+            amount: `€${amt.toLocaleString()}`,
+            commission: `€${(amt * (commissionRate / 100)).toFixed(2)}`,
+            status: b.status,
+          };
+        });
       setRecentTransactions(recent);
 
       // Monthly chart

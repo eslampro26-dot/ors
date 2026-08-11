@@ -2,7 +2,8 @@ import { collection, getDocs, orderBy, query, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { internalPackages } from '@/lib/data';
 
-export const revalidate = 3600; // Cache for 1 hour
+export const dynamic = 'force-dynamic'; // Never statically generate — Firebase needs a live request
+export const revalidate = 0; // Always fresh at request time
 
 export async function GET() {
   const SITE_URL = 'https://orluxus.com';

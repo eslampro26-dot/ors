@@ -621,7 +621,7 @@ export default function CategoryPage({ params }) {
 
                 {/* Book Now */}
                 <a
-                  href={`/checkout?tripId=${mdTrip.id}&price=${mdTier?.price || mdTrip.price}&titleAr=${encodeURIComponent(mdTiers.length > 1 ? (mdTrip.titleAr + ' - ' + (mdTier?.names?.ar || '')) : mdTrip.titleAr)}&titleEn=${encodeURIComponent(mdTiers.length > 1 ? ((mdTrip.titleEn || mdTrip.titleAr) + ' - ' + (mdTier?.names?.en || '')) : (mdTrip.titleEn || mdTrip.titleAr))}&type=trip&city=${encodeURIComponent(city.nameAr)}&category=${category}&tier=${mdTier?.id || 'economy'}&childPrice=${mdTrip.childPrice || 0}&infantPrice=${mdTrip.infantPrice || 0}&additionalPersonPrice=${mdTrip.additionalPersonPrice || 0}`}
+                  href={`/checkout?tripId=${mdTrip.id}&price=${mdTier?.price || mdTrip.price}&titleAr=${encodeURIComponent(mdTiers.length > 1 ? (mdTrip.titleAr + ' - ' + (mdTier?.names?.ar || '')) : mdTrip.titleAr)}&titleEn=${encodeURIComponent(mdTiers.length > 1 ? ((mdTrip.titleEn || mdTrip.titleAr) + ' - ' + (mdTier?.names?.en || '')) : (mdTrip.titleEn || mdTrip.titleAr))}&type=trip&city=${encodeURIComponent(city.nameAr)}&category=${category}&tier=${mdTier?.id || 'economy'}&childPrice=${mdTrip.childPrice || 0}&infantPrice=${mdTrip.infantPrice || 0}&additionalPersonPrice=${mdTrip.additionalPersonPrice || 0}&allowedRequests=${encodeURIComponent(JSON.stringify(mdTrip.specialRequests || []))}`}
                   className="btn btn-primary"
                   style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem', padding: '15px', fontSize: '1.05rem', fontWeight: '800', borderRadius: '12px', boxShadow: '0 4px 20px rgba(201,162,39,0.3)', textDecoration: 'none' }}
                 >
