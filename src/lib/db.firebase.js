@@ -353,6 +353,9 @@ export async function addTrip(slug, category, tripData) {
       category: cleanCat,
     };
     await safeSetDoc(doc(db, COL.TRIPS, String(newId)), newTrip, { merge: true });
+    if (cleanSlug && cleanCat && !String(newId).startsWith('custom')) {
+      await safeSetDoc(doc(db, COL.TRIPS, `${cleanSlug}_${cleanCat}_${newId}`), newTrip, { merge: true });
+    }
     console.log('Trip added successfully with ID:', newId, 'slug:', cleanSlug, 'category:', cleanCat);
     return { id: newId, ...newTrip };
   } catch (e) {
@@ -372,6 +375,7 @@ export async function getAgentById(id) {
     if (snapshot && !snapshot.empty) {
       const match = snapshot.docs.find(d => String(d.id) === idStr || String(d.data().id) === idStr);
       if (match) return { id: match.id, ...match.data() };
+      return null;
     }
     const fallback = DEFAULT_AGENTS.find(a => String(a.id) === idStr);
     return fallback ? { ...fallback } : null;
@@ -384,8 +388,24 @@ export async function getAgentById(id) {
 export async function updateTrip(tripId, tripData) {
   try {
     const tripIdStr = String(tripId);
-    const slug = String(tripData.slug || tripData.city || '').toLowerCase().trim();
-    const category = String(tripData.category || '').toLowerCase().trim();
+    let slug = String(tripData.slug || tripData.city || '').toLowerCase().trim();
+    let category = String(tripData.category || '').toLowerCase().trim();
+
+    // If slug or category are missing, lookup existing doc to preserve city/category
+    if (!slug || !category) {
+      try {
+        const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
+        if (snapshot && !snapshot.empty) {
+          const match = snapshot.docs.find(d => String(d.id) === tripIdStr || String(d.data().id) === tripIdStr);
+          if (match) {
+            const existingData = match.data();
+            if (!slug) slug = String(existingData.slug || existingData.city || '').toLowerCase().trim();
+            if (!category) category = String(existingData.category || '').toLowerCase().trim();
+          }
+        }
+      } catch (_) {}
+    }
+
     const dataToSave = {
       ...tripData,
       id: tripIdStr,
@@ -394,9 +414,13 @@ export async function updateTrip(tripId, tripData) {
     };
 
     // Composite doc ID for deterministic city-scoped storage
-    const targetDocId = tripIdStr.startsWith('custom') ? tripIdStr : `${slug}_${category}_${tripIdStr}`;
+    const targetDocId = (tripIdStr.startsWith('custom') || !slug || !category) ? tripIdStr : `${slug}_${category}_${tripIdStr}`;
 
     await safeSetDoc(doc(db, COL.TRIPS, targetDocId), dataToSave, { merge: true });
+    // Also save under raw tripIdStr to ensure backwards compatibility
+    if (targetDocId !== tripIdStr) {
+      await safeSetDoc(doc(db, COL.TRIPS, tripIdStr), dataToSave, { merge: true });
+    }
     console.log('Trip updated in Firestore with docId:', targetDocId);
     return true;
   } catch (e) {
@@ -599,6 +623,8 @@ export async function getAgentByUsername(username) {
         return u === clean || e === clean || n === clean;
       });
       if (match) return { id: match.id, ...match.data() };
+      // Collection exists and has docs — do not match wrong hardcoded defaults
+      return null;
     }
     const fallback = DEFAULT_AGENTS.find(a =>
       String(a.username || '').trim().toLowerCase() === clean ||

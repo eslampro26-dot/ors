@@ -18,13 +18,13 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch agent - prefer username lookup to prevent wrong account
+    // Fetch agent - prefer unique ID lookup to prevent wrong account
     let agent = null;
-    if (payload.username) {
-      try { agent = await getAgentByUsername(payload.username); } catch (_) {}
-    }
-    if (!agent && payload.id) {
+    if (payload.id) {
       try { agent = await getAgentById(payload.id); } catch (_) {}
+    }
+    if (!agent && payload.username) {
+      try { agent = await getAgentByUsername(payload.username); } catch (_) {}
     }
 
     if (!agent) {

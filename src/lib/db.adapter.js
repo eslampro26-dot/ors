@@ -292,7 +292,7 @@ export async function addTrip(slug, category, tripData) {
 export async function updateTrip(id, tripData) {
   if (!isClient) return fbUpdateTrip(id, tripData);
   const res = await apiCall('/api/trips', 'PUT', { id, ...tripData });
-  return res ? res.success : false;
+  return res ? (res.success === true || !!res.message) : false;
 }
 
 export async function deleteTrip(slug, category, id) {

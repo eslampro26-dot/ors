@@ -58,11 +58,12 @@ export async function POST(request) {
 
 export async function PUT(request) {
   try {
-    const { id, slug, category, ...tripData } = await request.json();
+    const body = await request.json();
+    const { id, slug, category } = body;
     if (!id) {
       return NextResponse.json({ error: 'Missing trip ID' }, { status: 400 });
     }
-    const result = await updateTrip(id, tripData);
+    const result = await updateTrip(id, body);
     if (result) {
       // Ping Search Engines dynamically
       if (slug && category) {
