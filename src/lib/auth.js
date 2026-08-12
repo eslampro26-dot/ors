@@ -187,7 +187,7 @@ export function buildAgentCookieHeader(token) {
     `agent_session=${encodeURIComponent(token)}`,
     'Path=/',
     'HttpOnly',
-    'SameSite=Strict',
+    'SameSite=Lax',
     'Max-Age=28800', // 8 hours
   ];
   if (isProd) parts.push('Secure');

@@ -338,20 +338,22 @@ export async function getAllTrips() {
 
 export async function addTrip(slug, category, tripData) {
   try {
+    const cleanSlug = String(slug || tripData.slug || tripData.city || '').toLowerCase().trim();
+    const cleanCat = String(category || tripData.category || '').toLowerCase().trim();
     const newId = tripData.id || `custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     const newTrip = {
-      id: newId,
-      slug: String(slug).toLowerCase(),
-      category: String(category).toLowerCase(),
       currency: 'EUR',
       rating: 5.0,
       reviews: 1,
-      image: tripData.image || 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80',
       createdAt: new Date().toISOString(),
       ...tripData,
+      id: newId,
+      slug: cleanSlug,
+      category: cleanCat,
     };
     await safeSetDoc(doc(db, COL.TRIPS, String(newId)), newTrip, { merge: true });
-    console.log('Trip added successfully with ID:', newId);
+    console.log('Trip added successfully with ID:', newId, 'slug:', cleanSlug, 'category:', cleanCat);
     return { id: newId, ...newTrip };
   } catch (e) {
     console.error('Error saving trip to Firebase:', e);
@@ -382,9 +384,14 @@ export async function getAgentById(id) {
 export async function updateTrip(tripId, tripData) {
   try {
     const tripIdStr = String(tripId);
-    const slug = String(tripData.slug || tripData.city || '').toLowerCase();
-    const category = String(tripData.category || '').toLowerCase();
-    const dataToSave = { ...tripData, id: tripIdStr, slug, category };
+    const slug = String(tripData.slug || tripData.city || '').toLowerCase().trim();
+    const category = String(tripData.category || '').toLowerCase().trim();
+    const dataToSave = {
+      ...tripData,
+      id: tripIdStr,
+      slug,
+      category
+    };
 
     // Composite doc ID for deterministic city-scoped storage
     const targetDocId = tripIdStr.startsWith('custom') ? tripIdStr : `${slug}_${category}_${tripIdStr}`;
@@ -579,23 +586,33 @@ export async function saveAgents(agents) {
 
 
 export async function getAgentByUsername(username) {
+  if (!username) return null;
+  const clean = String(username).trim().toLowerCase();
   try {
-    const clean = String(username).trim().toLowerCase();
     const snapshot = await safeGetDocs(collection(db, COL.AGENTS));
     if (snapshot && !snapshot.empty) {
       const match = snapshot.docs.find(d => {
         const data = d.data();
         const u = String(data.username || '').trim().toLowerCase();
         const e = String(data.email || '').trim().toLowerCase();
-        return u === clean || e === clean;
+        const n = String(data.name || '').trim().toLowerCase();
+        return u === clean || e === clean || n === clean;
       });
       if (match) return { id: match.id, ...match.data() };
     }
-    const fallback = DEFAULT_AGENTS.find(a => String(a.username || '').trim().toLowerCase() === clean);
+    const fallback = DEFAULT_AGENTS.find(a =>
+      String(a.username || '').trim().toLowerCase() === clean ||
+      String(a.email || '').trim().toLowerCase() === clean ||
+      String(a.name || '').trim().toLowerCase() === clean
+    );
     return fallback ? { ...fallback } : null;
   } catch (e) {
     const clean = String(username).trim().toLowerCase();
-    const fallback = DEFAULT_AGENTS.find(a => String(a.username || '').trim().toLowerCase() === clean);
+    const fallback = DEFAULT_AGENTS.find(a =>
+      String(a.username || '').trim().toLowerCase() === clean ||
+      String(a.email || '').trim().toLowerCase() === clean ||
+      String(a.name || '').trim().toLowerCase() === clean
+    );
     return fallback ? { ...fallback } : null;
   }
 }
