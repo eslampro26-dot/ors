@@ -373,15 +373,15 @@ export async function getAgentById(id) {
 
     const snapshot = await safeGetDocs(collection(db, COL.AGENTS));
     if (snapshot && !snapshot.empty) {
-      const match = snapshot.docs.find(d => String(d.id) === idStr || String(d.data().id) === idStr);
+      const match = snapshot.docs.find(d => String(d.id) === idStr);
       if (match) return { ...match.data(), id: String(match.id) };
       return null;
     }
     const fallback = DEFAULT_AGENTS.find(a => String(a.id) === idStr);
     return fallback ? { ...fallback } : null;
   } catch (e) {
-    const fallback = DEFAULT_AGENTS.find(a => String(a.id) === idStr);
-    return fallback ? { ...fallback } : null;
+    console.error('Error fetching agent by ID:', e);
+    return null;
   }
 }
 
@@ -596,6 +596,8 @@ export async function saveAgents(agents) {
 export async function getAgentByUsername(username) {
   if (!username) return null;
   const clean = String(username).trim().toLowerCase();
+  if (!clean) return null;
+
   try {
     const snapshot = await safeGetDocs(collection(db, COL.AGENTS));
     if (snapshot && !snapshot.empty) {
@@ -603,32 +605,27 @@ export async function getAgentByUsername(username) {
         const data = d.data();
         const u = String(data.username || '').trim().toLowerCase();
         const e = String(data.email || '').trim().toLowerCase();
-        return u === clean || e === clean;
+        return (u && u === clean) || (e && e === clean);
       });
       if (match) return { ...match.data(), id: String(match.id) };
       // Collection exists and has docs — do not match wrong hardcoded defaults
       return null;
     }
     const fallback = DEFAULT_AGENTS.find(a =>
-      String(a.username || '').trim().toLowerCase() === clean ||
-      String(a.email || '').trim().toLowerCase() === clean
+      (a.username && String(a.username).trim().toLowerCase() === clean) ||
+      (a.email && String(a.email).trim().toLowerCase() === clean)
     );
     return fallback ? { ...fallback } : null;
   } catch (e) {
-    const clean = String(username).trim().toLowerCase();
-    const fallback = DEFAULT_AGENTS.find(a =>
-      String(a.username || '').trim().toLowerCase() === clean ||
-      String(a.email || '').trim().toLowerCase() === clean ||
-      String(a.name || '').trim().toLowerCase() === clean
-    );
-    return fallback ? { ...fallback } : null;
+    console.error('Error fetching agent by username:', e);
+    return null;
   }
 }
 
 export async function addAgent(agentData) {
   try {
     const snapshot = await safeGetDocs(collection(db, COL.AGENTS));
-    const agents = (snapshot && !snapshot.empty) ? snapshot.docs.map(d => ({ id: d.id, ...d.data() })) : [];
+    const agents = (snapshot && !snapshot.empty) ? snapshot.docs.map(d => ({ ...d.data(), id: String(d.id) })) : [];
     const numericIds = agents.map(a => parseInt(a.id, 10)).filter(n => !isNaN(n) && n > 0);
     const maxNumeric = numericIds.length > 0 ? Math.max(...numericIds, 7) : 7;
     const id = String(maxNumeric + 1);

@@ -20,16 +20,23 @@ export async function GET(request) {
 
     let agent = null;
 
-    // 1. Try lookup by ID first (most reliable - exact agent document)
+    // 1. Try lookup by ID first (and verify username matches payload if present)
     if (payload.id) {
       try {
-        agent = await getAgentById(payload.id);
+        const byId = await getAgentById(payload.id);
+        if (byId) {
+          const payloadUser = String(payload.username || '').trim().toLowerCase();
+          const agentUser = String(byId.username || '').trim().toLowerCase();
+          if (!payloadUser || !agentUser || payloadUser === agentUser) {
+            agent = byId;
+          }
+        }
       } catch (e) {
         console.error('agent-me ID lookup error:', e);
       }
     }
 
-    // 2. Fallback: try lookup by username if ID failed
+    // 2. Fallback: lookup by username if ID lookup was missing or mismatched
     if (!agent && payload.username) {
       try {
         agent = await getAgentByUsername(payload.username);
