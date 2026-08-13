@@ -1225,7 +1225,7 @@ export default function AdminServices() {
                 </div>
 
                 {/* Base Price */}
-                {!useTierPrices && (
+                {(!useTierPrices || modalType === 'package') && (
                   <div className={styles.formGroup}>
                     <label>Base price (€) * <span style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)', fontWeight: 'normal' }}>(Price from 1 person)</span></label>
                     <input 
@@ -1503,45 +1503,6 @@ export default function AdminServices() {
                     ></textarea>
                   </div>
 
-                  {/* Child, Infant, Additional Person Prices for Package */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.8rem', padding: '0.8rem 1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                    <div className={styles.formGroup} style={{ margin: 0 }}>
-                      <label style={{ fontSize: '0.82rem', color: 'var(--emerald-400)' }}>👶 Child Price (€) <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>Ages 2-12</span></label>
-                      <input
-                        type="number"
-                        name="childPrice"
-                        value={formData.childPrice}
-                        onChange={handleInputChange}
-                        placeholder="e.g. 25"
-                        className={styles.input}
-                        min="0"
-                      />
-                    </div>
-                    <div className={styles.formGroup} style={{ margin: 0 }}>
-                      <label style={{ fontSize: '0.82rem', color: 'var(--pink-400)' }}>👼 Infant Price (€) <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>Under 2</span></label>
-                      <input
-                        type="number"
-                        name="infantPrice"
-                        value={formData.infantPrice}
-                        onChange={handleInputChange}
-                        placeholder="e.g. 0"
-                        className={styles.input}
-                        min="0"
-                      />
-                    </div>
-                    <div className={styles.formGroup} style={{ margin: 0 }}>
-                      <label style={{ fontSize: '0.82rem', color: 'var(--gold-400)' }}>➕ Extra Person (€) <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>2nd+ adult</span></label>
-                      <input
-                        type="number"
-                        name="additionalPersonPrice"
-                        value={formData.additionalPersonPrice || ''}
-                        onChange={handleInputChange}
-                        placeholder="e.g. 40"
-                        className={styles.input}
-                        min="0"
-                      />
-                    </div>
-                  </div>
 
                   {/* Tier Prices Toggle for Package */}
                   <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>

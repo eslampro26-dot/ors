@@ -655,7 +655,7 @@ export const sampleTrips = {
       }
     ]
   }
-};;
+};
 
 // Duration translation map for all 10 supported locales
 const DURATION_TRANSLATIONS = {
@@ -751,6 +751,8 @@ export function getTripTiers(trip) {
       zh: "标准", ja: "標準"
     },
     price: hasCustomTiers ? (Number(trip.economyPrice) || basePrice) : basePrice,
+    childPrice: hasCustomTiers ? (Number(trip.economyChildPrice) || Number(trip.childPrice) || 0) : (Number(trip.childPrice) || 0),
+    infantPrice: hasCustomTiers ? (Number(trip.economyInfantPrice) || Number(trip.infantPrice) || 0) : (Number(trip.infantPrice) || 0),
     descriptions: {
       en: "Standard group excursion with basic entry and guidance.",
       ar: "جولة قياسية شاملة الخدمة والإرشاد.",
@@ -780,6 +782,8 @@ export function getTripTiers(trip) {
         zh: "公务舱", ja: "ビジネスクラス"
       },
       price: hasCustomTiers ? Number(trip.businessPrice) : Math.round(basePrice * 1.5),
+      childPrice: hasCustomTiers ? (Number(trip.businessChildPrice) || Number(trip.childPrice) || 0) : (Number(trip.childPrice) || 0),
+      infantPrice: hasCustomTiers ? (Number(trip.businessInfantPrice) || Number(trip.infantPrice) || 0) : (Number(trip.infantPrice) || 0),
       descriptions: {
         en: "Upgraded amenities, premium lunch, and priority access.",
         ar: "مرافق مطورة، وجبة غداء ممتازة، ودخول سريع ذو أولوية.",
@@ -802,6 +806,8 @@ export function getTripTiers(trip) {
         zh: "VIP 豪华舱", ja: "VIPクラス"
       },
       price: hasCustomTiers ? Number(trip.vipPrice) : Math.round(basePrice * 2.3),
+      childPrice: hasCustomTiers ? (Number(trip.vipChildPrice) || Number(trip.childPrice) || 0) : (Number(trip.childPrice) || 0),
+      infantPrice: hasCustomTiers ? (Number(trip.vipInfantPrice) || Number(trip.infantPrice) || 0) : (Number(trip.infantPrice) || 0),
       descriptions: {
         en: "Luxury private transfers, dedicated private guide, and elite amenities.",
         ar: "انتقالات خاصة فاخرة، مرشد خاص مخصص، ومرافق النخبة الراقية.",
