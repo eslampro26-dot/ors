@@ -30,7 +30,10 @@ export default function AgentDashboard() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/agent/dashboard', { credentials: 'include' });
+      const res = await fetch(`/api/agent/dashboard?t=${Date.now()}`, { 
+        credentials: 'include',
+        cache: 'no-store'
+      });
       if (!res.ok) {
         setError('تعذر تحميل بيانات لوحة التحكم.');
         return;

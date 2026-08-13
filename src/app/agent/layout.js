@@ -30,7 +30,10 @@ export default function AgentLayout({ children }) {
     
     const verifySession = async () => {
       try {
-        const res = await fetch('/api/auth/agent-me', { credentials: 'include' });
+        const res = await fetch(`/api/auth/agent-me?t=${Date.now()}`, { 
+          credentials: 'include',
+          cache: 'no-store'
+        });
         if (!res.ok) {
           // Not authenticated - redirect to login
           router.replace('/agent/login');

@@ -15,7 +15,10 @@ export default function AgentSales() {
     const loadSalesData = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/agent/dashboard', { credentials: 'include' });
+        const res = await fetch(`/api/agent/dashboard?t=${Date.now()}`, { 
+          credentials: 'include',
+          cache: 'no-store'
+        });
         if (!res.ok) {
           setError('تعذر تحميل بيانات المبيعات.');
           return;

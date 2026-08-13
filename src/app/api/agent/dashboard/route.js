@@ -74,15 +74,21 @@ export async function GET(request) {
 
     const { password, ...safeAgent } = agent;
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       agent: { ...safeAgent, promoCodes: mergedPromoCodes },
       bookings: myBookings,
       activeSubAgentsCount: activeSubAgents,
       tierCommissions: settings.tierCommissions || null,
       tierCriteria: settings.tierCriteria || null,
     });
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    return response;
   } catch (e) {
     console.error('agent dashboard error:', e);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    const response = NextResponse.json({ error: 'Server error' }, { status: 500 });
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    return response;
   }
 }
