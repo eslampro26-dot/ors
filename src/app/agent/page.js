@@ -242,7 +242,7 @@ export default function AgentDashboard() {
           <h3 className={styles.sectionTitle}>▣ تفصيل الحجوزات الكاملة</h3>
           <span className={styles.sectionAction} onClick={loadDashboardData} style={{ cursor:'pointer' }}>تحديث</span>
         </div>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'1rem' }}>
+        <div className={styles.statsGrid}>
           {[
             { label:'إجمالي الحجوزات', count: bookingStats.total, color:'var(--text-primary)', bg:'var(--bg-glass)' },
             { label:'جديدة / قيد الانتظار', count: bookingStats.new, color:'var(--gold-400)', bg:'rgba(251,191,36,0.07)' },
