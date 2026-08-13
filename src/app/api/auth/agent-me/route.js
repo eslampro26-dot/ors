@@ -20,21 +20,21 @@ export async function GET(request) {
 
     let agent = null;
 
-    // 1. Try lookup by username first (most reliable - prevents wrong account)
-    if (payload.username) {
-      try {
-        agent = await getAgentByUsername(payload.username);
-      } catch (e) {
-        console.error('agent-me username lookup error:', e);
-      }
-    }
-
-    // 2. Fallback: try lookup by ID
-    if (!agent && payload.id) {
+    // 1. Try lookup by ID first (most reliable - exact agent document)
+    if (payload.id) {
       try {
         agent = await getAgentById(payload.id);
       } catch (e) {
         console.error('agent-me ID lookup error:', e);
+      }
+    }
+
+    // 2. Fallback: try lookup by username if ID failed
+    if (!agent && payload.username) {
+      try {
+        agent = await getAgentByUsername(payload.username);
+      } catch (e) {
+        console.error('agent-me username lookup error:', e);
       }
     }
 

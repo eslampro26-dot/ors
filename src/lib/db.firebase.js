@@ -369,12 +369,12 @@ export async function getAgentById(id) {
   const idStr = String(id).trim();
   try {
     const snap = await safeGetDoc(doc(db, COL.AGENTS, idStr));
-    if (snap && snap.exists()) return { id: snap.id, ...snap.data() };
+    if (snap && snap.exists()) return { ...snap.data(), id: String(snap.id) };
 
     const snapshot = await safeGetDocs(collection(db, COL.AGENTS));
     if (snapshot && !snapshot.empty) {
       const match = snapshot.docs.find(d => String(d.id) === idStr || String(d.data().id) === idStr);
-      if (match) return { id: match.id, ...match.data() };
+      if (match) return { ...match.data(), id: String(match.id) };
       return null;
     }
     const fallback = DEFAULT_AGENTS.find(a => String(a.id) === idStr);
@@ -540,34 +540,17 @@ export async function updatePackage(pkgId, packageId, packageData) {
   }
 }
 
-export async function deletePackage(pkgId, packageId) {
+export async function deletePackage(pkgId, id) {
   try {
-    const pkgIdStr = String(packageId);
-    
-    // 1. Try to delete document by ID directly
-    const pkgRef = doc(db, COL.PACKAGES, pkgIdStr);
-    const snap = await safeGetDoc(pkgRef);
-    if (snap && snap.exists()) {
-      await safeDeleteDoc(pkgRef);
-    }
-
-    // 2. Delete all matching docs by id
-    const snapshot = await safeGetDocs(collection(db, COL.PACKAGES));
-    if (snapshot && !snapshot.empty) {
-      const matches = snapshot.docs.filter(d => d.id === pkgIdStr || String(d.data().id) === pkgIdStr);
-      for (const m of matches) {
-        await safeDeleteDoc(doc(db, COL.PACKAGES, m.id));
-      }
-    }
-
-    // 3. Write tombstone doc so deleted packages stay deleted
-    await safeSetDoc(doc(db, COL.PACKAGES, `del_pkg_${pkgId}_${pkgIdStr}`), {
-      id: pkgIdStr,
-      pkgId: String(pkgId),
+    const cleanPkgId = String(pkgId).toLowerCase();
+    const idStr = String(id);
+    await safeDeleteDoc(doc(db, COL.PACKAGES, idStr));
+    await safeSetDoc(doc(db, COL.PACKAGES, `del_pkg_${cleanPkgId}_${idStr}`), {
+      id: idStr,
+      pkgId: cleanPkgId,
       deleted: true,
       deletedAt: new Date().toISOString()
     });
-
     return true;
   } catch (e) {
     console.error('Error deleting package:', e);
@@ -581,10 +564,12 @@ export async function deletePackage(pkgId, packageId) {
 
 export async function getAgents() {
   try {
-    const snapshot = await getDocs(collection(db, COL.AGENTS));
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    const snapshot = await safeGetDocs(collection(db, COL.AGENTS));
+    if (snapshot && !snapshot.empty) {
+      return snapshot.docs.map(d => ({ ...d.data(), id: String(d.id) }));
+    }
+    return DEFAULT_AGENTS;
   } catch (e) {
-    // Silently fallback to LS on timeout
     return DEFAULT_AGENTS;
   }
 }
@@ -592,9 +577,10 @@ export async function getAgents() {
 export async function saveAgents(agents) {
   try {
     const batch = safeWriteBatch(db);
-    // Delete all existing then write new
-    const existing = await getDocs(collection(db, COL.AGENTS));
-    existing.docs.forEach(d => batch.delete(d.ref));
+    const existing = await safeGetDocs(collection(db, COL.AGENTS));
+    if (existing && !existing.empty) {
+      existing.docs.forEach(d => batch.delete(d.ref));
+    }
     agents.forEach(agent => {
       const id = String(agent.id);
       batch.set(doc(db, COL.AGENTS, id), { ...agent, id });
@@ -607,8 +593,6 @@ export async function saveAgents(agents) {
   }
 }
 
-
-
 export async function getAgentByUsername(username) {
   if (!username) return null;
   const clean = String(username).trim().toLowerCase();
@@ -619,17 +603,15 @@ export async function getAgentByUsername(username) {
         const data = d.data();
         const u = String(data.username || '').trim().toLowerCase();
         const e = String(data.email || '').trim().toLowerCase();
-        const n = String(data.name || '').trim().toLowerCase();
-        return u === clean || e === clean || n === clean;
+        return u === clean || e === clean;
       });
-      if (match) return { id: match.id, ...match.data() };
+      if (match) return { ...match.data(), id: String(match.id) };
       // Collection exists and has docs — do not match wrong hardcoded defaults
       return null;
     }
     const fallback = DEFAULT_AGENTS.find(a =>
       String(a.username || '').trim().toLowerCase() === clean ||
-      String(a.email || '').trim().toLowerCase() === clean ||
-      String(a.name || '').trim().toLowerCase() === clean
+      String(a.email || '').trim().toLowerCase() === clean
     );
     return fallback ? { ...fallback } : null;
   } catch (e) {
