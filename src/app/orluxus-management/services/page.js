@@ -1419,7 +1419,7 @@ export default function AdminServices() {
                 </div>
               )}
 
-              {modalType === 'trip' && (
+              {(modalType === 'trip' || modalType === 'package') && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
                   <h4 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.05rem' }}>Category details and descriptions (Rich Descriptions)</h4>
                   
