@@ -8,7 +8,7 @@ import { checkRateLimit, getClientIp } from '@/lib/rate-limiter';
  * Server-side agent login with Firebase + fallback to default agents.
  */
 
-const MAX_ATTEMPTS = 5;
+const MAX_ATTEMPTS = 50;
 const WINDOW_MS = 15 * 60 * 1000;
 
 // Default agents fallback (used if Firebase is empty/not seeded yet)
