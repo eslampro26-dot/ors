@@ -102,6 +102,7 @@ const COL = {
   BOOKINGS: 'bookings',
   PROMO_CODES: 'promo_codes',
   REVIEWS: 'reviews',
+  SERVICE_REVIEWS: 'serviceReviews',
   SOCIAL: 'social_media',
   SETTINGS: 'settings',
 };
@@ -1129,10 +1130,86 @@ export async function addReview(reviewData) {
 export async function deleteReview(id) {
   try {
     await safeDeleteDoc(doc(db, COL.REVIEWS, id));
-    return true;
   } catch (e) {
     console.error('Error deleting review:', e);
+  }
+}
+
+// ==========================================
+// SERVICE REVIEWS (verified per-service reviews)
+// ==========================================
+
+/**
+ * Get all verified reviews for a specific service/trip.
+ * @param {string} serviceId - The trip/service ID
+ */
+export async function getServiceReviews(serviceId) {
+  if (!serviceId) return [];
+  try {
+    const q = query(
+      collection(db, COL.SERVICE_REVIEWS),
+      where('serviceId', '==', serviceId),
+      orderBy('createdAt', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.error('Error fetching service reviews:', e);
+    return [];
+  }
+}
+
+/**
+ * Add or update a verified review for a service.
+ * Document ID = serviceId_userId to prevent duplicate reviews from same user.
+ * @param {Object} reviewData
+ * @param {string} reviewData.serviceId
+ * @param {string} reviewData.userId - Firebase Auth UID
+ * @param {string} reviewData.userName
+ * @param {string} reviewData.userPhoto
+ * @param {string} reviewData.userEmail
+ * @param {number} reviewData.rating - 1 to 5
+ * @param {string} reviewData.comment
+ */
+export async function addServiceReview({ serviceId, userId, userName, userPhoto, userEmail, rating, comment }) {
+  if (!serviceId || !userId || !rating) return false;
+  try {
+    // Use composite key so same user can only have one review per service
+    const docId = `${serviceId}_${userId}`;
+    const reviewDoc = {
+      serviceId,
+      userId,
+      userName: userName || 'Anonymous',
+      userPhoto: userPhoto || '',
+      userEmail: userEmail || '',
+      rating: Math.min(5, Math.max(1, Math.round(rating))),
+      comment: (comment || '').trim().slice(0, 1000),
+      verified: true,
+      createdAt: new Date().toISOString(),
+      date: getLocalDateString(),
+    };
+    await setDoc(doc(db, COL.SERVICE_REVIEWS, docId), reviewDoc, { merge: true });
+    return { id: docId, ...reviewDoc };
+  } catch (e) {
+    console.error('Error adding service review:', e);
     return false;
+  }
+}
+
+/**
+ * Check if a specific user has already reviewed a service.
+ * @param {string} serviceId
+ * @param {string} userId
+ */
+export async function getUserServiceReview(serviceId, userId) {
+  if (!serviceId || !userId) return null;
+  try {
+    const docId = `${serviceId}_${userId}`;
+    const snapshot = await getDoc(doc(db, COL.SERVICE_REVIEWS, docId));
+    if (snapshot.exists()) return { id: snapshot.id, ...snapshot.data() };
+    return null;
+  } catch (e) {
+    return null;
   }
 }
 

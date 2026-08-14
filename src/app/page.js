@@ -629,12 +629,10 @@ export default function Home() {
                       {locCity.name}
                     </h3>
 
-                    {/* Location/Desc Pin */}
+                    {/* Location Pin */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-secondary)', fontSize: '13px' }}>
                       <span>📍</span>
-                      <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                        {t('common.egypt')} • {locCity.description.split(' ').slice(0, 4).join(' ')}...
-                      </span>
+                      <span>{t('common.egypt')}</span>
                     </div>
 
                     {/* CTA Text */}

@@ -46,7 +46,10 @@ import {
   isFirebaseConfigured,
   subscribeToBookings,
   subscribeToReviews,
-  subscribeToAgents
+  subscribeToAgents,
+  getServiceReviews as fbGetServiceReviews,
+  addServiceReview as fbAddServiceReview,
+  getUserServiceReview as fbGetUserServiceReview,
 } from './db.firebase';
 
 import { sampleTrips } from './data';
@@ -507,3 +510,15 @@ export async function initializeDB() {
 // تصدير الدوال المفقودة
 export { subscribeToBookings, subscribeToReviews, subscribeToAgents };
 
+// -- SERVICE REVIEWS (verified per-trip reviews via Google Auth) --
+export async function getServiceReviews(serviceId) {
+  return fbGetServiceReviews(serviceId);
+}
+
+export async function addServiceReview(reviewData) {
+  return fbAddServiceReview(reviewData);
+}
+
+export async function getUserServiceReview(serviceId, userId) {
+  return fbGetUserServiceReview(serviceId, userId);
+}

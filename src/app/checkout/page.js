@@ -508,7 +508,7 @@ function CheckoutContent() {
         });
 
         setIsSimulatingPayment(false);
-        const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=bank_transfer&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
+        const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=bank_transfer&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
         router.push(successUrl);
       } catch (err) {
         console.error('Error saving booking on bank transfer payment:', err);
@@ -567,7 +567,7 @@ function CheckoutContent() {
       console.error('Error saving booking on cash payment:', err);
     }
 
-    const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=onsite&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
+    const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=onsite&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
     router.push(successUrl);
   };
 
@@ -670,7 +670,7 @@ function CheckoutContent() {
             console.error('Error saving booking on PayPal approval:', err);
           }
 
-          const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=paypal&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
+          const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=paypal&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
           router.push(successUrl);
         });
       },
@@ -712,6 +712,12 @@ function CheckoutContent() {
   const pickupParam = searchParams.get('pickupLocation') || '';
   const extrasParam = searchParams.get('extras') || '';
   const specialRequestsParam = searchParams.get('specialRequests') || '';
+  const childrenParam = parseInt(searchParams.get('children') || '0', 10);
+  const infantsParam = parseInt(searchParams.get('infants') || '0', 10);
+  const basePriceParam = parseFloat(searchParams.get('basePrice') || '0');
+  const additionalPersonPriceParam = parseFloat(searchParams.get('additionalPersonPrice') || '0');
+  const childPriceParam = parseFloat(searchParams.get('childPrice') || '0');
+  const infantPriceParam = parseFloat(searchParams.get('infantPrice') || '0');
 
   // 1. PAYMENT SUCCESS SCREEN
   if (statusParam === 'success' || checkoutStep === 'success') {
@@ -883,11 +889,14 @@ function CheckoutContent() {
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase' }}>
                   {locale === 'ar' ? 'معلومات الحجز' : locale === 'fr' ? 'Infos de réservation' : locale === 'de' ? 'Buchungsinfo' : locale === 'es' ? 'Info de reserva' : locale === 'it' ? 'Info prenotazione' : locale === 'ru' ? 'Информация о бронировании' : locale === 'zh' ? '预订信息' : locale === 'ja' ? '予約情報' : locale === 'tr' ? 'Rezervasyon Bilgisi' : 'Booking Info'}
                 </h4>
+                {/* Booking Info */}
                 <p style={{ margin: '0 0 0.3rem 0', fontWeight: 'bold' }}>
                   {locale === 'ar' ? 'تاريخ الرحلة' : locale === 'fr' ? 'Date prévue' : locale === 'de' ? 'Geplantes Datum' : locale === 'es' ? 'Fecha programada' : 'Scheduled Date'}: {dateParam}
                 </p>
                 <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>
-                  {locale === 'ar' ? 'عدد المسافرين' : locale === 'fr' ? 'Voyageurs' : locale === 'de' ? 'Reisende' : locale === 'es' ? 'Viajeros' : 'Travelers'}: {travelersParam} {locale === 'ar' ? 'أشخاص' : locale === 'fr' ? 'personnes' : locale === 'de' ? 'Personen' : locale === 'es' ? 'personas' : 'Persons'}
+                  {locale === 'ar' ? 'عدد الكبار' : 'Adults'}: {travelersParam} {locale === 'ar' ? 'أشخاص' : 'Persons'}
+                  {childrenParam > 0 && <span> &nbsp;|&nbsp; {locale === 'ar' ? 'أطفال' : 'Children'}: {childrenParam}</span>}
+                  {infantsParam > 0 && <span> &nbsp;|&nbsp; {locale === 'ar' ? 'رضع' : 'Infants'}: {infantsParam}</span>}
                 </p>
                 {pickupParam && <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>📍 {locale === 'ar' ? 'نقطة الالتقاط' : 'Pickup'}: {pickupParam}</p>}
                 <p style={{ margin: 0, fontSize: '0.9rem', color: (isBank || isOnsite) ? '#f59e0b' : '#10b981', fontWeight: 'bold' }}>
@@ -931,12 +940,39 @@ function CheckoutContent() {
                 </tr>
               </thead>
               <tbody>
+                {/* Base price for first adult */}
                 <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '1.2rem 1rem', fontSize: '1rem', fontWeight: '600', textAlign: locale === 'ar' ? 'right' : 'left' }}>{titleParam || 'Egypt Travel Package'}</td>
-                  <td style={{ padding: '1.2rem 1rem', textAlign: 'center', fontFamily: 'var(--font-en)' }}>{travelersParam}</td>
-                  <td style={{ padding: '1.2rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)' }}>€{(originalParam / travelersParam).toFixed(2)}</td>
-                  <td style={{ padding: '1.2rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', fontWeight: 'bold' }}>€{originalParam.toFixed(2)}</td>
+                  <td style={{ padding: '0.9rem 1rem', fontSize: '0.95rem', fontWeight: '600', textAlign: locale === 'ar' ? 'right' : 'left' }}>
+                    {titleParam || 'Egypt Travel Package'} {locale === 'ar' ? '(كبار)' : '(Adults)'} × {travelersParam}
+                  </td>
+                  <td style={{ padding: '0.9rem 1rem', textAlign: 'center', fontFamily: 'var(--font-en)' }}>{travelersParam}</td>
+                  <td style={{ padding: '0.9rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)' }}>€{basePriceParam > 0 ? (travelersParam === 1 ? basePriceParam.toFixed(2) : `${basePriceParam.toFixed(2)} + ${additionalPersonPriceParam.toFixed(2)}×${travelersParam-1}`) : (originalParam / Math.max(travelersParam,1)).toFixed(2)}</td>
+                  <td style={{ padding: '0.9rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', fontWeight: 'bold' }}>
+                    €{basePriceParam > 0 ? (basePriceParam + additionalPersonPriceParam * Math.max(travelersParam - 1, 0)).toFixed(2) : originalParam.toFixed(2)}
+                  </td>
                 </tr>
+                {/* Children row */}
+                {childrenParam > 0 && (
+                  <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#f8f9fa' }}>
+                    <td style={{ padding: '0.9rem 1rem', fontSize: '0.95rem', fontWeight: '600', textAlign: locale === 'ar' ? 'right' : 'left' }}>
+                      {locale === 'ar' ? 'أطفال (2-12 سنة)' : 'Children (2-12 years)'}
+                    </td>
+                    <td style={{ padding: '0.9rem 1rem', textAlign: 'center', fontFamily: 'var(--font-en)' }}>{childrenParam}</td>
+                    <td style={{ padding: '0.9rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)' }}>€{childPriceParam.toFixed(2)}</td>
+                    <td style={{ padding: '0.9rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', fontWeight: 'bold' }}>€{(childPriceParam * childrenParam).toFixed(2)}</td>
+                  </tr>
+                )}
+                {/* Infants row */}
+                {infantsParam > 0 && (
+                  <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#f8f9fa' }}>
+                    <td style={{ padding: '0.9rem 1rem', fontSize: '0.95rem', fontWeight: '600', textAlign: locale === 'ar' ? 'right' : 'left' }}>
+                      {locale === 'ar' ? 'رضع (أقل من سنتين)' : 'Infants (under 2 years)'}
+                    </td>
+                    <td style={{ padding: '0.9rem 1rem', textAlign: 'center', fontFamily: 'var(--font-en)' }}>{infantsParam}</td>
+                    <td style={{ padding: '0.9rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)' }}>€{infantPriceParam.toFixed(2)}</td>
+                    <td style={{ padding: '0.9rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', fontWeight: 'bold' }}>€{(infantPriceParam * infantsParam).toFixed(2)}</td>
+                  </tr>
+                )}
                 {extrasParam && (
                   <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafb' }}>
                     <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#475569', textAlign: locale === 'ar' ? 'right' : 'left' }}>
@@ -1065,23 +1101,51 @@ function CheckoutContent() {
 
         <style jsx global>{`
           @media print {
-            body {
+            @page {
+              size: A4 portrait;
+              margin: 8mm 10mm;
+            }
+            html, body {
               background: #ffffff !important;
               color: #000000 !important;
               padding: 0 !important;
               margin: 0 !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              font-size: 11px !important;
             }
-            .hide-print, navbar, header, footer, nav {
+            .hide-print, nav, header, footer, .water-bg-pattern {
               display: none !important;
+            }
+            main {
+              padding: 0 !important;
+              background: none !important;
+            }
+            .container {
+              max-width: 100% !important;
+              padding: 0 !important;
             }
             #invoice-sheet {
               box-shadow: none !important;
-              border: none !important;
-              padding: 0 !important;
+              border: 1px solid #e2e8f0 !important;
+              padding: 12mm !important;
               margin: 0 !important;
               background: #ffffff !important;
+              border-radius: 0 !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
             }
-            main {
+            #invoice-sheet h2 { font-size: 1.3rem !important; }
+            #invoice-sheet h3 { font-size: 1rem !important; }
+            #invoice-sheet h4 { font-size: 0.75rem !important; }
+            #invoice-sheet p, #invoice-sheet td, #invoice-sheet th, #invoice-sheet span {
+              font-size: 0.8rem !important;
+            }
+            #invoice-sheet table td, #invoice-sheet table th {
+              padding: 5px 8px !important;
+            }
+            #invoice-sheet div[style*="padding: '3rem'"],
+            #invoice-sheet div[style*="padding:'3rem'"] {
               padding: 0 !important;
             }
           }

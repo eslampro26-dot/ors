@@ -10,6 +10,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 import TranslatedText from '@/components/TranslatedText';
 import TranslatedTextWithFallback from '@/components/TranslatedTextWithFallback';
+import ServiceReviews from '@/components/ServiceReviews';
 
 export default function CategoryPage({ params }) {
   const resolvedParams = use(params);
@@ -187,12 +188,7 @@ export default function CategoryPage({ params }) {
                       </div>
                     )}
 
-                    {/* NEW badge */}
-                    {trip.id.toString().startsWith('custom') && (
-                      <span className="badge badge-gold" style={{ position: 'absolute', top: '12px', right: locale === 'ar' ? 'auto' : '12px', left: locale === 'ar' ? '12px' : 'auto', transform: 'scale(0.9)' }}>
-                        {t('common.newBadge')}
-                      </span>
-                    )}
+
 
                     {/* Multiple images indicator + touch swipe support */}
                     {(() => {
@@ -314,25 +310,9 @@ export default function CategoryPage({ params }) {
                       </div>
                     )}
 
-                    <div style={{
-                      marginBottom: '1rem',
-                      background: 'rgba(255,255,255,0.02)',
-                      padding: '8px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border-subtle)',
-                      textAlign: locale === 'ar' ? 'right' : 'left'
-                    }}>
-                      <p style={{
-                        fontSize: '0.82rem',
-                        color: 'var(--text-secondary)',
-                        lineHeight: '1.4',
-                        minHeight: '40px',
-                        margin: 0
-                      }}>
-                        {activeTier.descriptions[locale?.toLowerCase()] || activeTier.descriptions[locale] || activeTier.descriptions.en}
-                      </p>
-                      
-                      {/* Always-visible full details button */}
+
+                    {/* View Full Details button */}
+                    <div style={{ marginBottom: '1rem' }}>
                       <button 
                         onClick={() => {
                           setCurrentImageIndex(0);
@@ -350,7 +330,6 @@ export default function CategoryPage({ params }) {
                           color: 'var(--gold-400)',
                           fontSize: '0.8rem',
                           fontWeight: '700',
-                          marginTop: '0.6rem',
                           cursor: 'pointer',
                           padding: '7px 14px',
                           borderRadius: '8px',
@@ -627,6 +606,9 @@ export default function CategoryPage({ params }) {
                 >
                   🛒 {isAr ? 'احجز الآن' : 'Book Now'}
                 </a>
+
+                {/* Verified Reviews Section */}
+                <ServiceReviews serviceId={mdTrip.id} locale={locale} />
 
                 <div style={{ marginTop: '1rem', textAlign: 'center', paddingBottom: '2rem' }}>
                   <button onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer', fontSize: '0.82rem', textDecoration: 'underline' }}>
