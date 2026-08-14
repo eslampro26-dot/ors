@@ -9,7 +9,35 @@ import { getSeoMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/context/LanguageContext";
 import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
 import GlobalBackground from "@/components/GlobalBackground";
+import { Playfair_Display, Inter, Poppins, Tajawal } from 'next/font/google';
 
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '600', '700', '800', '900'],
+  variable: '--font-playfair',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-poppins',
+  display: 'swap',
+});
+
+const tajawal = Tajawal({
+  subsets: ['arabic', 'latin'],
+  weight: ['300', '400', '500', '700', '800', '900'],
+  variable: '--font-tajawal',
+  display: 'swap',
+});
 
 const RTL_LOCALES = ['ar'];
 
@@ -35,12 +63,9 @@ export default function RootLayout({ children, params }) {
   const dir = getDirection(locale);
 
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang={locale} dir={dir} className={`${playfair.variable} ${inter.variable} ${poppins.variable} ${tajawal.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5.0, user-scalable=yes" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
         <link rel="alternate" hrefLang="en" href="https://orluxus.com/" />
         <link rel="alternate" hrefLang="ar" href="https://orluxus.com/ar/" />
         <link rel="alternate" hrefLang="x-default" href="https://orluxus.com/" />
