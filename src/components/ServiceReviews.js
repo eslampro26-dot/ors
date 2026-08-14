@@ -75,10 +75,28 @@ export default function ServiceReviews({ serviceId, locale }) {
 
   // ─── Google Sign-In ───
   const handleGoogleSignIn = async () => {
+    setSubmitError('');
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (e) {
       console.error('Google sign-in error:', e);
+      if (e.code === 'auth/popup-blocked') {
+        setSubmitError(isAr 
+          ? 'تم حظر النافذة المنبثقة من قبل المتصفح. يرجى السماح بالنوافذ المنبثقة لموقعنا للمتابعة.' 
+          : 'Popup blocked by browser. Please allow popups in your browser settings to continue.');
+      } else if (e.code === 'auth/cancelled-popup-request') {
+        setSubmitError(isAr
+          ? 'تم إلغاء طلب تسجيل الدخول بواسطة عملية أخرى.'
+          : 'Sign-in request was cancelled.');
+      } else if (e.code === 'auth/popup-closed-by-user') {
+        setSubmitError(isAr
+          ? 'تم إغلاق نافذة تسجيل الدخول قبل إتمام العملية.'
+          : 'Sign-in popup was closed before completion.');
+      } else {
+        setSubmitError(isAr
+          ? 'فشل تسجيل الدخول بـ Google. يرجى التحقق من إعدادات المتصفح وحاول مجدداً.'
+          : 'Google sign-in failed. Please check browser settings and try again.');
+      }
     }
   };
 
@@ -274,6 +292,13 @@ export default function ServiceReviews({ serviceId, locale }) {
           )
         )}
       </div>
+
+      {/* ── Error message when not logged in ── */}
+      {!user && submitError && (
+        <div style={{ background: 'rgba(220, 38, 38, 0.08)', border: '1px solid rgba(220, 38, 38, 0.3)', borderRadius: '10px', padding: '0.9rem 1.2rem', marginBottom: '1.5rem', color: '#991b1b', fontSize: '0.88rem', fontWeight: '600' }}>
+          ⚠️ {submitError}
+        </div>
+      )}
 
       {/* ── Review Form (only if logged in and no review yet OR editing) ── */}
       {user && (!userExistingReview || isEditing) && !submitSuccess && (
