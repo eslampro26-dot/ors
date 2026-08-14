@@ -4,8 +4,8 @@ import { getServiceReviews, addServiceReview } from '@/lib/db';
 export const dynamic = 'force-dynamic';
 
 /**
- * GET /api/service-reviews?serviceId=xxx
- * Returns all verified reviews for a specific service/trip.
+ * GET /api/feedback?serviceId=xxx
+ * Returns all verified feedback for a specific service/trip.
  */
 export async function GET(request) {
   try {
@@ -19,15 +19,15 @@ export async function GET(request) {
     const reviews = await getServiceReviews(serviceId);
     return NextResponse.json(reviews || []);
   } catch (e) {
-    console.error('[service-reviews GET] Error:', e);
+    console.error('[feedback GET] Error:', e);
     return NextResponse.json([], { status: 500 });
   }
 }
 
 /**
- * POST /api/service-reviews
+ * POST /api/feedback
  * Body: { serviceId, userId, userName, userPhoto, userEmail, rating, comment }
- * Adds or updates a verified review for a service (one per user per service).
+ * Adds or updates feedback for a service (one per user per service).
  */
 export async function POST(request) {
   try {
@@ -40,7 +40,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'serviceId مطلوب.' }, { status: 400 });
     }
     if (!userId || typeof userId !== 'string') {
-      return NextResponse.json({ error: 'يجب تسجيل الدخول أولاً.' }, { status: 401 });
+      return NextResponse.json({ error: 'يجب تسجيل الدخول أو إدخال الاسم أولاً.' }, { status: 401 });
     }
     if (typeof rating !== 'number' || rating < 1 || rating > 5) {
       return NextResponse.json({ error: 'التقييم يجب أن يكون بين 1 و5 نجوم.' }, { status: 400 });
@@ -68,7 +68,7 @@ export async function POST(request) {
 
     return NextResponse.json(result, { status: 201 });
   } catch (e) {
-    console.error('[service-reviews POST] Error:', e);
+    console.error('[feedback POST] Error:', e);
     return NextResponse.json({ error: 'حدث خطأ أثناء حفظ التقييم.' }, { status: 500 });
   }
 }

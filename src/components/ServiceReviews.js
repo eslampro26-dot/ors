@@ -65,7 +65,7 @@ export default function ServiceReviews({ serviceId, locale }) {
     if (!serviceId) return;
     setReviewsLoading(true);
     try {
-      const res = await fetch(`/api/service-reviews?serviceId=${encodeURIComponent(serviceId)}`);
+      const res = await fetch(`/api/feedback?serviceId=${encodeURIComponent(serviceId)}`);
       if (res.ok) {
         const data = await res.json();
         setReviews(data || []);
@@ -208,7 +208,7 @@ export default function ServiceReviews({ serviceId, locale }) {
     setSubmitting(true);
 
     try {
-      const res = await fetch('/api/service-reviews', {
+      const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
