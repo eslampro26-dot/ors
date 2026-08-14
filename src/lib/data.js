@@ -754,16 +754,16 @@ export function getTripTiers(trip) {
     childPrice: hasCustomTiers ? (Number(trip.economyChildPrice) || Number(trip.childPrice) || 0) : (Number(trip.childPrice) || 0),
     infantPrice: hasCustomTiers ? (Number(trip.economyInfantPrice) || Number(trip.infantPrice) || 0) : (Number(trip.infantPrice) || 0),
     descriptions: {
-      en: "Standard group excursion with basic entry and guidance.",
-      ar: "جولة قياسية شاملة الخدمة والإرشاد.",
-      de: "Standard-Gruppenausflug mit Führung.",
-      fr: "Excursion standard avec guidage.",
-      es: "Excursión estándar con guía.",
-      it: "Escursione standard con guida.",
-      ru: "Стандартная экскурсия с гидом.",
-      tr: "Rehberlik içeren standart gezi.",
-      zh: "标准游览包含导游。",
-      ja: "標準的なガイド付きツアー。"
+      en: (trip.tripDescriptionEn || trip.economyDesc || trip.descriptionEn || trip.tripDescription || trip.description)?.trim()?.split(/\r?\n/)[0]?.trim() || "Standard group excursion with basic entry and guidance.",
+      ar: (trip.tripDescriptionAr || trip.economyDesc || trip.description || trip.tripDescription)?.trim()?.split(/\r?\n/)[0]?.trim() || "جولة قياسية شاملة الخدمة والإرشاد.",
+      de: (trip.tripDescriptionDe || trip.tripDescriptionEn || trip.economyDesc || trip.tripDescription)?.trim()?.split(/\r?\n/)[0]?.trim() || "Standard-Gruppenausflug mit Führung.",
+      fr: (trip.tripDescriptionFr || trip.tripDescriptionEn || trip.economyDesc || trip.tripDescription)?.trim()?.split(/\r?\n/)[0]?.trim() || "Excursion standard avec guidage.",
+      es: (trip.tripDescriptionEs || trip.tripDescriptionEn || trip.economyDesc || trip.tripDescription)?.trim()?.split(/\r?\n/)[0]?.trim() || "Excursión estándar con guía.",
+      it: (trip.tripDescriptionIt || trip.tripDescriptionEn || trip.economyDesc || trip.tripDescription)?.trim()?.split(/\r?\n/)[0]?.trim() || "Escursione standard con guida.",
+      ru: (trip.tripDescriptionRu || trip.tripDescriptionEn || trip.economyDesc || trip.tripDescription)?.trim()?.split(/\r?\n/)[0]?.trim() || "Стандартная экскурсия с гидом.",
+      tr: (trip.tripDescriptionTr || trip.tripDescriptionEn || trip.economyDesc || trip.tripDescription)?.trim()?.split(/\r?\n/)[0]?.trim() || "Rehberlik içeren standart gezi.",
+      zh: (trip.tripDescriptionZh || trip.tripDescriptionEn || trip.economyDesc || trip.tripDescription)?.trim()?.split(/\r?\n/)[0]?.trim() || "标准游览包含导游。",
+      ja: (trip.tripDescriptionJa || trip.tripDescriptionEn || trip.economyDesc || trip.tripDescription)?.trim()?.split(/\r?\n/)[0]?.trim() || "標準的なガイド付きツアー。"
     },
     richDesc: trip.economyDesc || trip.tripDescriptionEn || trip.tripDescription || null
   };
@@ -785,16 +785,16 @@ export function getTripTiers(trip) {
       childPrice: hasCustomTiers ? (Number(trip.businessChildPrice) || Number(trip.childPrice) || 0) : (Number(trip.childPrice) || 0),
       infantPrice: hasCustomTiers ? (Number(trip.businessInfantPrice) || Number(trip.infantPrice) || 0) : (Number(trip.infantPrice) || 0),
       descriptions: {
-        en: "Upgraded amenities, premium lunch, and priority access.",
-        ar: "مرافق مطورة، وجبة غداء ممتازة، ودخول سريع ذو أولوية.",
-        de: "Verbesserter Komfort, erstklassiges Mittagessen und bevorzugter Einlass.",
-        fr: "Prestations améliorées, déjeuner de qualité et accès prioritaire.",
-        es: "Servicios mejorados, almuerzo premium y acceso prioritario.",
-        it: "Servizi avanzati, pranzo premium e accesso prioritario.",
-        ru: "Улучшенные удобства, премиум-обед и приоритетный доступ.",
-        tr: "Yükseltilmiş olanaklar, premium öğle yemeği ve öncelikli erişim.",
-        zh: "升级服务、高端午餐和优先入场通道。",
-        ja: "アップグレードされたアメニティ、プレミアムランチ、優先入場。"
+        en: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Upgraded amenities, premium lunch, and priority access.",
+        ar: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "مرافق مطورة، وجبة غداء ممتازة، ودخول سريع ذو أولوية.",
+        de: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Verbesserter Komfort, erstklassiges Mittagessen und bevorzugter Einlass.",
+        fr: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Prestations améliorées, déjeuner de qualité et accès prioritaire.",
+        es: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Servicios mejorados, almuerzo premium y acceso prioritario.",
+        it: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Servizi avanzati, pranzo premium e accesso prioritario.",
+        ru: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Улучшенные удобства, премиум-обед и приоритетный доступ.",
+        tr: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Yükseltilmiş olanaklar, premium öğle yemeği ve öncelikli erişim.",
+        zh: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "升级服务、高端午餐和优先入场通道。",
+        ja: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "アップグレードされたアメニティ、プレミアムランチ、優先入場。"
       },
       richDesc: trip.businessDesc || null
     },
@@ -809,16 +809,16 @@ export function getTripTiers(trip) {
       childPrice: hasCustomTiers ? (Number(trip.vipChildPrice) || Number(trip.childPrice) || 0) : (Number(trip.childPrice) || 0),
       infantPrice: hasCustomTiers ? (Number(trip.vipInfantPrice) || Number(trip.infantPrice) || 0) : (Number(trip.infantPrice) || 0),
       descriptions: {
-        en: "Luxury private transfers, dedicated private guide, and elite amenities.",
-        ar: "انتقالات خاصة فاخرة، مرشد خاص مخصص، ومرافق النخبة الراقية.",
-        de: "Luxuriöse Privattransfers, eigener Reiseleiter und exklusive Annehmlichkeiten.",
-        fr: "Transferts privés de luxe, guide privé dédié et prestations d'élite.",
-        es: "Traslados privados de lujo, guía privado exclusivo y comodidades de élite.",
-        it: "Trasferimenti privati di lusso, guida privata dedicata e servizi d'élite.",
-        ru: "Роскошные индивидуальные трансферы, персональный гид и эксклюзивные услуги.",
-        tr: "Lüks özel transferler, size özel rehber ve seçkin olanaklar.",
-        zh: "豪华私人接送、专属私人导游及顶级贵宾礼遇。",
-        ja: "豪華なプライベート送迎、専属ガイド、一流のアメニティ。"
+        en: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Luxury private transfers, dedicated private guide, and elite amenities.",
+        ar: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "انتقالات خاصة فاخرة، مرشد خاص مخصص، ومرافق النخبة الراقية.",
+        de: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Luxuriöse Privattransfers, eigener Reiseleiter und exklusive Annehmlichkeiten.",
+        fr: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Transferts privés de luxe, guide privé dédié et prestations d'élite.",
+        es: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Traslados privados de lujo, guía privado exclusivo y comodidades de élite.",
+        it: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Trasferimenti privati di lusso, guida privata dedicata e servizi d'élite.",
+        ru: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Роскошные индивидуальные трансферы, персональный гид и эксклюзивные услуги.",
+        tr: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Lüks özel transferler, size özel rehber ve seçkin olanaklar.",
+        zh: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "豪华私人接送、专属私人导游及顶级贵宾礼遇。",
+        ja: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "豪華なプライベート送迎、専属ガイド、一流のアメニティ。"
       },
       richDesc: trip.vipDesc || null
     }
