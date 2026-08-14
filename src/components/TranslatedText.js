@@ -21,7 +21,23 @@ function simpleHash(str) {
 export default function TranslatedText({ text, fallback = '', className = '', style = {} }) {
   const { locale } = useLanguage();
   const rawText = text || fallback || '';
-  const [translated, setTranslated] = useState(rawText);
+
+  const getCachedTranslation = (txt, loc) => {
+    if (!txt || !txt.trim()) return fallback;
+    const hasArabic = /[\u0600-\u06FF]/.test(txt);
+    if (loc === 'en' && !hasArabic) return txt;
+    if (typeof window !== 'undefined') {
+      const textHash = simpleHash(txt);
+      const cacheKey = `orluxus_tr_${loc}_len${txt.length}_${textHash}`;
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached && cached.trim().length > 0) return cached;
+      } catch (e) {}
+    }
+    return null;
+  };
+
+  const [translated, setTranslated] = useState(() => getCachedTranslation(rawText, locale) || rawText);
 
   useEffect(() => {
     if (!rawText || !rawText.trim()) {
@@ -36,7 +52,7 @@ export default function TranslatedText({ text, fallback = '', className = '', st
       return;
     }
 
-    // Unique cache key combining locale, text length, and text hash
+    // Check cache immediately
     const textHash = simpleHash(rawText);
     const cacheKey = `orluxus_tr_${locale}_len${rawText.length}_${textHash}`;
 
@@ -48,31 +64,30 @@ export default function TranslatedText({ text, fallback = '', className = '', st
       }
     } catch (e) {}
 
-    // Stagger API calls randomly to avoid rate-limits
-    const delay = 50 + Math.floor(Math.random() * 800);
-    const timer = setTimeout(() => {
-      fetch('/api/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: rawText, to: locale })
-      })
-        .then(res => res.ok ? res.json() : {})
-        .then(data => {
-          if (data && data.translatedText && data.translatedText.trim().length > 0) {
-            setTranslated(data.translatedText);
-            try {
-              localStorage.setItem(cacheKey, data.translatedText);
-            } catch (e) {}
-          } else {
-            setTranslated(rawText);
-          }
-        })
-        .catch(() => {
+    // Fetch translation immediately without artificial delay
+    let isMounted = true;
+    fetch('/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: rawText, to: locale })
+    })
+      .then(res => res.ok ? res.json() : {})
+      .then(data => {
+        if (!isMounted) return;
+        if (data && data.translatedText && data.translatedText.trim().length > 0) {
+          setTranslated(data.translatedText);
+          try {
+            localStorage.setItem(cacheKey, data.translatedText);
+          } catch (e) {}
+        } else {
           setTranslated(rawText);
-        });
-    }, delay);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setTranslated(rawText);
+      });
 
-    return () => clearTimeout(timer);
+    return () => { isMounted = false; };
   }, [rawText, locale, fallback]);
 
   return <span className={className} style={style}>{translated || rawText}</span>;
