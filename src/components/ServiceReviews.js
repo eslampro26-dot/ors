@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
 
 /**
  * ServiceReviews Component
  * Displays reviews for a specific trip/service.
- * Allows users to submit reviews by simply typing their name OR optionally signing in with Google.
+ * Shows a Google Business Review button (from admin settings) for verified Google reviews,
+ * plus a simple name-based form for quick internal reviews.
  *
  * @param {string} serviceId - The trip/service ID
  * @param {string} locale - Current language locale
@@ -15,15 +14,16 @@ import { auth, googleProvider } from '@/lib/firebase';
 export default function ServiceReviews({ serviceId, locale }) {
   const isAr = locale === 'ar';
 
-  // Auth/Identity states
-  const [googleUser, setGoogleUser] = useState(null);
-  const [anonUser, setAnonUser] = useState(null); // { uid, displayName }
-  const [authLoading, setAuthLoading] = useState(true);
+  // Google Business Review link from admin settings
+  const [googleReviewUrl, setGoogleReviewUrl] = useState('');
 
   // Reviews list states
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [userExistingReview, setUserExistingReview] = useState(null);
+
+  // Anonymous user identity (stored in localStorage)
+  const [anonUser, setAnonUser] = useState(null); // { uid, displayName }
 
   // Form states
   const [typedName, setTypedName] = useState('');
@@ -51,13 +51,14 @@ export default function ServiceReviews({ serviceId, locale }) {
     }
   }, []);
 
-  // ─── Firebase Auth listener ───
+  // ─── Fetch Google Review URL from admin settings ───
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setGoogleUser(firebaseUser);
-      setAuthLoading(false);
-    });
-    return () => unsubscribe();
+    fetch('/api/settings')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.googleReviewUrl) setGoogleReviewUrl(data.googleReviewUrl);
+      })
+      .catch(() => {});
   }, []);
 
   // ─── Fetch reviews ───
@@ -81,64 +82,26 @@ export default function ServiceReviews({ serviceId, locale }) {
     fetchReviews();
   }, [fetchReviews]);
 
-  // ─── Active User Identity ───
-  const activeUser = googleUser || anonUser;
-
   // ─── Find user's existing review ───
   useEffect(() => {
-    if (activeUser && reviews.length > 0) {
-      const uidToMatch = googleUser ? googleUser.uid : anonUser?.uid;
-      const found = reviews.find(r => r.userId === uidToMatch);
+    if (anonUser && reviews.length > 0) {
+      const found = reviews.find(r => r.userId === anonUser.uid);
       setUserExistingReview(found || null);
     } else {
       setUserExistingReview(null);
     }
-  }, [googleUser, anonUser, reviews, activeUser]);
+  }, [anonUser, reviews]);
 
-  // ─── Google Sign-In (Optional link) ───
-  const handleGoogleSignIn = async () => {
+  // ─── Clear Identity ───
+  const handleSignOut = () => {
+    localStorage.removeItem('orluxus_review_user');
+    setAnonUser(null);
+    setTypedName('');
+    setSelectedRating(0);
+    setComment('');
+    setSubmitSuccess(false);
+    setIsEditing(false);
     setSubmitError('');
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (e) {
-      console.error('Google sign-in error:', e);
-      if (e.code === 'auth/popup-blocked') {
-        setSubmitError(isAr 
-          ? 'تم حظر النافذة المنبثقة من قبل المتصفح. يرجى السماح بالنوافذ المنبثقة لموقعنا للمتابعة.' 
-          : 'Popup blocked by browser. Please allow popups in your browser settings to continue.');
-      } else if (e.code === 'auth/cancelled-popup-request') {
-        setSubmitError(isAr
-          ? 'تم إلغاء طلب تسجيل الدخول بواسطة عملية أخرى.'
-          : 'Sign-in request was cancelled.');
-      } else if (e.code === 'auth/popup-closed-by-user') {
-        setSubmitError(isAr
-          ? 'تم إغلاق نافذة تسجيل الدخول قبل إتمام العملية.'
-          : 'Sign-in popup was closed before completion.');
-      } else {
-        setSubmitError(isAr
-          ? 'فشل تسجيل الدخول بـ Google. يرجى التحقق من إعدادات المتصفح وحاول مجدداً.'
-          : 'Google sign-in failed. Please check browser settings and try again.');
-      }
-    }
-  };
-
-  // ─── Sign Out / Clear Identity ───
-  const handleSignOut = async () => {
-    try {
-      if (googleUser) {
-        await signOut(auth);
-      }
-      localStorage.removeItem('orluxus_review_user');
-      setAnonUser(null);
-      setTypedName('');
-      setSelectedRating(0);
-      setComment('');
-      setSubmitSuccess(false);
-      setIsEditing(false);
-      setSubmitError('');
-    } catch (e) {
-      console.error('Sign-out error:', e);
-    }
   };
 
   // ─── Start editing existing review ───
@@ -146,9 +109,7 @@ export default function ServiceReviews({ serviceId, locale }) {
     if (userExistingReview) {
       setSelectedRating(userExistingReview.rating);
       setComment(userExistingReview.comment);
-      if (!googleUser && anonUser) {
-        setTypedName(anonUser.displayName);
-      }
+      if (anonUser) setTypedName(anonUser.displayName);
       setIsEditing(true);
       setSubmitSuccess(false);
       setSubmitError('');
@@ -160,40 +121,31 @@ export default function ServiceReviews({ serviceId, locale }) {
     e.preventDefault();
     setSubmitError('');
 
-    // Determine final name and unique ID
-    let finalName = '';
+    // Anonymous user typing name
+    const name = typedName.trim();
+    if (!name) {
+      setSubmitError(isAr ? 'الرجاء إدخال اسمك الكريم.' : 'Please enter your name.');
+      return;
+    }
+    if (name.length < 3) {
+      setSubmitError(isAr ? 'الاسم يجب أن يكون 3 أحرف على الأقل.' : 'Name must be at least 3 characters.');
+      return;
+    }
+
+    let finalName = name;
     let finalUid = '';
     let finalPhoto = '';
     let finalEmail = '';
 
-    if (googleUser) {
-      finalName = googleUser.displayName || 'Anonymous';
-      finalUid = googleUser.uid;
-      finalPhoto = googleUser.photoURL || '';
-      finalEmail = googleUser.email || '';
+    // If we already have a generated anonymous user ID, use it. Otherwise generate a new one.
+    if (anonUser && anonUser.displayName === name) {
+      finalUid = anonUser.uid;
     } else {
-      // Anonymous user typing name
-      const name = typedName.trim();
-      if (!name) {
-        setSubmitError(isAr ? 'الرجاء إدخال اسمك الكريم.' : 'Please enter your name.');
-        return;
-      }
-      if (name.length < 3) {
-        setSubmitError(isAr ? 'الاسم يجب أن يكون 3 أحرف على الأقل.' : 'Name must be at least 3 characters.');
-        return;
-      }
-
-      finalName = name;
-      // If we already have a generated anonymous user ID, use it. Otherwise generate a new one.
-      if (anonUser && anonUser.displayName === name) {
-        finalUid = anonUser.uid;
-      } else {
-        const randId = 'anon_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        finalUid = randId;
-        const newAnon = { uid: randId, displayName: name };
-        localStorage.setItem('orluxus_review_user', JSON.stringify(newAnon));
-        setAnonUser(newAnon);
-      }
+      const randId = 'anon_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      finalUid = randId;
+      const newAnon = { uid: randId, displayName: name };
+      localStorage.setItem('orluxus_review_user', JSON.stringify(newAnon));
+      setAnonUser(newAnon);
     }
 
     if (!selectedRating) {
@@ -303,21 +255,14 @@ export default function ServiceReviews({ serviceId, locale }) {
           )}
         </h4>
 
-        {/* Identity Indicator / Log Out */}
-        {!authLoading && activeUser && (
+      {/* ── Identity Indicator / Change Name ── */}
+        {anonUser && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {googleUser && googleUser.photoURL && (
-              <img
-                src={googleUser.photoURL}
-                alt={googleUser.displayName}
-                width={28}
-                height={28}
-                style={{ borderRadius: '50%', border: '1px solid var(--gold-400)' }}
-                referrerPolicy="no-referrer"
-              />
-            )}
+            <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'var(--gold-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: '700', fontSize: '0.85rem', flexShrink: 0 }}>
+              {anonUser.displayName[0].toUpperCase()}
+            </div>
             <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {activeUser.displayName} {googleUser && '✓'}
+              {anonUser.displayName}
             </span>
             <button
               onClick={handleSignOut}
@@ -337,11 +282,49 @@ export default function ServiceReviews({ serviceId, locale }) {
         )}
       </div>
 
-      {/* ── Google Sign-in error (when not logged in) ── */}
-      {!activeUser && submitError && (
-        <div style={{ background: 'rgba(220, 38, 38, 0.08)', border: '1px solid rgba(220, 38, 38, 0.3)', borderRadius: '10px', padding: '0.9rem 1.2rem', marginBottom: '1.5rem', color: '#991b1b', fontSize: '0.88rem', fontWeight: '600' }}>
-          ⚠️ {submitError}
-        </div>
+      {/* ── Google Business Review Banner ── */}
+      {googleReviewUrl && (
+        <a
+          href={googleReviewUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            background: 'linear-gradient(135deg, rgba(66,133,244,0.08), rgba(52,168,83,0.06))',
+            border: '1px solid rgba(66,133,244,0.25)',
+            borderRadius: '12px',
+            padding: '1rem 1.25rem',
+            marginBottom: '1.5rem',
+            textDecoration: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(66,133,244,0.5)'}
+          onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(66,133,244,0.25)'}
+        >
+          {/* Google Logo */}
+          <svg width="28" height="28" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: '800', fontSize: '0.92rem', color: 'var(--text-primary)', marginBottom: '2px' }}>
+              {isAr ? '⭐ قيّمنا على Google' : '⭐ Review us on Google'}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+              {isAr
+                ? 'سيتم توجيهك لصفحة Google لكتابة تقييمك بحسابك الشخصي'
+                : 'You will be redirected to Google to write a review with your account'}
+            </div>
+          </div>
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--text-tertiary)', flexShrink: 0 }}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
       )}
 
       {/* ── Review Form (only if no review yet OR editing) ── */}
@@ -362,11 +345,10 @@ export default function ServiceReviews({ serviceId, locale }) {
               : (isAr ? '✍️ أضف تقييمك' : '✍️ Add your review')}
           </p>
 
-          {/* Name Input Field (only show if NOT logged in or editing custom name) */}
-          {!googleUser && (
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-                👤 {isAr ? 'الاسم الكريم:' : 'Your Name:'}
+          {/* Name Input Field */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+              👤 {isAr ? 'الاسم الكريم:' : 'Your Name:'}
               </label>
               <input
                 type="text"
@@ -387,11 +369,10 @@ export default function ServiceReviews({ serviceId, locale }) {
                   fontFamily: 'inherit',
                   transition: 'border-color 0.2s ease',
                 }}
-                onFocus={e => e.target.style.borderColor = 'var(--gold-400)'}
+                 onFocus={e => e.target.style.borderColor = 'var(--gold-400)'}
                 onBlur={e => e.target.style.borderColor = 'var(--border-medium)'}
               />
             </div>
-          )}
 
           {/* Star selector */}
           <label style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>
@@ -447,16 +428,16 @@ export default function ServiceReviews({ serviceId, locale }) {
               
               <button
                 type="submit"
-                disabled={submitting || !selectedRating || comment.trim().length < 5 || (!googleUser && !typedName.trim())}
+                disabled={submitting || !selectedRating || comment.trim().length < 5 || !typedName.trim()}
                 style={{
-                  background: selectedRating && comment.trim().length >= 5 && (googleUser || typedName.trim()) ? 'var(--gold-500)' : 'var(--border-medium)',
-                  color: selectedRating && comment.trim().length >= 5 && (googleUser || typedName.trim()) ? '#000' : 'var(--text-tertiary)',
+                  background: selectedRating && comment.trim().length >= 5 && typedName.trim() ? 'var(--gold-500)' : 'var(--border-medium)',
+                  color: selectedRating && comment.trim().length >= 5 && typedName.trim() ? '#000' : 'var(--text-tertiary)',
                   border: 'none',
                   borderRadius: '8px',
                   padding: '8px 20px',
                   fontSize: '0.85rem',
                   fontWeight: '700',
-                  cursor: selectedRating && comment.trim().length >= 5 && (googleUser || typedName.trim()) ? 'pointer' : 'not-allowed',
+                  cursor: selectedRating && comment.trim().length >= 5 && typedName.trim() ? 'pointer' : 'not-allowed',
                   transition: 'all 0.2s ease',
                   opacity: submitting ? 0.6 : 1,
                 }}
@@ -467,31 +448,6 @@ export default function ServiceReviews({ serviceId, locale }) {
               </button>
             </div>
           </div>
-
-          {/* Optional Google link for verified badge */}
-          {!googleUser && (
-            <div style={{ marginTop: '0.8rem', borderTop: '1px dashed var(--border-subtle)', paddingTop: '0.6rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)' }}>
-                {isAr ? 'تريد وضع شارة موثق بجانب اسمك؟' : 'Want a verified badge next to your name?'}
-              </span>
-              <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--gold-500)',
-                  cursor: 'pointer',
-                  fontSize: '0.75rem',
-                  fontWeight: '700',
-                  textDecoration: 'underline',
-                  padding: 0,
-                }}
-              >
-                {isAr ? 'تسجيل بـ Google' : 'Sign in with Google'}
-              </button>
-            </div>
-          )}
         </form>
       )}
 

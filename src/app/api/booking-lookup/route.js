@@ -19,10 +19,23 @@ export async function GET(request) {
 
     const bookings = await getBookings();
 
-    // Match by txId (case-insensitive partial or full match)
+    // Match by exact reference (txId or id) or clean suffix match (preventing generic prefix matches)
     const found = bookings.find(b => {
-      const txId = (b.txId || b.id || '').toUpperCase();
-      return txId === ref || txId.includes(ref) || ref.includes(txId.slice(0, 8));
+      const txId = (b.txId || '').toUpperCase();
+      const id = (b.id || '').toUpperCase();
+      
+      if (txId === ref || id === ref) return true;
+      if (txId && ref.includes(txId)) return true;
+      if (id && ref.includes(id)) return true;
+
+      // Clean up common prefixes to prevent matching empty prefixes
+      const cleanRef = ref.replace(/^(CASH-TX-|PP-TX-|BANK-TX-|DAFAH-TX-|BK-)/, '').trim();
+      const cleanTxId = txId.replace(/^(CASH-TX-|PP-TX-|BANK-TX-|DAFAH-TX-|BK-)/, '').trim();
+      const cleanId = id.replace(/^(CASH-TX-|PP-TX-|BANK-TX-|DAFAH-TX-|BK-)/, '').trim();
+
+      if (!cleanRef || cleanRef.length < 4) return false;
+
+      return cleanTxId === cleanRef || cleanId === cleanRef || cleanTxId.includes(cleanRef) || cleanRef.includes(cleanTxId);
     });
 
     if (!found) {

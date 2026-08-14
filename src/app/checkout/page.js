@@ -414,6 +414,7 @@ function CheckoutContent() {
           discountAmount: discountAmount,
           finalAmount: totalAmount,
           travelers: travelers,
+          date: bookingDate,
           status: 'مؤكد',
           promoCode: promoDetails ? promoDetails.code : '',
           paymentType: walletName,
@@ -442,11 +443,14 @@ function CheckoutContent() {
           promoCode: promoDetails?.code || '',
           agentName: promoDetails?.agentName || translate('directAgent'),
           children, infants, specialRequests,
-          electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
+          electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ',
+          adultPrice: additionalPersonPrice || basePrice,
+          childPrice: childPrice,
+          infantPrice: infantPrice
         });
         
         setIsSimulatingPayment(false);
-        const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)')}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=${walletName}&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
+        const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)')}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=${walletName}&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
         router.push(successUrl);
       } catch (err) {
         console.error(`Error saving booking on ${walletName} payment:`, err);
@@ -476,6 +480,7 @@ function CheckoutContent() {
           discountAmount: discountAmount,
           finalAmount: totalAmount,
           travelers: travelers,
+          date: bookingDate,
           status: 'قيد الانتظار', // bank transfer starts as pending confirmation
           promoCode: promoDetails ? promoDetails.code : '',
           paymentType: 'bank_transfer',
@@ -504,7 +509,10 @@ function CheckoutContent() {
           promoCode: promoDetails?.code || '',
           agentName: promoDetails?.agentName || translate('directAgent'),
           children, infants, specialRequests,
-          electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
+          electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ',
+          adultPrice: additionalPersonPrice || basePrice,
+          childPrice: childPrice,
+          infantPrice: infantPrice
         });
 
         setIsSimulatingPayment(false);
@@ -536,6 +544,7 @@ function CheckoutContent() {
         discountAmount: discountAmount,
         finalAmount: totalAmount,
         travelers: travelers,
+        date: bookingDate,
         status: 'قيد الانتظار', // Cash payment starts as pending until confirmed on arrival
         promoCode: promoDetails ? promoDetails.code : '',
         paymentType: 'cash',
@@ -544,6 +553,9 @@ function CheckoutContent() {
         extras: getSelectedExtrasString(),
         children: children,
         infants: infants,
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice,
         specialRequests: specialRequests,
         customerLanguage: customerLanguage,
         electronicSignature: electronicSignature,
@@ -561,7 +573,10 @@ function CheckoutContent() {
         promoCode: promoDetails?.code || '',
         agentName: promoDetails?.agentName || translate('directAgent'),
         children, infants, specialRequests,
-        electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
+        electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ',
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice
       });
     } catch (err) {
       console.error('Error saving booking on cash payment:', err);
@@ -636,6 +651,7 @@ function CheckoutContent() {
               discountAmount: discountAmount,
               finalAmount: totalAmount,
               travelers: travelers,
+              date: bookingDate,
               status: 'مؤكد',
               promoCode: promoDetails ? promoDetails.code : '',
               paymentType: 'paypal',
@@ -664,7 +680,10 @@ function CheckoutContent() {
               promoCode: promoDetails?.code || '',
               agentName: promoDetails?.agentName || translate('directAgent'),
               children, infants, specialRequests,
-              electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ'
+              electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ',
+              adultPrice: additionalPersonPrice || basePrice,
+              childPrice: childPrice,
+              infantPrice: infantPrice
             });
           } catch (err) {
             console.error('Error saving booking on PayPal approval:', err);

@@ -47,7 +47,7 @@ function buildInvoiceHTML(data) {
     serviceName, originalAmount, discountAmount, finalAmount,
     paymentType, txId, extras, pickupLocation, promoCode,
     agentName, children, infants, specialRequests,
-    bookingDateTime
+    bookingDateTime, adultPrice, childPrice, infantPrice
   } = data;
 
   const isBank = paymentType === 'bank_transfer';
@@ -56,6 +56,45 @@ function buildInvoiceHTML(data) {
   const paymentColor = (isBank || isOnsite) ? '#b45309' : '#10b981';
 
   const invoiceNo = txId.replace('pp-tx-', '').replace('cash-tx-', '').replace('dafah-tx-', '').replace('bank-tx-', '').replace('apple_pay-tx-', '').replace('google_pay-tx-', '').slice(0, 8).toUpperCase();
+
+  const adultPriceVal = Number(adultPrice) || (originalAmount - (Number(childPrice || 0) * Number(children || 0)) - (Number(infantPrice || 0) * Number(infants || 0))) / travelers || 0;
+  const childPriceVal = Number(childPrice) || 0;
+  const infantPriceVal = Number(infantPrice) || 0;
+
+  const adultTotal = travelers * adultPriceVal;
+  const childTotal = (children || 0) * childPriceVal;
+  const infantTotal = (infants || 0) * infantPriceVal;
+
+  let serviceRowsHTML = `
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:16px;font-weight:600;color:#1e293b;">${serviceName} (Adults)</td>
+      <td style="padding:16px;text-align:center;color:#475569;">${travelers}</td>
+      <td style="padding:16px;text-align:right;color:#475569;">€${adultPriceVal.toFixed(2)}</td>
+      <td style="padding:16px;text-align:right;font-weight:700;color:#1e293b;">€${adultTotal.toFixed(2)}</td>
+    </tr>
+  `;
+
+  if (children > 0) {
+    serviceRowsHTML += `
+      <tr style="border-bottom:1px solid #f1f5f9;background:#f8f9fa;">
+        <td style="padding:16px;font-weight:600;color:#1e293b;">Children Ticket (2-12 years)</td>
+        <td style="padding:16px;text-align:center;color:#475569;">${children}</td>
+        <td style="padding:16px;text-align:right;color:#475569;">€${childPriceVal.toFixed(2)}</td>
+        <td style="padding:16px;text-align:right;font-weight:700;color:#1e293b;">€${childTotal.toFixed(2)}</td>
+      </tr>
+    `;
+  }
+
+  if (infants > 0) {
+    serviceRowsHTML += `
+      <tr style="border-bottom:1px solid #f1f5f9;background:#f8f9fa;">
+        <td style="padding:16px;font-weight:600;color:#1e293b;">Infants Ticket (under 2 years)</td>
+        <td style="padding:16px;text-align:center;color:#475569;">${infants}</td>
+        <td style="padding:16px;text-align:right;color:#475569;">€${infantPriceVal.toFixed(2)}</td>
+        <td style="padding:16px;text-align:right;font-weight:700;color:#1e293b;">€${infantTotal.toFixed(2)}</td>
+      </tr>
+    `;
+  }
 
   return `
 <!DOCTYPE html>
@@ -136,12 +175,7 @@ function buildInvoiceHTML(data) {
           </tr>
         </thead>
         <tbody>
-          <tr style="border-bottom:1px solid #f1f5f9;">
-            <td style="padding:16px;font-weight:600;color:#1e293b;">${serviceName}</td>
-            <td style="padding:16px;text-align:center;color:#475569;">${travelers}</td>
-            <td style="padding:16px;text-align:right;color:#475569;">€${(originalAmount / travelers).toFixed(2)}</td>
-            <td style="padding:16px;text-align:right;font-weight:700;color:#1e293b;">€${originalAmount.toFixed(2)}</td>
-          </tr>
+          ${serviceRowsHTML}
           ${extras ? `
           <tr style="border-bottom:1px solid #f1f5f9;background:#fafafa;">
             <td style="padding:12px 16px;color:#64748b;font-size:0.9rem;" colspan="3">🎁 Add-ons: ${extras}</td>
@@ -278,7 +312,8 @@ export async function POST(request) {
       serviceName, originalAmount, discountAmount, finalAmount,
       paymentType, txId, extras, pickupLocation, promoCode,
       agentName, children = 0, infants = 0, specialRequests,
-      electronicSignature, signatureTimestamp, city
+      electronicSignature, signatureTimestamp, city,
+      adultPrice, childPrice, infantPrice
     } = body;
 
     // Validate required fields
@@ -305,7 +340,8 @@ export async function POST(request) {
       customerName, email, phone, whatsapp, date, travelers,
       serviceName, originalAmount, discountAmount, finalAmount,
       paymentType, txId, extras, pickupLocation, promoCode,
-      agentName, children, infants, specialRequests, bookingDateTime
+      agentName, children, infants, specialRequests, bookingDateTime,
+      adultPrice, childPrice, infantPrice
     };
 
     const htmlContent = buildInvoiceHTML(invoiceData);

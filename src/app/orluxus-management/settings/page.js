@@ -58,6 +58,7 @@ export default function AdminSettings() {
   const [facebook, setFacebook] = useState('https://facebook.com/orluxus');
   const [tiktok, setTiktok] = useState('https://www.tiktok.com/@orluxus?_r=1&_t=ZS-979ayAlnRlV');
   const [instagram, setInstagram] = useState('https://www.instagram.com/orluxus?igsh=N2lmbmg2eGJzNmVx');
+  const [googleReviewUrl, setGoogleReviewUrl] = useState('');
 
   // Policy & Content States (Bilingual)
   const [vision, setVision] = useState('Our vision is to provide the highest levels of luxury tourism in Egypt with a warm family spirit, making every journey an unforgettable story.');
@@ -122,6 +123,7 @@ export default function AdminSettings() {
           if (data.facebook) setFacebook(data.facebook);
           if (data.tiktok) setTiktok(data.tiktok);
           if (data.instagram) setInstagram(data.instagram);
+          if (data.googleReviewUrl !== undefined) setGoogleReviewUrl(data.googleReviewUrl || '');
 
            if (data.vision) setVision(data.vision);
           if (data.visionEn) setVisionEn(data.visionEn);
@@ -201,7 +203,8 @@ export default function AdminSettings() {
             email,
             facebook,
             tiktok,
-            instagram
+            instagram,
+            googleReviewUrl
           }
         })
       });
@@ -825,7 +828,42 @@ export default function AdminSettings() {
                 }} 
               />
             </div>
-            
+
+            {/* Google Business Review Link */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>⭐ Google Business Review Link</label>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginBottom: '0.5rem', lineHeight: 1.5 }}>
+                Paste your Google Business review URL here. Clients will be redirected directly to leave a Google review.
+                To get your link: <strong style={{ color: 'var(--gold-400)' }}>Google Maps → Your Business Profile → Get more reviews → Copy link</strong>
+              </p>
+              <input
+                type="url"
+                value={googleReviewUrl}
+                onChange={(e) => setGoogleReviewUrl(e.target.value)}
+                placeholder="https://g.page/r/XXXX/review"
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  background: 'rgba(255,255,255,0.04)',
+                  color: 'white',
+                  border: '1px solid var(--border-medium)',
+                  borderRadius: '6px',
+                  outline: 'none',
+                  direction: 'ltr'
+                }}
+              />
+              {googleReviewUrl && (
+                <a
+                  href={googleReviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: 'inline-block', marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--gold-400)', textDecoration: 'underline' }}
+                >
+                  ↗ Test link
+                </a>
+              )}
+            </div>
+
             <button onClick={handleSaveSocialMedia} className="btn btn-primary" style={{ marginTop: '1rem', width: '100%', padding: '0.8rem', background: 'linear-gradient(135deg, #c084fc, #7c3aed)' }}>
               💾 Save Social Media
             </button>
