@@ -617,13 +617,15 @@ export default function CategoryPage({ params }) {
                 </div>
 
                 {/* Description */}
-                {(richDesc || mdTrip.tripDescriptionEn || mdTrip.tripDescription || mdTrip.tripDescriptionAr) && (
+                {(mdTrip.tripDescriptionEn || mdTrip.tripDescription || mdTrip.tripDescriptionAr || mdTrip.economyDesc || modalDesc) && (
                   <div style={{ marginBottom: '1.75rem', padding: '1.25rem', background: 'rgba(255,255,255,0.025)', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
                     <h4 style={{ color: 'var(--gold-400)', fontSize: '0.82rem', fontWeight: '800', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 0.75rem' }}>
                       📋 {lbl('tripDetails')}
                     </h4>
                     <div style={{ color: 'var(--text-secondary)', lineHeight: '1.85', fontSize: '0.95rem', textAlign: isAr ? 'right' : 'left' }}>
-                      {richDesc ? richDesc : <span style={{ whiteSpace: 'pre-wrap' }}>{modalDesc || (mdTrip.tripDescriptionEn || mdTrip.tripDescription || mdTrip.tripDescriptionAr || '')}</span>}
+                      <span style={{ whiteSpace: 'pre-wrap' }}>
+                        {modalDesc || (mdTrip.tripDescriptionEn || mdTrip.tripDescription || mdTrip.tripDescriptionAr || '')}
+                      </span>
                     </div>
                   </div>
                 )}
