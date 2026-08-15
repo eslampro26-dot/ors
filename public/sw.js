@@ -1,17 +1,21 @@
-
-const CACHE_NAME = 'orluxus-v1';
-const OFFLINE_URL = '/offline.html';
+// Service Worker for ORLUXUS PWA
+const CACHE_NAME = 'orluxus-v2';
 
 const PRECACHE_URLS = [
   '/',
   '/manifest.json',
+  '/favicon-32x32.png',
+  '/favicon-16x16.png',
+  '/logo_gold_full.png'
 ];
 
-// Install event - precache essential resources
+// Install event - precache static branding assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_URLS);
+      return cache.addAll(PRECACHE_URLS).catch((err) => {
+        console.warn('SW: Precache error ignored:', err);
+      });
     })
   );
   self.skipWaiting();
@@ -31,40 +35,42 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - network first, fallback to cache
+// Fetch event - network first with safe pass-through
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
+  const url = new URL(event.request.url);
+
   // Skip external requests
-  if (!event.request.url.startsWith(self.location.origin)) return;
+  if (url.origin !== self.location.origin) return;
 
-  // Skip API calls and admin routes
-  if (event.request.url.includes('/api/') || event.request.url.includes('/orluxus-management') || event.request.url.includes('/agent')) return;
+  // CRITICAL: Skip Next.js RSC (Server Component payloads), Next data, API calls, and Admin routes
+  if (
+    url.searchParams.has('_rsc') ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/_next/') ||
+    url.pathname.startsWith('/orluxus-management') ||
+    url.pathname.startsWith('/agent') ||
+    url.pathname.includes('firestore') ||
+    url.pathname.includes('googleapis')
+  ) {
+    return; // Let browser handle natively without SW interception
+  }
 
+  // Handle static navigations with safe network-first fallback
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone the response and cache it
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
-        }
         return response;
       })
-      .catch(() => {
-        // Network failed, try cache
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          // If it's a navigation request, show offline page
-          if (event.request.mode === 'navigate') {
-            return caches.match(OFFLINE_URL);
-          }
-          return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+        return new Response('Network unavailable', {
+          status: 503,
+          statusText: 'Service Unavailable',
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
         });
       })
   );

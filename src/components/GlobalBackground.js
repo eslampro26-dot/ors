@@ -73,7 +73,7 @@ export default function GlobalBackground() {
       {/* Native Browser Preloader - zero garbage collection, zero NS_BINDING_ABORTED */}
       <div style={{ display: 'none', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
         {BG_IMAGES.map((src, i) => (
-          <img key={i} src={src} alt="preload" crossOrigin="anonymous" loading="eager" />
+          <img key={i} src={src} alt="preload" loading="eager" />
         ))}
       </div>
 
