@@ -802,7 +802,7 @@ export default function AdminServices() {
           <h2>Services & Trips Management</h2>
           <p className={styles.subtitle}>Control all trips and tour packages available on the platform.</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.8rem' }}>
+        <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
           <button 
             className="btn btn-primary" 
             onClick={() => {
@@ -812,6 +812,28 @@ export default function AdminServices() {
             }}
           >
             <span>➕</span> Add New Trip
+          </button>
+          <button
+            onClick={handleTranslateAllTrips}
+            disabled={isTranslating}
+            style={{
+              background: isTranslating ? 'rgba(16,185,129,0.15)' : 'linear-gradient(135deg,#059669,#10b981)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '0.6rem 1.1rem',
+              fontWeight: '700',
+              fontSize: '0.88rem',
+              cursor: isTranslating ? 'not-allowed' : 'pointer',
+              opacity: isTranslating ? 0.7 : 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 8px rgba(16,185,129,0.25)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {isTranslating ? '⏳ جاري الترجمة...' : '🌐 ترجمة كل الرحلات (10 لغات)'}
           </button>
           <button 
             className="btn btn-ocean" 
