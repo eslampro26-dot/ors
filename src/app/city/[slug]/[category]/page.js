@@ -12,76 +12,6 @@ import TranslatedText from '@/components/TranslatedText';
 import TranslatedTextWithFallback from '@/components/TranslatedTextWithFallback';
 import ServiceReviews from '@/components/ServiceReviews';
 
-function simpleHash(str) {
-  if (!str) return '0';
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash |= 0;
-  }
-  return Math.abs(hash).toString(36);
-}
-
-// Final, definitive description translation component
-// Mirrors the exact working pattern of TranslatedTextWithFallback
-function TranslatedDescWithFallback({ trip, locale }) {
-  const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
-  const sourceText = trip?.tripDescriptionEn || trip?.tripDescription || trip?.tripDescriptionAr || '';
-  const fallbackText = sourceText;
-
-  const [text, setText] = useState(fallbackText);
-
-  useEffect(() => {
-    if (!trip || !sourceText) return;
-
-    // 1. Check Firestore-stored translation first
-    const storedInFirestore = trip[`tripDescription${capLocale}`];
-    if (storedInFirestore && storedInFirestore.trim().length > 0) {
-      setText(storedInFirestore);
-      return;
-    }
-
-    // 2. English: show source directly
-    if (locale === 'en') {
-      setText(sourceText);
-      return;
-    }
-
-    // 3. Check localStorage cache
-    const cacheKey = `orluxus_desc_${trip.id || 'x'}_${locale}_${simpleHash(sourceText)}`;
-    try {
-      const cached = localStorage.getItem(cacheKey);
-      if (cached && cached.trim().length > 0) {
-        setText(cached);
-        return;
-      }
-    } catch (e) {}
-
-    // 4. Fetch live translation from API
-    let isMounted = true;
-    fetch('/api/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: sourceText, to: locale })
-    })
-      .then(res => res.ok ? res.json() : {})
-      .then(data => {
-        if (!isMounted) return;
-        if (data?.translatedText && data.translatedText.trim().length > 0) {
-          setText(data.translatedText);
-          try { localStorage.setItem(cacheKey, data.translatedText); } catch (e) {}
-        } else {
-          setText(sourceText);
-        }
-      })
-      .catch(() => { if (isMounted) setText(sourceText); });
-
-    return () => { isMounted = false; };
-  }, [trip, locale]);
-
-  return <span style={{ whiteSpace: 'pre-wrap' }}>{text || fallbackText}</span>;
-}
 
 export default function CategoryPage({ params }) {
   const resolvedParams = use(params);
@@ -98,12 +28,11 @@ export default function CategoryPage({ params }) {
   const [modalConfig, setModalConfig] = useState({ isOpen: false, trip: null, tier: null, images: [], videos: [] });
   const [activeVideoUrl, setActiveVideoUrl] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  // Per-card image carousel index: { [tripId]: number }
   const [cardImageIndexes, setCardImageIndexes] = useState({});
-  
-  // State to track selected tier id for each trip
-  // Format: { [tripId]: 'economy' | 'business' | 'vip' }
   const [selectedTiers, setSelectedTiers] = useState({});
+  // Modal description translation state - lives here to avoid object reference issues in child components
+  const [modalDesc, setModalDesc] = useState('');
+  const [modalTitle, setModalTitle] = useState('');
   
   useEffect(() => {
     const loadTrips = async () => {
@@ -161,6 +90,81 @@ export default function CategoryPage({ params }) {
       setCurrentImageIndex(0);
     }
   }, [modalConfig.isOpen]);
+
+  // Translate modal description and title whenever modal opens or locale changes
+  // Uses stable primitive dependencies (trip.id + locale) to avoid object reference bugs
+  useEffect(() => {
+    const trip = modalConfig.trip;
+    if (!modalConfig.isOpen || !trip) {
+      setModalDesc('');
+      setModalTitle('');
+      return;
+    }
+
+    const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
+    const descSource = trip.tripDescriptionEn || trip.tripDescription || trip.tripDescriptionAr || '';
+    const titleSource = trip.titleEn || trip.titleAr || '';
+
+    // --- TITLE ---
+    const storedTitle = trip[`title${capLocale}`];
+    if (storedTitle && storedTitle.trim()) {
+      setModalTitle(storedTitle);
+    } else if (locale === 'en' || !titleSource) {
+      setModalTitle(titleSource);
+    } else {
+      const titleCacheKey = `orluxus_title_${trip.id}_${locale}`;
+      try {
+        const cached = localStorage.getItem(titleCacheKey);
+        if (cached) { setModalTitle(cached); }
+        else { setModalTitle(titleSource); } // show English while loading
+      } catch (e) { setModalTitle(titleSource); }
+      fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: titleSource, to: locale })
+      }).then(r => r.ok ? r.json() : {}).then(data => {
+        if (data?.translatedText) {
+          setModalTitle(data.translatedText);
+          try { localStorage.setItem(`orluxus_title_${trip.id}_${locale}`, data.translatedText); } catch(e){}
+        }
+      }).catch(() => {});
+    }
+
+    // --- DESCRIPTION ---
+    if (!descSource) { setModalDesc(''); return; }
+    const storedDesc = trip[`tripDescription${capLocale}`];
+    if (storedDesc && storedDesc.trim()) {
+      setModalDesc(storedDesc);
+      return;
+    }
+    if (locale === 'en') {
+      setModalDesc(descSource);
+      return;
+    }
+    const descCacheKey = `orluxus_desc_${trip.id}_${locale}`;
+    try {
+      const cached = localStorage.getItem(descCacheKey);
+      if (cached && cached.trim()) {
+        setModalDesc(cached);
+        return;
+      }
+    } catch (e) {}
+    // Show English while fetching translation
+    setModalDesc(descSource);
+    fetch('/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: descSource, to: locale })
+    })
+      .then(r => r.ok ? r.json() : {})
+      .then(data => {
+        if (data?.translatedText && data.translatedText.trim()) {
+          setModalDesc(data.translatedText);
+          try { localStorage.setItem(descCacheKey, data.translatedText); } catch (e) {}
+        }
+      })
+      .catch(() => {});
+  }, [modalConfig.isOpen, modalConfig.trip?.id, locale]);
 
   const locCity = getLocalizedCity(city, locale);
   const localizedCategoryName = getCategoryName(category, locale);
@@ -602,7 +606,7 @@ export default function CategoryPage({ params }) {
                   {mdTiers.length > 1 && tierLabel && (
                     <span style={{ background: 'rgba(201,162,39,0.12)', color: 'var(--gold-400)', padding: '3px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700', display: 'inline-block', marginBottom: '0.6rem', border: '1px solid rgba(201,162,39,0.3)' }}>{tierLabel}</span>
                   )}
-                  <h2 style={{ fontSize: 'clamp(1.4rem, 4vw, 2rem)', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 0.75rem', lineHeight: 1.25 }}><TranslatedTextWithFallback trip={mdTrip} locale={locale} /></h2>
+                  <h2 style={{ fontSize: 'clamp(1.4rem, 4vw, 2rem)', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 0.75rem', lineHeight: 1.25 }}>{modalTitle || tripTitle}</h2>
                   <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                     <span>⏱️ {translateDuration(mdTrip, locale)}</span>
                     <span>⭐ {mdTrip.rating || '5.0'} ({mdTrip.reviews || '1'} {lbl('reviews')})</span>
@@ -619,7 +623,7 @@ export default function CategoryPage({ params }) {
                       📋 {lbl('tripDetails')}
                     </h4>
                     <div style={{ color: 'var(--text-secondary)', lineHeight: '1.85', fontSize: '0.95rem', textAlign: isAr ? 'right' : 'left' }}>
-                      {richDesc ? richDesc : <TranslatedDescWithFallback trip={mdTrip} locale={locale} />}
+                      {richDesc ? richDesc : <span style={{ whiteSpace: 'pre-wrap' }}>{modalDesc || (mdTrip.tripDescriptionEn || mdTrip.tripDescription || mdTrip.tripDescriptionAr || '')}</span>}
                     </div>
                   </div>
                 )}
