@@ -477,6 +477,8 @@ export default function CategoryPage({ params }) {
         const allImages = modalConfig.images;
         const allVideos = modalConfig.videos;
         const mdTiers = getTripTiers(mdTrip, locale);
+        const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
+        const tripTitle = mdTrip[`title${capLocale}`] || mdTrip.titleEn || mdTrip.titleAr || '';
         const tierLabel = mdTier ? (mdTier.names?.[locale] || mdTier.names?.en || '') : '';
         const richDesc = mdTier?.richDesc || '';
 
