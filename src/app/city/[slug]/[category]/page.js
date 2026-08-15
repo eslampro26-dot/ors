@@ -408,12 +408,13 @@ export default function CategoryPage({ params }) {
         const allImages = modalConfig.images;
         const allVideos = modalConfig.videos;
         const mdTiers = getTripTiers(mdTrip, locale);
-        const tripTitle = isAr ? (mdTrip.titleAr || mdTrip.titleEn) : (mdTrip.titleEn || mdTrip.titleAr);
-        const tierLabel = mdTier ? (isAr ? mdTier.names?.ar : mdTier.names?.en) : '';
+        // Get localized title for all 10 languages
+        const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
+        const tripTitle = mdTrip[`title${capLocale}`] || mdTrip.titleEn || mdTrip.titleAr || '';
+        const tierLabel = mdTier ? (mdTier.names?.[locale] || mdTier.names?.en || '') : '';
         const richDesc = mdTier?.richDesc || '';
-        const locKey = locale?.toLowerCase();
-        const tripDesc = mdTrip[`tripDescription${locale?.charAt(0)?.toUpperCase() + locale?.slice(1)}`]
-          || mdTrip[`tripDescription${locKey}`]
+        // Get localized description for all 10 languages
+        const tripDesc = mdTrip[`tripDescription${capLocale}`]
           || mdTrip.tripDescriptionEn
           || mdTrip.tripDescriptionAr
           || mdTrip.tripDescription
