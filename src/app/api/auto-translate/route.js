@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-// Supported languages mapping
 const LANGUAGES = {
   ar: 'ar',
   en: 'en',
@@ -24,12 +23,16 @@ async function fetchTranslation(text, fromCode, toCode, timeoutMs = 8000) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${fromCode}&tl=${toCode}&dt=t&q=${encodeURIComponent(text)}`;
+    // Use POST with application/x-www-form-urlencoded to support long texts without URL limits
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${fromCode}&tl=${toCode}&dt=t`;
     
     const res = await fetch(url, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       },
+      body: `q=${encodeURIComponent(text)}`,
       signal: controller.signal
     });
 
@@ -55,7 +58,7 @@ async function fetchTranslation(text, fromCode, toCode, timeoutMs = 8000) {
     return text;
   } catch (err) {
     console.error(`Translation error for ${toCode}:`, err);
-    return text; // Fallback to original text on error/timeout
+    return text;
   }
 }
 
@@ -68,11 +71,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Missing required fields: text, sourceLang' }, { status: 400 });
     }
 
-    // Default target languages if not specified (all except source)
     const targets = targetLangs || Object.keys(LANGUAGES).filter(lang => lang !== sourceLang);
     const sourceCode = LANGUAGES[sourceLang] || sourceLang;
 
-    // Run translations with short stagger delays to avoid concurrent rate limiting
     const translations = {};
     
     for (let i = 0; i < targets.length; i++) {
@@ -85,7 +86,7 @@ export async function POST(request) {
       }
 
       if (i > 0) {
-        await delay(120); // 120ms staggered delay
+        await delay(120);
       }
 
       const translatedText = await fetchTranslation(text, sourceCode, targetCode, 8000);

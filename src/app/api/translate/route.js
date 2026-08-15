@@ -17,12 +17,16 @@ export async function POST(request) {
       return NextResponse.json({ translatedText: text });
     }
 
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${target}&dt=t&q=${encodeURIComponent(text)}`;
+    // Use POST with application/x-www-form-urlencoded to support long texts without URL limits
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${target}&dt=t`;
     
     const res = await fetch(url, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       },
+      body: `q=${encodeURIComponent(text)}`,
       next: { revalidate: 86400 }
     });
 

@@ -12,60 +12,75 @@ import TranslatedText from '@/components/TranslatedText';
 import TranslatedTextWithFallback from '@/components/TranslatedTextWithFallback';
 import ServiceReviews from '@/components/ServiceReviews';
 
-// Cached description translation component with instant state updates on render to avoid flashing
+function simpleHash(str) {
+  if (!str) return '0';
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0;
+  }
+  return Math.abs(hash).toString(36);
+}
+
+// Final, definitive description translation component
+// Mirrors the exact working pattern of TranslatedTextWithFallback
 function TranslatedDescWithFallback({ trip, locale }) {
   const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
-  const sourceText = trip.tripDescriptionEn || trip.tripDescription || trip.tripDescriptionAr || '';
-  
-  // Direct check first
-  const stored = trip[`tripDescription${capLocale}`];
-  
-  // Cache check
-  let cached = null;
-  if (typeof window !== 'undefined') {
-    cached = localStorage.getItem(`orluxus_desc_${trip.id}_${locale}`);
-  }
+  const sourceText = trip?.tripDescriptionEn || trip?.tripDescription || trip?.tripDescriptionAr || '';
+  const fallbackText = sourceText;
 
-  const initialText = stored || cached || (locale === 'en' ? sourceText : '');
-  const [text, setText] = useState(initialText || sourceText);
-
-  // Instantly sync state on render when props change to prevent flashing of old locale
-  const [prevKey, setPrevKey] = useState(`${trip.id}_${locale}`);
-  const currentKey = `${trip.id}_${locale}`;
-  if (currentKey !== prevKey) {
-    setPrevKey(currentKey);
-    setText(stored || cached || (locale === 'en' ? sourceText : '') || sourceText);
-  }
+  const [text, setText] = useState(fallbackText);
 
   useEffect(() => {
-    if (stored || (locale === 'en')) return;
-    
-    const cacheKey = `orluxus_desc_${trip.id}_${locale}`;
-    const localCached = localStorage.getItem(cacheKey);
-    if (localCached) {
-      setText(localCached);
+    if (!trip || !sourceText) return;
+
+    // 1. Check Firestore-stored translation first
+    const storedInFirestore = trip[`tripDescription${capLocale}`];
+    if (storedInFirestore && storedInFirestore.trim().length > 0) {
+      setText(storedInFirestore);
       return;
     }
 
-    let alive = true;
+    // 2. English: show source directly
+    if (locale === 'en') {
+      setText(sourceText);
+      return;
+    }
+
+    // 3. Check localStorage cache
+    const cacheKey = `orluxus_desc_${trip.id || 'x'}_${locale}_${simpleHash(sourceText)}`;
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached && cached.trim().length > 0) {
+        setText(cached);
+        return;
+      }
+    } catch (e) {}
+
+    // 4. Fetch live translation from API
+    let isMounted = true;
     fetch('/api/translate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: sourceText, to: locale })
     })
-      .then(r => r.ok ? r.json() : {})
+      .then(res => res.ok ? res.json() : {})
       .then(data => {
-        if (alive && data?.translatedText) {
+        if (!isMounted) return;
+        if (data?.translatedText && data.translatedText.trim().length > 0) {
           setText(data.translatedText);
-          localStorage.setItem(cacheKey, data.translatedText);
+          try { localStorage.setItem(cacheKey, data.translatedText); } catch (e) {}
+        } else {
+          setText(sourceText);
         }
       })
-      .catch(() => {});
-    return () => { alive = false; };
-  }, [trip.id, locale, sourceText, stored]);
+      .catch(() => { if (isMounted) setText(sourceText); });
 
-  if (!text) return null;
-  return <span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>;
+    return () => { isMounted = false; };
+  }, [trip, locale]);
+
+  return <span style={{ whiteSpace: 'pre-wrap' }}>{text || fallbackText}</span>;
 }
 
 export default function CategoryPage({ params }) {
@@ -470,6 +485,18 @@ export default function CategoryPage({ params }) {
         const tierLabel = mdTier ? (mdTier.names?.[locale] || mdTier.names?.en || '') : '';
         const richDesc = mdTier?.richDesc || '';
 
+        // Multi-language UI labels for the modal
+        const L = {
+          tripDetails:   { ar: 'تفاصيل الرحلة', de: 'Reisedetails', fr: 'Détails du voyage', es: 'Detalles del viaje', it: 'Dettagli del viaggio', ru: 'Детали поездки', tr: 'Tur Detayları', zh: '旅行详情', ja: '旅行の詳細', en: 'Trip Details' },
+          tripVideos:    { ar: 'فيديوهات الرحلة', de: 'Reisevideos', fr: 'Vidéos du voyage', es: 'Videos del viaje', it: 'Video del viaggio', ru: 'Видео поездки', tr: 'Tur Videoları', zh: '旅行视频', ja: '旅行動画', en: 'Trip Videos' },
+          reviews:       { ar: 'تقييم', de: 'Bewertungen', fr: 'avis', es: 'reseñas', it: 'recensioni', ru: 'отзывы', tr: 'yorum', zh: '评价', ja: 'レビュー', en: 'reviews' },
+          bookNow:       { ar: 'احجز الآن', de: 'Jetzt buchen', fr: 'Réserver maintenant', es: 'Reservar ahora', it: 'Prenota ora', ru: 'Забронировать', tr: 'Şimdi Rezervasyon', zh: '立即预订', ja: '今すぐ予約', en: 'Book Now' },
+          close:         { ar: 'إغلاق', de: 'Schließen', fr: 'Fermer', es: 'Cerrar', it: 'Chiudi', ru: 'Закрыть', tr: 'Kapat', zh: '关闭', ja: '閉じる', en: 'Close' },
+          viewMap:       { ar: 'الموقع على الخريطة', de: 'Auf Karte anzeigen', fr: 'Voir sur la carte', es: 'Ver en mapa', it: 'Vedi sulla mappa', ru: 'На карте', tr: 'Haritada gör', zh: '查看地图', ja: '地図を見る', en: 'View on Map' },
+          watchYT:       { ar: 'مشاهدة على يوتيوب', de: 'Auf YouTube ansehen', fr: 'Voir sur YouTube', es: 'Ver en YouTube', it: 'Guarda su YouTube', ru: 'На YouTube', tr: "YouTube'da izle", zh: '在YouTube上观看', ja: 'YouTubeで見る', en: 'Watch on YouTube' },
+        };
+        const lbl = (key) => L[key]?.[locale] || L[key]?.en || '';
+
         return (
           <div
             onClick={e => { if (e.target === e.currentTarget) setModalConfig(prev => ({ ...prev, isOpen: false })); }}
@@ -578,7 +605,7 @@ export default function CategoryPage({ params }) {
                   <h2 style={{ fontSize: 'clamp(1.4rem, 4vw, 2rem)', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 0.75rem', lineHeight: 1.25 }}><TranslatedTextWithFallback trip={mdTrip} locale={locale} /></h2>
                   <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                     <span>⏱️ {translateDuration(mdTrip, locale)}</span>
-                    <span>⭐ {mdTrip.rating || '5.0'} ({mdTrip.reviews || '1'} {isAr ? 'تقييم' : 'reviews'})</span>
+                    <span>⭐ {mdTrip.rating || '5.0'} ({mdTrip.reviews || '1'} {lbl('reviews')})</span>
                     <span style={{ fontFamily: 'var(--font-en)', fontWeight: '800', color: 'var(--gold-500)', fontSize: '1.15rem', direction: 'ltr' }}>
                       {mdTrip.currency || '€'}{mdTier?.price || mdTrip.price}
                     </span>
@@ -589,7 +616,7 @@ export default function CategoryPage({ params }) {
                 {(richDesc || mdTrip.tripDescriptionEn || mdTrip.tripDescription || mdTrip.tripDescriptionAr) && (
                   <div style={{ marginBottom: '1.75rem', padding: '1.25rem', background: 'rgba(255,255,255,0.025)', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
                     <h4 style={{ color: 'var(--gold-400)', fontSize: '0.82rem', fontWeight: '800', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 0.75rem' }}>
-                      📋 {isAr ? 'تفاصيل الرحلة' : 'Trip Details'}
+                      📋 {lbl('tripDetails')}
                     </h4>
                     <div style={{ color: 'var(--text-secondary)', lineHeight: '1.85', fontSize: '0.95rem', textAlign: isAr ? 'right' : 'left' }}>
                       {richDesc ? richDesc : <TranslatedDescWithFallback trip={mdTrip} locale={locale} />}
@@ -601,7 +628,7 @@ export default function CategoryPage({ params }) {
                 {allVideos.length > 0 && (
                   <div style={{ marginBottom: '1.75rem' }}>
                     <h4 style={{ color: 'var(--gold-400)', fontSize: '0.82rem', fontWeight: '800', marginBottom: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                      🎬 {isAr ? 'فيديوهات الرحلة' : 'Trip Videos'}
+                      🎬 {lbl('tripVideos')}
                     </h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       {allVideos.map((vUrl, vi) => {
@@ -646,7 +673,7 @@ export default function CategoryPage({ params }) {
                                 rel="noopener noreferrer"
                                 style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.3rem', alignSelf: 'flex-end' }}
                               >
-                                ↗️ {isAr ? 'مشاهدة الفيديو على يوتيوب مباشرة' : 'Watch directly on YouTube'}
+                                ↗️ {lbl('watchYT')}
                               </a>
                             )}
                           </div>
@@ -659,7 +686,7 @@ export default function CategoryPage({ params }) {
                 {/* Location link */}
                 {mdTrip.locationUrl && (
                   <a href={mdTrip.locationUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                    📍 {isAr ? 'الموقع على الخريطة' : 'View on Map'}
+                    📍 {lbl('viewMap')}
                   </a>
                 )}
 
@@ -669,7 +696,7 @@ export default function CategoryPage({ params }) {
                   className="btn btn-primary"
                   style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.6rem', padding: '15px', fontSize: '1.05rem', fontWeight: '800', borderRadius: '12px', boxShadow: '0 4px 20px rgba(201,162,39,0.3)', textDecoration: 'none' }}
                 >
-                  🛒 {isAr ? 'احجز الآن' : 'Book Now'}
+                  🛒 {lbl('bookNow')}
                 </a>
 
                 {/* Verified Reviews Section */}
@@ -677,7 +704,7 @@ export default function CategoryPage({ params }) {
 
                 <div style={{ marginTop: '1rem', textAlign: 'center', paddingBottom: '2rem' }}>
                   <button onClick={() => setModalConfig(prev => ({ ...prev, isOpen: false }))} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer', fontSize: '0.82rem', textDecoration: 'underline' }}>
-                    {isAr ? 'إغلاق' : 'Close'}
+                    {lbl('close')}
                   </button>
                 </div>
               </div>
