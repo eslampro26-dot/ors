@@ -28,8 +28,8 @@ export function invalidateSettingsCache() {
  * Falls back to empty object while loading.
  */
 export function useSettings() {
-  const [settings, setSettings] = useState(_cache || {});
-  const [loading, setLoading] = useState(!_cache);
+  const [settings, setSettings] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (_cache) {
@@ -39,7 +39,7 @@ export function useSettings() {
     }
     setLoading(true);
     fetchSettings().then(data => {
-      setSettings(data);
+      setSettings(data || {});
       setLoading(false);
     });
   }, []);

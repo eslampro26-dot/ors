@@ -13,28 +13,27 @@ import { Playfair_Display, Inter, Poppins, Tajawal } from 'next/font/google';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
-  weight: ['400', '600', '700', '800', '900'],
+  weight: ['400', '700'],
   variable: '--font-playfair',
   display: 'swap',
 });
 
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
   variable: '--font-inter',
   display: 'swap',
 });
 
 const poppins = Poppins({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['400', '600', '700'],
   variable: '--font-poppins',
   display: 'swap',
 });
 
 const tajawal = Tajawal({
-  subsets: ['arabic', 'latin'],
-  weight: ['300', '400', '500', '700', '800', '900'],
+  subsets: ['arabic'],
+  weight: ['400', '700'],
   variable: '--font-tajawal',
   display: 'swap',
 });

@@ -46,22 +46,23 @@ function detectInitialLocale() {
 }
 
 export function LanguageProvider({ children }) {
-  const [locale, setLocaleState] = useState(() => detectInitialLocale());
+  const [locale, setLocaleState] = useState('en');
   const [isReady, setIsReady] = useState(true);
 
   useEffect(() => {
     const detected = detectInitialLocale();
-    if (detected !== locale) {
+    if (detected && detected !== 'en') {
       setLocaleState(detected);
     }
 
+    const currentLoc = detected || 'en';
     // Apply HTML attributes immediately
-    const direction = ['ar'].includes(detected) ? 'rtl' : 'ltr';
-    document.documentElement.lang = detected;
+    const direction = ['ar'].includes(currentLoc) ? 'rtl' : 'ltr';
+    document.documentElement.lang = currentLoc;
     document.documentElement.dir = direction;
     document.body.style.direction = direction;
-    document.body.style.fontFamily = ['ar'].includes(detected) ? 'var(--font-ar)' : 'var(--font-en)';
-  }, [locale]);
+    document.body.style.fontFamily = ['ar'].includes(currentLoc) ? 'var(--font-ar)' : 'var(--font-en)';
+  }, []);
 
   const setLocale = (newLocale) => {
     if (!SUPPORTED_LOCALES.includes(newLocale)) return;
