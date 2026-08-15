@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAllTrips, updateTrip } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60; // Allow enough time to process all trips
+export const maxDuration = 30;
 
 const LANGUAGES = {
   ar: 'ar',
@@ -46,75 +46,96 @@ async function fetchTranslation(text, fromCode, toCode) {
   }
 }
 
+async function translateSingleTrip(trip, sourceLang = 'en') {
+  const sourceTitle = trip.titleEn || trip.titleAr || trip.title;
+  const sourceDesc = trip.tripDescriptionEn || trip.tripDescription || trip.description;
+
+  if (!sourceTitle) return trip;
+
+  const updates = {};
+  const sourceCode = LANGUAGES[sourceLang] || sourceLang;
+
+  const langEntries = Object.entries(LANGUAGES);
+  for (let i = 0; i < langEntries.length; i++) {
+    const [lang, langCode] = langEntries[i];
+    const capLang = lang.charAt(0).toUpperCase() + lang.slice(1);
+
+    if (i > 0) await delay(80);
+
+    // 1. Translate Title
+    const titleField = `title${capLang}`;
+    if (lang === sourceLang) {
+      updates[titleField] = sourceTitle;
+    } else if (!trip[titleField] || trip[titleField] === sourceTitle) {
+      updates[titleField] = await fetchTranslation(sourceTitle, sourceCode, langCode);
+    }
+
+    // 2. Translate Description
+    const descField = `tripDescription${capLang}`;
+    if (lang === sourceLang) {
+      updates[descField] = sourceDesc || '';
+    } else if (sourceDesc && (!trip[descField] || trip[descField] === sourceDesc)) {
+      updates[descField] = await fetchTranslation(sourceDesc, sourceCode, langCode);
+    }
+  }
+
+  const updatedTrip = {
+    ...trip,
+    ...updates
+  };
+
+  if (Object.keys(updates).length > 0 && trip.id) {
+    await updateTrip(trip.id, updatedTrip);
+  }
+
+  return updatedTrip;
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { sourceLang = 'en' } = body;
+    const { trip, sourceLang = 'en', action } = body;
 
-    // Get all trips
+    // 1. If action is list, return trips list so frontend can iterate
+    if (action === 'list') {
+      const trips = await getAllTrips();
+      return NextResponse.json({
+        success: true,
+        trips: trips || []
+      });
+    }
+
+    // 2. If a single trip is provided, translate and save it immediately (Fast & Never times out)
+    if (trip && trip.id) {
+      const updatedTrip = await translateSingleTrip(trip, sourceLang);
+      return NextResponse.json({
+        success: true,
+        tripId: trip.id,
+        trip: updatedTrip
+      });
+    }
+
+    // 3. Fallback: Process all trips (with safe single loop if called directly)
     const trips = await getAllTrips();
-    
     let translatedCount = 0;
-    let failedCount = 0;
 
-    // Translate each trip
-    for (const trip of trips) {
+    for (const t of (trips || [])) {
       try {
-        const sourceTitle = trip.titleEn || trip.titleAr || trip.title;
-        const sourceDesc = trip.tripDescriptionEn || trip.tripDescription || trip.description;
-        
-        if (!sourceTitle) continue;
-
-        const updates = {};
-        const sourceCode = LANGUAGES[sourceLang] || sourceLang;
-
-        for (const [lang, langCode] of Object.entries(LANGUAGES)) {
-          const capLang = lang.charAt(0).toUpperCase() + lang.slice(1);
-          
-          // 1. Translate Title
-          const titleField = `title${capLang}`;
-          if (lang === sourceLang) {
-            updates[titleField] = sourceTitle;
-          } else if (!trip[titleField] || trip[titleField] === sourceTitle) {
-            await delay(100); // 100ms staggering delay
-            updates[titleField] = await fetchTranslation(sourceTitle, sourceCode, langCode);
-          }
-
-          // 2. Translate Description
-          const descField = `tripDescription${capLang}`;
-          if (lang === sourceLang) {
-            updates[descField] = sourceDesc || '';
-          } else if (sourceDesc && (!trip[descField] || trip[descField] === sourceDesc)) {
-            await delay(100); // 100ms staggering delay
-            updates[descField] = await fetchTranslation(sourceDesc, sourceCode, langCode);
-          }
-        }
-
-        // Only call update if there are actual updates to save
-        if (Object.keys(updates).length > 0) {
-          await updateTrip(trip.id, {
-            ...trip,
-            ...updates
-          });
-          translatedCount++;
-        }
-
+        await translateSingleTrip(t, sourceLang);
+        translatedCount++;
       } catch (err) {
-        console.error(`Error translating trip ${trip.id}:`, err);
-        failedCount++;
+        console.error(`Error translating trip ${t.id}:`, err);
       }
     }
 
     return NextResponse.json({
       success: true,
-      message: `Successfully processed translations for ${translatedCount} trips`,
       translatedCount,
-      failedCount,
-      totalTrips: trips.length
+      totalTrips: (trips || []).length
     });
 
   } catch (error) {
-    console.error('Translate existing trips error:', error);
-    return NextResponse.json({ error: 'Translation failed' }, { status: 500 });
+    console.error('Translate API error:', error);
+    return NextResponse.json({ error: error.message || 'Translation failed' }, { status: 500 });
   }
 }

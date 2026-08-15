@@ -97,6 +97,7 @@ export default function AdminServices() {
   const [useTierPrices, setUseTierPrices] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState('ar');
   const [isTranslating, setIsTranslating] = useState(false);
+  const [translateProgress, setTranslateProgress] = useState('');
   const [newVideoUrl, setNewVideoUrl] = useState('');
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
@@ -162,32 +163,57 @@ export default function AdminServices() {
     setTripsData(prev => ({ ...prev, [selectedCity]: cityTrips }));
   };
 
-  // Translate all existing trips
+  // Translate all existing trips with progressive batches and live progress
   const handleTranslateAllTrips = async () => {
-    if (!confirm('Do you want to translate all existing trips to 10 languages? This may take a few minutes.')) {
+    if (!confirm('هل تريد ترجمة جميع الرحلات الموجودة إلى 10 لغات؟')) {
       return;
     }
 
     setIsTranslating(true);
+    setTranslateProgress('جاري فحص الرحلات...');
     try {
-      const response = await fetch('/api/translate-existing-trips', {
+      // 1. Fetch list of all trips from database
+      const listRes = await fetch('/api/translate-existing-trips', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sourceLang: 'en' })
+        body: JSON.stringify({ action: 'list' })
       });
+      const listData = await listRes.json();
+      const tripsList = listData.trips || [];
 
-      const data = await response.json();
-      if (data.success) {
-        alert(`Successfully translated ${data.translatedCount} trips!`);
-        await reloadCurrentCity();
-      } else {
-        alert('Translation failed: ' + (data.error || 'Unknown error'));
+      if (tripsList.length === 0) {
+        alert('لا توجد رحلات لترجمتها.');
+        return;
       }
+
+      let successCount = 0;
+      for (let i = 0; i < tripsList.length; i++) {
+        const trip = tripsList[i];
+        const tripName = trip.titleEn || trip.titleAr || `رحلة #${i + 1}`;
+        setTranslateProgress(`🌐 (${i + 1}/${tripsList.length}) جاري ترجمة: ${tripName.slice(0, 20)}...`);
+
+        try {
+          const transRes = await fetch('/api/translate-existing-trips', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trip, sourceLang: 'en' })
+          });
+          if (transRes.ok) {
+            successCount++;
+          }
+        } catch (tripErr) {
+          console.warn(`Translation warning on trip ${trip.id}:`, tripErr);
+        }
+      }
+
+      alert(`✅ تم الانتهاء بنجاح! تم ترجمة ${successCount} من أصل ${tripsList.length} رحلة لجميع اللغات العشر.`);
+      await reloadCurrentCity();
     } catch (err) {
       console.error('Translation error:', err);
-      alert('An error occurred during translation');
+      alert('حدث خطأ أثناء الترجمة: ' + (err.message || 'NetworkError'));
     } finally {
       setIsTranslating(false);
+      setTranslateProgress('');
     }
   };
 
@@ -833,7 +859,7 @@ export default function AdminServices() {
               transition: 'all 0.2s ease'
             }}
           >
-            {isTranslating ? '⏳ جاري الترجمة...' : '🌐 ترجمة كل الرحلات (10 لغات)'}
+            {isTranslating ? (translateProgress || '⏳ جاري الترجمة...') : '🌐 ترجمة كل الرحلات (10 لغات)'}
           </button>
           <button 
             className="btn btn-ocean" 
