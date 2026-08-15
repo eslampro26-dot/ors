@@ -156,14 +156,25 @@ export default function CategoryPage({ params }) {
                     borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
                     flexShrink: 0
                   }}>
+                    {/* Blurred background cover */}
                     <div style={{
-                      width: '100%',
-                      height: '100%',
+                      position: 'absolute',
+                      inset: 0,
                       backgroundImage: `url(${trip.image || '/images/trips/glass-boat.jpg'})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center center',
                       backgroundRepeat: 'no-repeat',
-                      backgroundColor: 'var(--bg-tertiary)',
+                      filter: 'blur(8px)',
+                      opacity: 0.5
+                    }} />
+                    {/* Contained full image foreground */}
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      backgroundImage: `url(${trip.image || '/images/trips/glass-boat.jpg'})`,
+                      backgroundSize: 'contain',
+                      backgroundPosition: 'center center',
+                      backgroundRepeat: 'no-repeat',
                       transition: 'transform 0.4s ease',
                     }} />
                     {/* Gradient overlay at bottom */}
@@ -217,7 +228,10 @@ export default function CategoryPage({ params }) {
                           title={locale === 'ar' ? 'اسحب ليمين أو اليسار للتنقل بين الصور' : 'Swipe left or right to view photos'}
                         >
                           {/* Show current card image with smooth fade */}
-                          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${cardImages[cardIdx] || cardImages[0]})`, backgroundSize: 'cover', backgroundPosition: 'center center', transition: 'background-image 0.3s ease' }} />
+                          {/* Blurred background cover */}
+                          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${cardImages[cardIdx] || cardImages[0]})`, backgroundSize: 'cover', backgroundPosition: 'center center', filter: 'blur(8px)', opacity: 0.5 }} />
+                          {/* Contained full image foreground */}
+                          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${cardImages[cardIdx] || cardImages[0]})`, backgroundSize: 'contain', backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', transition: 'background-image 0.3s ease' }} />
                           
                           {/* Photo Counter Badge */}
                           <div style={{ position: 'absolute', top: '12px', left: locale === 'ar' ? 'auto' : '12px', right: locale === 'ar' ? '12px' : 'auto', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', color: '#fff', padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', zIndex: 5 }}>

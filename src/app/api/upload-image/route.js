@@ -47,10 +47,33 @@ export async function POST(request) {
       body: buffer,
     });
 
+    let useLocalFallback = false;
     if (!uploadRes.ok) {
       const errText = await uploadRes.text();
       console.error('Firebase Storage upload error:', errText);
-      return NextResponse.json({ error: 'Upload to Firebase Storage failed' }, { status: 500 });
+      useLocalFallback = true;
+    }
+
+    if (useLocalFallback) {
+      try {
+        const fs = require('fs').promises;
+        const path = require('path');
+        const publicDir = path.join(process.cwd(), 'public');
+        const uploadsDir = path.join(publicDir, 'uploads');
+        
+        // Ensure uploads directory exists
+        await fs.mkdir(uploadsDir, { recursive: true });
+        
+        const localFilename = `${timestamp}_${randomStr}.${ext}`;
+        const filePath = path.join(uploadsDir, localFilename);
+        await fs.writeFile(filePath, buffer);
+        
+        console.log('Successfully saved image locally:', `/uploads/${localFilename}`);
+        return NextResponse.json({ url: `/uploads/${localFilename}` });
+      } catch (localErr) {
+        console.error('Local upload fallback failed:', localErr);
+        return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+      }
     }
 
     // Build public download URL

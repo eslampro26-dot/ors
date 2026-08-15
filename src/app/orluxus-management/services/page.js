@@ -237,7 +237,7 @@ export default function AdminServices() {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX_DIM = 1200;
+        const MAX_DIM = 600;
         let width = img.width;
         let height = img.height;
         if (width > height) {
@@ -248,7 +248,7 @@ export default function AdminServices() {
         canvas.width = width;
         canvas.height = height;
         canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.78));
+        resolve(canvas.toDataURL('image/jpeg', 0.6));
       };
       img.src = event.target.result;
     };
@@ -330,6 +330,7 @@ export default function AdminServices() {
       city: cityId,
       description: trip.description || '',
       tripDescription: trip.tripDescription || '',
+      tripDescriptionEn: trip.tripDescriptionEn || trip.tripDescription || trip.descriptionEn || trip.description || '',
       icon: trip.icon || '✈️',
       image: trip.image || '',
       images: trip.images || [],
