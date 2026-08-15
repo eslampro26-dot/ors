@@ -12,26 +12,41 @@ import TranslatedText from '@/components/TranslatedText';
 import TranslatedTextWithFallback from '@/components/TranslatedTextWithFallback';
 import ServiceReviews from '@/components/ServiceReviews';
 
-// Live translation component for trip descriptions
-function LiveTranslatedDesc({ trip, locale }) {
+// Cached description translation component with instant state updates on render to avoid flashing
+function TranslatedDescWithFallback({ trip, locale }) {
   const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
-  const storedTranslation = trip[`tripDescription${capLocale}`]
-    || (locale === 'en' ? (trip.tripDescriptionEn || trip.tripDescription || '') : null);
-
   const sourceText = trip.tripDescriptionEn || trip.tripDescription || trip.tripDescriptionAr || '';
-  const [text, setText] = useState(storedTranslation || sourceText || '');
+  
+  // Direct check first
+  const stored = trip[`tripDescription${capLocale}`];
+  
+  // Cache check
+  let cached = null;
+  if (typeof window !== 'undefined') {
+    cached = localStorage.getItem(`orluxus_desc_${trip.id}_${locale}`);
+  }
+
+  const initialText = stored || cached || (locale === 'en' ? sourceText : '');
+  const [text, setText] = useState(initialText || sourceText);
+
+  // Instantly sync state on render when props change to prevent flashing of old locale
+  const [prevKey, setPrevKey] = useState(`${trip.id}_${locale}`);
+  const currentKey = `${trip.id}_${locale}`;
+  if (currentKey !== prevKey) {
+    setPrevKey(currentKey);
+    setText(stored || cached || (locale === 'en' ? sourceText : '') || sourceText);
+  }
 
   useEffect(() => {
-    const stored = trip[`tripDescription${capLocale}`];
-    if (stored && stored !== sourceText) {
-      setText(stored);
+    if (stored || (locale === 'en')) return;
+    
+    const cacheKey = `orluxus_desc_${trip.id}_${locale}`;
+    const localCached = localStorage.getItem(cacheKey);
+    if (localCached) {
+      setText(localCached);
       return;
     }
-    if (!sourceText || locale === 'en') {
-      setText(sourceText || '');
-      return;
-    }
-    // Need to translate live
+
     let alive = true;
     fetch('/api/translate', {
       method: 'POST',
@@ -40,44 +55,17 @@ function LiveTranslatedDesc({ trip, locale }) {
     })
       .then(r => r.ok ? r.json() : {})
       .then(data => {
-        if (alive && data?.translatedText) setText(data.translatedText);
-        else if (alive) setText(sourceText);
+        if (alive && data?.translatedText) {
+          setText(data.translatedText);
+          localStorage.setItem(cacheKey, data.translatedText);
+        }
       })
-      .catch(() => { if (alive) setText(sourceText); });
+      .catch(() => {});
     return () => { alive = false; };
-  }, [trip.id, locale, sourceText, storedTranslation]);
+  }, [trip.id, locale, sourceText, stored]);
 
   if (!text) return null;
   return <span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>;
-}
-
-// Live translation for trip title
-function LiveTranslatedTitle({ trip, locale, style }) {
-  const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
-  const stored = trip[`title${capLocale}`];
-  const sourceText = trip.titleEn || trip.titleAr || '';
-  const [title, setTitle] = useState(stored || sourceText || '');
-
-  useEffect(() => {
-    const s = trip[`title${capLocale}`];
-    if (s && s !== sourceText) { setTitle(s); return; }
-    if (!sourceText || locale === 'en') { setTitle(sourceText); return; }
-    let alive = true;
-    fetch('/api/auto-translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: sourceText, sourceLang: 'en', targetLangs: [locale] })
-    })
-      .then(r => r.ok ? r.json() : {})
-      .then(data => {
-        if (alive && data?.translations?.[locale]) setTitle(data.translations[locale]);
-        else if (alive) setTitle(sourceText);
-      })
-      .catch(() => { if (alive) setTitle(sourceText); });
-    return () => { alive = false; };
-  }, [trip.id, locale, sourceText]);
-
-  return <h2 style={style}>{title || sourceText}</h2>;
 }
 
 export default function CategoryPage({ params }) {
@@ -587,7 +575,7 @@ export default function CategoryPage({ params }) {
                   {mdTiers.length > 1 && tierLabel && (
                     <span style={{ background: 'rgba(201,162,39,0.12)', color: 'var(--gold-400)', padding: '3px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700', display: 'inline-block', marginBottom: '0.6rem', border: '1px solid rgba(201,162,39,0.3)' }}>{tierLabel}</span>
                   )}
-                  <LiveTranslatedTitle trip={mdTrip} locale={locale} style={{ fontSize: 'clamp(1.4rem, 4vw, 2rem)', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 0.75rem', lineHeight: 1.25 }} />
+                  <h2 style={{ fontSize: 'clamp(1.4rem, 4vw, 2rem)', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 0.75rem', lineHeight: 1.25 }}><TranslatedTextWithFallback trip={mdTrip} locale={locale} /></h2>
                   <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                     <span>⏱️ {translateDuration(mdTrip, locale)}</span>
                     <span>⭐ {mdTrip.rating || '5.0'} ({mdTrip.reviews || '1'} {isAr ? 'تقييم' : 'reviews'})</span>
@@ -604,7 +592,7 @@ export default function CategoryPage({ params }) {
                       📋 {isAr ? 'تفاصيل الرحلة' : 'Trip Details'}
                     </h4>
                     <div style={{ color: 'var(--text-secondary)', lineHeight: '1.85', fontSize: '0.95rem', textAlign: isAr ? 'right' : 'left' }}>
-                      {richDesc ? richDesc : <LiveTranslatedDesc trip={mdTrip} locale={locale} />}
+                      {richDesc ? richDesc : <TranslatedDescWithFallback trip={mdTrip} locale={locale} />}
                     </div>
                   </div>
                 )}
