@@ -12,6 +12,74 @@ import TranslatedText from '@/components/TranslatedText';
 import TranslatedTextWithFallback from '@/components/TranslatedTextWithFallback';
 import ServiceReviews from '@/components/ServiceReviews';
 
+// Live translation component for trip descriptions
+function LiveTranslatedDesc({ trip, locale }) {
+  const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
+  const storedTranslation = trip[`tripDescription${capLocale}`]
+    || (locale === 'en' ? (trip.tripDescriptionEn || trip.tripDescription || '') : null);
+
+  const sourceText = trip.tripDescriptionEn || trip.tripDescription || trip.tripDescriptionAr || '';
+  const [text, setText] = useState(storedTranslation || sourceText || '');
+
+  useEffect(() => {
+    const stored = trip[`tripDescription${capLocale}`];
+    if (stored && stored !== sourceText) {
+      setText(stored);
+      return;
+    }
+    if (!sourceText || locale === 'en') {
+      setText(sourceText || '');
+      return;
+    }
+    // Need to translate live
+    let alive = true;
+    fetch('/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: sourceText, to: locale })
+    })
+      .then(r => r.ok ? r.json() : {})
+      .then(data => {
+        if (alive && data?.translatedText) setText(data.translatedText);
+        else if (alive) setText(sourceText);
+      })
+      .catch(() => { if (alive) setText(sourceText); });
+    return () => { alive = false; };
+  }, [trip.id, locale, sourceText, storedTranslation]);
+
+  if (!text) return null;
+  return <span style={{ whiteSpace: 'pre-wrap' }}>{text}</span>;
+}
+
+// Live translation for trip title
+function LiveTranslatedTitle({ trip, locale, style }) {
+  const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
+  const stored = trip[`title${capLocale}`];
+  const sourceText = trip.titleEn || trip.titleAr || '';
+  const [title, setTitle] = useState(stored || sourceText || '');
+
+  useEffect(() => {
+    const s = trip[`title${capLocale}`];
+    if (s && s !== sourceText) { setTitle(s); return; }
+    if (!sourceText || locale === 'en') { setTitle(sourceText); return; }
+    let alive = true;
+    fetch('/api/auto-translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: sourceText, sourceLang: 'en', targetLangs: [locale] })
+    })
+      .then(r => r.ok ? r.json() : {})
+      .then(data => {
+        if (alive && data?.translations?.[locale]) setTitle(data.translations[locale]);
+        else if (alive) setTitle(sourceText);
+      })
+      .catch(() => { if (alive) setTitle(sourceText); });
+    return () => { alive = false; };
+  }, [trip.id, locale, sourceText]);
+
+  return <h2 style={style}>{title || sourceText}</h2>;
+}
+
 export default function CategoryPage({ params }) {
   const resolvedParams = use(params);
   const { slug, category } = resolvedParams;
@@ -402,23 +470,15 @@ export default function CategoryPage({ params }) {
 
       {/* Full-Screen Trip Details Panel */}
       {modalConfig.isOpen && modalConfig.trip && (() => {
-        const mdTrip = modalConfig.trip;
+        // Always get fresh trip data from live trips state so locale changes work
+        const mdTrip = trips.find(t => t.id === modalConfig.trip.id) || modalConfig.trip;
         const mdTier = modalConfig.tier;
         const isAr = locale === 'ar';
         const allImages = modalConfig.images;
         const allVideos = modalConfig.videos;
         const mdTiers = getTripTiers(mdTrip, locale);
-        // Get localized title for all 10 languages
-        const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
-        const tripTitle = mdTrip[`title${capLocale}`] || mdTrip.titleEn || mdTrip.titleAr || '';
         const tierLabel = mdTier ? (mdTier.names?.[locale] || mdTier.names?.en || '') : '';
         const richDesc = mdTier?.richDesc || '';
-        // Get localized description for all 10 languages
-        const tripDesc = mdTrip[`tripDescription${capLocale}`]
-          || mdTrip.tripDescriptionEn
-          || mdTrip.tripDescriptionAr
-          || mdTrip.tripDescription
-          || '';
 
         return (
           <div
@@ -525,7 +585,7 @@ export default function CategoryPage({ params }) {
                   {mdTiers.length > 1 && tierLabel && (
                     <span style={{ background: 'rgba(201,162,39,0.12)', color: 'var(--gold-400)', padding: '3px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700', display: 'inline-block', marginBottom: '0.6rem', border: '1px solid rgba(201,162,39,0.3)' }}>{tierLabel}</span>
                   )}
-                  <h2 style={{ fontSize: 'clamp(1.4rem, 4vw, 2rem)', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 0.75rem', lineHeight: 1.25 }}>{tripTitle}</h2>
+                  <LiveTranslatedTitle trip={mdTrip} locale={locale} style={{ fontSize: 'clamp(1.4rem, 4vw, 2rem)', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 0.75rem', lineHeight: 1.25 }} />
                   <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                     <span>⏱️ {translateDuration(mdTrip, locale)}</span>
                     <span>⭐ {mdTrip.rating || '5.0'} ({mdTrip.reviews || '1'} {isAr ? 'تقييم' : 'reviews'})</span>
@@ -536,13 +596,13 @@ export default function CategoryPage({ params }) {
                 </div>
 
                 {/* Description */}
-                {(richDesc || tripDesc) && (
+                {(richDesc || mdTrip.tripDescriptionEn || mdTrip.tripDescription || mdTrip.tripDescriptionAr) && (
                   <div style={{ marginBottom: '1.75rem', padding: '1.25rem', background: 'rgba(255,255,255,0.025)', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
                     <h4 style={{ color: 'var(--gold-400)', fontSize: '0.82rem', fontWeight: '800', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 0.75rem' }}>
                       📋 {isAr ? 'تفاصيل الرحلة' : 'Trip Details'}
                     </h4>
-                    <div style={{ color: 'var(--text-secondary)', lineHeight: '1.85', fontSize: '0.95rem', whiteSpace: 'pre-wrap', textAlign: isAr ? 'right' : 'left' }}>
-                      {richDesc || tripDesc}
+                    <div style={{ color: 'var(--text-secondary)', lineHeight: '1.85', fontSize: '0.95rem', textAlign: isAr ? 'right' : 'left' }}>
+                      {richDesc ? richDesc : <LiveTranslatedDesc trip={mdTrip} locale={locale} />}
                     </div>
                   </div>
                 )}
