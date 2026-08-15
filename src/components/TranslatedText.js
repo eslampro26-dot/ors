@@ -37,7 +37,7 @@ export default function TranslatedText({ text, fallback = '', className = '', st
     return null;
   };
 
-  const [translated, setTranslated] = useState(() => getCachedTranslation(rawText, locale) || rawText);
+  const [translated, setTranslated] = useState(rawText);
 
   useEffect(() => {
     if (!rawText || !rawText.trim()) {

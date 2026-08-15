@@ -53,10 +53,9 @@ function getStoredTranslation(trip, locale) {
 }
 
 export default function TranslatedTextWithFallback({ trip, locale }) {
-  const initial = getStoredTranslation(trip, locale);
   const fallbackText = trip?.titleEn || trip?.titleAr || '';
 
-  const [translatedText, setTranslatedText] = useState(initial || fallbackText);
+  const [translatedText, setTranslatedText] = useState(fallbackText);
 
   useEffect(() => {
     const directOrCached = getStoredTranslation(trip, locale);
