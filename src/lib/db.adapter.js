@@ -266,7 +266,6 @@ async function apiCall(url, method = 'GET', body = null) {
 }
 
 // ==========================================
-// ROUTING LOGIC
 // Uses Upstash when on server (API routes / SSR).
 // Uses fetch API calls when in browser (client-side).
 // ==========================================
@@ -274,16 +273,45 @@ async function apiCall(url, method = 'GET', body = null) {
 // -- TRIPS --
 export async function getTrips(slug, category) {
   if (!isClient) return fbGetTrips(slug, category);
-  if (isFirebaseConfigured()) return fbGetTrips(slug, category);
+
+  // 1. Try Firebase client SDK
+  if (isFirebaseConfigured()) {
+    try {
+      const fbResult = await fbGetTrips(slug, category);
+      if (Array.isArray(fbResult) && fbResult.length > 0) {
+        return fbResult;
+      }
+    } catch (e) {
+      console.warn('fbGetTrips error, trying API fallback:', e?.message);
+    }
+  }
+
+  // 2. Try Server API route
   const res = await apiCall(`/api/trips?slug=${slug}&category=${category}`);
-  return res || sampleTrips[slug]?.[category] || [];
+  if (Array.isArray(res) && res.length > 0) {
+    return res;
+  }
+
+  // 3. Static sample fallback
+  return (sampleTrips[slug] && sampleTrips[slug][category]) || [];
 }
 
 export async function getAllTrips() {
   if (!isClient) return fbGetAllTrips();
-  if (isFirebaseConfigured()) return fbGetAllTrips();
+
+  if (isFirebaseConfigured()) {
+    try {
+      const fbResult = await fbGetAllTrips();
+      if (Array.isArray(fbResult) && fbResult.length > 0) {
+        return fbResult;
+      }
+    } catch (e) {
+      console.warn('fbGetAllTrips error, trying API fallback:', e?.message);
+    }
+  }
+
   const res = await apiCall('/api/trips?all=true');
-  return res || [];
+  return Array.isArray(res) ? res : [];
 }
 
 export async function addTrip(slug, category, tripData) {

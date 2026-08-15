@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getTrips, addTrip, updateTrip, deleteTrip } from '@/lib/db';
-
+import { getTrips, getAllTrips, addTrip, updateTrip, deleteTrip } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,26 +8,30 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
     const category = searchParams.get('category');
+    const all = searchParams.get('all');
+
+    if (all === 'true') {
+      const allTrips = await getAllTrips();
+      return NextResponse.json(allTrips || [], {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        }
+      });
+    }
 
     if (slug && category) {
       const trips = await getTrips(slug, category);
-      if (trips && trips.length > 0) {
-        return NextResponse.json(trips, {
-          headers: {
-            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-          }
-        });
-      } else {
-        return NextResponse.json({ error: 'لم يتم العثور على رحلات لهذا القسم', data: [] }, { status: 404 });
-      }
+      return NextResponse.json(trips || [], {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        }
+      });
     }
 
     return NextResponse.json({ error: 'Missing slug or category' }, { status: 400 });
   } catch (e) {
     console.error('API Error fetching trips:', e);
-    return NextResponse.json({ error: 'فشل جلب الرحلات', data: [] }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
   }
 }
 

@@ -9,18 +9,12 @@ import { getSeoMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/context/LanguageContext";
 import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
 import GlobalBackground from "@/components/GlobalBackground";
-import { Playfair_Display, Inter, Poppins, Tajawal } from 'next/font/google';
+import { Playfair_Display, Poppins, Tajawal } from 'next/font/google';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
   weight: ['400', '700'],
   variable: '--font-playfair',
-  display: 'swap',
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
   display: 'swap',
 });
 
@@ -62,7 +56,7 @@ export default function RootLayout({ children, params }) {
   const dir = getDirection(locale);
 
   return (
-    <html lang={locale} dir={dir} className={`${playfair.variable} ${inter.variable} ${poppins.variable} ${tajawal.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang={locale} dir={dir} className={`${playfair.variable} ${poppins.variable} ${tajawal.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5.0, user-scalable=yes" />
         <link rel="alternate" hrefLang="en" href="https://orluxus.com/" />
