@@ -93,12 +93,22 @@ function BookingConfirmationContent() {
   const statusLabel = getStatusLabel(booking?.status);
   const payLabel = getPayMethodLabel(booking?.paymentType);
 
+  const finalAmt = Number(booking?.amount || booking?.finalAmount || 0) || 0;
+  const originalAmt = Number(booking?.originalAmount || finalAmt) || 0;
+  const discountAmt = Number(booking?.discountAmount || 0) || 0;
+  const adultPriceVal = Number(booking?.adultPrice) || 0;
+  const childPriceVal = Number(booking?.childPrice) || 0;
+  const infantPriceVal = Number(booking?.infantPrice) || 0;
+  const numAdults = Number(booking?.travelers || 1);
+  const numChildren = Number(booking?.children || 0);
+  const numInfants = Number(booking?.infants || 0);
+
   const rows = booking ? [
     { label: t('booking.customer'), value: booking.customerName || booking.customer || '—' },
     { label: t('booking.service'), value: booking.service || '—' },
     { label: t('booking.date'), value: booking.date || '—' },
-    { label: t('booking.travelers'), value: (booking.travelers || 1) + ' ' + t('booking.persons') + (booking.children > 0 ? ` | ${booking.children} Child(ren)` : '') + (booking.infants > 0 ? ` | ${booking.infants} Infant(s)` : '') },
-    { label: t('booking.amount'), value: '€' + (Number(booking.amount || booking.finalAmount || 0) || 0).toFixed(2) },
+    { label: t('booking.travelers'), value: numAdults + ' ' + t('booking.persons') + (numChildren > 0 ? ` | ${numChildren} Child(ren)` : '') + (numInfants > 0 ? ` | ${numInfants} Infant(s)` : '') },
+    { label: t('booking.amount'), value: '€' + finalAmt.toFixed(2) },
     { label: t('booking.payStatus'), value: statusLabel },
     { label: t('booking.payMethod'), value: payLabel },
     ...(booking.email ? [{ label: 'Email', value: booking.email }] : []),
@@ -228,6 +238,59 @@ function BookingConfirmationContent() {
                   </div>
                 ))}
               </div>
+
+              {/* Price Breakdown Table */}
+              {(adultPriceVal > 0 || childPriceVal > 0 || infantPriceVal > 0) && (
+                <div style={{ marginBottom: '1.2rem' }}>
+                  <h4 style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 'bold', margin: '0 0 0.6rem', textAlign: isAr ? 'right' : 'left' }}>
+                    💰 Price Breakdown
+                  </h4>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                    <thead>
+                      <tr style={{ background: '#f8fafc' }}>
+                        <th style={{ padding: '10px 12px', textAlign: isAr ? 'right' : 'left', color: '#64748b', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase' }}>Service</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b', fontWeight: '700', fontSize: '0.75rem' }}>Qty</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', color: '#64748b', fontWeight: '700', fontSize: '0.75rem' }}>Rate</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', color: '#64748b', fontWeight: '700', fontSize: '0.75rem' }}>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '10px 12px', fontWeight: '600', color: '#0f172a' }}>{booking.service} (Adults)</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', color: '#475569' }}>{numAdults}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right', color: '#475569' }}>€{adultPriceVal.toFixed(2)}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>€{(numAdults * adultPriceVal).toFixed(2)}</td>
+                      </tr>
+                      {numChildren > 0 && (
+                        <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#f8f9fa' }}>
+                          <td style={{ padding: '10px 12px', fontWeight: '600', color: '#0f172a' }}>Children (2-12 yrs)</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'center', color: '#475569' }}>{numChildren}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right', color: '#475569' }}>€{childPriceVal.toFixed(2)}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>€{(numChildren * childPriceVal).toFixed(2)}</td>
+                        </tr>
+                      )}
+                      {numInfants > 0 && (
+                        <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#f8f9fa' }}>
+                          <td style={{ padding: '10px 12px', fontWeight: '600', color: '#0f172a' }}>Infants (under 2)</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'center', color: '#475569' }}>{numInfants}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right', color: '#475569' }}>€{infantPriceVal.toFixed(2)}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>€{(numInfants * infantPriceVal).toFixed(2)}</td>
+                        </tr>
+                      )}
+                      {discountAmt > 0 && (
+                        <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fef2f2' }}>
+                          <td colSpan={3} style={{ padding: '10px 12px', color: '#dc2626', fontWeight: '600' }}>🏷 Promo Discount {booking.promoCode ? `(${booking.promoCode})` : ''}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right', color: '#dc2626', fontWeight: '700' }}>-€{discountAmt.toFixed(2)}</td>
+                        </tr>
+                      )}
+                      <tr style={{ background: '#0f172a' }}>
+                        <td colSpan={3} style={{ padding: '12px', fontWeight: '800', color: '#c9a227', fontSize: '0.9rem' }}>Total</td>
+                        <td style={{ padding: '12px', textAlign: 'right', fontWeight: '900', color: '#c9a227', fontSize: '1.1rem' }}>€{finalAmt.toFixed(2)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
               {/* Emergency Contact & Digital Signature Block */}
               <div style={{ border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '1rem 1.2rem', marginBottom: '1.2rem', background: '#ffffff' }}>
