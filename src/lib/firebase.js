@@ -37,7 +37,7 @@ try {
     localCache: persistentLocalCache({
       tabManager: persistentMultipleTabManager()
     }),
-    experimentalForceLongPolling: true,
+    experimentalAutoDetectLongPolling: true,
     databaseId: customDbId,
     ignoreUndefinedProperties: true
   });
@@ -48,7 +48,7 @@ try {
     let customDbId = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || databaseId;
     if (customDbId === "9Evrgg7IPODZgBc21XKQ") customDbId = "(default)";
     db = initializeFirestore(app, {
-      experimentalForceLongPolling: true,
+      experimentalAutoDetectLongPolling: true,
       databaseId: customDbId,
       ignoreUndefinedProperties: true
     });
