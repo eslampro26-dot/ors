@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import translate from 'google-translate-api-x';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 15;
+export const maxDuration = 30;
 
 // Supported languages mapping
 const LANGUAGES = {
@@ -18,16 +17,44 @@ const LANGUAGES = {
   ja: 'ja'
 };
 
-// Helper for fast translate with timeout
-async function translateWithTimeout(text, fromCode, toCode, timeoutMs = 2500) {
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchTranslation(text, fromCode, toCode, timeoutMs = 8000) {
   try {
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Translation timeout')), timeoutMs)
-    );
-    const translationPromise = translate(text, { from: fromCode, to: toCode });
-    const result = await Promise.race([translationPromise, timeoutPromise]);
-    return result?.text || text;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${fromCode}&tl=${toCode}&dt=t&q=${encodeURIComponent(text)}`;
+    
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      console.error(`Google Translate response not OK for ${toCode}:`, res.status);
+      return text;
+    }
+
+    const data = await res.json();
+    if (data && Array.isArray(data[0])) {
+      const translatedText = data[0]
+        .filter(item => item && typeof item[0] === 'string')
+        .map(item => item[0])
+        .join('');
+
+      if (translatedText && translatedText.trim().length > 0) {
+        return translatedText;
+      }
+    }
+
+    return text;
   } catch (err) {
+    console.error(`Translation error for ${toCode}:`, err);
     return text; // Fallback to original text on error/timeout
   }
 }
@@ -37,7 +64,7 @@ export async function POST(request) {
     const body = await request.json();
     const { text, sourceLang, targetLangs } = body;
 
-    if (!text || !sourceLang) {
+    if (!text || typeof text !== 'string' || !text.trim() || !sourceLang) {
       return NextResponse.json({ error: 'Missing required fields: text, sourceLang' }, { status: 400 });
     }
 
@@ -45,20 +72,24 @@ export async function POST(request) {
     const targets = targetLangs || Object.keys(LANGUAGES).filter(lang => lang !== sourceLang);
     const sourceCode = LANGUAGES[sourceLang] || sourceLang;
 
-    // Run all target translations in parallel for maximum speed
-    const translationPromises = targets.map(async (targetLang) => {
-      const targetCode = LANGUAGES[targetLang] || targetLang;
-      if (sourceCode === targetCode) {
-        return { targetLang, text };
-      }
-      const translatedText = await translateWithTimeout(text, sourceCode, targetCode, 2500);
-      return { targetLang, text: translatedText };
-    });
-
-    const results = await Promise.all(translationPromises);
+    // Run translations with short stagger delays to avoid concurrent rate limiting
     const translations = {};
-    for (const res of results) {
-      translations[res.targetLang] = res.text;
+    
+    for (let i = 0; i < targets.length; i++) {
+      const targetLang = targets[i];
+      const targetCode = LANGUAGES[targetLang] || targetLang;
+
+      if (sourceCode === targetCode) {
+        translations[targetLang] = text;
+        continue;
+      }
+
+      if (i > 0) {
+        await delay(120); // 120ms staggered delay
+      }
+
+      const translatedText = await fetchTranslation(text, sourceCode, targetCode, 8000);
+      translations[targetLang] = translatedText;
     }
 
     return NextResponse.json({
