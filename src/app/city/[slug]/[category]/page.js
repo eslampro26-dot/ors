@@ -92,7 +92,7 @@ export default function CategoryPage({ params }) {
   }, [modalConfig.isOpen]);
 
   // Translate modal description and title whenever modal opens or locale changes
-  // Uses stable primitive dependencies (trip.id + locale) to avoid object reference bugs
+  // Translate modal description and title whenever modal opens or locale changes
   useEffect(() => {
     const trip = modalConfig.trip;
     if (!modalConfig.isOpen || !trip) {
@@ -102,11 +102,20 @@ export default function CategoryPage({ params }) {
     }
 
     const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
-    const descSource = trip.tripDescriptionEn || trip.tripDescription || trip.tripDescriptionAr || '';
-    const titleSource = trip.titleEn || trip.titleAr || '';
+    const descSource = 
+      trip.tripDescriptionEn || 
+      trip.descriptionEn || 
+      trip.tripDescription || 
+      trip.description || 
+      trip.tripDescriptionAr || 
+      trip.descriptionAr || 
+      trip.economyDesc || 
+      '';
+
+    const titleSource = trip.titleEn || trip.titleAr || trip.title || '';
 
     // --- TITLE ---
-    const storedTitle = trip[`title${capLocale}`];
+    const storedTitle = trip[`title${capLocale}`] || trip[`titles`]?.[locale];
     if (storedTitle && storedTitle.trim()) {
       setModalTitle(storedTitle);
     } else if (locale === 'en' || !titleSource) {
@@ -116,8 +125,9 @@ export default function CategoryPage({ params }) {
       try {
         const cached = localStorage.getItem(titleCacheKey);
         if (cached) { setModalTitle(cached); }
-        else { setModalTitle(titleSource); } // show English while loading
+        else { setModalTitle(titleSource); }
       } catch (e) { setModalTitle(titleSource); }
+
       fetch('/api/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -125,14 +135,15 @@ export default function CategoryPage({ params }) {
       }).then(r => r.ok ? r.json() : {}).then(data => {
         if (data?.translatedText) {
           setModalTitle(data.translatedText);
-          try { localStorage.setItem(`orluxus_title_${trip.id}_${locale}`, data.translatedText); } catch(e){}
+          try { localStorage.setItem(titleCacheKey, data.translatedText); } catch(e){}
         }
       }).catch(() => {});
     }
 
     // --- DESCRIPTION ---
     if (!descSource) { setModalDesc(''); return; }
-    const storedDesc = trip[`tripDescription${capLocale}`];
+
+    const storedDesc = trip[`tripDescription${capLocale}`] || trip[`description${capLocale}`];
     if (storedDesc && storedDesc.trim()) {
       setModalDesc(storedDesc);
       return;
@@ -149,8 +160,10 @@ export default function CategoryPage({ params }) {
         return;
       }
     } catch (e) {}
-    // Show English while fetching translation
+
+    // Show source while fetching translation
     setModalDesc(descSource);
+
     fetch('/api/translate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -617,18 +630,32 @@ export default function CategoryPage({ params }) {
                 </div>
 
                 {/* Description */}
-                {(mdTrip.tripDescriptionEn || mdTrip.tripDescription || mdTrip.tripDescriptionAr || mdTrip.economyDesc || modalDesc) && (
-                  <div style={{ marginBottom: '1.75rem', padding: '1.25rem', background: 'rgba(255,255,255,0.025)', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
-                    <h4 style={{ color: 'var(--gold-400)', fontSize: '0.82rem', fontWeight: '800', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 0.75rem' }}>
-                      📋 {lbl('tripDetails')}
-                    </h4>
-                    <div style={{ color: 'var(--text-secondary)', lineHeight: '1.85', fontSize: '0.95rem', textAlign: isAr ? 'right' : 'left' }}>
-                      <span style={{ whiteSpace: 'pre-wrap' }}>
-                        {modalDesc || (mdTrip.tripDescriptionEn || mdTrip.tripDescription || mdTrip.tripDescriptionAr || '')}
-                      </span>
+                {(() => {
+                  const fallbackTripDesc = 
+                    mdTrip.tripDescriptionEn || 
+                    mdTrip.descriptionEn || 
+                    mdTrip.tripDescription || 
+                    mdTrip.description || 
+                    mdTrip.tripDescriptionAr || 
+                    mdTrip.descriptionAr || 
+                    mdTrip.economyDesc || 
+                    '';
+
+                  if (!modalDesc && !fallbackTripDesc) return null;
+
+                  return (
+                    <div style={{ marginBottom: '1.75rem', padding: '1.25rem', background: 'rgba(255,255,255,0.025)', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
+                      <h4 style={{ color: 'var(--gold-400)', fontSize: '0.82rem', fontWeight: '800', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.8px', margin: '0 0 0.75rem' }}>
+                        📋 {lbl('tripDetails')}
+                      </h4>
+                      <div style={{ color: 'var(--text-secondary)', lineHeight: '1.85', fontSize: '0.95rem', textAlign: isAr ? 'right' : 'left' }}>
+                        <span style={{ whiteSpace: 'pre-wrap' }}>
+                          {modalDesc || fallbackTripDesc}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* Embedded Videos */}
                 {allVideos.length > 0 && (
