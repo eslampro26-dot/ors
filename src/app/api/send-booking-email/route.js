@@ -64,6 +64,65 @@ function buildInvoiceHTML(data) {
   const adultTotal = travelers * adultPriceVal;
   const childTotal = (children || 0) * childPriceVal;
   const infantTotal = (infants || 0) * infantPriceVal;
+  const totalBaseAndPax = adultTotal + childTotal + infantTotal;
+  const extrasCost = Math.max(0, originalAmount - totalBaseAndPax);
+
+  const lang = (data.locale || data.customerLanguage || 'en').toLowerCase();
+  const bannerMessages = {
+    bank: {
+      ar: 'تم تسجيل الحجز بنجاح — في انتظار التحويل البنكي',
+      de: 'Buchung erfolgreich registriert — Warten auf Banküberweisung',
+      fr: 'Réservation enregistrée avec succès — En attente du virement bancaire',
+      es: 'Reserva registrada con éxito — En espera de transferencia bancaria',
+      it: 'Prenotazione registrata con successo — In attesa di bonifico bancario',
+      ru: 'Бронирование успешно зарегистрировано — Ожидается банковский перевод',
+      zh: '预订成功登记 — 等待银行转账',
+      ja: '予約が正常に登録されました — 銀行振込待ち',
+      tr: 'Rezervasyon başarıyla kaydedildi — Banka havalesi bekleniyor',
+      en: 'Booking Registered Successfully — Awaiting Bank Transfer'
+    },
+    onsite: {
+      ar: 'تم استلام طلبك — الدفع نقداً عند انطلاق الرحلة',
+      de: 'Ihre Buchungsanfrage ist eingegangen — Barzahlung bei Abfahrt',
+      fr: 'Votre demande de réservation a été reçue — Paiement en espèces au départ',
+      es: 'Su solicitud de reserva ha sido recibida — Pago en efectivo a la salida',
+      it: 'Richiesta di prenotazione ricevuta — Pagamento in contanti alla partenza',
+      ru: 'Ваша заявка принята — Оплата наличными перед отправлением',
+      zh: '您的预订申请已收到 — 出发时支付现金',
+      ja: '予約リクエストを受け付けました — 出発時に現金払い',
+      tr: 'Rezervasyon talebiniz alındı — Tur başlangıcında nakit ödeme',
+      en: 'Your Booking Request is Received — Cash Payment on Departure'
+    },
+    paid: {
+      ar: 'تم تأكيد الدفع والحجز بنجاح!',
+      de: 'Zahlung und Buchung erfolgreich bestätigt!',
+      fr: 'Paiement et réservation confirmés avec succès !',
+      es: '¡Pago y reserva confirmados con éxito!',
+      it: 'Pagamento e prenotazione confermati con successo!',
+      ru: 'Оплата и бронирование успешно подтверждены!',
+      zh: '支付与预订已成功确认！',
+      ja: 'お支払いと予約が正常に確認されました！',
+      tr: 'Ödeme ve rezervasyon başarıyla onaylandı!',
+      en: 'Payment & Booking Confirmed Successfully!'
+    }
+  };
+
+  const pdfBtnText = {
+    ar: '📄 تحميل وطباعة تأكيد الحجز PDF',
+    de: '📄 PDF-Bestätigung herunterladen & drucken',
+    fr: '📄 Télécharger et imprimer la confirmation PDF',
+    es: '📄 Descargar e imprimir confirmación en PDF',
+    it: '📄 Scarica e stampa la conferma PDF',
+    ru: '📄 Скачать и распечатать подтверждение PDF',
+    zh: '📄 下载并打印 PDF 预订确认单',
+    ja: '📄 PDF予約確認書をダウンロード＆印刷',
+    tr: '📄 PDF Onay Belgesini İndir ve Yazdır',
+    en: '📄 Download & Print PDF Confirmation'
+  };
+
+  const statusType = isBank ? 'bank' : isOnsite ? 'onsite' : 'paid';
+  const bannerHeading = (bannerMessages[statusType] && bannerMessages[statusType][lang]) || bannerMessages[statusType]?.en || '';
+  const downloadBtn = pdfBtnText[lang] || pdfBtnText.en;
 
   let serviceRowsHTML = `
     <tr style="border-bottom:1px solid #f1f5f9;">
@@ -98,7 +157,7 @@ function buildInvoiceHTML(data) {
 
   return `
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="${lang}" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -120,13 +179,13 @@ function buildInvoiceHTML(data) {
     <div style="background:${(isBank || isOnsite) ? '#fffbeb' : '#f0fdf4'};border-bottom:3px solid ${paymentColor};padding:20px 40px;text-align:center;">
       <div style="font-size:1.8rem;margin-bottom:6px;">${(isBank || isOnsite) ? '⏳' : '✅'}</div>
       <h2 style="margin:0;color:${paymentColor};font-size:1.3rem;font-weight:800;">
-        ${isBank ? 'تم تسجيل الحجز بنجاح — في انتظار التحويل البنكي' : isOnsite ? 'تم استلام طلبك — الدفع نقداً عند انطلاق الرحلة' : 'تم تأكيد الدفع والحجز بنجاح!'}
+        ${bannerHeading}
       </h2>
       <p style="margin:6px 0 12px;color:#64748b;font-size:0.9rem;">
         Issued: ${bookingDateTime}
       </p>
       <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.orluxus.com'}/booking-confirmation?ref=${txId}" target="_blank" style="display:inline-block;background:#c9a227;color:#ffffff;text-decoration:none;padding:10px 24px;border-radius:24px;font-weight:bold;font-size:13px;box-shadow:0 4px 12px rgba(201,162,39,0.3);">
-        📄 Download &amp; Print PDF Confirmation (تحميل وطباعة تأكيد الحجز PDF)
+        ${downloadBtn}
       </a>
     </div>
 
@@ -178,8 +237,10 @@ function buildInvoiceHTML(data) {
           ${serviceRowsHTML}
           ${extras ? `
           <tr style="border-bottom:1px solid #f1f5f9;background:#fafafa;">
-            <td style="padding:12px 16px;color:#64748b;font-size:0.9rem;" colspan="3">🎁 Add-ons: ${extras}</td>
-            <td style="padding:12px 16px;text-align:right;color:#64748b;font-weight:600;">Included</td>
+            <td style="padding:16px;font-weight:600;color:#1e293b;">🎁 Add-ons &amp; Extras (${extras})</td>
+            <td style="padding:16px;text-align:center;color:#475569;">1</td>
+            <td style="padding:16px;text-align:right;color:#475569;">${extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : '-'}</td>
+            <td style="padding:16px;text-align:right;font-weight:700;color:#1e293b;">${extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : 'Included'}</td>
           </tr>` : ''}
           ${discountAmount > 0 ? `
           <tr style="border-bottom:1px solid #f1f5f9;background:#fef2f2;">

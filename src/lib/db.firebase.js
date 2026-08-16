@@ -330,7 +330,28 @@ export async function getAllTrips() {
   try {
     const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
     if (!snapshot || snapshot.empty) return [];
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(t => !t.deleted);
+
+    // Collect all tombstone IDs (documents starting with del_ or having deleted: true)
+    const deletedIds = new Set();
+    snapshot.docs.forEach(d => {
+      const data = d.data();
+      if (data.deleted === true || d.id.startsWith('del_')) {
+        if (data.id) deletedIds.add(String(data.id));
+        deletedIds.add(String(d.id).replace(/^del_([^_]+)_([^_]+)_/, ''));
+        deletedIds.add(String(d.id));
+      }
+    });
+
+    return snapshot.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(t => {
+        if (!t) return false;
+        if (t.deleted === true) return false;
+        if (typeof t.id === 'string' && t.id.startsWith('del_')) return false;
+        if (deletedIds.has(String(t.id))) return false;
+        if (!t.titleAr && !t.titleEn && !t.title) return false;
+        return true;
+      });
   } catch (e) {
     console.error('Error in getAllTrips:', e);
     return [];

@@ -117,42 +117,86 @@ export default function Home() {
   const searchResults = useMemo(() => {
     if (!searchQuery || searchQuery.trim().length < 1) return [];
     const q = searchQuery.trim().toLowerCase();
+    const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
     
-    // 1. Search cities
+    // 1. Search cities across all supported languages
     const cityMatches = (cities || []).filter(c => 
       (c.name && c.name.toLowerCase().includes(q)) || 
       (c.nameAr && c.nameAr.toLowerCase().includes(q)) || 
-      (c.slug && c.slug.toLowerCase().includes(q))
-    ).map(c => ({
-      id: `city-${c.slug}`,
-      title: locale === 'ar' ? c.nameAr : c.name,
-      type: locale === 'ar' ? '🗺️ وجهة سياحية' : '🗺️ Destination',
-      url: `/city/${c.slug}`,
-      image: c.heroImage || 'https://images.unsplash.com/photo-1572252821143-035a02484666?auto=format&fit=crop&w=400&q=80',
-      price: null
+      (c.nameEn && c.nameEn.toLowerCase().includes(q)) || 
+      (c.slug && c.slug.toLowerCase().includes(q)) ||
+      (c.names && Object.values(c.names).some(n => typeof n === 'string' && n.toLowerCase().includes(q)))
+    ).map(c => {
+      const cityName = c.names?.[locale] || (locale === 'ar' ? c.nameAr : c.name) || c.name;
+      return {
+        id: `city-${c.slug}`,
+        title: cityName,
+        type: locale === 'ar' ? '🗺️ وجهة سياحية' : locale === 'de' ? '🗺️ Reiseziel' : locale === 'ru' ? '🗺️ Направление' : '🗺️ Destination',
+        url: `/city/${c.slug}`,
+        image: c.heroImage || 'https://images.unsplash.com/photo-1572252821143-035a02484666?auto=format&fit=crop&w=400&q=80',
+        price: null
+      };
+    });
+
+    // 2. Search packages across languages
+    const packageList = [
+      { id: 'pkg-relaxation', titleAr: 'باقات استرخاء استثنائية', titleEn: 'Relaxation Packages', typeAr: '✨ باكج سياحي', typeEn: '✨ Package', url: '/packages#relaxation', image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=400&q=80', price: 299 },
+      { id: 'pkg-cultural', titleAr: 'جولات سياحية ثقافية', titleEn: 'Cultural Packages', typeAr: '🏺 باكج سياحي', typeEn: '🏺 Package', url: '/packages#cultural', image: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=400&q=80', price: 349 },
+      { id: 'pkg-nile', titleAr: 'باقات كروز النيل الفاخرة', titleEn: 'Nile Cruise Packages', typeAr: '🛳️ كروز النيل', typeEn: '🛳️ Nile Cruise', url: '/packages#nile-cruise', image: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=400&q=80', price: 499 }
+    ];
+
+    const packageMatches = packageList.filter(p => 
+      (p.titleAr && p.titleAr.toLowerCase().includes(q)) || 
+      (p.titleEn && p.titleEn.toLowerCase().includes(q))
+    ).map(p => ({
+      id: p.id,
+      title: locale === 'ar' ? p.titleAr : p.titleEn,
+      type: locale === 'ar' ? p.typeAr : p.typeEn,
+      url: p.url,
+      image: p.image,
+      price: p.price
     }));
 
-    // 2. Search packages
-    const packageMatches = [
-      { id: 'pkg-relaxation', title: locale === 'ar' ? 'باقات استرخاء استثنائية' : 'Relaxation Packages', type: locale === 'ar' ? '✨ باكج سياحي' : '✨ Package', url: '/packages#relaxation', image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=400&q=80', price: 299 },
-      { id: 'pkg-cultural', title: locale === 'ar' ? 'جولات سياحية ثقافية' : 'Cultural Packages', type: locale === 'ar' ? '🏺 باكج سياحي' : '🏺 Package', url: '/packages#cultural', image: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=400&q=80', price: 349 },
-      { id: 'pkg-nile', title: locale === 'ar' ? 'باقات كروز النيل الفاخرة' : 'Nile Cruise Packages', type: locale === 'ar' ? '🛳️ كروز النيل' : '🛳️ Nile Cruise', url: '/packages#nile-cruise', image: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=400&q=80', price: 499 }
-    ].filter(p => p.title.toLowerCase().includes(q));
+    // 3. Search trips across all 10 language fields
+    const tripMatches = (allTripsList || []).filter(t => {
+      if (!t || t.deleted || (typeof t.id === 'string' && t.id.startsWith('del_'))) return false;
 
-    // 3. Search trips
-    const tripMatches = (allTripsList || []).filter(t => 
-      (t.titleAr && t.titleAr.toLowerCase().includes(q)) || 
-      (t.titleEn && t.titleEn.toLowerCase().includes(q)) ||
-      (t.description && t.description.toLowerCase().includes(q)) ||
-      (t.category && t.category.toLowerCase().includes(q))
-    ).map(t => ({
-      id: t.id,
-      title: locale === 'ar' ? (t.titleAr || t.titleEn) : (t.titleEn || t.titleAr),
-      type: locale === 'ar' ? '✈️ رحلة سياحية' : '✈️ Excursion',
-      url: (t.slug && t.category) ? `/city/${t.slug}/${t.category}` : `/checkout?tripId=${t.id}&price=${t.price || 50}&titleAr=${encodeURIComponent(t.titleAr || '')}&titleEn=${encodeURIComponent(t.titleEn || '')}`,
-      image: t.image || 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80',
-      price: t.price
-    }));
+      const valuesToSearch = [
+        t.title,
+        t.titleAr,
+        t.titleEn,
+        t.titleDe,
+        t.titleFr,
+        t.titleEs,
+        t.titleIt,
+        t.titleRu,
+        t.titleTr,
+        t.titleZh,
+        t.titleJa,
+        ...(t.titles ? Object.values(t.titles) : []),
+        t.description,
+        t.descriptionAr,
+        t.descriptionEn,
+        t.tripDescription,
+        t.tripDescriptionAr,
+        t.tripDescriptionEn,
+        t.category,
+        t.city,
+        t.slug
+      ].filter(v => typeof v === 'string' && v.trim().length > 0);
+
+      return valuesToSearch.some(val => val.toLowerCase().includes(q));
+    }).map(t => {
+      const tripTitle = t[`title${capLocale}`] || t.titles?.[locale] || (locale === 'ar' ? (t.titleAr || t.titleEn) : (t.titleEn || t.titleAr)) || t.title;
+      return {
+        id: t.id,
+        title: tripTitle,
+        type: locale === 'ar' ? '✈️ رحلة سياحية' : locale === 'de' ? '✈️ Ausflug' : locale === 'ru' ? '✈️ Экскурсия' : '✈️ Excursion',
+        url: (t.slug && t.category) ? `/city/${t.slug}/${t.category}` : `/checkout?tripId=${t.id}&price=${t.price || 50}&titleAr=${encodeURIComponent(t.titleAr || '')}&titleEn=${encodeURIComponent(t.titleEn || '')}`,
+        image: t.image || (Array.isArray(t.images) && t.images[0]) || 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80',
+        price: t.price
+      };
+    });
 
     return [...cityMatches, ...packageMatches, ...tripMatches].slice(0, 8);
   }, [searchQuery, allTripsList, locale]);

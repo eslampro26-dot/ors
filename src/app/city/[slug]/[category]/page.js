@@ -412,6 +412,44 @@ export default function CategoryPage({ params }) {
                       </div>
                     )}
 
+                    {/* Active Tier / Service Short Description */}
+                    {(() => {
+                      const capLoc = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
+                      const desc = activeTier?.descriptions?.[locale?.toLowerCase()] || 
+                                   activeTier?.descriptions?.[locale] || 
+                                   activeTier?.descriptions?.en || 
+                                   activeTier?.descriptions?.ar || 
+                                   trip[`description${capLoc}`] || 
+                                   trip[`tripDescription${capLoc}`] || 
+                                   trip.descriptionEn || 
+                                   trip.tripDescriptionEn || 
+                                   trip.description || 
+                                   trip.tripDescription || 
+                                   '';
+                      if (!desc) return null;
+                      const firstLine = desc.split(/\r?\n/)[0].trim();
+                      if (!firstLine) return null;
+                      return (
+                        <p style={{
+                          fontSize: '0.78rem',
+                          color: 'var(--text-secondary)',
+                          lineHeight: '1.45',
+                          margin: '0 0 0.85rem 0',
+                          padding: '6px 10px',
+                          background: 'rgba(255,255,255,0.03)',
+                          borderRadius: '6px',
+                          border: '1px solid var(--border-subtle)',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          textAlign: locale === 'ar' ? 'right' : 'left'
+                        }}>
+                          {firstLine}
+                        </p>
+                      );
+                    })()}
 
                     {/* View Full Details button */}
                     <div style={{ marginBottom: '1rem' }}>

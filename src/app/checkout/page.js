@@ -992,18 +992,28 @@ function CheckoutContent() {
                     <td style={{ padding: '0.9rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', fontWeight: 'bold' }}>€{(infantPriceParam * infantsParam).toFixed(2)}</td>
                   </tr>
                 )}
-                {extrasParam && (
-                  <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafb' }}>
-                    <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#475569', textAlign: locale === 'ar' ? 'right' : 'left' }}>
-                      🎁 {tGlobal('checkout.extrasLabel')}: {extrasParam}
-                    </td>
-                    <td style={{ padding: '0.8rem 1rem', textAlign: 'center' }}>-</td>
-                    <td style={{ padding: '0.8rem 1rem', textAlign: 'right' }}>-</td>
-                    <td style={{ padding: '0.8rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', color: '#475569', fontWeight: 'bold' }}>
-                      {tGlobal('checkout.extrasIncluded')}
-                    </td>
-                  </tr>
-                )}
+                {extrasParam && (() => {
+                  const adultsRowTotal = basePriceParam > 0 ? (basePriceParam + additionalPersonPriceParam * Math.max(travelersParam - 1, 0)) : originalParam;
+                  const childrenRowTotal = childPriceParam * childrenParam;
+                  const infantsRowTotal = infantPriceParam * infantsParam;
+                  const baseAndPaxTotal = adultsRowTotal + childrenRowTotal + infantsRowTotal;
+                  const extrasCost = Math.max(0, originalParam - baseAndPaxTotal);
+
+                  return (
+                    <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafb' }}>
+                      <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#1e293b', fontWeight: '600', textAlign: locale === 'ar' ? 'right' : 'left' }}>
+                        🎁 {tGlobal('checkout.extrasLabel')}: {extrasParam}
+                      </td>
+                      <td style={{ padding: '0.8rem 1rem', textAlign: 'center', fontFamily: 'var(--font-en)' }}>1</td>
+                      <td style={{ padding: '0.8rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)' }}>
+                        {extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : '-'}
+                      </td>
+                      <td style={{ padding: '0.8rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', color: '#1e293b', fontWeight: 'bold' }}>
+                        {extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : tGlobal('checkout.extrasIncluded')}
+                      </td>
+                    </tr>
+                  );
+                })()}
                 {discountParam > 0 && (
                   <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fef2f2' }}>
                     <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#dc2626', textAlign: locale === 'ar' ? 'right' : 'left', fontWeight: 'bold' }}>
