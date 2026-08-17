@@ -256,11 +256,11 @@ async function apiCall(url, method = 'GET', body = null) {
     }
     const res = await fetch(url, options);
     if (!res.ok) {
-      throw new Error(`API error: ${res.status}`);
+      return null;
     }
     return await res.json();
   } catch (err) {
-    console.error(`Error in apiCall to ${url}:`, err);
+    // Graceful fallback for network issues or aborted requests without polluting console
     return null;
   }
 }
