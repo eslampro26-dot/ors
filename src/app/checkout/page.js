@@ -2259,11 +2259,14 @@ function CheckoutContent() {
                             <span style={{ flex: 1 }}>
                               <TranslatedText text={name} /> 
                               {' '}
-                              (+€{addon.price}
-                              {addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch'
-                                ? ` ${translate('perPerson')}` 
-                                : ''}
-                              )
+                              {(() => {
+                                const isPerPerson = addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch';
+                                const totalAddonCost = isPerPerson ? (addon.price * travelers) : addon.price;
+                                if (isPerPerson && travelers > 1) {
+                                  return `(+€${totalAddonCost} = €${addon.price} × ${travelers})`;
+                                }
+                                return `(+€${totalAddonCost})`;
+                              })()}
                             </span>
                           </label>
                           {desc && (

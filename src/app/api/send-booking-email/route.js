@@ -262,9 +262,9 @@ function buildInvoiceHTML(data) {
         </div>
       </div>
 
-      ${agentName && agentName !== 'مباشر (بدون وكيل)' ? `
+      ${promoCode && agentName && agentName !== 'مباشر (بدون وكيل)' && agentName !== 'Direct (No Agent)' ? `
       <div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:8px;padding:12px 16px;margin-bottom:24px;font-size:0.9rem;color:#92400e;">
-        🤝 Referred by Agent: <strong>${agentName}</strong>
+        🤝 Referred via Agent Code: <strong>${promoCode.toUpperCase()}</strong>
       </div>` : ''}
 
       ${specialRequests ? `
