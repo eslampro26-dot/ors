@@ -114,10 +114,12 @@ function BookingConfirmationContent() {
     ...(booking.email ? [{ label: 'Email', value: booking.email }] : []),
     ...(booking.phone ? [{ label: 'Phone', value: booking.phone }] : []),
     ...(booking.whatsapp ? [{ label: 'WhatsApp', value: booking.whatsapp }] : []),
-    ...(booking.agentName ? [{ label: t('booking.agent'), value: (booking.agentName === 'مباشر (بدون وكيل)' || booking.agentName === 'مباشر') && locale !== 'ar' ? 'Direct (No Agent)' : booking.agentName }] : []),
+    ...(booking.agentName && booking.agentName !== 'مباشر (بدون وكيل)' && booking.agentName !== 'مباشر' && booking.agentName !== 'Direct (No Agent)' && booking.agentName !== 'Direct'
+      ? [{ label: t('booking.agent'), value: (booking.promoCode || booking.agentId || '—').toUpperCase() }]
+      : []),
     ...(booking.pickup ? [{ label: t('booking.pickup'), value: booking.pickup }] : []),
     ...(booking.extras ? [{ label: 'Add-ons', value: booking.extras, fullWidth: true }] : []),
-    ...(booking.promoCode ? [{ label: 'Promo Code', value: booking.promoCode }] : []),
+    ...(booking.promoCode && (!booking.agentId || booking.agentId === '') ? [{ label: 'Promo Code', value: booking.promoCode }] : []),
     ...(booking.specialRequests ? [{ label: t('booking.specialRequests'), value: booking.specialRequests, fullWidth: true }] : []),
   ] : [];
 
@@ -277,6 +279,23 @@ function BookingConfirmationContent() {
                           <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>€{(numInfants * infantPriceVal).toFixed(2)}</td>
                         </tr>
                       )}
+                      {booking.extras && (() => {
+                        const adultsRowTotal = numAdults * (adultPriceVal || 0);
+                        const childrenRowTotal = numChildren * (childPriceVal || 0);
+                        const infantsRowTotal = numInfants * (infantPriceVal || 0);
+                        const baseAndPaxTotal = adultsRowTotal + childrenRowTotal + infantsRowTotal;
+                        const extrasCost = Math.max(0, originalAmt - baseAndPaxTotal);
+                        if (extrasCost <= 0) return null;
+
+                        return (
+                          <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafb' }}>
+                            <td style={{ padding: '10px 12px', fontWeight: '600', color: '#0f172a' }}>🎁 Add-ons: {booking.extras}</td>
+                            <td style={{ padding: '10px 12px', textAlign: 'center', color: '#475569' }}>1</td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', color: '#475569' }}>€{extrasCost.toFixed(2)}</td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>€{extrasCost.toFixed(2)}</td>
+                          </tr>
+                        );
+                      })()}
                       {discountAmt > 0 && (
                         <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fef2f2' }}>
                           <td colSpan={3} style={{ padding: '10px 12px', color: '#dc2626', fontWeight: '600' }}>🏷 Promo Discount {booking.promoCode ? `(${booking.promoCode})` : ''}</td>

@@ -101,8 +101,10 @@ export default function CategoryPage({ params }) {
       return;
     }
 
+    const mdTier = modalConfig.tier;
     const capLocale = locale ? locale.charAt(0).toUpperCase() + locale.slice(1) : 'En';
     const descSource = 
+      mdTier?.richDesc ||
       trip.tripDescriptionEn || 
       trip.descriptionEn || 
       trip.tripDescription || 
@@ -143,16 +145,19 @@ export default function CategoryPage({ params }) {
     // --- DESCRIPTION ---
     if (!descSource) { setModalDesc(''); return; }
 
-    const storedDesc = trip[`tripDescription${capLocale}`] || trip[`description${capLocale}`];
-    if (storedDesc && storedDesc.trim()) {
-      setModalDesc(storedDesc);
-      return;
+    const isCustomTierDesc = mdTier && mdTier.id !== 'economy' && mdTier.richDesc && mdTier.richDesc !== trip.tripDescriptionEn && mdTier.richDesc !== trip.tripDescription;
+    if (!isCustomTierDesc) {
+      const storedDesc = trip[`tripDescription${capLocale}`] || trip[`description${capLocale}`];
+      if (storedDesc && storedDesc.trim()) {
+        setModalDesc(storedDesc);
+        return;
+      }
     }
     if (locale === 'en') {
       setModalDesc(descSource);
       return;
     }
-    const descCacheKey = `orluxus_desc_${trip.id}_${locale}`;
+    const descCacheKey = `orluxus_desc_${trip.id}_${mdTier?.id || 'economy'}_${locale}`;
     try {
       const cached = localStorage.getItem(descCacheKey);
       if (cached && cached.trim()) {
@@ -177,7 +182,7 @@ export default function CategoryPage({ params }) {
         }
       })
       .catch(() => {});
-  }, [modalConfig.isOpen, modalConfig.trip?.id, locale]);
+  }, [modalConfig.isOpen, modalConfig.trip?.id, modalConfig.tier?.id, locale]);
 
   const locCity = getLocalizedCity(city, locale);
   const localizedCategoryName = getCategoryName(category, locale);
@@ -670,6 +675,7 @@ export default function CategoryPage({ params }) {
                 {/* Description */}
                 {(() => {
                   const fallbackTripDesc = 
+                    mdTier?.richDesc ||
                     mdTrip.tripDescriptionEn || 
                     mdTrip.descriptionEn || 
                     mdTrip.tripDescription || 
