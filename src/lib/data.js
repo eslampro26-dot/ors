@@ -753,6 +753,7 @@ export function getTripTiers(trip) {
     price: hasCustomTiers ? (Number(trip.economyPrice) || basePrice) : basePrice,
     childPrice: hasCustomTiers ? (Number(trip.economyChildPrice) || Number(trip.childPrice) || 0) : (Number(trip.childPrice) || 0),
     infantPrice: hasCustomTiers ? (Number(trip.economyInfantPrice) || Number(trip.infantPrice) || 0) : (Number(trip.infantPrice) || 0),
+    additionalPersonPrice: hasCustomTiers ? (Number(trip.economyAdditionalPersonPrice) || Number(trip.additionalPersonPrice) || 0) : (Number(trip.additionalPersonPrice) || 0),
     descriptions: {
       en: (trip.tripDescriptionEn || trip.economyDesc || trip.descriptionEn || trip.tripDescription || trip.description)?.trim()?.split(/\r?\n/)[0]?.trim() || "Standard group excursion with basic entry and guidance.",
       ar: (trip.tripDescriptionAr || trip.economyDesc || trip.description || trip.tripDescription)?.trim()?.split(/\r?\n/)[0]?.trim() || "جولة قياسية شاملة الخدمة والإرشاد.",
@@ -784,6 +785,7 @@ export function getTripTiers(trip) {
       price: hasCustomTiers ? Number(trip.businessPrice) : Math.round(basePrice * 1.5),
       childPrice: hasCustomTiers ? (Number(trip.businessChildPrice) || Number(trip.childPrice) || 0) : (Number(trip.childPrice) || 0),
       infantPrice: hasCustomTiers ? (Number(trip.businessInfantPrice) || Number(trip.infantPrice) || 0) : (Number(trip.infantPrice) || 0),
+      additionalPersonPrice: hasCustomTiers ? (Number(trip.businessAdditionalPersonPrice) || Number(trip.additionalPersonPrice) || 0) : (Number(trip.additionalPersonPrice) || 0),
       descriptions: {
         en: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Upgraded amenities, premium lunch, and priority access.",
         ar: trip.businessDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "مرافق مطورة، وجبة غداء ممتازة، ودخول سريع ذو أولوية.",
@@ -808,6 +810,7 @@ export function getTripTiers(trip) {
       price: hasCustomTiers ? Number(trip.vipPrice) : Math.round(basePrice * 2.3),
       childPrice: hasCustomTiers ? (Number(trip.vipChildPrice) || Number(trip.childPrice) || 0) : (Number(trip.childPrice) || 0),
       infantPrice: hasCustomTiers ? (Number(trip.vipInfantPrice) || Number(trip.infantPrice) || 0) : (Number(trip.infantPrice) || 0),
+      additionalPersonPrice: hasCustomTiers ? (Number(trip.vipAdditionalPersonPrice) || Number(trip.additionalPersonPrice) || 0) : (Number(trip.additionalPersonPrice) || 0),
       descriptions: {
         en: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "Luxury private transfers, dedicated private guide, and elite amenities.",
         ar: trip.vipDesc?.trim()?.split(/\r?\n/)[0]?.trim() || "انتقالات خاصة فاخرة، مرشد خاص مخصص، ومرافق النخبة الراقية.",

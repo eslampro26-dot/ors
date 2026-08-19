@@ -103,11 +103,20 @@ function BookingConfirmationContent() {
   const numChildren = Number(booking?.children || 0);
   const numInfants = Number(booking?.infants || 0);
 
+  const totalTravelers = numAdults + numChildren + numInfants;
+  const travelersDisplay = totalTravelers > numAdults
+    ? (locale === 'ar' 
+        ? `${totalTravelers} أشخاص (${numAdults} كبار${numChildren > 0 ? `، ${numChildren} أطفال` : ''}${numInfants > 0 ? `، ${numInfants} رضع` : ''})`
+        : locale === 'de'
+        ? `${totalTravelers} Personen (${numAdults} Erwachsene${numChildren > 0 ? `, ${numChildren} Kinder` : ''}${numInfants > 0 ? `, ${numInfants} Kleinkinder` : ''})`
+        : `${totalTravelers} Persons (${numAdults} Adults${numChildren > 0 ? `, ${numChildren} Child(ren)` : ''}${numInfants > 0 ? `, ${numInfants} Infant(s)` : ''})`)
+    : `${numAdults} ${t('booking.persons')}`;
+
   const rows = booking ? [
     { label: t('booking.customer'), value: booking.customerName || booking.customer || '—' },
     { label: t('booking.service'), value: booking.service || '—' },
     { label: t('booking.date'), value: booking.date || '—' },
-    { label: t('booking.travelers'), value: numAdults + ' ' + t('booking.persons') + (numChildren > 0 ? ` | ${numChildren} Child(ren)` : '') + (numInfants > 0 ? ` | ${numInfants} Infant(s)` : '') },
+    { label: t('booking.travelers'), value: travelersDisplay },
     { label: t('booking.amount'), value: '€' + finalAmt.toFixed(2) },
     { label: t('booking.payStatus'), value: statusLabel },
     { label: t('booking.payMethod'), value: payLabel },
@@ -242,27 +251,32 @@ function BookingConfirmationContent() {
               </div>
 
               {/* Price Breakdown Table */}
-              {(adultPriceVal > 0 || childPriceVal > 0 || infantPriceVal > 0) && (
-                <div style={{ marginBottom: '1.2rem' }}>
-                  <h4 style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 'bold', margin: '0 0 0.6rem', textAlign: isAr ? 'right' : 'left' }}>
-                    💰 Price Breakdown
-                  </h4>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
-                    <thead>
-                      <tr style={{ background: '#f8fafc' }}>
-                        <th style={{ padding: '10px 12px', textAlign: isAr ? 'right' : 'left', color: '#64748b', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase' }}>Service</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b', fontWeight: '700', fontSize: '0.75rem' }}>Qty</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', color: '#64748b', fontWeight: '700', fontSize: '0.75rem' }}>Rate</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', color: '#64748b', fontWeight: '700', fontSize: '0.75rem' }}>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '10px 12px', fontWeight: '600', color: '#0f172a' }}>{booking.service} (Adults)</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'center', color: '#475569' }}>{numAdults}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'right', color: '#475569' }}>€{adultPriceVal.toFixed(2)}</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>€{(numAdults * adultPriceVal).toFixed(2)}</td>
-                      </tr>
+              {(finalAmt > 0 || originalAmt > 0 || adultPriceVal > 0 || childPriceVal > 0 || infantPriceVal > 0) && (() => {
+                const effectiveAdultPrice = adultPriceVal > 0 
+                  ? adultPriceVal 
+                  : (numAdults > 0 ? Math.max(0, originalAmt - (numChildren * childPriceVal) - (numInfants * infantPriceVal)) / numAdults : 0);
+
+                return (
+                  <div style={{ marginBottom: '1.2rem' }}>
+                    <h4 style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 'bold', margin: '0 0 0.6rem', textAlign: isAr ? 'right' : 'left' }}>
+                      💰 Price Breakdown
+                    </h4>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                      <thead>
+                        <tr style={{ background: '#f8fafc' }}>
+                          <th style={{ padding: '10px 12px', textAlign: isAr ? 'right' : 'left', color: '#64748b', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase' }}>Service</th>
+                          <th style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b', fontWeight: '700', fontSize: '0.75rem' }}>Qty</th>
+                          <th style={{ padding: '10px 12px', textAlign: 'right', color: '#64748b', fontWeight: '700', fontSize: '0.75rem' }}>Rate</th>
+                          <th style={{ padding: '10px 12px', textAlign: 'right', color: '#64748b', fontWeight: '700', fontSize: '0.75rem' }}>Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '10px 12px', fontWeight: '600', color: '#0f172a' }}>{booking.service} (Adults)</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'center', color: '#475569' }}>{numAdults}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right', color: '#475569' }}>€{effectiveAdultPrice.toFixed(2)}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>€{(numAdults * effectiveAdultPrice).toFixed(2)}</td>
+                        </tr>
                       {numChildren > 0 && (
                         <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#f8f9fa' }}>
                           <td style={{ padding: '10px 12px', fontWeight: '600', color: '#0f172a' }}>Children (2-12 yrs)</td>
@@ -309,7 +323,7 @@ function BookingConfirmationContent() {
                     </tbody>
                   </table>
                 </div>
-              )}
+              )})()}
 
               {/* Emergency Contact & Digital Signature Block */}
               <div style={{ border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '1rem 1.2rem', marginBottom: '1.2rem', background: '#ffffff' }}>

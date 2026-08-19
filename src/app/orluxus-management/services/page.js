@@ -76,6 +76,10 @@ export default function AdminServices() {
     economyInfantPrice: '',
     businessInfantPrice: '',
     vipInfantPrice: '',
+    additionalPersonPrice: '',
+    economyAdditionalPersonPrice: '',
+    businessAdditionalPersonPrice: '',
+    vipAdditionalPersonPrice: '',
     duration: 'Full Day',
     category: '',
     city: '',
@@ -351,6 +355,10 @@ export default function AdminServices() {
       economyInfantPrice: String(trip.economyInfantPrice || ''),
       businessInfantPrice: String(trip.businessInfantPrice || ''),
       vipInfantPrice: String(trip.vipInfantPrice || ''),
+      additionalPersonPrice: String(trip.additionalPersonPrice || ''),
+      economyAdditionalPersonPrice: String(trip.economyAdditionalPersonPrice || trip.additionalPersonPrice || ''),
+      businessAdditionalPersonPrice: String(trip.businessAdditionalPersonPrice || ''),
+      vipAdditionalPersonPrice: String(trip.vipAdditionalPersonPrice || ''),
       duration: trip.duration || 'Full Day',
       category: catId,
       city: cityId,
@@ -375,7 +383,7 @@ export default function AdminServices() {
     e.preventDefault();
 
     if (modalType === 'trip') {
-      const { city, category, titleEn, titleDe, titleAr, price, economyPrice, businessPrice, vipPrice, childPrice, economyChildPrice, businessChildPrice, vipChildPrice, infantPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice, additionalPersonPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, tripDescriptionEn, specialRequests } = formData;
+      const { city, category, titleEn, titleDe, titleAr, price, economyPrice, businessPrice, vipPrice, childPrice, economyChildPrice, businessChildPrice, vipChildPrice, infantPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice, additionalPersonPrice, economyAdditionalPersonPrice, businessAdditionalPersonPrice, vipAdditionalPersonPrice, duration, image, images, locationUrl, videoUrl, economyDesc, businessDesc, vipDesc, tripDescription, tripDescriptionEn, specialRequests } = formData;
       
       const targetCity = city || selectedCity || 'hurghada';
       const targetCategory = category || 'sea-trips';
@@ -507,6 +515,9 @@ export default function AdminServices() {
         businessInfantPrice: useTierPrices ? (parseFloat(businessInfantPrice) || 0) : 0,
         vipInfantPrice: useTierPrices ? (parseFloat(vipInfantPrice) || 0) : 0,
         additionalPersonPrice: parseFloat(additionalPersonPrice) || 0,
+        economyAdditionalPersonPrice: useTierPrices ? (parseFloat(economyAdditionalPersonPrice) || parseFloat(additionalPersonPrice) || 0) : (parseFloat(additionalPersonPrice) || 0),
+        businessAdditionalPersonPrice: useTierPrices ? (parseFloat(businessAdditionalPersonPrice) || 0) : 0,
+        vipAdditionalPersonPrice: useTierPrices ? (parseFloat(vipAdditionalPersonPrice) || 0) : 0,
         duration,
         image: image || 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80',
         images: images || [],
@@ -609,7 +620,7 @@ export default function AdminServices() {
         setIsTranslating(false);
       }
     } else {
-      const { category, titleAr, titleEn, price, duration, descriptionEn, icon, image, images, economyPrice, businessPrice, vipPrice, childPrice, economyChildPrice, businessChildPrice, vipChildPrice, infantPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice, additionalPersonPrice } = formData;
+      const { category, titleAr, titleEn, price, duration, descriptionEn, icon, image, images, economyPrice, businessPrice, vipPrice, childPrice, economyChildPrice, businessChildPrice, vipChildPrice, infantPrice, economyInfantPrice, businessInfantPrice, vipInfantPrice, additionalPersonPrice, economyAdditionalPersonPrice, businessAdditionalPersonPrice, vipAdditionalPersonPrice } = formData;
       const basePrice = useTierPrices ? (parseFloat(economyPrice) || 0) : parseFloat(price);
       
       const effectiveTitleEn = titleEn || titleAr;
@@ -736,6 +747,9 @@ export default function AdminServices() {
           businessInfantPrice: useTierPrices ? (parseFloat(businessInfantPrice) || 0) : 0,
           vipInfantPrice: useTierPrices ? (parseFloat(vipInfantPrice) || 0) : 0,
           additionalPersonPrice: parseFloat(additionalPersonPrice) || 0,
+          economyAdditionalPersonPrice: useTierPrices ? (parseFloat(economyAdditionalPersonPrice) || parseFloat(additionalPersonPrice) || 0) : (parseFloat(additionalPersonPrice) || 0),
+          businessAdditionalPersonPrice: useTierPrices ? (parseFloat(businessAdditionalPersonPrice) || 0) : 0,
+          vipAdditionalPersonPrice: useTierPrices ? (parseFloat(vipAdditionalPersonPrice) || 0) : 0,
           duration: duration || '3 Nights / 4 Days',
           description: descriptionEn,
           descriptionAr: translatedDescriptions.descriptionAr,
@@ -1459,6 +1473,47 @@ export default function AdminServices() {
                           value={formData.vipInfantPrice}
                           onChange={handleInputChange}
                           placeholder="Example: 30"
+                          className={styles.input}
+                          min="0"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {useTierPrices && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem', marginTop: '0.8rem' }}>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>👤 Economy Extra Person (€)</label>
+                        <input
+                          type="number"
+                          name="economyAdditionalPersonPrice"
+                          value={formData.economyAdditionalPersonPrice || ''}
+                          onChange={handleInputChange}
+                          placeholder="Example: 30"
+                          className={styles.input}
+                          min="0"
+                        />
+                      </div>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--gold-400)', fontSize: '0.85rem' }}>👤 Business Extra Person (€)</label>
+                        <input
+                          type="number"
+                          name="businessAdditionalPersonPrice"
+                          value={formData.businessAdditionalPersonPrice || ''}
+                          onChange={handleInputChange}
+                          placeholder="Example: 50"
+                          className={styles.input}
+                          min="0"
+                        />
+                      </div>
+                      <div className={styles.formGroup} style={{ margin: 0 }}>
+                        <label style={{ color: 'var(--coral-400)', fontSize: '0.85rem' }}>👤 VIP Extra Person (€)</label>
+                        <input
+                          type="number"
+                          name="vipAdditionalPersonPrice"
+                          value={formData.vipAdditionalPersonPrice || ''}
+                          onChange={handleInputChange}
+                          placeholder="Example: 80"
                           className={styles.input}
                           min="0"
                         />
