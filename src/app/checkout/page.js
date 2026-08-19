@@ -913,14 +913,16 @@ function CheckoutContent() {
                   {locale === 'ar' ? 'تاريخ الرحلة' : locale === 'fr' ? 'Date prévue' : locale === 'de' ? 'Geplantes Datum' : locale === 'es' ? 'Fecha programada' : 'Scheduled Date'}: {dateParam}
                 </p>
                 <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>
-                  {locale === 'ar' ? 'عدد الكبار' : 'Adults'}: {travelersParam} {locale === 'ar' ? 'أشخاص' : 'Persons'}
-                  {childrenParam > 0 && <span> &nbsp;|&nbsp; {locale === 'ar' ? 'أطفال' : 'Children'}: {childrenParam}</span>}
-                  {infantsParam > 0 && <span> &nbsp;|&nbsp; {locale === 'ar' ? 'رضع' : 'Infants'}: {infantsParam}</span>}
+                  👥 {locale === 'ar' ? 'عدد المسافرين' : 'Travelers'}: {(travelersParam + childrenParam + infantsParam)} {locale === 'ar' ? 'أشخاص' : 'Persons'}
+                  {(childrenParam > 0 || infantsParam > 0) && (
+                    <span> ({travelersParam} {locale === 'ar' ? 'كبار' : 'Adults'}{childrenParam > 0 ? ` | ${childrenParam} ${locale === 'ar' ? 'أطفال' : 'Children'}` : ''}{infantsParam > 0 ? ` | ${infantsParam} ${locale === 'ar' ? 'رضع' : 'Infants'}` : ''})</span>
+                  )}
                 </p>
                 {pickupParam && <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: '#475569' }}>📍 {locale === 'ar' ? 'نقطة الالتقاط' : 'Pickup'}: {pickupParam}</p>}
-                <p style={{ margin: 0, fontSize: '0.9rem', color: (isBank || isOnsite) ? '#f59e0b' : '#10b981', fontWeight: 'bold' }}>
+                <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.9rem', color: (isBank || isOnsite) ? '#f59e0b' : '#10b981', fontWeight: 'bold' }}>
                   {locale === 'ar' ? 'طريقة الدفع' : 'Gateway'}: {isBank ? (locale === 'ar' ? 'تحويل بنكي' : 'Bank Transfer') : (isOnsite ? (locale === 'ar' ? 'دفع عند الوصول' : 'Cash on Site') : (paymentTypeParam === 'card' ? 'Dafah Credit Card' : paymentTypeParam.toUpperCase()))}
                 </p>
+                {promoParam && <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>🤝 {locale === 'ar' ? 'كود الوكيل' : 'Agent Code'}: <strong style={{ color: '#0f172a' }}>{promoParam.toUpperCase()}</strong></p>}
               </div>
             </div>
 

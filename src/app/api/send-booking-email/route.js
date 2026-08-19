@@ -205,9 +205,10 @@ function buildInvoiceHTML(data) {
           <td style="width:50%;vertical-align:top;padding-left:20px;border-left:2px solid #f1f5f9;">
             <h3 style="margin:0 0 14px;font-size:0.75rem;color:#94a3b8;text-transform:uppercase;letter-spacing:2px;">Booking Info</h3>
             <p style="margin:0 0 6px;font-weight:700;color:#0f172a;">📅 ${date}</p>
-            <p style="margin:0 0 5px;color:#475569;font-size:0.9rem;">👥 ${travelers} Adult(s)${children > 0 ? ` | ${children} Child(ren)` : ''}${infants > 0 ? ` | ${infants} Infant(s)` : ''}</p>
+            <p style="margin:0 0 5px;color:#475569;font-size:0.9rem;">👥 ${(Number(travelers||0) + Number(children||0) + Number(infants||0))} Persons${children > 0 || infants > 0 ? ` (${travelers} Adults${children > 0 ? `, ${children} Child(ren)` : ''}${infants > 0 ? `, ${infants} Infant(s)` : ''})` : ` (${travelers} Adults)`}</p>
             ${pickupLocation ? `<p style="margin:0 0 5px;color:#475569;font-size:0.9rem;">📍 ${pickupLocation}</p>` : ''}
-            <p style="margin:0;font-weight:700;font-size:0.9rem;color:${paymentColor};">💳 ${paymentStatus}</p>
+            <p style="margin:0 0 5px;font-weight:700;font-size:0.9rem;color:${paymentColor};">💳 ${paymentStatus}</p>
+            ${promoCode && agentName && agentName !== 'مباشر (بدون وكيل)' && agentName !== 'Direct (No Agent)' && agentName !== 'مباشر' && agentName !== 'Direct' ? `<p style="margin:0;font-size:0.85rem;color:#64748b;">🤝 Agent Code: <strong style="color:#0f172a;">${promoCode.toUpperCase()}</strong></p>` : ''}
           </td>
         </tr>
       </table>

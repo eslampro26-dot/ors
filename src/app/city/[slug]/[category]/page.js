@@ -143,20 +143,56 @@ export default function CategoryPage({ params }) {
     }
 
     // --- DESCRIPTION ---
-    if (!descSource) { setModalDesc(''); return; }
+    // If the tier has its own richDesc (economyDesc, businessDesc, vipDesc), use it directly
+    const tierDesc = mdTier?.richDesc;
+    const finalDescSource = tierDesc || trip.tripDescriptionEn || trip.descriptionEn || trip.tripDescription || trip.description || trip.tripDescriptionAr || trip.descriptionAr || trip.economyDesc || '';
 
-    const isCustomTierDesc = mdTier && mdTier.id !== 'economy' && mdTier.richDesc && mdTier.richDesc !== trip.tripDescriptionEn && mdTier.richDesc !== trip.tripDescription;
-    if (!isCustomTierDesc) {
-      const storedDesc = trip[`tripDescription${capLocale}`] || trip[`description${capLocale}`];
-      if (storedDesc && storedDesc.trim()) {
-        setModalDesc(storedDesc);
+    if (!finalDescSource) { setModalDesc(''); return; }
+
+    if (tierDesc) {
+      if (locale === 'en') {
+        setModalDesc(tierDesc);
         return;
       }
-    }
-    if (locale === 'en') {
-      setModalDesc(descSource);
+      const descCacheKey = `orluxus_desc_${trip.id}_${mdTier?.id || 'economy'}_${locale}`;
+      try {
+        const cached = localStorage.getItem(descCacheKey);
+        if (cached && cached.trim()) {
+          setModalDesc(cached);
+          return;
+        }
+      } catch (e) {}
+
+      // Show source immediately while translation loads
+      setModalDesc(tierDesc);
+
+      fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: tierDesc, to: locale })
+      })
+        .then(r => r.ok ? r.json() : {})
+        .then(data => {
+          if (data?.translatedText && data.translatedText.trim()) {
+            setModalDesc(data.translatedText);
+            try { localStorage.setItem(descCacheKey, data.translatedText); } catch (e) {}
+          }
+        })
+        .catch(() => {});
       return;
     }
+
+    const storedDesc = trip[`tripDescription${capLocale}`] || trip[`description${capLocale}`];
+    if (storedDesc && storedDesc.trim()) {
+      setModalDesc(storedDesc);
+      return;
+    }
+
+    if (locale === 'en') {
+      setModalDesc(finalDescSource);
+      return;
+    }
+
     const descCacheKey = `orluxus_desc_${trip.id}_${mdTier?.id || 'economy'}_${locale}`;
     try {
       const cached = localStorage.getItem(descCacheKey);
@@ -167,12 +203,12 @@ export default function CategoryPage({ params }) {
     } catch (e) {}
 
     // Show source while fetching translation
-    setModalDesc(descSource);
+    setModalDesc(finalDescSource);
 
     fetch('/api/translate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: descSource, to: locale })
+      body: JSON.stringify({ text: finalDescSource, to: locale })
     })
       .then(r => r.ok ? r.json() : {})
       .then(data => {
@@ -182,7 +218,7 @@ export default function CategoryPage({ params }) {
         }
       })
       .catch(() => {});
-  }, [modalConfig.isOpen, modalConfig.trip?.id, modalConfig.tier?.id, locale]);
+  }, [modalConfig.isOpen, modalConfig.trip?.id, modalConfig.tier?.id, modalConfig.tier?.richDesc, locale]);
 
   const locCity = getLocalizedCity(city, locale);
   const localizedCategoryName = getCategoryName(category, locale);
@@ -657,12 +693,45 @@ export default function CategoryPage({ params }) {
               {/* Content Area */}
               <div style={{ padding: 'clamp(1.2rem, 4vw, 2.5rem)', maxWidth: '800px', margin: '0 auto' }}>
 
-                {/* Title + Tier badge */}
+                {/* Title + Tier selector tabs */}
                 <div style={{ marginBottom: '1.25rem' }}>
-                  {mdTiers.length > 1 && tierLabel && (
-                    <span style={{ background: 'rgba(201,162,39,0.12)', color: 'var(--gold-400)', padding: '3px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '700', display: 'inline-block', marginBottom: '0.6rem', border: '1px solid rgba(201,162,39,0.3)' }}>{tierLabel}</span>
-                  )}
                   <h2 style={{ fontSize: 'clamp(1.4rem, 4vw, 2rem)', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 0.75rem', lineHeight: 1.25 }}>{modalTitle || tripTitle}</h2>
+                  
+                  {/* Interactive Tier Switcher (when multiple tiers exist) */}
+                  {mdTiers.length > 1 && (
+                    <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '0.9rem', alignItems: 'center' }}>
+                      {mdTiers.map((t) => {
+                        const isSelected = (mdTier?.id || 'economy') === t.id;
+                        return (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => {
+                              setModalConfig(prev => ({ ...prev, tier: t }));
+                            }}
+                            style={{
+                              padding: '6px 14px',
+                              borderRadius: '20px',
+                              border: isSelected ? '2px solid var(--gold-400)' : '1px solid var(--border-medium)',
+                              background: isSelected ? 'rgba(201,162,39,0.18)' : 'rgba(255,255,255,0.03)',
+                              color: isSelected ? 'var(--gold-400)' : 'var(--text-secondary)',
+                              fontWeight: isSelected ? '800' : '600',
+                              fontSize: '0.82rem',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px'
+                            }}
+                          >
+                            <span>{t.names?.[locale] || t.names?.en || t.id}</span>
+                            <span style={{ fontFamily: 'var(--font-en)', fontWeight: 'bold' }}>€{t.price}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                     <span>⏱️ {translateDuration(mdTrip, locale)}</span>
                     <span>⭐ {mdTrip.rating || '5.0'} ({mdTrip.reviews || '1'} {lbl('reviews')})</span>

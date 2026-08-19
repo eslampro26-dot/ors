@@ -294,19 +294,18 @@ function BookingConfirmationContent() {
                         </tr>
                       )}
                       {booking.extras && (() => {
-                        const adultsRowTotal = numAdults * (adultPriceVal || 0);
+                        const adultsRowTotal = numAdults * effectiveAdultPrice;
                         const childrenRowTotal = numChildren * (childPriceVal || 0);
                         const infantsRowTotal = numInfants * (infantPriceVal || 0);
                         const baseAndPaxTotal = adultsRowTotal + childrenRowTotal + infantsRowTotal;
                         const extrasCost = Math.max(0, originalAmt - baseAndPaxTotal);
-                        if (extrasCost <= 0) return null;
 
                         return (
                           <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafb' }}>
                             <td style={{ padding: '10px 12px', fontWeight: '600', color: '#0f172a' }}>🎁 Add-ons: {booking.extras}</td>
                             <td style={{ padding: '10px 12px', textAlign: 'center', color: '#475569' }}>1</td>
-                            <td style={{ padding: '10px 12px', textAlign: 'right', color: '#475569' }}>€{extrasCost.toFixed(2)}</td>
-                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>€{extrasCost.toFixed(2)}</td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', color: '#475569' }}>{extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : '—'}</td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>{extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : 'Included'}</td>
                           </tr>
                         );
                       })()}
