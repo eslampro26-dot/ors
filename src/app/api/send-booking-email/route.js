@@ -47,7 +47,8 @@ function buildInvoiceHTML(data) {
     serviceName, originalAmount, discountAmount, finalAmount,
     paymentType, txId, extras, pickupLocation, promoCode,
     agentName, children, infants, specialRequests,
-    bookingDateTime, adultPrice, childPrice, infantPrice
+    bookingDateTime, adultPrice, childPrice, infantPrice,
+    extrasDetails
   } = data;
 
   const isBank = paymentType === 'bank_transfer';
@@ -88,10 +89,10 @@ function buildInvoiceHTML(data) {
       es: 'Su solicitud de reserva ha sido recibida — Pago en efectivo a la salida',
       it: 'Richiesta di prenotazione ricevuta — Pagamento in contanti alla partenza',
       ru: 'Ваша заявка принята — Оплата наличными перед отправлением',
-      zh: '您的预订申请已收到 — 出发时支付现金',
+      zh: '已收到您的预订请求 — 出发时支付现金',
       ja: '予約リクエストを受け付けました — 出発時に現金払い',
-      tr: 'Rezervasyon talebiniz alındı — Tur başlangıcında nakit ödeme',
-      en: 'Your Booking Request is Received — Cash Payment on Departure'
+      tr: 'Rezervasyon talebiniz alındı — Çıkışta nakit ödeme',
+      en: 'Booking Request Received — Cash Payment on Departure'
     },
     paid: {
       ar: 'تم تأكيد الدفع والحجز بنجاح!',
@@ -151,6 +152,29 @@ function buildInvoiceHTML(data) {
         <td style="padding:16px;text-align:center;color:#475569;">${infants}</td>
         <td style="padding:16px;text-align:right;color:#475569;">€${infantPriceVal.toFixed(2)}</td>
         <td style="padding:16px;text-align:right;font-weight:700;color:#1e293b;">€${infantTotal.toFixed(2)}</td>
+      </tr>
+    `;
+  }
+
+  if (extrasDetails && Array.isArray(extrasDetails) && extrasDetails.length > 0) {
+    extrasDetails.forEach(item => {
+      const itemTitle = lang === 'ar' ? (item.nameAr || item.name) : lang === 'de' ? (item.nameDe || item.nameEn || item.name) : (item.nameEn || item.name);
+      serviceRowsHTML += `
+        <tr style="border-bottom:1px solid #f1f5f9;background:#fafafb;">
+          <td style="padding:16px;font-weight:600;color:#1e293b;">🎁 ${itemTitle}</td>
+          <td style="padding:16px;text-align:center;color:#475569;">${item.qty || 1}</td>
+          <td style="padding:16px;text-align:right;color:#475569;">€${Number(item.rate || item.total || 0).toFixed(2)}</td>
+          <td style="padding:16px;text-align:right;font-weight:700;color:#1e293b;">€${Number(item.total || item.rate || 0).toFixed(2)}</td>
+        </tr>
+      `;
+    });
+  } else if (extras) {
+    serviceRowsHTML += `
+      <tr style="border-bottom:1px solid #f1f5f9;background:#fafafa;">
+        <td style="padding:16px;font-weight:600;color:#1e293b;">🎁 Add-ons &amp; Extras (${extras})</td>
+        <td style="padding:16px;text-align:center;color:#475569;">1</td>
+        <td style="padding:16px;text-align:right;color:#475569;">${extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : '-'}</td>
+        <td style="padding:16px;text-align:right;font-weight:700;color:#1e293b;">${extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : 'Included'}</td>
       </tr>
     `;
   }
@@ -236,13 +260,6 @@ function buildInvoiceHTML(data) {
         </thead>
         <tbody>
           ${serviceRowsHTML}
-          ${extras ? `
-          <tr style="border-bottom:1px solid #f1f5f9;background:#fafafa;">
-            <td style="padding:16px;font-weight:600;color:#1e293b;">🎁 Add-ons &amp; Extras (${extras})</td>
-            <td style="padding:16px;text-align:center;color:#475569;">1</td>
-            <td style="padding:16px;text-align:right;color:#475569;">${extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : '-'}</td>
-            <td style="padding:16px;text-align:right;font-weight:700;color:#1e293b;">${extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : 'Included'}</td>
-          </tr>` : ''}
           ${discountAmount > 0 ? `
           <tr style="border-bottom:1px solid #f1f5f9;background:#fef2f2;">
             <td style="padding:12px 16px;color:#dc2626;font-weight:600;" colspan="3">🏷 Promo Discount${promoCode ? ` (${promoCode})` : ''}</td>
@@ -375,7 +392,8 @@ export async function POST(request) {
       paymentType, txId, extras, pickupLocation, promoCode,
       agentName, children = 0, infants = 0, specialRequests,
       electronicSignature, signatureTimestamp, city,
-      adultPrice, childPrice, infantPrice
+      adultPrice, childPrice, infantPrice,
+      extrasDetails
     } = body;
 
     // Validate required fields
@@ -403,7 +421,8 @@ export async function POST(request) {
       serviceName, originalAmount, discountAmount, finalAmount,
       paymentType, txId, extras, pickupLocation, promoCode,
       agentName, children, infants, specialRequests, bookingDateTime,
-      adultPrice, childPrice, infantPrice
+      adultPrice, childPrice, infantPrice,
+      extrasDetails
     };
 
     const htmlContent = buildInvoiceHTML(invoiceData);

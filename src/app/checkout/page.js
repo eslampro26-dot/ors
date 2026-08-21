@@ -141,29 +141,48 @@ function CheckoutContent() {
   const paypalEmail = settings?.paypalEmail || 'info@orluxus.com';
 
   // Helpers to format selected extras
-  const getSelectedExtrasString = () => {
-    if (!settings?.checkoutAddons) return '';
-    const arr = [];
-    settings.checkoutAddons.forEach(addon => {
+  const getSelectedExtrasList = () => {
+    const defaultAddons = [
+      { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', nameDe: 'Privater Reiseleiter', price: 25, unit: 'booking' },
+      { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', nameDe: 'Mittagessen & Erfrischungsgetränke', price: 15, unit: 'person' },
+      { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', nameDe: 'Privater Hin- und Rücktransfer', price: 30, unit: 'booking' },
+      { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', nameDe: 'Professionelles Fotoshooting', price: 20, unit: 'booking' },
+    ];
+    const addons = (settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : defaultAddons;
+    const list = [];
+    addons.forEach(addon => {
       if (selectedExtras[addon.id]) {
-        arr.push(locale === 'ar' ? addon.nameAr : addon.nameEn);
+        const isTransfer = addon.id === 'transfer' || addon.nameEn?.toLowerCase().includes('transfer') || addon.nameAr?.includes('انتقال');
+        const isPerPerson = !isTransfer && (addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch');
+        const qty = isPerPerson ? travelers : 1;
+        const rate = Number(addon.price || 0);
+        const total = isPerPerson ? (rate * travelers) : rate;
+        let name = locale === 'ar' ? (addon.nameAr || addon.nameEn) : locale === 'de' ? (addon.nameDe || addon.nameEn) : (addon.nameEn || addon.nameAr);
+        if (!name) name = addon.nameEn || addon.nameAr || addon.id;
+        list.push({
+          id: addon.id,
+          name: name,
+          nameEn: addon.nameEn || addon.nameAr || addon.id,
+          nameAr: addon.nameAr || addon.nameEn || addon.id,
+          nameDe: addon.nameDe || addon.nameEn || addon.id,
+          qty: qty,
+          rate: rate,
+          total: total
+        });
       }
     });
-    return arr.join(', ');
+    return list;
+  };
+
+  const getSelectedExtrasString = () => {
+    const list = getSelectedExtrasList();
+    if (list.length === 0) return '';
+    return list.map(item => item.name).join(', ');
   };
 
   const getSelectedExtrasCost = () => {
-    if (!settings?.checkoutAddons) return 0;
-    let cost = 0;
-    settings.checkoutAddons.forEach(addon => {
-      if (selectedExtras[addon.id]) {
-        // Transfer should be per booking, not per person
-        const isTransfer = addon.id === 'transfer' || addon.nameEn?.toLowerCase().includes('transfer') || addon.nameAr?.includes('انتقال');
-        const isPerPerson = !isTransfer && (addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch');
-        cost += isPerPerson ? (addon.price * travelers) : addon.price;
-      }
-    });
-    return cost;
+    const list = getSelectedExtrasList();
+    return list.reduce((sum, item) => sum + item.total, 0);
   };
 
   // Price Calculations
@@ -421,6 +440,7 @@ function CheckoutContent() {
           txId: txId,
           pickupLocation: pickupLocation,
           extras: getSelectedExtrasString(),
+          extrasDetails: getSelectedExtrasList(),
           children: children,
           infants: infants,
           adultPrice: additionalPersonPrice || basePrice,
@@ -439,7 +459,9 @@ function CheckoutContent() {
           serviceName: titleEn || titleAr || 'Travel Excursion',
           originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
           paymentType: walletName, txId,
-          extras: getSelectedExtrasString(), pickupLocation,
+          extras: getSelectedExtrasString(),
+          extrasDetails: getSelectedExtrasList(),
+          pickupLocation,
           promoCode: promoDetails?.code || '',
           agentName: promoDetails?.agentName || translate('directAgent'),
           children, infants, specialRequests,
@@ -450,7 +472,7 @@ function CheckoutContent() {
         });
         
         setIsSimulatingPayment(false);
-        const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)')}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=${walletName}&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
+        const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : 'مباشر (بدون وكيل)')}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=${walletName}&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&extrasList=${encodeURIComponent(JSON.stringify(getSelectedExtrasList()))}&specialRequests=${encodeURIComponent(specialRequests)}`;
         router.push(successUrl);
       } catch (err) {
         console.error(`Error saving booking on ${walletName} payment:`, err);
@@ -487,6 +509,7 @@ function CheckoutContent() {
           txId: txId,
           pickupLocation: pickupLocation,
           extras: getSelectedExtrasString(),
+          extrasDetails: getSelectedExtrasList(),
           children: children,
           infants: infants,
           adultPrice: additionalPersonPrice || basePrice,
@@ -505,7 +528,9 @@ function CheckoutContent() {
           serviceName: titleEn || titleAr || 'Travel Excursion',
           originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
           paymentType: 'bank_transfer', txId,
-          extras: getSelectedExtrasString(), pickupLocation,
+          extras: getSelectedExtrasString(),
+          extrasDetails: getSelectedExtrasList(),
+          pickupLocation,
           promoCode: promoDetails?.code || '',
           agentName: promoDetails?.agentName || translate('directAgent'),
           children, infants, specialRequests,
@@ -516,7 +541,7 @@ function CheckoutContent() {
         });
 
         setIsSimulatingPayment(false);
-        const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=bank_transfer&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
+        const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=bank_transfer&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&extrasList=${encodeURIComponent(JSON.stringify(getSelectedExtrasList()))}&specialRequests=${encodeURIComponent(specialRequests)}`;
         router.push(successUrl);
       } catch (err) {
         console.error('Error saving booking on bank transfer payment:', err);
@@ -551,6 +576,7 @@ function CheckoutContent() {
         txId: txId,
         pickupLocation: pickupLocation,
         extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
         children: children,
         infants: infants,
         adultPrice: additionalPersonPrice || basePrice,
@@ -569,7 +595,9 @@ function CheckoutContent() {
         serviceName: titleEn || titleAr || 'Travel Excursion',
         originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
         paymentType: 'onsite', txId,
-        extras: getSelectedExtrasString(), pickupLocation,
+        extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
+        pickupLocation,
         promoCode: promoDetails?.code || '',
         agentName: promoDetails?.agentName || translate('directAgent'),
         children, infants, specialRequests,
@@ -582,7 +610,7 @@ function CheckoutContent() {
       console.error('Error saving booking on cash payment:', err);
     }
 
-    const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=onsite&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
+    const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=onsite&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&extrasList=${encodeURIComponent(JSON.stringify(getSelectedExtrasList()))}&specialRequests=${encodeURIComponent(specialRequests)}`;
     router.push(successUrl);
   };
 
@@ -658,6 +686,7 @@ function CheckoutContent() {
               txId: txId,
               pickupLocation: pickupLocation,
               extras: getSelectedExtrasString(),
+              extrasDetails: getSelectedExtrasList(),
               children: children,
               infants: infants,
               adultPrice: additionalPersonPrice || basePrice,
@@ -676,7 +705,9 @@ function CheckoutContent() {
               serviceName: titleEn || titleAr || 'Travel Excursion',
               originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
               paymentType: 'paypal', txId,
-              extras: getSelectedExtrasString(), pickupLocation,
+              extras: getSelectedExtrasString(),
+              extrasDetails: getSelectedExtrasList(),
+              pickupLocation,
               promoCode: promoDetails?.code || '',
               agentName: promoDetails?.agentName || translate('directAgent'),
               children, infants, specialRequests,
@@ -689,7 +720,7 @@ function CheckoutContent() {
             console.error('Error saving booking on PayPal approval:', err);
           }
 
-          const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=paypal&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&specialRequests=${encodeURIComponent(specialRequests)}`;
+          const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=paypal&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&extrasList=${encodeURIComponent(JSON.stringify(getSelectedExtrasList()))}&specialRequests=${encodeURIComponent(specialRequests)}`;
           router.push(successUrl);
         });
       },
@@ -730,6 +761,11 @@ function CheckoutContent() {
   const paymentTypeParam = searchParams.get('paymentType') || '';
   const pickupParam = searchParams.get('pickupLocation') || '';
   const extrasParam = searchParams.get('extras') || '';
+  const extrasListRaw = searchParams.get('extrasList') || '';
+  let extrasListParam = null;
+  if (extrasListRaw) {
+    try { extrasListParam = JSON.parse(extrasListRaw); } catch (_) {}
+  }
   const specialRequestsParam = searchParams.get('specialRequests') || '';
   const childrenParam = parseInt(searchParams.get('children') || '0', 10);
   const infantsParam = parseInt(searchParams.get('infants') || '0', 10);
@@ -1015,8 +1051,23 @@ function CheckoutContent() {
                           <td style={{ padding: '0.9rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', fontWeight: 'bold' }}>€{infantsRowTotal.toFixed(2)}</td>
                         </tr>
                       )}
-                      {/* Extras / Add-ons row */}
-                      {extrasParam && (
+                      {/* Extras / Add-ons itemized rows */}
+                      {extrasListParam && Array.isArray(extrasListParam) && extrasListParam.length > 0 ? (
+                        extrasListParam.map((item, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafb' }}>
+                            <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#1e293b', fontWeight: '600', textAlign: locale === 'ar' ? 'right' : 'left' }}>
+                              🎁 {locale === 'ar' ? (item.nameAr || item.name) : locale === 'de' ? (item.nameDe || item.nameEn || item.name) : (item.nameEn || item.name)}
+                            </td>
+                            <td style={{ padding: '0.8rem 1rem', textAlign: 'center', fontFamily: 'var(--font-en)' }}>{item.qty || 1}</td>
+                            <td style={{ padding: '0.8rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)' }}>
+                              €{Number(item.rate || item.total || 0).toFixed(2)}
+                            </td>
+                            <td style={{ padding: '0.8rem 1rem', textAlign: 'right', fontFamily: 'var(--font-en)', color: '#1e293b', fontWeight: 'bold' }}>
+                              €{Number(item.total || item.rate || 0).toFixed(2)}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (extrasParam ? (
                         <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafb' }}>
                           <td style={{ padding: '0.8rem 1rem', fontSize: '0.9rem', color: '#1e293b', fontWeight: '600', textAlign: locale === 'ar' ? 'right' : 'left' }}>
                             🎁 {tGlobal('checkout.extrasLabel')}: {extrasParam}
@@ -1029,7 +1080,7 @@ function CheckoutContent() {
                             {extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : tGlobal('checkout.extrasIncluded')}
                           </td>
                         </tr>
-                      )}
+                      ) : null)}
                     </>
                   );
                 })()}

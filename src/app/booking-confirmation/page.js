@@ -293,7 +293,18 @@ function BookingConfirmationContent() {
                           <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>€{(numInfants * infantPriceVal).toFixed(2)}</td>
                         </tr>
                       )}
-                      {booking.extras && (() => {
+                      {booking.extrasDetails && Array.isArray(booking.extrasDetails) && booking.extrasDetails.length > 0 ? (
+                        booking.extrasDetails.map((item, idx) => (
+                          <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9', background: '#fafafb' }}>
+                            <td style={{ padding: '10px 12px', fontWeight: '600', color: '#0f172a' }}>
+                              🎁 {isAr ? (item.nameAr || item.name) : locale === 'de' ? (item.nameDe || item.nameEn || item.name) : (item.nameEn || item.name)}
+                            </td>
+                            <td style={{ padding: '10px 12px', textAlign: 'center', color: '#475569' }}>{item.qty || 1}</td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', color: '#475569' }}>€{Number(item.rate || item.total || 0).toFixed(2)}</td>
+                            <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>€{Number(item.total || item.rate || 0).toFixed(2)}</td>
+                          </tr>
+                        ))
+                      ) : (booking.extras && (() => {
                         const adultsRowTotal = numAdults * effectiveAdultPrice;
                         const childrenRowTotal = numChildren * (childPriceVal || 0);
                         const infantsRowTotal = numInfants * (infantPriceVal || 0);
@@ -308,7 +319,7 @@ function BookingConfirmationContent() {
                             <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: '#0f172a' }}>{extrasCost > 0 ? `€${extrasCost.toFixed(2)}` : 'Included'}</td>
                           </tr>
                         );
-                      })()}
+                      })())}
                       {discountAmt > 0 && (
                         <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#fef2f2' }}>
                           <td colSpan={3} style={{ padding: '10px 12px', color: '#dc2626', fontWeight: '600' }}>🏷 Promo Discount {booking.promoCode ? `(${booking.promoCode})` : ''}</td>
