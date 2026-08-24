@@ -1876,24 +1876,124 @@ function CheckoutContent() {
                   </div>
 
                   {/* CARD SUB-VIEW */}
-                  {selectedPayMethod === 'card' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                      <button
-                        type="button"
-                        onClick={() => handleSimulatedCardPayment()}
-                        className="btn btn-primary"
-                        style={{
-                          width: '100%',
-                          padding: '1.1rem',
-                          fontWeight: 'bold',
-                          fontSize: '1rem',
-                          borderRadius: '10px'
-                        }}
-                      >
-                        {translate('payBtn')} €{totalAmount.toFixed(2)}
-                      </button>
-                    </div>
-                  )}
+                  {selectedPayMethod === 'card' && (() => {
+                      const availableCards = (settings?.cardAccounts && settings.cardAccounts.length > 0)
+                        ? settings.cardAccounts.filter(c => c.isActive !== false)
+                        : [
+                            { id: 'visa_main', cardName: 'Visa / Mastercard Secure', cardType: 'Visa', currency: 'EUR', instructionsAr: 'دفع آمن ومشفر 256-Bit SSL', instructionsEn: '256-Bit SSL Encrypted Payment' }
+                          ];
+                      const activeCard = availableCards[0] || {};
+
+                      return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                          {/* Card Selection if multiple */}
+                          {availableCards.length > 1 && (
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 'bold' }}>
+                                {isAr ? 'اختر نوع البطاقة أو بوابة الدفع:' : 'Select Card Type / Gateway:'}
+                              </label>
+                              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                {availableCards.map((c, ci) => (
+                                  <div
+                                    key={c.id || ci}
+                                    style={{
+                                      padding: '8px 14px',
+                                      borderRadius: '8px',
+                                      background: 'rgba(59,130,246,0.1)',
+                                      border: '1px solid #3b82f6',
+                                      color: '#93c5fd',
+                                      fontSize: '0.85rem',
+                                      fontWeight: 'bold',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '6px'
+                                    }}
+                                  >
+                                    <span>💳</span>
+                                    <span>{c.cardName || c.cardType} ({c.currency || 'EUR'})</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Card Details Mock Form */}
+                          <div style={{
+                            background: 'linear-gradient(135deg, rgba(30,58,138,0.15) 0%, rgba(15,23,42,0.6) 100%)',
+                            border: '1px solid rgba(59,130,246,0.3)',
+                            borderRadius: '12px',
+                            padding: '1.2rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.9rem'
+                          }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(59,130,246,0.2)', paddingBottom: '0.5rem' }}>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#93c5fd' }}>
+                                🔒 {isAr ? 'بوابة الدفع الإلكتروني المشفرة (256-Bit SSL)' : '256-Bit SSL Encrypted Card Gateway'}
+                              </span>
+                              <span style={{ fontSize: '0.75rem', background: '#2563eb', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>
+                                Verified Visa &amp; MC
+                              </span>
+                            </div>
+
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                                {isAr ? 'رقم البطاقة (Card Number):' : 'Card Number:'}
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="•••• •••• •••• ••••"
+                                maxLength={19}
+                                style={{ width: '100%', padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-en)', letterSpacing: '2px' }}
+                              />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                              <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                                  {isAr ? 'تاريخ الانتهاء (MM/YY):' : 'Expiry (MM/YY):'}
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="MM/YY"
+                                  maxLength={5}
+                                  style={{ width: '100%', padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-en)', textAlign: 'center' }}
+                                />
+                              </div>
+                              <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                                  {isAr ? 'رمز الأمان (CVV):' : 'CVV / CVC:'}
+                                </label>
+                                <input
+                                  type="password"
+                                  placeholder="•••"
+                                  maxLength={4}
+                                  style={{ width: '100%', padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-en)', textAlign: 'center' }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleSimulatedCardPayment()}
+                            className="btn btn-primary"
+                            style={{
+                              width: '100%',
+                              padding: '1.1rem',
+                              fontWeight: 'bold',
+                              fontSize: '1.05rem',
+                              borderRadius: '10px',
+                              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                              color: '#fff',
+                              boxShadow: '0 4px 15px rgba(37,99,235,0.4)'
+                            }}
+                          >
+                            💳 {isAr ? `إتمام الدفع الآمن بالفيزا والبطاقة (€${totalAmount.toFixed(2)})` : `Pay €${totalAmount.toFixed(2)} with Visa / Card`}
+                          </button>
+                        </div>
+                      );
+                    })()}
 
                   {/* PAYPAL DIRECT GATEWAY SUB-VIEW */}
                   {selectedPayMethod === 'paypal' && (() => {

@@ -71,6 +71,42 @@ export default function AdminSettings() {
     isActive: true,
     displayOrder: 1
   });
+
+  // Custom Direct Visa & Card Gateway Settings
+  const defaultCardAccounts = [
+    {
+      id: 'card_visa_eur',
+      cardType: 'Visa',
+      cardName: 'ORLUXUS Corporate Visa',
+      accountName: 'ORLUXUS LUXURY TRAVEL',
+      cardNumberMasked: '**** **** **** 4892',
+      currency: 'EUR',
+      bankName: 'CIB Bank (البنك التجاري الدولي)',
+      country: 'Egypt 🇪🇬',
+      instructionsAr: 'يرجى إدخال بيانات البطاقة لإتمام الدفع الآمن والمشفر بنسبة 100%.',
+      instructionsEn: 'Enter your card details for 100% encrypted & secure payment.',
+      isActive: true,
+      displayOrder: 1
+    }
+  ];
+  const [cardAccounts, setCardAccounts] = useState(defaultCardAccounts);
+  const [customCardGatewayEnabled, setCustomCardGatewayEnabled] = useState(true);
+  const [cardModalOpen, setCardModalOpen] = useState(false);
+  const [editingCardIndex, setEditingCardIndex] = useState(null);
+  const [cardForm, setCardForm] = useState({
+    id: '',
+    cardType: 'Visa',
+    cardName: '',
+    accountName: 'ORLUXUS LUXURY TRAVEL',
+    cardNumberMasked: '',
+    currency: 'EUR',
+    bankName: '',
+    country: 'Egypt 🇪🇬',
+    instructionsAr: 'يرجى إدخال بيانات البطاقة لإتمام الدفع الآمن والمشفر بنسبة 100%.',
+    instructionsEn: 'Enter your card details for 100% encrypted & secure payment.',
+    isActive: true,
+    displayOrder: 1
+  });
   
   const defaultAddons = [
     { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'Private Tour Guide', price: 25, unit: 'booking', descAr: 'A licensed tour guide to accompany you throughout the trip.', descEn: 'A licensed tour guide to accompany you throughout the trip.' },
@@ -177,6 +213,14 @@ export default function AdminSettings() {
             setCustomBankGatewayEnabled(data.customBankGatewayEnabled === true || data.customBankGatewayEnabled === 'true');
           }
 
+          // Direct Visa & Card Accounts Gateway Settings
+          if (data.cardAccounts && Array.isArray(data.cardAccounts) && data.cardAccounts.length > 0) {
+            setCardAccounts(data.cardAccounts);
+          }
+          if (data.customCardGatewayEnabled !== undefined) {
+            setCustomCardGatewayEnabled(data.customCardGatewayEnabled === true || data.customCardGatewayEnabled === 'true');
+          }
+
           if (data.allowReg !== undefined) setAllowReg(data.allowReg === true || data.allowReg === 'true');
           if (data.allowPromo !== undefined) setAllowPromo(data.allowPromo === true || data.allowPromo === 'true');
           if (data.notifyEmail !== undefined) setNotifyEmail(data.notifyEmail === true || data.notifyEmail === 'true');
@@ -246,6 +290,8 @@ export default function AdminSettings() {
           paytabsEnabled,
           bankAccounts,
           customBankGatewayEnabled,
+          cardAccounts,
+          customCardGatewayEnabled,
         })
       });
       if (res.ok) {
@@ -269,17 +315,19 @@ export default function AdminSettings() {
         body: JSON.stringify({
           bankAccounts,
           customBankGatewayEnabled,
+          cardAccounts,
+          customCardGatewayEnabled,
         })
       });
       if (res.ok) {
         invalidateSettingsCache();
-        alert('✅ Bank accounts & custom payment gateway settings saved successfully!');
+        alert('✅ Payment accounts & gateway settings saved successfully!');
       } else {
-        alert('❌ Failed to save bank accounts!');
+        alert('❌ Failed to save payment accounts!');
       }
     } catch (err) {
       console.error('Error saving bank settings:', err);
-      alert('❌ Failed to save bank accounts!');
+      alert('❌ Failed to save payment accounts!');
     }
   };
 
@@ -339,6 +387,61 @@ export default function AdminSettings() {
     const updated = [...bankAccounts];
     updated[idx] = { ...updated[idx], isActive: !updated[idx].isActive };
     setBankAccounts(updated);
+  };
+
+  // Visa & Card Modal Handlers
+  const handleOpenAddCard = () => {
+    setEditingCardIndex(null);
+    setCardForm({
+      id: `card_${Date.now()}`,
+      cardType: 'Visa',
+      cardName: '',
+      accountName: 'ORLUXUS LUXURY TRAVEL',
+      cardNumberMasked: '',
+      currency: 'EUR',
+      bankName: '',
+      country: 'Egypt 🇪🇬',
+      instructionsAr: 'يرجى إدخال بيانات البطاقة لإتمام الدفع الآمن والمشفر بنسبة 100%.',
+      instructionsEn: 'Enter your card details for 100% encrypted & secure payment.',
+      isActive: true,
+      displayOrder: cardAccounts.length + 1
+    });
+    setCardModalOpen(true);
+  };
+
+  const handleOpenEditCard = (idx) => {
+    setEditingCardIndex(idx);
+    setCardForm({ ...cardAccounts[idx] });
+    setCardModalOpen(true);
+  };
+
+  const handleSaveCardModal = () => {
+    if (!cardForm.cardName || !cardForm.accountName) {
+      alert('Please fill in Card/Account Name and Cardholder Name!');
+      return;
+    }
+
+    let updated = [...cardAccounts];
+    if (editingCardIndex !== null) {
+      updated[editingCardIndex] = cardForm;
+    } else {
+      updated.push(cardForm);
+    }
+    setCardAccounts(updated);
+    setCardModalOpen(false);
+  };
+
+  const handleDeleteCard = (idx) => {
+    if (confirm('Are you sure you want to delete this Card/Visa configuration?')) {
+      const updated = cardAccounts.filter((_, i) => i !== idx);
+      setCardAccounts(updated);
+    }
+  };
+
+  const handleToggleCardActive = (idx) => {
+    const updated = [...cardAccounts];
+    updated[idx] = { ...updated[idx], isActive: !updated[idx].isActive };
+    setCardAccounts(updated);
   };
 
   // Save Social Media
@@ -1200,6 +1303,166 @@ export default function AdminSettings() {
           </div>
         </div>
 
+        {/* Direct Visa & Card Accounts Gateway (بوابة بطاقات الدفع والفيزا المباشرة) */}
+        <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.19s', gridColumn: 'span 1' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.6rem' }}>
+            <div>
+              <h3 style={{ color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                💳 Direct Visa &amp; Card Gateway
+              </h3>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+                بوابة حسابات بطاقات الدفع والفيزا المباشرة (إضافة وإدارة أكثر من فيزا وبطاقة)
+              </span>
+            </div>
+            <button 
+              onClick={handleOpenAddCard} 
+              className="btn btn-secondary btn-sm"
+              style={{ fontSize: '0.8rem', padding: '6px 12px', background: 'rgba(59,130,246,0.15)', color: '#60a5fa', borderColor: '#3b82f6' }}
+            >
+              ➕ Add Visa / Card Account
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+            {/* Enable Card Gateway Toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+              <input 
+                type="checkbox" 
+                checked={customCardGatewayEnabled}
+                onChange={(e) => setCustomCardGatewayEnabled(e.target.checked)}
+                style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                id="enableCardGatewayToggle"
+              />
+              <label htmlFor="enableCardGatewayToggle" style={{ cursor: 'pointer' }}>
+                <span style={{ display: 'block', color: 'var(--text-primary)', fontWeight: 'bold' }}>
+                  Enable Direct Card &amp; Visa Gateway at Checkout
+                </span>
+                <span style={{ display: 'block', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
+                  إتاحة الدفع عبر البطاقات والفيزا المباشرة للعملاء مع خيارات حسابات متعددة
+                </span>
+              </label>
+            </div>
+
+            {/* Card Accounts List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              <label style={{ color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                Configured Visa &amp; Card Accounts ({cardAccounts.length})
+              </label>
+              
+              {cardAccounts.length === 0 ? (
+                <div style={{ padding: '1.5rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px dashed var(--border-medium)', color: 'var(--text-tertiary)' }}>
+                  No card accounts configured yet. Click &quot;Add Visa / Card Account&quot; to configure your merchant or direct cards.
+                </div>
+              ) : (
+                cardAccounts.map((card, idx) => (
+                  <div 
+                    key={card.id || idx}
+                    style={{
+                      padding: '1rem',
+                      background: card.isActive ? 'rgba(59,130,246,0.04)' : 'rgba(255,255,255,0.02)',
+                      border: `1px solid ${card.isActive ? 'rgba(59,130,246,0.3)' : 'var(--border-subtle)'}`,
+                      borderRadius: '8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
+                          💳 {card.cardName || card.cardType}
+                        </span>
+                        <span style={{ background: '#2563eb', color: '#fff', padding: '1px 6px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: '800' }}>
+                          {card.cardType || 'Visa'}
+                        </span>
+                        <span style={{ background: 'var(--gold-500)', color: '#000', padding: '1px 6px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: '800' }}>
+                          {card.currency}
+                        </span>
+                        {card.country && (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                            {card.country}
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleCardActive(idx)}
+                          style={{
+                            background: card.isActive ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)',
+                            color: card.isActive ? '#10b981' : '#ef4444',
+                            border: 'none',
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {card.isActive ? '✓ Active' : '✕ Disabled'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditCard(idx)}
+                          style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid var(--border-medium)',
+                            color: 'var(--text-primary)',
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCard(idx)}
+                          style={{
+                            background: 'rgba(239,68,68,0.1)',
+                            border: '1px solid rgba(239,68,68,0.3)',
+                            color: '#ef4444',
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.4rem', marginTop: '0.2rem' }}>
+                      <div><strong style={{ color: 'var(--text-tertiary)' }}>Cardholder:</strong> {card.accountName}</div>
+                      {card.bankName && <div><strong style={{ color: 'var(--text-tertiary)' }}>Bank/Issuer:</strong> {card.bankName}</div>}
+                      {card.cardNumberMasked && <div><strong style={{ color: 'var(--text-tertiary)' }}>Card Ref:</strong> <span style={{ fontFamily: 'var(--font-en)' }}>{card.cardNumberMasked}</span></div>}
+                    </div>
+
+                    {card.instructionsAr && (
+                      <div style={{ fontSize: '0.75rem', color: '#93c5fd', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px' }}>
+                        💡 {card.instructionsAr}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.5rem' }}>
+              <button 
+                onClick={handleSaveBankSettings} 
+                className="btn btn-primary" 
+                style={{ flex: 1, padding: '0.8rem', fontWeight: 'bold' }}
+              >
+                💾 Save Card &amp; Visa Gateway Settings
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Social Media Settings */}
         <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.2s', gridColumn: 'span 1' }}>
           <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>📱 Social Media Links</h3>
@@ -1577,7 +1840,7 @@ export default function AdminSettings() {
         </div>
       </div>
 
-      {/* Bank Account Modal */}
+      {/* Bank Account Modal (High Contrast & Crystal-Clear White Text) */}
       {bankModalOpen && (
         <div style={{
           position: 'fixed',
@@ -1585,79 +1848,85 @@ export default function AdminSettings() {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.8)',
+          backgroundColor: 'rgba(0,0,0,0.85)',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           zIndex: 99999,
-          backdropFilter: 'blur(5px)',
+          backdropFilter: 'blur(8px)',
           padding: '1rem'
         }}>
           <div style={{
-            background: '#121620',
-            border: '1px solid var(--gold-500)',
-            borderRadius: '12px',
-            padding: '1.8rem',
+            background: '#0d121d',
+            border: '2px solid var(--gold-500)',
+            borderRadius: '14px',
+            padding: '2rem',
             width: '100%',
-            maxWidth: '550px',
+            maxWidth: '580px',
             maxHeight: '90vh',
             overflowY: 'auto',
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.6)'
+            gap: '1.2rem',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.8)',
+            color: '#ffffff'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem' }}>
-              <h3 style={{ color: 'var(--gold-400)', margin: 0, fontSize: '1.2rem' }}>
-                {editingBankIndex !== null ? '✏️ Edit Bank Account' : '➕ Add New Bank Account'}
-              </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(212,175,55,0.3)', paddingBottom: '1rem' }}>
+              <div>
+                <h3 style={{ color: '#fbbf24', margin: 0, fontSize: '1.3rem', fontWeight: '800' }}>
+                  {editingBankIndex !== null ? '✏️ Edit Bank Account (تعديل الحساب البنكي)' : '➕ Add New Bank Account (إضافة حساب بنكي جديد)'}
+                </h3>
+                <span style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
+                  Enter your official corporate bank account information clearly
+                </span>
+              </div>
               <button 
                 onClick={() => setBankModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.3rem', cursor: 'pointer' }}
+                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#ffffff', fontSize: '1.2rem', cursor: 'pointer', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
                 ✕
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {/* Bank Name */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 'bold' }}>
-                  Bank Name (اسم البنك) *
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                  🏛️ Bank Name (اسم البنك) *
                 </label>
                 <input
                   type="text"
                   value={bankForm.bankName}
                   onChange={(e) => setBankForm({ ...bankForm, bankName: e.target.value })}
-                  placeholder="e.g. CIB Bank, Banque Misr, Deutsche Bank"
-                  style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff' }}
+                  placeholder="e.g. CIB Bank, Banque Misr, QNB, Deutsche Bank"
+                  style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', outline: 'none' }}
                 />
               </div>
 
               {/* Account Holder Name */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 'bold' }}>
-                  Account Holder Name (اسم المستفيد / صاحب الحساب) *
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                  👤 Account Holder Name (اسم المستفيد / صاحب الحساب) *
                 </label>
                 <input
                   type="text"
                   value={bankForm.accountName}
                   onChange={(e) => setBankForm({ ...bankForm, accountName: e.target.value })}
                   placeholder="e.g. ORLUXUS LUXURY TRAVEL"
-                  style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff' }}
+                  style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', outline: 'none' }}
                 />
               </div>
 
               {/* Currency & Country */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 'bold' }}>
-                    Currency (العملة)
+                  <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                    💰 Currency (العملة)
                   </label>
                   <select
                     value={bankForm.currency}
                     onChange={(e) => setBankForm({ ...bankForm, currency: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', background: '#1c2230', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff' }}
+                    style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', outline: 'none', cursor: 'pointer' }}
                   >
                     <option value="EUR">Euro (€)</option>
                     <option value="USD">USD ($)</option>
@@ -1668,106 +1937,327 @@ export default function AdminSettings() {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 'bold' }}>
-                    Country (الدولة)
+                  <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                    🌍 Country (الدولة)
                   </label>
                   <input
                     type="text"
                     value={bankForm.country}
                     onChange={(e) => setBankForm({ ...bankForm, country: e.target.value })}
                     placeholder="e.g. Egypt 🇪🇬, Germany 🇩🇪"
-                    style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff' }}
+                    style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', outline: 'none' }}
                   />
                 </div>
               </div>
 
               {/* IBAN / Account Number */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 'bold' }}>
-                  IBAN / Account Number (رقم الآيبان أو الحساب) *
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                  🔢 IBAN / Account Number (رقم الآيبان أو رقم الحساب) *
                 </label>
                 <input
                   type="text"
                   value={bankForm.iban}
                   onChange={(e) => setBankForm({ ...bankForm, iban: e.target.value.toUpperCase().replace(/\s+/g, ' ') })}
                   placeholder="e.g. EG38001000450000100045892147"
-                  style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontFamily: 'var(--font-en)' }}
+                  style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', fontFamily: 'var(--font-en)', outline: 'none' }}
                 />
               </div>
 
               {/* SWIFT / BIC Code */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 'bold' }}>
-                  SWIFT / BIC Code (رمز السويفت)
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                  🌐 SWIFT / BIC Code (رمز السويفت)
                 </label>
                 <input
                   type="text"
                   value={bankForm.swift}
                   onChange={(e) => setBankForm({ ...bankForm, swift: e.target.value.toUpperCase().trim() })}
                   placeholder="e.g. CIBEEGCX"
-                  style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontFamily: 'var(--font-en)' }}
+                  style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', fontFamily: 'var(--font-en)', outline: 'none' }}
                 />
               </div>
 
               {/* Transfer Instructions Arabic */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 'bold' }}>
-                  Transfer Instructions (تعليمات التحويل بالعربي)
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                  📝 Transfer Instructions (تعليمات التحويل للعميل بالعربية)
                 </label>
                 <textarea
                   rows={2}
                   value={bankForm.instructionsAr}
                   onChange={(e) => setBankForm({ ...bankForm, instructionsAr: e.target.value })}
-                  placeholder="يرجى كتابة كود الحجز في الملاحظات..."
-                  style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontSize: '0.85rem' }}
+                  placeholder="يرجى كتابة كود الحجز في الملاحظات عند التحويل ورفع صورة الإيصال..."
+                  style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.9rem', outline: 'none', resize: 'vertical' }}
                 />
               </div>
 
               {/* Transfer Instructions English */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 'bold' }}>
-                  Transfer Instructions (English)
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                  📝 Transfer Instructions (English)
                 </label>
                 <textarea
                   rows={2}
                   value={bankForm.instructionsEn}
                   onChange={(e) => setBankForm({ ...bankForm, instructionsEn: e.target.value })}
-                  placeholder="Please write the booking reference in payment description..."
-                  style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontSize: '0.85rem', fontFamily: 'var(--font-en)' }}
+                  placeholder="Please write the booking reference code in the transfer description..."
+                  style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.9rem', fontFamily: 'var(--font-en)', outline: 'none', resize: 'vertical' }}
                 />
               </div>
 
               {/* Active Toggle */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.03)', padding: '10px 14px', borderRadius: '8px', border: '1px solid #334155' }}>
                 <input
                   type="checkbox"
                   checked={bankForm.isActive}
                   onChange={(e) => setBankForm({ ...bankForm, isActive: e.target.checked })}
                   id="modalBankActive"
-                  style={{ width: '18px', height: '18px' }}
+                  style={{ width: '20px', height: '20px', cursor: 'pointer' }}
                 />
-                <label htmlFor="modalBankActive" style={{ color: '#fff', fontSize: '0.85rem', cursor: 'pointer' }}>
-                  Active &amp; visible to clients at checkout
+                <label htmlFor="modalBankActive" style={{ color: '#ffffff', fontSize: '0.9rem', fontWeight: '600', cursor: 'pointer' }}>
+                  Active &amp; visible to clients at checkout (تفعيل الحساب ليظهر للعملاء في الدفع)
                 </label>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', borderTop: '1px solid #334155', paddingTop: '1.2rem' }}>
               <button
                 type="button"
                 onClick={() => setBankModalOpen(false)}
                 className="btn btn-secondary"
-                style={{ flex: 1 }}
+                style={{ flex: 1, padding: '10px', color: '#cbd5e1', borderColor: '#475569' }}
               >
-                Cancel
+                Cancel (إلغاء)
               </button>
               <button
                 type="button"
                 onClick={handleSaveBankModal}
                 className="btn btn-primary"
-                style={{ flex: 1, fontWeight: 'bold' }}
+                style={{ flex: 1, padding: '10px', fontWeight: '800', fontSize: '1rem' }}
               >
-                💾 Save Account
+                💾 Save Bank Account (حفظ الحساب)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Visa & Card Account Modal (High Contrast & Crystal-Clear White Text) */}
+      {cardModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 99999,
+          backdropFilter: 'blur(8px)',
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: '#0d121d',
+            border: '2px solid #3b82f6',
+            borderRadius: '14px',
+            padding: '2rem',
+            width: '100%',
+            maxWidth: '580px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.2rem',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.8)',
+            color: '#ffffff'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(59,130,246,0.3)', paddingBottom: '1rem' }}>
+              <div>
+                <h3 style={{ color: '#60a5fa', margin: 0, fontSize: '1.3rem', fontWeight: '800' }}>
+                  {editingCardIndex !== null ? '✏️ Edit Card / Visa Account (تعديل حساب الفيزا/البطاقة)' : '➕ Add Visa / Card Account (إضافة حساب فيزا وبطاقة جديد)'}
+                </h3>
+                <span style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
+                  Configure multiple merchant or direct Visa/Mastercard payment options
+                </span>
+              </div>
+              <button 
+                onClick={() => setCardModalOpen(false)}
+                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#ffffff', fontSize: '1.2rem', cursor: 'pointer', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {/* Card / Gateway Name */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                  💳 Card / Account Name (اسم البطاقة أو بوابة الفيزا) *
+                </label>
+                <input
+                  type="text"
+                  value={cardForm.cardName}
+                  onChange={(e) => setCardForm({ ...cardForm, cardName: e.target.value })}
+                  placeholder="e.g. ORLUXUS Corporate Visa, VIP Mastercard, Direct Merchant Card"
+                  style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', outline: 'none' }}
+                />
+              </div>
+
+              {/* Card Type & Currency */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                    🏷️ Card Type (نوع البطاقة)
+                  </label>
+                  <select
+                    value={cardForm.cardType}
+                    onChange={(e) => setCardForm({ ...cardForm, cardType: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', outline: 'none', cursor: 'pointer' }}
+                  >
+                    <option value="Visa">Visa (فيزا)</option>
+                    <option value="Mastercard">Mastercard (ماستركارد)</option>
+                    <option value="Visa / Mastercard">Visa / Mastercard</option>
+                    <option value="American Express">American Express (AMEX)</option>
+                    <option value="Debit Card">Debit / Mada Card</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                    💰 Currency (العملة)
+                  </label>
+                  <select
+                    value={cardForm.currency}
+                    onChange={(e) => setCardForm({ ...cardForm, currency: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', outline: 'none', cursor: 'pointer' }}
+                  >
+                    <option value="EUR">Euro (€)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EGP">EGP (جنيه)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="AED">AED (درهم)</option>
+                    <option value="SAR">SAR (ريال)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Cardholder Name */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                  👤 Cardholder / Merchant Name (اسم المستفيد أو التاجر) *
+                </label>
+                <input
+                  type="text"
+                  value={cardForm.accountName}
+                  onChange={(e) => setCardForm({ ...cardForm, accountName: e.target.value })}
+                  placeholder="e.g. ORLUXUS LUXURY TRAVEL"
+                  style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', outline: 'none' }}
+                />
+              </div>
+
+              {/* Bank / Issuer & Country */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                    🏛️ Bank / Issuer (البنك / جهة الإصدار)
+                  </label>
+                  <input
+                    type="text"
+                    value={cardForm.bankName}
+                    onChange={(e) => setCardForm({ ...cardForm, bankName: e.target.value })}
+                    placeholder="e.g. CIB, NBE, Deutsche Bank"
+                    style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', outline: 'none' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                    🌍 Country (الدولة)
+                  </label>
+                  <input
+                    type="text"
+                    value={cardForm.country}
+                    onChange={(e) => setCardForm({ ...cardForm, country: e.target.value })}
+                    placeholder="e.g. Egypt 🇪🇬, UAE 🇦🇪"
+                    style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', outline: 'none' }}
+                  />
+                </div>
+              </div>
+
+              {/* Masked Card Reference / Number */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                  🔢 Card Masked Display / Ref Number (رقم أو رمز البطاقة التعريفي)
+                </label>
+                <input
+                  type="text"
+                  value={cardForm.cardNumberMasked}
+                  onChange={(e) => setCardForm({ ...cardForm, cardNumberMasked: e.target.value })}
+                  placeholder="e.g. **** **** **** 4892"
+                  style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.95rem', fontFamily: 'var(--font-en)', outline: 'none' }}
+                />
+              </div>
+
+              {/* Instructions Arabic */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                  📝 Payment Instructions (تعليمات الدفع بالعربية)
+                </label>
+                <textarea
+                  rows={2}
+                  value={cardForm.instructionsAr}
+                  onChange={(e) => setCardForm({ ...cardForm, instructionsAr: e.target.value })}
+                  placeholder="يرجى إدخال بيانات البطاقة لإتمام الدفع الآمن والمشفر بنسبة 100%..."
+                  style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.9rem', outline: 'none', resize: 'vertical' }}
+                />
+              </div>
+
+              {/* Instructions English */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#ffffff', marginBottom: '6px', fontWeight: '700' }}>
+                  📝 Payment Instructions (English)
+                </label>
+                <textarea
+                  rows={2}
+                  value={cardForm.instructionsEn}
+                  onChange={(e) => setCardForm({ ...cardForm, instructionsEn: e.target.value })}
+                  placeholder="Enter your card details for 100% encrypted & secure payment..."
+                  style={{ width: '100%', padding: '10px 14px', background: '#172033', border: '1.5px solid #475569', borderRadius: '8px', color: '#ffffff', fontSize: '0.9rem', fontFamily: 'var(--font-en)', outline: 'none', resize: 'vertical' }}
+                />
+              </div>
+
+              {/* Active Toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.03)', padding: '10px 14px', borderRadius: '8px', border: '1px solid #334155' }}>
+                <input
+                  type="checkbox"
+                  checked={cardForm.isActive}
+                  onChange={(e) => setCardForm({ ...cardForm, isActive: e.target.checked })}
+                  id="modalCardActive"
+                  style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                />
+                <label htmlFor="modalCardActive" style={{ color: '#ffffff', fontSize: '0.9rem', fontWeight: '600', cursor: 'pointer' }}>
+                  Active &amp; visible to clients at checkout (تفعيل خيار الفيزا ليظهر للعملاء في الدفع)
+                </label>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', borderTop: '1px solid #334155', paddingTop: '1.2rem' }}>
+              <button
+                type="button"
+                onClick={() => setCardModalOpen(false)}
+                className="btn btn-secondary"
+                style={{ flex: 1, padding: '10px', color: '#cbd5e1', borderColor: '#475569' }}
+              >
+                Cancel (إلغاء)
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveCardModal}
+                className="btn btn-primary"
+                style={{ flex: 1, padding: '10px', fontWeight: '800', fontSize: '1rem', background: '#2563eb', borderColor: '#3b82f6' }}
+              >
+                💾 Save Visa Account (حفظ حساب الفيزا)
               </button>
             </div>
           </div>
