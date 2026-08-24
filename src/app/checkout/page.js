@@ -129,14 +129,34 @@ function CheckoutContent() {
   // Payment State
   const [checkoutStep, setCheckoutStep] = useState('details'); // details, payment, success, failed
   const [paymentTab, setPaymentTab] = useState('now'); // now, later
-  const [selectedPayMethod, setSelectedPayMethod] = useState('card'); // card, paypal, apple_pay, google_pay, bank_transfer
+  const [selectedPayMethod, setSelectedPayMethod] = useState('bank_transfer'); // bank_transfer, card, paypal, apple_pay, google_pay
   const [isSimulatingPayment, setIsSimulatingPayment] = useState(false);
   const [paymentTxId, setPaymentTxId] = useState('');
   const [paypalLoaded, setPaypalLoaded] = useState(false);
 
+  // Bank Transfer Custom Gateway State
+  const [selectedBankId, setSelectedBankId] = useState('');
+  const [receiptFile, setReceiptFile] = useState(null);
+  const [receiptPreview, setReceiptPreview] = useState('');
+  const [clientTransferRef, setClientTransferRef] = useState('');
+  const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
+  const [receiptError, setReceiptError] = useState('');
+  const [copiedField, setCopiedField] = useState('');
+  const [bookingRefCode] = useState(() => `ORLX-${Date.now().toString().slice(-6)}`);
+
   useEffect(() => {
     // Settings loaded via useSettings hook
   }, []);
+
+  // Set default selected bank when settings load
+  useEffect(() => {
+    if (settings?.bankAccounts && Array.isArray(settings.bankAccounts) && settings.bankAccounts.length > 0) {
+      const activeBanks = settings.bankAccounts.filter(b => b.isActive !== false);
+      if (activeBanks.length > 0 && !selectedBankId) {
+        setSelectedBankId(activeBanks[0].id);
+      }
+    }
+  }, [settings?.bankAccounts, selectedBankId]);
 
   const paypalEmail = settings?.paypalEmail || 'info@orluxus.com';
 
@@ -481,73 +501,238 @@ function CheckoutContent() {
     }, 2000);
   };
 
-  // Simulated Bank Transfer Payment
+  // Handle Receipt File Selection
+  const handleReceiptFileChange = (e) => {
+    const file = e.target.files?.[0];
+    setReceiptError('');
+    if (!file) return;
+
+    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!allowed.includes(file.type)) {
+      setReceiptError(locale === 'ar' ? 'يرجى اختيار صورة صالحة (JPG, PNG, WEBP) أو ملف PDF' : 'Please select a valid image (JPG, PNG, WEBP) or PDF');
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setReceiptError(locale === 'ar' ? 'حجم الملف كبير جداً، الحد الأقصى 8 ميجابايت' : 'File is too large, maximum allowed size is 8MB');
+      return;
+    }
+
+    setReceiptFile(file);
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setReceiptPreview(ev.target.result);
+      reader.readAsDataURL(file);
+    } else {
+      setReceiptPreview('pdf');
+    }
+  };
+
+  // Real Direct Bank Transfer with Receipt Upload
   const handleBankTransferPayment = async () => {
-    setIsSimulatingPayment(true);
+    setIsUploadingReceipt(true);
+    setReceiptError('');
+    const bookingId = `BK-${Date.now().toString().slice(-6)}`;
     const txId = `bank-tx-${Date.now()}`;
 
-    setTimeout(async () => {
+    // 1. Get Selected Bank Object
+    const activeBanks = (settings?.bankAccounts || []).filter(b => b.isActive !== false);
+    const selectedBank = activeBanks.find(b => b.id === selectedBankId) || activeBanks[0] || {
+      bankName: 'CIB Bank',
+      iban: 'EG38001000450000100045892147',
+      currency: 'EUR'
+    };
+
+    let receiptUrl = '';
+
+    // 2. Upload Receipt File if provided
+    if (receiptFile) {
       try {
-        await addBooking({
-          id: `BK-${txId.replace('bank-tx-', '')}`,
-          customer: customerName,
-          email: email,
-          phone: phone,
-          whatsapp: whatsapp || phone,
-          service: titleEn || titleAr || 'Travel Excursion',
-          city: searchParams.get('city') || 'شرم الشيخ',
-          agentId: promoDetails ? promoDetails.agentId || null : null,
-          agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
-          originalAmount: originalTotal,
-          discountAmount: discountAmount,
-          finalAmount: totalAmount,
-          travelers: travelers,
-          date: bookingDate,
-          status: 'قيد الانتظار', // bank transfer starts as pending confirmation
-          promoCode: promoDetails ? promoDetails.code : '',
-          paymentType: 'bank_transfer',
-          txId: txId,
-          pickupLocation: pickupLocation,
-          extras: getSelectedExtrasString(),
-          extrasDetails: getSelectedExtrasList(),
-          children: children,
-          infants: infants,
-          adultPrice: additionalPersonPrice || basePrice,
-          childPrice: childPrice,
-          infantPrice: infantPrice,
-          specialRequests: specialRequests,
-          customerLanguage: customerLanguage,
-          electronicSignature: electronicSignature,
-          signatureTimestamp: signatureTimestamp
+        const formData = new FormData();
+        formData.append('file', receiptFile);
+        formData.append('bookingId', bookingId);
+
+        const uploadRes = await fetch('/api/upload-receipt', {
+          method: 'POST',
+          body: formData
         });
 
-        // Send invoice email (non-blocking)
-        sendBookingEmail({
-          customerName, email, phone, whatsapp: whatsapp || phone,
-          date: bookingDate, travelers,
-          serviceName: titleEn || titleAr || 'Travel Excursion',
-          originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
-          paymentType: 'bank_transfer', txId,
-          extras: getSelectedExtrasString(),
-          extrasDetails: getSelectedExtrasList(),
-          pickupLocation,
-          promoCode: promoDetails?.code || '',
-          agentName: promoDetails?.agentName || translate('directAgent'),
-          children, infants, specialRequests,
-          electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ',
-          adultPrice: additionalPersonPrice || basePrice,
-          childPrice: childPrice,
-          infantPrice: infantPrice
-        });
-
-        setIsSimulatingPayment(false);
-        const successUrl = `/checkout?status=success&tx=${txId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=bank_transfer&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&extrasList=${encodeURIComponent(JSON.stringify(getSelectedExtrasList()))}&specialRequests=${encodeURIComponent(specialRequests)}`;
-        router.push(successUrl);
-      } catch (err) {
-        console.error('Error saving booking on bank transfer payment:', err);
-        setIsSimulatingPayment(false);
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          receiptUrl = uploadData.url || '';
+        } else {
+          console.warn('Receipt upload returned error, proceeding with booking registration');
+        }
+      } catch (uploadErr) {
+        console.warn('Receipt upload failed, booking will still be registered:', uploadErr);
       }
-    }, 1500);
+    }
+
+    try {
+      // 3. Save Booking in Firestore with Bank Payment Details
+      await addBooking({
+        id: bookingId,
+        customer: customerName,
+        email: email,
+        phone: phone,
+        whatsapp: whatsapp || phone,
+        service: titleEn || titleAr || 'Travel Excursion',
+        city: searchParams.get('city') || 'شرم الشيخ',
+        agentId: promoDetails ? promoDetails.agentId || null : null,
+        agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
+        originalAmount: originalTotal,
+        discountAmount: discountAmount,
+        finalAmount: totalAmount,
+        travelers: travelers,
+        date: bookingDate,
+        status: 'في انتظار تأكيد الدفع', // Custom bank gateway status
+        promoCode: promoDetails ? promoDetails.code : '',
+        paymentType: 'bank_transfer',
+        txId: txId,
+        bookingRefCode: bookingRefCode,
+        receiptUrl: receiptUrl,
+        receiptTxRef: clientTransferRef || '',
+        receiptBankName: selectedBank.bankName || '',
+        receiptBankAccountId: selectedBank.id || '',
+        receiptUploadedAt: receiptUrl ? new Date().toISOString() : null,
+        pickupLocation: pickupLocation,
+        extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
+        children: children,
+        infants: infants,
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice,
+        specialRequests: specialRequests,
+        customerLanguage: customerLanguage,
+        electronicSignature: electronicSignature,
+        signatureTimestamp: signatureTimestamp
+      });
+
+      // 4. Send Email Notification (non-blocking)
+      sendBookingEmail({
+        customerName, email, phone, whatsapp: whatsapp || phone,
+        date: bookingDate, travelers,
+        serviceName: titleEn || titleAr || 'Travel Excursion',
+        originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
+        paymentType: 'bank_transfer', txId,
+        extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
+        pickupLocation,
+        promoCode: promoDetails?.code || '',
+        agentName: promoDetails?.agentName || translate('directAgent'),
+        children, infants, specialRequests,
+        electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ',
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice,
+        extrasDetails: getSelectedExtrasList()
+      });
+
+      setIsUploadingReceipt(false);
+      const successUrl = `/checkout?status=success&tx=${txId}&bookingId=${bookingId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=bank_transfer&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&extrasList=${encodeURIComponent(JSON.stringify(getSelectedExtrasList()))}&specialRequests=${encodeURIComponent(specialRequests)}&receiptUrl=${encodeURIComponent(receiptUrl)}&bankName=${encodeURIComponent(selectedBank.bankName || '')}&refCode=${encodeURIComponent(bookingRefCode)}`;
+      router.push(successUrl);
+    } catch (err) {
+      console.error('Error saving bank transfer booking:', err);
+      setIsUploadingReceipt(false);
+      setReceiptError(locale === 'ar' ? 'حدث خطأ أثناء حفظ الحجز. يرجى المحاولة مرة أخرى.' : 'Error saving booking. Please try again.');
+    }
+  };
+
+  // Direct PayPal Transfer with Receipt Upload
+  const handlePayPalDirectPayment = async () => {
+    setIsUploadingReceipt(true);
+    setReceiptError('');
+    const bookingId = `BK-${Date.now().toString().slice(-6)}`;
+    const txId = `paypal-tx-${Date.now()}`;
+
+    let receiptUrl = '';
+
+    if (receiptFile) {
+      try {
+        const formData = new FormData();
+        formData.append('file', receiptFile);
+        formData.append('bookingId', bookingId);
+
+        const uploadRes = await fetch('/api/upload-receipt', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          receiptUrl = uploadData.url || '';
+        }
+      } catch (uploadErr) {
+        console.warn('PayPal receipt upload error:', uploadErr);
+      }
+    }
+
+    try {
+      await addBooking({
+        id: bookingId,
+        customer: customerName,
+        email: email,
+        phone: phone,
+        whatsapp: whatsapp || phone,
+        service: titleEn || titleAr || 'Travel Excursion',
+        city: searchParams.get('city') || 'شرم الشيخ',
+        agentId: promoDetails ? promoDetails.agentId || null : null,
+        agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
+        originalAmount: originalTotal,
+        discountAmount: discountAmount,
+        finalAmount: totalAmount,
+        travelers: travelers,
+        date: bookingDate,
+        status: 'في انتظار تأكيد الدفع',
+        promoCode: promoDetails ? promoDetails.code : '',
+        paymentType: 'paypal',
+        txId: txId,
+        bookingRefCode: bookingRefCode,
+        receiptUrl: receiptUrl,
+        receiptTxRef: clientTransferRef || '',
+        receiptBankName: 'PayPal (' + (settings?.paypalEmail || 'info@orluxus.com') + ')',
+        receiptUploadedAt: receiptUrl ? new Date().toISOString() : null,
+        pickupLocation: pickupLocation,
+        extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
+        children: children,
+        infants: infants,
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice,
+        specialRequests: specialRequests,
+        customerLanguage: customerLanguage,
+        electronicSignature: electronicSignature,
+        signatureTimestamp: signatureTimestamp
+      });
+
+      sendBookingEmail({
+        customerName, email, phone, whatsapp: whatsapp || phone,
+        date: bookingDate, travelers,
+        serviceName: titleEn || titleAr || 'Travel Excursion',
+        originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
+        paymentType: 'paypal', txId,
+        extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
+        pickupLocation,
+        promoCode: promoDetails?.code || '',
+        agentName: promoDetails?.agentName || translate('directAgent'),
+        children, infants, specialRequests,
+        electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ',
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice,
+        extrasDetails: getSelectedExtrasList()
+      });
+
+      setIsUploadingReceipt(false);
+      const successUrl = `/checkout?status=success&tx=${txId}&bookingId=${bookingId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=paypal&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&extrasList=${encodeURIComponent(JSON.stringify(getSelectedExtrasList()))}&specialRequests=${encodeURIComponent(specialRequests)}&receiptUrl=${encodeURIComponent(receiptUrl)}&bankName=${encodeURIComponent('PayPal')}&refCode=${encodeURIComponent(bookingRefCode)}`;
+      router.push(successUrl);
+    } catch (err) {
+      console.error('Error saving paypal booking:', err);
+      setIsUploadingReceipt(false);
+      setReceiptError(locale === 'ar' ? 'حدث خطأ أثناء حفظ الحجز. يرجى المحاولة مرة أخرى.' : 'Error saving booking. Please try again.');
+    }
   };
 
   // Mock cash / onsite payment completion
@@ -761,6 +946,10 @@ function CheckoutContent() {
   const paymentTypeParam = searchParams.get('paymentType') || '';
   const pickupParam = searchParams.get('pickupLocation') || '';
   const extrasParam = searchParams.get('extras') || '';
+  const receiptUrlParam = searchParams.get('receiptUrl') || '';
+  const refCodeParam = searchParams.get('refCode') || '';
+  const bankNameParam = searchParams.get('bankName') || '';
+  const bookingIdParam = searchParams.get('bookingId') || txParam || '';
   const extrasListRaw = searchParams.get('extrasList') || '';
   let extrasListParam = null;
   if (extrasListRaw) {
@@ -797,32 +986,39 @@ function CheckoutContent() {
               width: '80px',
               height: '80px',
               borderRadius: '50%',
-              background: 'rgba(16, 185, 129, 0.1)',
-              border: '2px solid var(--emerald-500)',
+              background: isBank ? 'rgba(212,175,55,0.1)' : 'rgba(16, 185, 129, 0.1)',
+              border: `2px solid ${isBank ? 'var(--gold-500)' : 'var(--emerald-500)'}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '2.5rem',
               margin: '0 auto 1.5rem auto',
-              color: 'var(--emerald-500)'
+              color: isBank ? 'var(--gold-400)' : 'var(--emerald-500)'
             }}>
-              ✓
+              {isBank ? '⏳' : '✓'}
             </div>
 
             <h1 className="section-title" style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontSize: '2rem' }}>
               {isBank 
-                ? (locale === 'ar' ? 'تم تسجيل الحجز بنجاح!' : 'Booking Registered Successfully!') 
+                ? (locale === 'ar' ? 'تم تسجيل طلب الحجز بنجاح!' : 'Booking Request Registered Successfully!') 
                 : (isOnsite ? (locale === 'ar' ? 'تم تسجيل الحجز بنجاح!' : 'Booking Registered Successfully!') : (locale === 'ar' ? 'تم تأكيد الدفع بنجاح!' : 'Payment Confirmed Successfully!'))
               }
             </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
               {isBank 
-                ? (locale === 'ar' ? 'تم تسجيل حجزك في النظام. يرجى إتمام التحويل البنكي لتأكيده.' : 'Your booking is recorded. Please complete the bank transfer to activate it.')
+                ? (locale === 'ar' ? 'تم استلام بيانات طلبك وإيصال التحويل، والحجز قيد المراجعة والتأكيد الفوري من قِبل فريق العمل.' : 'Your booking request and payment transfer details were received and are currently under fast verification by our team.')
                 : (isOnsite 
                   ? (locale === 'ar' ? 'تم استلام طلبك. الدفع نقداً عند انطلاق الرحلة!' : 'We received your order. You will pay cash when the tour starts!') 
                   : (locale === 'ar' ? 'تم تسجيل حجزك وتأكيد الدفع وإصدار الفاتورة.' : 'We are delighted to register your booking. Payment is confirmed and invoice has been issued.'))
               }
             </p>
+
+            {isBank && (
+              <div style={{ marginTop: '1.2rem', display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(212,175,55,0.15)', border: '1px solid var(--gold-500)', padding: '6px 16px', borderRadius: '20px', color: 'var(--gold-400)', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                <span>⏳</span>
+                <span>{locale === 'ar' ? 'حالة الحجز: في انتظار تأكيد الدفع' : 'Booking Status: Pending Payment Verification'}</span>
+              </div>
+            )}
           </div>
 
           {/* BANK TRANSFER DETAILS BLOCK */}
@@ -831,55 +1027,58 @@ function CheckoutContent() {
               background: 'rgba(251, 191, 36, 0.05)',
               border: '1px solid var(--gold-400)',
               borderRadius: 'var(--radius-lg)',
-              padding: '2.5rem',
+              padding: '2rem',
               marginBottom: '2rem',
               textAlign: locale === 'ar' ? 'right' : 'left'
             }}>
-              <h3 style={{ color: 'var(--gold-600)', margin: '0 0 0.8rem 0', fontWeight: 'bold', fontSize: '1.3rem' }}>
-                {locale === 'ar' ? '⚠️ خطوة هامة: إكمال التحويل البنكي' : '⚠️ Critical Step: Complete Bank Transfer'}
+              <h3 style={{ color: 'var(--gold-400)', margin: '0 0 0.8rem 0', fontWeight: 'bold', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>🏦</span>
+                <span>{locale === 'ar' ? 'تفاصيل التحويل البنكي للحجز' : 'Bank Transfer Booking Details'}</span>
               </h3>
-              <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-                {locale === 'ar' 
-                  ? 'يرجى تحويل المبلغ الإجمالي إلى الحساب البنكي الرسمي الموضح أدناه، ثم قم بالتقاط لقطة شاشة للتحويل (Screenshot) وإرسالها إلينا عبر واتساب لتأكيد الحجز رسمياً في غضون 24 ساعة.' 
-                  : 'Please transfer the total amount to the official bank account below, then send a screenshot of the transfer receipt via WhatsApp to finalize your reservation within 24 hours.'}
-              </p>
               
               <div style={{
                 background: 'var(--bg-secondary)',
                 border: '1px solid var(--border-medium)',
                 borderRadius: '8px',
-                padding: '1.5rem',
-                fontSize: '0.95rem',
+                padding: '1.2rem',
+                fontSize: '0.9rem',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '0.8rem',
-                fontFamily: 'var(--font-en)'
+                gap: '0.7rem',
+                marginBottom: '1.2rem'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>{locale === 'ar' ? 'البنك:' : 'Bank:'}</span>
-                  <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>QNB EGYPT</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.4rem' }}>
+                  <span style={{ color: 'var(--text-tertiary)' }}>{locale === 'ar' ? 'رقم مرجع الحجز:' : 'Booking Reference:'}</span>
+                  <span style={{ fontWeight: 'bold', color: '#93c5fd', fontFamily: 'var(--font-en)' }}>{refCodeParam || bookingIdParam}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>{locale === 'ar' ? 'صاحب الحساب:' : 'Account Name:'}</span>
-                  <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>ORLUXUS GROUP Ltd.</span>
+                {bankNameParam && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.4rem' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>{locale === 'ar' ? 'الحساب البنكي المختار:' : 'Selected Bank:'}</span>
+                    <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>{bankNameParam}</span>
+                  </div>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.4rem' }}>
+                  <span style={{ color: 'var(--text-tertiary)' }}>{locale === 'ar' ? 'إجمالي المبلغ المطلوب:' : 'Total Amount:'}</span>
+                  <span style={{ fontWeight: 'bold', color: 'var(--gold-400)', fontFamily: 'var(--font-en)' }}>€{amountParam.toFixed(2)}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>{locale === 'ar' ? 'رقم الحساب:' : 'Account Number:'}</span>
-                  <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>20330745261-75</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>IBAN:</span>
-                  <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontSize: '0.85rem' }}>EG540002020300203307452617589</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--text-tertiary)' }}>Swift Code:</span>
-                  <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>MSYREGCX</span>
-                </div>
+                {receiptUrlParam && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.2rem' }}>
+                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>✓ {locale === 'ar' ? 'تم إرفاق إيصال التحويل' : 'Receipt Uploaded'}</span>
+                    <a
+                      href={receiptUrlParam}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--gold-400)', textDecoration: 'underline', fontSize: '0.85rem' }}
+                    >
+                      {locale === 'ar' ? '👁️ عرض الإيصال المرفق' : '👁️ View Attached Receipt'}
+                    </a>
+                  </div>
+                )}
               </div>
               
-              <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+              <div style={{ textAlign: 'center', marginTop: '1rem' }}>
                 <a 
-                  href={`https://wa.me/20100000000?text=${encodeURIComponent(locale === 'ar' ? `مرحباً، أود تأكيد التحويل البنكي لحجزي بقيمة €${amountParam.toFixed(2)} رقم المعاملة #${txParam}` : `Hello, I'd like to confirm the bank transfer of €${amountParam.toFixed(2)} for transaction #${txParam}`)}`}
+                  href={`https://wa.me/${(settings?.whatsapp || '201038820019').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(locale === 'ar' ? `مرحباً، قمت بعمل حجز تحويل بنكي برقم مرجع ${refCodeParam || bookingIdParam} بقيمة €${amountParam.toFixed(2)} لرحلة ${titleParam}. أرجو تأكيد الاستلام.` : `Hello, I placed a direct bank transfer booking #${refCodeParam || bookingIdParam} (€${amountParam.toFixed(2)}) for ${titleParam}. Please confirm receipt.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-primary"
@@ -890,13 +1089,14 @@ function CheckoutContent() {
                     background: '#10b981',
                     color: 'white',
                     border: 'none',
-                    padding: '0.8rem 2rem',
-                    borderRadius: '9999px',
+                    padding: '10px 22px',
+                    borderRadius: '8px',
                     fontWeight: 'bold',
-                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)'
+                    textDecoration: 'none'
                   }}
                 >
-                  💬 {locale === 'ar' ? 'إرسال إيصال التحويل عبر واتساب' : 'Send Transfer Receipt via WhatsApp'}
+                  <span>💬</span>
+                  <span>{locale === 'ar' ? 'متابعة الحجز مباشرة عبر واتساب' : 'Contact Support on WhatsApp'}</span>
                 </a>
               </div>
             </div>
@@ -1695,18 +1895,291 @@ function CheckoutContent() {
                     </div>
                   )}
 
-                  {/* PAYPAL SUB-VIEW */}
-                  {selectedPayMethod === 'paypal' && (
-                    <div>
-                      <h4 style={{ color: 'var(--text-primary)', marginBottom: '1.2rem', fontWeight: 'bold' }}>PayPal Smart Checkout:</h4>
-                      {!paypalLoaded ? (
-                        <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
-                          {translate('payingMessage')}
+                  {/* PAYPAL DIRECT GATEWAY SUB-VIEW */}
+                  {selectedPayMethod === 'paypal' && (() => {
+                    const recipientEmail = settings?.paypalEmail || 'info@orluxus.com';
+                    const paypalMeUrl = settings?.paypalMe 
+                      ? (settings.paypalMe.startsWith('http') ? `${settings.paypalMe}/${totalAmount.toFixed(2)}EUR` : `https://paypal.me/${settings.paypalMe}/${totalAmount.toFixed(2)}EUR`)
+                      : `https://paypal.me/orluxus/${totalAmount.toFixed(2)}EUR`;
+                    const accountName = settings?.paypalAccountName || 'ORLUXUS Travel & Tourism';
+                    const instructions = isAr 
+                      ? (settings?.paypalInstructionsAr || 'يرجى تحويل المبلغ عبر PayPal مع كتابة كود الحجز في الملاحظات، ثم رفع صورة الإيصال ليتم تأكيد حجزك فوراً.')
+                      : (settings?.paypalInstructionsEn || 'Please send the payment via PayPal, include your Booking Reference in the note, and upload the confirmation receipt.');
+
+                    const handleCopy = (text, fieldName) => {
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText(text);
+                        setCopiedField(fieldName);
+                        setTimeout(() => setCopiedField(''), 2500);
+                      }
+                    };
+
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
+                        {/* Header */}
+                        <div>
+                          <h4 style={{ color: 'var(--text-primary)', fontWeight: 'bold', margin: '0 0 0.3rem 0', fontSize: '1.1rem' }}>
+                            {isAr ? '🅿️ الدفع والتحويل المباشر عبر PayPal' : '🅿️ Direct PayPal Transfer & Payment'}
+                          </h4>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0 }}>
+                            {isAr ? 'ادفع بأمان عبر حساب باي بال المعتمد أو رابط PayPal.me المباشر وارفع الإيصال لتأكيد حجزك.' : 'Pay securely to our official PayPal account or via PayPal.me and upload your confirmation receipt.'}
+                          </p>
                         </div>
-                      ) : null}
-                      <div id="paypal-button-container" style={{ minHeight: '150px' }}></div>
-                    </div>
-                  )}
+
+                        {/* PayPal Details Card */}
+                        <div style={{
+                          background: 'linear-gradient(135deg, rgba(0, 112, 186, 0.1) 0%, rgba(18, 22, 32, 0.95) 100%)',
+                          border: '1px solid #0070ba',
+                          borderRadius: '12px',
+                          padding: '1.4rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.8rem',
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0, 112, 186, 0.3)', paddingBottom: '0.6rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '1.3rem' }}>🅿️</span>
+                              <strong style={{ color: '#0070ba', fontSize: '1rem' }}>{accountName}</strong>
+                            </div>
+                            <span style={{ background: '#0070ba', color: '#fff', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+                              Verified PayPal
+                            </span>
+                          </div>
+
+                          {/* PayPal Email */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem', background: 'rgba(0,0,0,0.3)', padding: '8px 12px', borderRadius: '6px' }}>
+                            <span style={{ color: 'var(--text-secondary)' }}>{isAr ? 'بريد PayPal الرسمي:' : 'PayPal Email:'}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <strong style={{ color: '#93c5fd', fontFamily: 'var(--font-en)' }}>{recipientEmail}</strong>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(recipientEmail, 'paypalEmail')}
+                                style={{ background: 'rgba(0,112,186,0.2)', border: '1px solid #0070ba', color: copiedField === 'paypalEmail' ? '#10b981' : '#93c5fd', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', padding: '2px 8px' }}
+                              >
+                                {copiedField === 'paypalEmail' ? (isAr ? 'تم النسخ ✓' : 'Copied ✓') : (isAr ? 'نسخ 📋' : 'Copy 📋')}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Total Amount */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.95rem' }}>
+                            <span style={{ color: 'var(--text-secondary)', fontWeight: 'bold' }}>{isAr ? 'المبلغ المطلوب:' : 'Amount to Send:'}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ color: 'var(--gold-400)', fontWeight: '800', fontSize: '1.2rem', fontFamily: 'var(--font-en)' }}>
+                                €{totalAmount.toFixed(2)}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(totalAmount.toFixed(2), 'paypalAmount')}
+                                style={{ background: 'none', border: 'none', color: copiedField === 'paypalAmount' ? '#10b981' : 'var(--gold-400)', cursor: 'pointer', fontSize: '0.8rem' }}
+                                title="Copy"
+                              >
+                                {copiedField === 'paypalAmount' ? '✓' : '📋'}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Fast PayPal.Me Action Button */}
+                          <div style={{ marginTop: '0.4rem' }}>
+                            <a
+                              href={paypalMeUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                width: '100%',
+                                padding: '10px',
+                                background: '#0070ba',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontWeight: 'bold',
+                                fontSize: '0.9rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                textDecoration: 'none',
+                                transition: 'background 0.2s ease',
+                                boxShadow: '0 4px 12px rgba(0, 112, 186, 0.3)'
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = '#005ea6'}
+                              onMouseLeave={(e) => e.currentTarget.style.background = '#0070ba'}
+                            >
+                              <span>🅿️</span>
+                              <span>{isAr ? `فتح صفحة الدفع المباشر عبر PayPal.me (€${totalAmount.toFixed(2)}) ↗` : `Pay via PayPal.me (€${totalAmount.toFixed(2)}) ↗`}</span>
+                            </a>
+                          </div>
+
+                          {/* Instructions text */}
+                          <div style={{ fontSize: '0.8rem', color: '#93c5fd', background: 'rgba(0,112,186,0.1)', padding: '8px 10px', borderRadius: '6px', lineHeight: '1.4' }}>
+                            💡 {instructions}
+                          </div>
+                        </div>
+
+                        {/* Booking Reference Notice Box */}
+                        <div style={{
+                          background: 'rgba(59,130,246,0.08)',
+                          border: '1px solid rgba(59,130,246,0.3)',
+                          borderRadius: '10px',
+                          padding: '1rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.5rem'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: '#93c5fd', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                              📌 {isAr ? 'كود مرجع الحجز (مهم لإدراجه في PayPal):' : 'Booking Reference (Important for PayPal note):'}
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ background: '#1e3a8a', color: '#93c5fd', padding: '2px 10px', borderRadius: '6px', fontWeight: '800', fontFamily: 'var(--font-en)', fontSize: '0.95rem' }}>
+                                {bookingRefCode}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(bookingRefCode, 'ppBookingRef')}
+                                style={{ background: 'rgba(59,130,246,0.2)', border: '1px solid #3b82f6', color: copiedField === 'ppBookingRef' ? '#10b981' : '#93c5fd', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '0.75rem' }}
+                              >
+                                {copiedField === 'ppBookingRef' ? (isAr ? 'تم النسخ ✓' : 'Copied ✓') : (isAr ? 'نسخ 📋' : 'Copy 📋')}
+                              </button>
+                            </div>
+                          </div>
+                          <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-tertiary)', lineHeight: '1.4' }}>
+                            {isAr 
+                              ? '⚠️ يرجى إضافة هذا الكود في خانة الملاحظات عند إرسال دفعة PayPal لربطها بالحجز فوراً.' 
+                              : '⚠️ Please add this code in the PayPal payment note to link it to your booking.'}
+                          </p>
+                        </div>
+
+                        {/* Upload Receipt / Transaction Reference */}
+                        <div style={{
+                          background: 'rgba(255,255,255,0.02)',
+                          border: '1px dashed #0070ba',
+                          borderRadius: '12px',
+                          padding: '1.4rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '1rem'
+                        }}>
+                          <div>
+                            <label style={{ display: 'block', color: 'var(--text-primary)', fontWeight: 'bold', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
+                              📎 {isAr ? 'رفع لقطة شاشة لإيصال PayPal (اختياري لتسريع التأكيد):' : 'Upload PayPal Confirmation Screenshot (Optional):'}
+                            </label>
+                            <p style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem', margin: 0 }}>
+                              {isAr ? 'يقبل صور JPG, PNG, WEBP أو PDF (الحد الأقصى 8 ميجابايت)' : 'Accepts JPG, PNG, WEBP or PDF (Max 8MB)'}
+                            </p>
+                          </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp,application/pdf"
+                              onChange={handleReceiptFileChange}
+                              id="ppReceiptFileInput"
+                              style={{ display: 'none' }}
+                            />
+                            
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                              <label
+                                htmlFor="ppReceiptFileInput"
+                                style={{
+                                  padding: '10px 18px',
+                                  background: 'rgba(0,112,186,0.15)',
+                                  border: '1px solid #0070ba',
+                                  borderRadius: '8px',
+                                  color: '#93c5fd',
+                                  cursor: 'pointer',
+                                  fontWeight: 'bold',
+                                  fontSize: '0.85rem',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px'
+                                }}
+                              >
+                                📷 {receiptFile ? (isAr ? 'تغيير الملف' : 'Change File') : (isAr ? 'اختيار لقطة الشاشة أو الإيصال' : 'Select Screenshot or PDF')}
+                              </label>
+
+                              {receiptFile && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(16,185,129,0.1)', border: '1px solid #10b981', padding: '6px 12px', borderRadius: '6px' }}>
+                                  <span style={{ fontSize: '0.85rem', color: '#10b981' }}>
+                                    ✓ {receiptFile.name} ({(receiptFile.size / 1024).toFixed(0)} KB)
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => { setReceiptFile(null); setReceiptPreview(''); }}
+                                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1rem', padding: 0 }}
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+
+                            {receiptPreview && receiptPreview !== 'pdf' && (
+                              <div style={{ marginTop: '0.5rem', maxWidth: '200px', maxHeight: '140px', overflow: 'hidden', borderRadius: '6px', border: '1px solid var(--border-medium)' }}>
+                                <img src={receiptPreview} alt="Receipt Preview" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                              </div>
+                            )}
+
+                            {/* Optional Reference or Sender Email */}
+                            <div style={{ marginTop: '0.5rem' }}>
+                              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                                {isAr ? 'رقم معاملة PayPal أو بريدك في PayPal (اختياري):' : 'PayPal Transaction ID or Your PayPal Email (Optional):'}
+                              </label>
+                              <input
+                                type="text"
+                                value={clientTransferRef}
+                                onChange={(e) => setClientTransferRef(e.target.value)}
+                                placeholder={isAr ? 'مثال: PayPal Ref #987654321 أو yourname@gmail.com' : 'e.g. PayPal Transaction ID or sender email'}
+                                style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontSize: '0.85rem' }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                          type="button"
+                          onClick={handlePayPalDirectPayment}
+                          disabled={isUploadingReceipt}
+                          className="btn btn-primary"
+                          style={{
+                            width: '100%',
+                            padding: '1.2rem',
+                            fontWeight: '800',
+                            fontSize: '1.05rem',
+                            borderRadius: '10px',
+                            background: 'linear-gradient(135deg, #0070ba, #003087)',
+                            color: '#ffffff',
+                            border: 'none',
+                            cursor: isUploadingReceipt ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            boxShadow: '0 6px 20px rgba(0, 112, 186, 0.4)'
+                          }}
+                        >
+                          {isUploadingReceipt ? (
+                            <>
+                              <div className="spinner" style={{ width: '18px', height: '18px', border: '2px solid rgba(255,255,255,0.3)', borderTop: '2px solid #fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                              <span>{isAr ? 'جاري تسجيل الحجز وتأكيد الدفع...' : 'Processing booking & receipt...'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>🅿️</span>
+                              <span>
+                                {receiptFile 
+                                  ? (isAr ? `تأكيد الحجز ورفع إيصال PayPal - €${totalAmount.toFixed(2)}` : `Confirm Booking & Submit PayPal Receipt - €${totalAmount.toFixed(2)}`)
+                                  : (isAr ? `تأكيد الحجز عبر PayPal - €${totalAmount.toFixed(2)}` : `Confirm Booking via PayPal - €${totalAmount.toFixed(2)}`)
+                                }
+                              </span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })()}
 
                   {/* APPLE PAY SUB-VIEW */}
                   {selectedPayMethod === 'apple_pay' && (
@@ -1777,45 +2250,354 @@ function CheckoutContent() {
                     </div>
                   )}
 
-                  {/* BANK TRANSFER SUB-VIEW */}
-                  {selectedPayMethod === 'bank_transfer' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                      <h4 style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>{translate('bankDetailsTitle')}</h4>
-                      
-                      <div style={{
-                        background: 'var(--bg-tertiary)',
-                        border: '1px solid var(--border-medium)',
-                        borderRadius: '8px',
-                        padding: '1.2rem',
-                        fontSize: '0.9rem',
-                        lineHeight: '1.6',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.6rem',
-                        fontFamily: 'var(--font-en)'
-                      }}>
-                        <div><strong>Account Name:</strong> ORLUXUS Travel &amp; Tourism S.A.E</div>
-                        <div><strong>IBAN:</strong> EG650002000100000123456789012</div>
-                        <div><strong>Bank Name:</strong> Commercial International Bank (CIB)</div>
-                        <div><strong>SWIFT Code:</strong> CIBEEGCX</div>
-                      </div>
+                  {/* BANK TRANSFER SUB-VIEW (CUSTOM GATEWAY) */}
+                  {selectedPayMethod === 'bank_transfer' && (() => {
+                    const activeBanks = (settings?.bankAccounts || []).filter(b => b.isActive !== false);
+                    const defaultBank = {
+                      id: 'bank_cib_eur',
+                      bankName: 'CIB Bank (البنك التجاري الدولي)',
+                      accountName: 'ORLUXUS LUXURY TRAVEL',
+                      accountNumber: '100045892147',
+                      iban: 'EG38001000450000100045892147',
+                      swift: 'CIBEEGCX',
+                      currency: 'EUR',
+                      country: 'Egypt 🇪🇬',
+                      instructionsAr: 'يرجى كتابة كود الحجز في خانة الملاحظات عند التحويل.',
+                      instructionsEn: 'Please write the Booking Reference in the transfer memo/description.'
+                    };
+                    const displayBanks = activeBanks.length > 0 ? activeBanks : [defaultBank];
+                    const currentBank = displayBanks.find(b => b.id === selectedBankId) || displayBanks[0];
 
-                      <button
-                        type="button"
-                        onClick={handleBankTransferPayment}
-                        className="btn btn-primary"
-                        style={{
-                          width: '100%',
-                          padding: '1.1rem',
-                          fontWeight: 'bold',
-                          fontSize: '1rem',
-                          borderRadius: '10px'
-                        }}
-                      >
-                        {translate('bankConfirmBtn')}
-                      </button>
-                    </div>
-                  )}
+                    const handleCopy = (text, fieldName) => {
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText(text);
+                        setCopiedField(fieldName);
+                        setTimeout(() => setCopiedField(''), 2500);
+                      }
+                    };
+
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        {/* Title & Instructions */}
+                        <div>
+                          <h4 style={{ color: 'var(--text-primary)', fontWeight: 'bold', margin: '0 0 0.3rem 0', fontSize: '1.1rem' }}>
+                            {isAr ? '🏦 التحويل البنكي المباشر لحسابات الشركة' : '🏦 Direct Bank Transfer to Company Accounts'}
+                          </h4>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0 }}>
+                            {isAr 
+                              ? 'قم بالتحويل إلى أحد حساباتنا الرسمية المعتمدة وارفع صورة الإيصال ليتم تأكيد حجزك رسمياً.' 
+                              : 'Transfer directly to our verified company accounts and upload the payment receipt to confirm your reservation.'}
+                          </p>
+                        </div>
+
+                        {/* Bank Accounts Switcher (if more than 1) */}
+                        {displayBanks.length > 1 && (
+                          <div>
+                            <label style={{ display: 'block', color: 'var(--text-tertiary)', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                              {isAr ? 'اختر الحساب البنكي المناسب:' : 'Select Company Bank Account:'}
+                            </label>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.6rem' }}>
+                              {displayBanks.map((b) => (
+                                <button
+                                  type="button"
+                                  key={b.id}
+                                  onClick={() => setSelectedBankId(b.id)}
+                                  style={{
+                                    padding: '0.8rem 1rem',
+                                    borderRadius: '8px',
+                                    background: (selectedBankId === b.id || (!selectedBankId && b.id === displayBanks[0].id)) ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.03)',
+                                    border: (selectedBankId === b.id || (!selectedBankId && b.id === displayBanks[0].id)) ? '2px solid var(--gold-500)' : '1px solid var(--border-medium)',
+                                    color: (selectedBankId === b.id || (!selectedBankId && b.id === displayBanks[0].id)) ? 'var(--gold-400)' : 'var(--text-secondary)',
+                                    cursor: 'pointer',
+                                    textAlign: isAr ? 'right' : 'left',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '2px',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                >
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <strong style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>{b.bankName}</strong>
+                                    <span style={{ fontSize: '0.7rem', background: 'var(--gold-500)', color: '#000', padding: '1px 5px', borderRadius: '3px', fontWeight: '800' }}>
+                                      {b.currency}
+                                    </span>
+                                  </div>
+                                  <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>{b.country || ''}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Selected Bank Details Card */}
+                        <div style={{
+                          background: 'linear-gradient(135deg, rgba(212,175,55,0.06) 0%, rgba(18,22,32,0.95) 100%)',
+                          border: '1px solid var(--gold-500)',
+                          borderRadius: '12px',
+                          padding: '1.4rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.8rem',
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(212,175,55,0.2)', paddingBottom: '0.6rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '1.2rem' }}>🏛️</span>
+                              <strong style={{ color: 'var(--gold-400)', fontSize: '1rem' }}>{currentBank.bankName}</strong>
+                              <span style={{ background: 'var(--gold-500)', color: '#000', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: '800' }}>
+                                {currentBank.currency}
+                              </span>
+                            </div>
+                            <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>{currentBank.country}</span>
+                          </div>
+
+                          {/* Account Name */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem' }}>
+                            <span style={{ color: 'var(--text-secondary)' }}>{isAr ? 'اسم المستفيد:' : 'Beneficiary:'}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <strong style={{ color: 'var(--text-primary)' }}>{currentBank.accountName}</strong>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(currentBank.accountName, 'accountName')}
+                                style={{ background: 'none', border: 'none', color: copiedField === 'accountName' ? '#10b981' : 'var(--gold-400)', cursor: 'pointer', fontSize: '0.8rem', padding: '2px 4px' }}
+                                title="Copy"
+                              >
+                                {copiedField === 'accountName' ? '✓' : '📋'}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* IBAN */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem', background: 'rgba(0,0,0,0.25)', padding: '8px 10px', borderRadius: '6px' }}>
+                            <span style={{ color: 'var(--text-secondary)' }}>IBAN:</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <strong style={{ color: 'var(--gold-300)', fontFamily: 'var(--font-en)', letterSpacing: '0.5px' }}>
+                                {currentBank.iban || currentBank.accountNumber}
+                              </strong>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(currentBank.iban || currentBank.accountNumber, 'iban')}
+                                style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid var(--gold-500)', color: copiedField === 'iban' ? '#10b981' : 'var(--gold-400)', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', padding: '2px 8px' }}
+                              >
+                                {copiedField === 'iban' ? (isAr ? 'تم النسخ ✓' : 'Copied ✓') : (isAr ? 'نسخ 📋' : 'Copy 📋')}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* SWIFT / BIC */}
+                          {currentBank.swift && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem' }}>
+                              <span style={{ color: 'var(--text-secondary)' }}>SWIFT / BIC:</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <strong style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>{currentBank.swift}</strong>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopy(currentBank.swift, 'swift')}
+                                  style={{ background: 'none', border: 'none', color: copiedField === 'swift' ? '#10b981' : 'var(--gold-400)', cursor: 'pointer', fontSize: '0.8rem', padding: '2px 4px' }}
+                                  title="Copy"
+                                >
+                                  {copiedField === 'swift' ? '✓' : '📋'}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Amount to transfer */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.95rem', borderTop: '1px solid rgba(212,175,55,0.2)', paddingTop: '0.6rem' }}>
+                            <span style={{ color: 'var(--text-secondary)', fontWeight: 'bold' }}>{isAr ? 'المبلغ المطلوب تحويله:' : 'Amount to Transfer:'}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ color: 'var(--gold-400)', fontWeight: '800', fontSize: '1.2rem', fontFamily: 'var(--font-en)' }}>
+                                €{totalAmount.toFixed(2)}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(totalAmount.toFixed(2), 'amount')}
+                                style={{ background: 'none', border: 'none', color: copiedField === 'amount' ? '#10b981' : 'var(--gold-400)', cursor: 'pointer', fontSize: '0.8rem' }}
+                                title="Copy"
+                              >
+                                {copiedField === 'amount' ? '✓' : '📋'}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Bank Custom Instructions */}
+                          {(currentBank.instructionsAr || currentBank.instructionsEn) && (
+                            <div style={{ fontSize: '0.8rem', color: 'var(--gold-300)', background: 'rgba(212,175,55,0.08)', padding: '6px 10px', borderRadius: '6px', lineHeight: '1.4' }}>
+                              💡 {isAr ? (currentBank.instructionsAr || currentBank.instructionsEn) : (currentBank.instructionsEn || currentBank.instructionsAr)}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Booking Reference Notice Box (Very Important) */}
+                        <div style={{
+                          background: 'rgba(59,130,246,0.08)',
+                          border: '1px solid rgba(59,130,246,0.3)',
+                          borderRadius: '10px',
+                          padding: '1rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.5rem'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: '#93c5fd', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                              📌 {isAr ? 'رقم مرجع الحجز (مهم جداً عند التحويل):' : 'Booking Reference Code (Important):'}
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ background: '#1e3a8a', color: '#93c5fd', padding: '2px 10px', borderRadius: '6px', fontWeight: '800', fontFamily: 'var(--font-en)', fontSize: '0.95rem' }}>
+                                {bookingRefCode}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(bookingRefCode, 'bookingRef')}
+                                style={{ background: 'rgba(59,130,246,0.2)', border: '1px solid #3b82f6', color: copiedField === 'bookingRef' ? '#10b981' : '#93c5fd', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '0.75rem' }}
+                              >
+                                {copiedField === 'bookingRef' ? (isAr ? 'تم النسخ ✓' : 'Copied ✓') : (isAr ? 'نسخ 📋' : 'Copy 📋')}
+                              </button>
+                            </div>
+                          </div>
+                          <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-tertiary)', lineHeight: '1.4' }}>
+                            {isAr 
+                              ? '⚠️ يرجى كتابة هذا الكود في خانة (الوصف / الغرض من التحويل / Verwendungszweck) عند إتمام عملية التحويل البنكي لربط دفعتك بالحجز تلقائياً.' 
+                              : '⚠️ Please write this code in the payment description/memo field when completing the transfer to automatically link your payment.'}
+                          </p>
+                        </div>
+
+                        {/* Upload Receipt Section */}
+                        <div style={{
+                          background: 'rgba(255,255,255,0.02)',
+                          border: '1px dashed var(--gold-500)',
+                          borderRadius: '12px',
+                          padding: '1.4rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '1rem'
+                        }}>
+                          <div>
+                            <label style={{ display: 'block', color: 'var(--text-primary)', fontWeight: 'bold', fontSize: '0.95rem', marginBottom: '0.3rem' }}>
+                              📎 {isAr ? 'رفع إيصال التحويل البنكي (اختياري ولكنه يسرع التأكيد):' : 'Upload Bank Transfer Receipt (Optional for fast track):'}
+                            </label>
+                            <p style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem', margin: 0 }}>
+                              {isAr ? 'يقبل صور JPG, PNG, WEBP أو مستند PDF (الحد الأقصى 8 ميجابايت)' : 'Accepts JPG, PNG, WEBP images or PDF document (Max 8MB)'}
+                            </p>
+                          </div>
+
+                          {/* File Input & Preview */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp,application/pdf"
+                              onChange={handleReceiptFileChange}
+                              id="receiptFileInput"
+                              style={{ display: 'none' }}
+                            />
+                            
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                              <label
+                                htmlFor="receiptFileInput"
+                                style={{
+                                  padding: '10px 18px',
+                                  background: 'rgba(212,175,55,0.15)',
+                                  border: '1px solid var(--gold-500)',
+                                  borderRadius: '8px',
+                                  color: 'var(--gold-400)',
+                                  cursor: 'pointer',
+                                  fontWeight: 'bold',
+                                  fontSize: '0.85rem',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px'
+                                }}
+                              >
+                                📷 {receiptFile ? (isAr ? 'تغيير الملف' : 'Change File') : (isAr ? 'اختيار صورة الإيصال أو PDF' : 'Select Receipt Image or PDF')}
+                              </label>
+
+                              {receiptFile && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(16,185,129,0.1)', border: '1px solid #10b981', padding: '6px 12px', borderRadius: '6px' }}>
+                                  <span style={{ fontSize: '0.85rem', color: '#10b981' }}>
+                                    ✓ {receiptFile.name} ({(receiptFile.size / 1024).toFixed(0)} KB)
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => { setReceiptFile(null); setReceiptPreview(''); }}
+                                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1rem', padding: 0 }}
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Image Preview if image */}
+                            {receiptPreview && receiptPreview !== 'pdf' && (
+                              <div style={{ marginTop: '0.5rem', maxWidth: '200px', maxHeight: '140px', overflow: 'hidden', borderRadius: '6px', border: '1px solid var(--border-medium)' }}>
+                                <img src={receiptPreview} alt="Receipt Preview" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                              </div>
+                            )}
+
+                            {receiptError && (
+                              <div style={{ color: '#ef4444', fontSize: '0.82rem', fontWeight: 'bold' }}>
+                                ⚠️ {receiptError}
+                              </div>
+                            )}
+
+                            {/* Optional Reference or Sender Name */}
+                            <div style={{ marginTop: '0.5rem' }}>
+                              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                                {isAr ? 'رقم العملية البنكية أو اسم صاحب الحساب المحول منه (اختياري):' : 'Bank Transaction Reference or Sender Name (Optional):'}
+                              </label>
+                              <input
+                                type="text"
+                                value={clientTransferRef}
+                                onChange={(e) => setClientTransferRef(e.target.value)}
+                                placeholder={isAr ? 'مثال: تحويل من حساب باسم أحمد محمد / مرجع #987654' : 'e.g. Transfer from John Doe / Ref #987654'}
+                                style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontSize: '0.85rem' }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                          type="button"
+                          onClick={handleBankTransferPayment}
+                          disabled={isUploadingReceipt}
+                          className="btn btn-primary"
+                          style={{
+                            width: '100%',
+                            padding: '1.2rem',
+                            fontWeight: '800',
+                            fontSize: '1.05rem',
+                            borderRadius: '10px',
+                            background: 'var(--gradient-gold)',
+                            color: '#000',
+                            cursor: isUploadingReceipt ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            boxShadow: 'var(--shadow-glow-gold)'
+                          }}
+                        >
+                          {isUploadingReceipt ? (
+                            <>
+                              <div className="spinner" style={{ width: '18px', height: '18px', border: '2px solid rgba(0,0,0,0.3)', borderTop: '2px solid #000', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                              <span>{isAr ? 'جاري تسجيل الحجز ورفع الإيصال...' : 'Processing booking & uploading receipt...'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>🏦</span>
+                              <span>
+                                {receiptFile 
+                                  ? (isAr ? `تأكيد الحجز ورفع الإيصال - €${totalAmount.toFixed(2)}` : `Confirm Booking & Submit Receipt - €${totalAmount.toFixed(2)}`)
+                                  : (isAr ? `تأكيد الحجز عبر التحويل البنكي - €${totalAmount.toFixed(2)}` : `Confirm Booking via Bank Transfer - €${totalAmount.toFixed(2)}`)
+                                }
+                              </span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })()}
 
                   {/* PAYTABS SUB-VIEW */}
                   {selectedPayMethod === 'paytabs' && (

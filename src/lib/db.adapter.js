@@ -50,6 +50,14 @@ import {
   getServiceReviews as fbGetServiceReviews,
   addServiceReview as fbAddServiceReview,
   getUserServiceReview as fbGetUserServiceReview,
+  getBankAccounts as fbGetBankAccounts,
+  addBankAccount as fbAddBankAccount,
+  updateBankAccount as fbUpdateBankAccount,
+  deleteBankAccount as fbDeleteBankAccount,
+  saveBankAccounts as fbSaveBankAccounts,
+  updateBookingReceipt as fbUpdateBookingReceipt,
+  confirmBankPayment as fbConfirmBankPayment,
+  rejectBankPayment as fbRejectBankPayment,
 } from './db.firebase';
 
 import { sampleTrips } from './data';
@@ -549,4 +557,37 @@ export async function addServiceReview(reviewData) {
 
 export async function getUserServiceReview(serviceId, userId) {
   return fbGetUserServiceReview(serviceId, userId);
+}
+
+// -- BANK ACCOUNTS & CUSTOM GATEWAY --
+export async function getBankAccounts() {
+  return fbGetBankAccounts();
+}
+
+export async function addBankAccount(accountData) {
+  return fbAddBankAccount(accountData);
+}
+
+export async function updateBankAccount(id, data) {
+  return fbUpdateBankAccount(id, data);
+}
+
+export async function deleteBankAccount(id) {
+  return fbDeleteBankAccount(id);
+}
+
+export async function saveBankAccounts(accounts) {
+  return fbSaveBankAccounts(accounts);
+}
+
+export async function updateBookingReceipt(bookingId, receiptData) {
+  return fbUpdateBookingReceipt(bookingId, receiptData);
+}
+
+export async function confirmBankPayment(bookingId, adminNote) {
+  return fbConfirmBankPayment(bookingId, adminNote);
+}
+
+export async function rejectBankPayment(bookingId, rejectionReason) {
+  return fbRejectBankPayment(bookingId, rejectionReason);
 }

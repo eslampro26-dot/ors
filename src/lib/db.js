@@ -40,4 +40,12 @@ export {
   getServiceReviews,
   addServiceReview,
   getUserServiceReview,
+  getBankAccounts,
+  addBankAccount,
+  updateBankAccount,
+  deleteBankAccount,
+  saveBankAccounts,
+  updateBookingReceipt,
+  confirmBankPayment,
+  rejectBankPayment,
 } from './db.adapter';

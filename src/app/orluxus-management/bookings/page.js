@@ -11,6 +11,14 @@ export default function AdminBookings() {
   const [bookings, setBookings] = useState([]);
   const [agents, setAgents] = useState([]);
 
+  // Receipt Modal State
+  const [receiptModal, setReceiptModal] = useState({
+    isOpen: false,
+    url: '',
+    booking: null
+  });
+  const [actionLoading, setActionLoading] = useState(false);
+
   const loadData = async () => {
     try {
       const bookingsData = await getBookings();
@@ -33,7 +41,7 @@ export default function AdminBookings() {
 
   // Export Bookings to CSV (Excel compatible with UTF-8 BOM)
   const handleExportCSV = () => {
-    const headers = ['Booking ID', 'Date', 'Guest Name', 'Phone Number', 'Service Requested', 'City', 'Agent', 'Promo Code', 'Original Price', 'Discount Amount', 'Final Amount', 'Payment Method', 'Status'];
+    const headers = ['Booking ID', 'Date', 'Guest Name', 'Phone Number', 'Service Requested', 'City', 'Agent', 'Promo Code', 'Original Price', 'Discount Amount', 'Final Amount', 'Payment Method', 'Status', 'Receipt URL'];
     const rows = filteredBookings.map(b => [
       b.id,
       b.date,
@@ -46,8 +54,9 @@ export default function AdminBookings() {
       `${b.currency || '€'}${b.originalAmount || b.finalAmount}`,
       `${b.currency || '€'}${b.discountAmount || 0}`,
       `${b.currency || '€'}${b.finalAmount}`,
-      b.paymentType === 'cash' || b.paymentType === 'onsite' ? 'Cash' : (b.paymentType === 'card' ? 'Card' : 'PayPal'),
-      b.status
+      b.paymentType === 'cash' || b.paymentType === 'onsite' ? 'Cash' : (b.paymentType === 'card' ? 'Card' : (b.paymentType === 'bank_transfer' ? 'Bank Transfer' : 'PayPal')),
+      b.status,
+      b.receiptUrl || 'None'
     ]);
 
     const BOM = "\uFEFF";
@@ -68,19 +77,77 @@ export default function AdminBookings() {
   const STATUS_EN_TO_AR = {
     'Confirmed': 'مؤكد',
     'Pending': 'قيد الانتظار',
+    'Awaiting Bank Confirmation': 'في انتظار تأكيد الدفع',
     'Completed': 'مكتمل',
     'Cancelled': 'ملغي',
+    'Rejected': 'مرفوض',
     'Failed': 'فاشل',
   };
   const STATUS_AR_TO_EN = {
     'مؤكد': 'Confirmed',
     'قيد الانتظار': 'Pending',
+    'في انتظار تأكيد الدفع': 'Awaiting Bank Confirmation',
     'مكتمل': 'Completed',
     'ملغي': 'Cancelled',
+    'مرفوض': 'Rejected',
     'فاشل': 'Failed',
   };
   const toArStatus = (en) => STATUS_EN_TO_AR[en] || en;
   const toEnStatus = (ar) => STATUS_AR_TO_EN[ar] || ar;
+
+  // Quick Confirm Bank Payment
+  const handleConfirmBankPayment = async (bookingId) => {
+    if (!confirm('Are you sure you want to verify and CONFIRM this bank payment? This will issue a verified confirmation email to the guest.')) {
+      return;
+    }
+    setActionLoading(true);
+    try {
+      const res = await fetch('/api/confirm-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'confirm', bookingId })
+      });
+      if (res.ok) {
+        alert('✅ Bank payment verified and booking confirmed successfully!');
+        setReceiptModal({ isOpen: false, url: '', booking: null });
+        loadData();
+      } else {
+        alert('❌ Failed to confirm payment!');
+      }
+    } catch (e) {
+      console.error('Error confirming payment:', e);
+      alert('❌ Error during payment confirmation');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Quick Reject Bank Payment
+  const handleRejectBankPayment = async (bookingId) => {
+    const reason = prompt('Please enter the rejection reason (e.g. Receipt unreadable, Amount mismatch):', 'Payment receipt could not be verified');
+    if (reason === null) return;
+
+    setActionLoading(true);
+    try {
+      const res = await fetch('/api/confirm-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reject', bookingId, rejectionReason: reason })
+      });
+      if (res.ok) {
+        alert('⚠️ Booking payment marked as rejected.');
+        setReceiptModal({ isOpen: false, url: '', booking: null });
+        loadData();
+      } else {
+        alert('❌ Failed to reject payment!');
+      }
+    } catch (e) {
+      console.error('Error rejecting payment:', e);
+      alert('❌ Error during payment rejection');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // Change Booking Status
   const handleStatusChange = async (id, newStatus) => {
@@ -631,13 +698,54 @@ export default function AdminBookings() {
             }}
           >
             <option value="All Statuses">All Statuses</option>
+            <option value="Awaiting Bank Confirmation">⏳ Awaiting Bank Confirmation</option>
             <option value="Confirmed">Confirmed</option>
             <option value="Pending">Pending</option>
             <option value="Completed">Completed</option>
             <option value="Cancelled">Cancelled</option>
+            <option value="Rejected">Rejected</option>
           </select>
         </div>
       </div>
+
+      {/* Awaiting Bank Transfer Notice Banner */}
+      {(() => {
+        const pendingCount = bookings.filter(b => b.status === 'في انتظار تأكيد الدفع' || b.status === 'Awaiting Bank Confirmation').length;
+        if (pendingCount === 0) return null;
+        return (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05))',
+            border: '1px solid var(--gold-500)',
+            borderRadius: '10px',
+            padding: '1rem 1.5rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '1rem',
+            boxShadow: '0 4px 15px rgba(212,175,55,0.15)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '1.8rem' }}>🔔</span>
+              <div>
+                <strong style={{ color: 'var(--gold-400)', fontSize: '1.05rem', display: 'block' }}>
+                  {pendingCount} Booking(s) Awaiting Bank Payment Confirmation
+                </strong>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                  يوجد {pendingCount} حجز عبر التحويل البنكي بانتظار مراجعة الإيصال وتأكيد الدفع
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => setStatusFilter('Awaiting Bank Confirmation')}
+              className="btn btn-secondary btn-sm"
+              style={{ background: 'var(--gold-500)', color: '#000', fontWeight: 'bold', border: 'none', padding: '6px 14px' }}
+            >
+              Filter Awaiting ({pendingCount}) →
+            </button>
+          </div>
+        );
+      })()}
 
       {/* Bookings Table */}
       <div className="glass-card animate-fade-in-up" style={{ padding: '2rem 1.5rem' }}>
@@ -651,138 +759,265 @@ export default function AdminBookings() {
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Service &amp; Destination</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Agent</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Promo Code</th>
-                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Total (EGP)</th>
+                <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Total</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Payment</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Status</th>
                 <th style={{ padding: '1rem', color: 'var(--text-secondary)', fontWeight: 'bold', textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredBookings.map((booking) => (
-                <tr key={booking.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', transition: 'background var(--transition-fast)' }} className="table-row-hover">
-                  <td style={{ padding: '1.2rem 1rem', fontFamily: 'var(--font-en)', fontWeight: 'bold' }}>{booking.id}</td>
-                  <td style={{ padding: '1.2rem 1rem' }}>{booking.date}</td>
-                  <td style={{ padding: '1.2rem 1rem' }}>
-                    <div style={{ fontWeight: '600' }}>{booking.customer}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-en)', marginTop: '2px' }}>{booking.phone}</div>
-                    {booking.customerLanguage && (
-                      <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.06)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginTop: '4px', color: 'var(--gold-400)', fontWeight: 'bold' }}>
-                        🌐 {booking.customerLanguage === 'ar' ? 'Arabic' : booking.customerLanguage === 'de' ? 'Deutsch' : booking.customerLanguage === 'fr' ? 'Français' : booking.customerLanguage === 'it' ? 'Italiano' : booking.customerLanguage === 'ru' ? 'Русский' : booking.customerLanguage === 'es' ? 'Español' : booking.customerLanguage === 'zh' ? 'Chinese' : booking.customerLanguage === 'ja' ? 'Japanese' : booking.customerLanguage === 'tr' ? 'Türkçe' : booking.customerLanguage.toUpperCase()}
-                      </span>
-                    )}
-                  </td>
-                  <td style={{ padding: '1.2rem 1rem' }}>
-                    <strong>{booking.service}</strong>
-                    <br/>
-                    <span style={{ fontSize: '11px', color: 'var(--gold-500)', background: 'rgba(251,191,36,0.08)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginTop: '4px' }}>
-                      📍 {booking.city}
-                    </span>
-                  </td>
-                  <td style={{ padding: '1.2rem 1rem', color: 'var(--text-secondary)' }}>
-                    {booking.agentId ? (
-                      <span style={{ fontWeight: 'bold' }}>
-                        👤 {booking.agentName}
-                      </span>
-                    ) : (
-                      <span style={{ color: 'var(--text-tertiary)', fontStyle: 'italic', fontSize: '11px' }}>Direct (No Agent)</span>
-                    )}
-                  </td>
-                  <td>
-                    {booking.promoCode ? (
-                      <span style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', padding: '2px 6px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', color: 'var(--coral-400)' }}>
-                        🎫 {booking.promoCode}
-                      </span>
-                    ) : (
-                      <span style={{ color: 'var(--text-tertiary)', fontSize: '11px' }}>-</span>
-                    )}
-                  </td>
-                  <td style={{ padding: '1.2rem 1rem', fontFamily: 'var(--font-en)' }}>
-                    {booking.discountAmount > 0 ? (
-                      <div>
-                        <span style={{ textDecoration: 'line-through', color: 'var(--text-tertiary)', fontSize: '12px' }}>
-                          €{booking.originalAmount}
+              {filteredBookings.map((booking) => {
+                const isBankTransfer = booking.paymentType === 'bank_transfer' || booking.paymentType === 'bank_transfer_custom';
+                const isAwaitingConfirmation = booking.status === 'في انتظار تأكيد الدفع' || booking.status === 'Awaiting Bank Confirmation';
+
+                return (
+                  <tr key={booking.id} style={{ 
+                    borderBottom: '1px solid rgba(255,255,255,0.06)', 
+                    background: isAwaitingConfirmation ? 'rgba(212,175,55,0.04)' : 'transparent',
+                    transition: 'background var(--transition-fast)' 
+                  }} className="table-row-hover">
+                    <td style={{ padding: '1.2rem 1rem', fontFamily: 'var(--font-en)', fontWeight: 'bold' }}>
+                      {booking.id}
+                      {booking.bookingRefCode && (
+                        <div style={{ fontSize: '10px', color: '#93c5fd', marginTop: '2px' }}>
+                          Ref: {booking.bookingRefCode}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: '1.2rem 1rem' }}>{booking.date}</td>
+                    <td style={{ padding: '1.2rem 1rem' }}>
+                      <div style={{ fontWeight: '600' }}>{booking.customer}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-en)', marginTop: '2px' }}>{booking.phone}</div>
+                      {booking.customerLanguage && (
+                        <span style={{ fontSize: '10px', background: 'rgba(255,255,255,0.06)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginTop: '4px', color: 'var(--gold-400)', fontWeight: 'bold' }}>
+                          🌐 {booking.customerLanguage === 'ar' ? 'Arabic' : booking.customerLanguage === 'de' ? 'Deutsch' : booking.customerLanguage === 'fr' ? 'Français' : booking.customerLanguage === 'it' ? 'Italiano' : booking.customerLanguage === 'ru' ? 'Русский' : booking.customerLanguage === 'es' ? 'Español' : booking.customerLanguage === 'zh' ? 'Chinese' : booking.customerLanguage === 'ja' ? 'Japanese' : booking.customerLanguage === 'tr' ? 'Türkçe' : booking.customerLanguage.toUpperCase()}
                         </span>
-                        <br/>
-                        <strong style={{ color: 'var(--gold-400)', fontSize: '1.05rem' }}>
+                      )}
+                    </td>
+                    <td style={{ padding: '1.2rem 1rem' }}>
+                      <strong>{booking.service}</strong>
+                      <br/>
+                      <span style={{ fontSize: '11px', color: 'var(--gold-500)', background: 'rgba(251,191,36,0.08)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginTop: '4px' }}>
+                        📍 {booking.city}
+                      </span>
+                    </td>
+                    <td style={{ padding: '1.2rem 1rem', color: 'var(--text-secondary)' }}>
+                      {booking.agentId ? (
+                        <span style={{ fontWeight: 'bold' }}>
+                          👤 {booking.agentName}
+                        </span>
+                      ) : (
+                        <span style={{ color: 'var(--text-tertiary)', fontStyle: 'italic', fontSize: '11px' }}>Direct (No Agent)</span>
+                      )}
+                    </td>
+                    <td>
+                      {booking.promoCode ? (
+                        <span style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', padding: '2px 6px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', color: 'var(--coral-400)' }}>
+                          🎫 {booking.promoCode}
+                        </span>
+                      ) : (
+                        <span style={{ color: 'var(--text-tertiary)', fontSize: '11px' }}>-</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '1.2rem 1rem', fontFamily: 'var(--font-en)' }}>
+                      {booking.discountAmount > 0 ? (
+                        <div>
+                          <span style={{ textDecoration: 'line-through', color: 'var(--text-tertiary)', fontSize: '12px' }}>
+                            €{booking.originalAmount}
+                          </span>
+                          <br/>
+                          <strong style={{ color: 'var(--gold-400)', fontSize: '1.05rem' }}>
+                            €{booking.finalAmount}
+                          </strong>
+                          <span style={{ fontSize: '9px', color: 'var(--coral-400)', display: 'block' }}>
+                            (Saved €{booking.discountAmount})
+                          </span>
+                        </div>
+                      ) : (
+                        <strong style={{ color: 'var(--text-primary)' }}>
                           €{booking.finalAmount}
                         </strong>
-                        <span style={{ fontSize: '9px', color: 'var(--coral-400)', display: 'block' }}>
-                          (Saved €{booking.discountAmount})
-                        </span>
-                      </div>
-                    ) : (
-                      <strong style={{ color: 'var(--text-primary)' }}>
-                        €{booking.finalAmount}
-                      </strong>
-                    )}
-                  </td>
-                  <td style={{ padding: '1.2rem 1rem' }}>
-                    <span style={{ 
-                      fontSize: '11px', 
-                      fontWeight: 'bold',
-                      color: booking.paymentType === 'cash' || booking.paymentType === 'onsite' ? 'var(--gold-400)' : (booking.paymentType === 'card' ? '#3b82f6' : '#a855f7'),
-                      background: booking.paymentType === 'cash' || booking.paymentType === 'onsite' ? 'rgba(251,191,36,0.08)' : (booking.paymentType === 'card' ? 'rgba(59,130,246,0.08)' : 'rgba(168,85,247,0.08)'),
-                      border: booking.paymentType === 'cash' || booking.paymentType === 'onsite' ? '1px solid rgba(251,191,36,0.2)' : (booking.paymentType === 'card' ? '1px solid rgba(59,130,246,0.2)' : '1px solid rgba(168,85,247,0.2)'),
-                      padding: '3px 8px',
-                      borderRadius: '6px',
-                      display: 'inline-block',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {booking.paymentType === 'cash' || booking.paymentType === 'onsite' ? '💵 Cash' : (booking.paymentType === 'card' ? '💳 Card' : '🅿️ PayPal')}
-                    </span>
-                  </td>
-                  <td style={{ padding: '1.2rem 1rem' }}>
-                    <span className={`badge badge-${booking.status === 'Confirmed' ? 'emerald' : booking.status === 'Completed' ? 'ocean' : booking.status === 'Cancelled' ? 'coral' : 'gold'}`}>
-                      {booking.status === 'مؤكد' ? 'Confirmed' : booking.status === 'مكتمل' ? 'Completed' : booking.status === 'ملغي' ? 'Cancelled' : booking.status === 'قيد الانتظار' ? 'Pending' : booking.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '1.2rem 1rem', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', alignItems: 'center' }}>
-                      <button
-                        onClick={() => handlePrintAgreement(booking)}
-                        title="Print Digital Agreement"
-                        style={{
-                          padding: '6px 12px',
-                          background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontSize: '0.85rem',
+                      )}
+                    </td>
+                    <td style={{ padding: '1.2rem 1rem' }}>
+                      {isBankTransfer ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{ 
+                            fontSize: '11px', 
+                            fontWeight: 'bold',
+                            color: 'var(--gold-400)',
+                            background: 'rgba(212,175,55,0.12)',
+                            border: '1px solid rgba(212,175,55,0.3)',
+                            padding: '3px 8px',
+                            borderRadius: '6px',
+                            display: 'inline-block',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            🏛️ Bank Transfer
+                          </span>
+                          {booking.receiptBankName && (
+                            <span style={{ fontSize: '10px', color: 'var(--text-tertiary)' }}>
+                              {booking.receiptBankName}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span style={{ 
+                          fontSize: '11px', 
                           fontWeight: 'bold',
-                          display: 'flex',
+                          color: booking.paymentType === 'cash' || booking.paymentType === 'onsite' ? 'var(--gold-400)' : (booking.paymentType === 'card' ? '#3b82f6' : '#a855f7'),
+                          background: booking.paymentType === 'cash' || booking.paymentType === 'onsite' ? 'rgba(251,191,36,0.08)' : (booking.paymentType === 'card' ? 'rgba(59,130,246,0.08)' : 'rgba(168,85,247,0.08)'),
+                          border: booking.paymentType === 'cash' || booking.paymentType === 'onsite' ? '1px solid rgba(251,191,36,0.2)' : (booking.paymentType === 'card' ? '1px solid rgba(59,130,246,0.2)' : '1px solid rgba(168,85,247,0.2)'),
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          display: 'inline-block',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {booking.paymentType === 'cash' || booking.paymentType === 'onsite' ? '💵 Cash' : (booking.paymentType === 'card' ? '💳 Card' : '🅿️ PayPal')}
+                        </span>
+                      )}
+                    </td>
+                    <td style={{ padding: '1.2rem 1rem' }}>
+                      {isAwaitingConfirmation ? (
+                        <span style={{
+                          background: 'rgba(212,175,55,0.2)',
+                          border: '1px solid var(--gold-500)',
+                          color: 'var(--gold-400)',
+                          padding: '4px 10px',
+                          borderRadius: '20px',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '4px'
-                        }}
-                      >
-                        📄 Print
-                      </button>
-                       <select 
-                        value={STATUS_AR_TO_EN[booking.status] || booking.status} 
-                        onChange={(e) => handleStatusChange(booking.id, e.target.value)}
-                        style={{
-                          padding: '6px 10px',
-                          borderRadius: '4px',
-                          border: '1px solid var(--border-medium)',
-                          background: 'var(--bg-primary)',
-                          color: 'var(--text-primary)',
-                          fontSize: '12px',
-                          outline: 'none',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <option value="Confirmed">Confirmed</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Cancelled">Cancelled</option>
-                      </select>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                          gap: '4px',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          <span style={{ animation: 'pulse 1.5s infinite' }}>⏳</span> Awaiting Verification
+                        </span>
+                      ) : (
+                        <span className={`badge badge-${booking.status === 'Confirmed' || booking.status === 'مؤكد' ? 'emerald' : booking.status === 'Completed' || booking.status === 'مكتمل' ? 'ocean' : booking.status === 'Cancelled' || booking.status === 'ملغي' || booking.status === 'مرفوض' ? 'coral' : 'gold'}`}>
+                          {toEnStatus(booking.status)}
+                        </span>
+                      )}
+                    </td>
+                    <td style={{ padding: '1.2rem 1rem', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+                        {/* View Receipt Button */}
+                        {booking.receiptUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setReceiptModal({ isOpen: true, url: booking.receiptUrl, booking })}
+                            title="View Bank Receipt"
+                            style={{
+                              padding: '5px 10px',
+                              background: 'rgba(212,175,55,0.2)',
+                              color: 'var(--gold-400)',
+                              border: '1px solid var(--gold-500)',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '0.8rem',
+                              fontWeight: 'bold',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '3px'
+                            }}
+                          >
+                            📎 Receipt
+                          </button>
+                        )}
+
+                        {/* Quick Confirm/Reject Buttons for Pending Bank Payments */}
+                        {isAwaitingConfirmation && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleConfirmBankPayment(booking.id)}
+                              disabled={actionLoading}
+                              title="Confirm Payment"
+                              style={{
+                                padding: '5px 10px',
+                                background: '#10b981',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              ✓ Confirm
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRejectBankPayment(booking.id)}
+                              disabled={actionLoading}
+                              title="Reject Receipt"
+                              style={{
+                                padding: '5px 8px',
+                                background: 'rgba(239,68,68,0.2)',
+                                color: '#ef4444',
+                                border: '1px solid rgba(239,68,68,0.4)',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem'
+                              }}
+                            >
+                              ✕
+                            </button>
+                          </>
+                        )}
+
+                        {/* Print Invoice */}
+                        <button
+                          onClick={() => handlePrintAgreement(booking)}
+                          title="Print Digital Agreement"
+                          style={{
+                            padding: '5px 10px',
+                            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '0.8rem',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          📄 Print
+                        </button>
+
+                        {/* Status Select */}
+                        <select 
+                          value={STATUS_AR_TO_EN[booking.status] || booking.status} 
+                          onChange={(e) => handleStatusChange(booking.id, e.target.value)}
+                          style={{
+                            padding: '5px 8px',
+                            borderRadius: '4px',
+                            border: '1px solid var(--border-medium)',
+                            background: 'var(--bg-primary)',
+                            color: 'var(--text-primary)',
+                            fontSize: '11px',
+                            outline: 'none',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <option value="Confirmed">Confirmed</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Awaiting Bank Confirmation">Awaiting Bank Confirmation</option>
+                          <option value="Completed">Completed</option>
+                          <option value="Cancelled">Cancelled</option>
+                          <option value="Rejected">Rejected</option>
+                        </select>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
               {filteredBookings.length === 0 && (
                 <tr>
-                  <td colSpan="9" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+                  <td colSpan="10" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>
                     ❌ No bookings match the current search or filter criteria.
                   </td>
                 </tr>
@@ -791,6 +1026,137 @@ export default function AdminBookings() {
           </table>
         </div>
       </div>
+
+      {/* Receipt Lightbox Modal */}
+      {receiptModal.isOpen && receiptModal.booking && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 99999,
+          backdropFilter: 'blur(5px)',
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: '#121620',
+            border: '1px solid var(--gold-500)',
+            borderRadius: '12px',
+            padding: '1.8rem',
+            width: '100%',
+            maxWidth: '650px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.2rem',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.7)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem' }}>
+              <div>
+                <h3 style={{ color: 'var(--gold-400)', margin: 0, fontSize: '1.2rem' }}>
+                  📎 Bank Payment Receipt (إيصال التحويل)
+                </h3>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+                  Booking #{receiptModal.booking.id} — {receiptModal.booking.customer}
+                </span>
+              </div>
+              <button 
+                onClick={() => setReceiptModal({ isOpen: false, url: '', booking: null })}
+                style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.4rem', cursor: 'pointer' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Booking Details Summary */}
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              borderRadius: '8px',
+              padding: '1rem',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '0.6rem',
+              fontSize: '0.85rem'
+            }}>
+              <div><strong style={{ color: 'var(--text-tertiary)' }}>Guest:</strong> {receiptModal.booking.customer}</div>
+              <div><strong style={{ color: 'var(--text-tertiary)' }}>Phone:</strong> {receiptModal.booking.phone}</div>
+              <div><strong style={{ color: 'var(--text-tertiary)' }}>Amount:</strong> <span style={{ color: 'var(--gold-400)', fontWeight: 'bold' }}>€{receiptModal.booking.finalAmount}</span></div>
+              <div><strong style={{ color: 'var(--text-tertiary)' }}>Bank:</strong> {receiptModal.booking.receiptBankName || 'Direct Transfer'}</div>
+              {receiptModal.booking.receiptTxRef && (
+                <div style={{ gridColumn: 'span 2' }}>
+                  <strong style={{ color: 'var(--text-tertiary)' }}>Client Ref/Note:</strong> {receiptModal.booking.receiptTxRef}
+                </div>
+              )}
+            </div>
+
+            {/* Receipt Preview (Image or PDF) */}
+            <div style={{
+              background: '#0a0d14',
+              borderRadius: '8px',
+              border: '1px solid var(--border-medium)',
+              padding: '0.5rem',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '250px',
+              maxHeight: '400px',
+              overflow: 'hidden'
+            }}>
+              {receiptModal.url?.endsWith('.pdf') ? (
+                <iframe
+                  src={receiptModal.url}
+                  style={{ width: '100%', height: '380px', border: 'none' }}
+                  title="PDF Receipt Viewer"
+                />
+              ) : (
+                <img
+                  src={receiptModal.url}
+                  alt="Bank Transfer Receipt"
+                  style={{ maxWidth: '100%', maxHeight: '380px', objectFit: 'contain', borderRadius: '4px' }}
+                />
+              )}
+            </div>
+
+            {/* Actions Bar */}
+            <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
+              <a
+                href={receiptModal.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary"
+                style={{ flex: 1, textAlign: 'center', padding: '10px' }}
+              >
+                🔍 Open Full Size
+              </a>
+              <button
+                type="button"
+                onClick={() => handleRejectBankPayment(receiptModal.booking.id)}
+                disabled={actionLoading}
+                className="btn btn-secondary"
+                style={{ color: '#ef4444', borderColor: '#ef4444', padding: '10px 16px' }}
+              >
+                ✕ Reject Receipt
+              </button>
+              <button
+                type="button"
+                onClick={() => handleConfirmBankPayment(receiptModal.booking.id)}
+                disabled={actionLoading}
+                className="btn btn-primary"
+                style={{ flex: 1, padding: '10px', fontWeight: 'bold' }}
+              >
+                ✓ Confirm &amp; Send Invoice Email
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

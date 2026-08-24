@@ -105,6 +105,7 @@ const COL = {
   SERVICE_REVIEWS: 'serviceReviews',
   SOCIAL: 'social_media',
   SETTINGS: 'settings',
+  BANK_ACCOUNTS: 'bank_accounts',
 };
 
 // ==========================================
@@ -1285,6 +1286,203 @@ export async function saveSettings(settingsData) {
     _circuitBreaker.tripped = false;
     _circuitBreaker.trippedAt = null;
     _circuitBreaker.errorLogged = false;
+    return false;
+  }
+}
+
+// ==========================================
+// BANK ACCOUNTS & CUSTOM PAYMENT GATEWAY
+// ==========================================
+
+export async function getBankAccounts() {
+  try {
+    const snapshot = await safeGetDocs(collection(db, COL.BANK_ACCOUNTS));
+    if (snapshot && !snapshot.empty) {
+      return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    }
+    // Fallback: check inside settings
+    const settings = await getSettings();
+    if (settings && settings.bankAccounts && Array.isArray(settings.bankAccounts)) {
+      return settings.bankAccounts;
+    }
+    return [];
+  } catch (e) {
+    console.error('Error fetching bank accounts:', e);
+    return [];
+  }
+}
+
+export async function addBankAccount(accountData) {
+  try {
+    const id = accountData.id || `bank_${Date.now()}`;
+    const newAccount = {
+      id,
+      bankName: accountData.bankName || '',
+      accountName: accountData.accountName || '',
+      accountNumber: accountData.accountNumber || '',
+      iban: accountData.iban || '',
+      swift: accountData.swift || '',
+      currency: accountData.currency || 'EUR',
+      country: accountData.country || 'EG',
+      instructions: accountData.instructions || '',
+      instructionsAr: accountData.instructionsAr || '',
+      instructionsEn: accountData.instructionsEn || '',
+      instructionsDe: accountData.instructionsDe || '',
+      qrCodeUrl: accountData.qrCodeUrl || '',
+      logoUrl: accountData.logoUrl || '',
+      isActive: accountData.isActive !== undefined ? accountData.isActive : true,
+      displayOrder: Number(accountData.displayOrder) || 0,
+      createdAt: new Date().toISOString()
+    };
+    await setDoc(doc(db, COL.BANK_ACCOUNTS, id), newAccount);
+    return newAccount;
+  } catch (e) {
+    console.error('Error adding bank account:', e);
+    return null;
+  }
+}
+
+export async function updateBankAccount(id, data) {
+  try {
+    const ref = doc(db, COL.BANK_ACCOUNTS, String(id));
+    await safeUpdateDoc(ref, {
+      ...data,
+      updatedAt: new Date().toISOString()
+    });
+    return true;
+  } catch (e) {
+    console.error('Error updating bank account:', e);
+    return false;
+  }
+}
+
+export async function deleteBankAccount(id) {
+  try {
+    await deleteDoc(doc(db, COL.BANK_ACCOUNTS, String(id)));
+    return true;
+  } catch (e) {
+    console.error('Error deleting bank account:', e);
+    return false;
+  }
+}
+
+export async function saveBankAccounts(accounts) {
+  try {
+    const batch = safeWriteBatch(db);
+    const existing = await safeGetDocs(collection(db, COL.BANK_ACCOUNTS));
+    if (existing && !existing.empty) {
+      existing.docs.forEach(d => batch.delete(d.ref));
+    }
+    accounts.forEach(acc => {
+      const id = acc.id || `bank_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+      batch.set(doc(db, COL.BANK_ACCOUNTS, id), {
+        ...acc,
+        id,
+        updatedAt: new Date().toISOString()
+      });
+    });
+    await batch.commit();
+    return true;
+  } catch (e) {
+    console.error('Error saving bank accounts batch:', e);
+    return false;
+  }
+}
+
+export async function updateBookingReceipt(bookingId, receiptData) {
+  try {
+    let bookingRef = doc(db, COL.BOOKINGS, String(bookingId));
+    let bookingSnap = await safeGetDoc(bookingRef);
+
+    if (!bookingSnap || !bookingSnap.exists()) {
+      const q = query(collection(db, COL.BOOKINGS), where('id', '==', String(bookingId)), limit(1));
+      const snapshot = await safeGetDocs(q);
+      if (!snapshot || snapshot.empty) {
+        console.error('updateBookingReceipt: booking not found for id:', bookingId);
+        return false;
+      }
+      bookingRef = snapshot.docs[0].ref;
+    }
+
+    const payload = {
+      receiptUrl: receiptData.receiptUrl || '',
+      receiptTxRef: receiptData.receiptTxRef || '',
+      receiptBankName: receiptData.receiptBankName || '',
+      receiptBankAccountId: receiptData.receiptBankAccountId || '',
+      receiptUploadedAt: new Date().toISOString(),
+      clientReceiptNotes: receiptData.clientNotes || '',
+      status: 'في انتظار تأكيد الدفع',
+      paymentType: 'bank_transfer_custom'
+    };
+
+    await safeUpdateDoc(bookingRef, payload);
+    return true;
+  } catch (e) {
+    console.error('Error updating booking receipt:', e);
+    return false;
+  }
+}
+
+export async function confirmBankPayment(bookingId, adminNote = '') {
+  try {
+    let bookingRef = doc(db, COL.BOOKINGS, String(bookingId));
+    let bookingSnap = await safeGetDoc(bookingRef);
+
+    if (!bookingSnap || !bookingSnap.exists()) {
+      const q = query(collection(db, COL.BOOKINGS), where('id', '==', String(bookingId)), limit(1));
+      const snapshot = await safeGetDocs(q);
+      if (!snapshot || snapshot.empty) {
+        return false;
+      }
+      bookingRef = snapshot.docs[0].ref;
+      bookingSnap = snapshot.docs[0];
+    }
+
+    const bookingData = bookingSnap.data();
+
+    await safeUpdateDoc(bookingRef, {
+      status: 'مؤكد',
+      paymentConfirmedAt: new Date().toISOString(),
+      adminNote: adminNote || '',
+      paymentVerified: true
+    });
+
+    // If booking has agent, update agent sales
+    if (bookingData.agentId && bookingData.status !== 'مؤكد') {
+      const agentRef = doc(db, COL.AGENTS, String(bookingData.agentId));
+      await safeUpdateDoc(agentRef, { sales: increment(bookingData.finalAmount || 0) });
+    }
+
+    return true;
+  } catch (e) {
+    console.error('Error confirming bank payment:', e);
+    return false;
+  }
+}
+
+export async function rejectBankPayment(bookingId, rejectionReason = '') {
+  try {
+    let bookingRef = doc(db, COL.BOOKINGS, String(bookingId));
+    let bookingSnap = await safeGetDoc(bookingRef);
+
+    if (!bookingSnap || !bookingSnap.exists()) {
+      const q = query(collection(db, COL.BOOKINGS), where('id', '==', String(bookingId)), limit(1));
+      const snapshot = await safeGetDocs(q);
+      if (!snapshot || snapshot.empty) {
+        return false;
+      }
+      bookingRef = snapshot.docs[0].ref;
+    }
+
+    await safeUpdateDoc(bookingRef, {
+      status: 'مرفوض',
+      paymentRejectedAt: new Date().toISOString(),
+      rejectionReason: rejectionReason || 'Payment receipt could not be verified'
+    });
+
+    return true;
+  } catch (e) {
+    console.error('Error rejecting bank payment:', e);
     return false;
   }
 }
