@@ -614,7 +614,7 @@ function CheckoutContent() {
       // Create Paytabs payment
       const paymentResult = await createPaytabsPayment({
         amount: totalAmount,
-        currency: 'EGP',
+        currency: settings?.currency?.includes('EGP') ? 'EGP' : (settings?.currency?.includes('USD') ? 'USD' : 'EUR'),
         customerName: customerName,
         customerEmail: email,
         customerPhone: phone,
@@ -2108,137 +2108,60 @@ function CheckoutContent() {
                       )}
                     </button>
 
-                    {/* Paytabs Option - Disabled */}
-                    <button
-                      type="button"
-                      disabled
-                      style={{
-                        padding: '1rem',
-                        borderRadius: '10px',
-                        background: 'rgba(30,30,30,0.5)',
-                        border: '1px solid rgba(100,100,100,0.3)',
-                        cursor: 'not-allowed',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '0.3rem',
-                        opacity: 0.5,
-                        position: 'relative',
-                        transition: 'var(--transition-base)'
-                      }}
-                    >
-                      <span style={{ fontSize: '1.5rem' }}>💳</span>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#888' }}>
-                        Paytabs
-                      </span>
-                      <span style={{ fontSize: '0.6rem', background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '6px', padding: '1px 5px', fontWeight: 'bold' }}>
-                        {isAr ? 'متوقف حالياً' : 'Unavailable'}
-                      </span>
-                    </button>
                   </div>
 
-                  {/* CARD SUB-VIEW */}
+                  {/* CARD SUB-VIEW (POWERED BY OFFICIAL PAYTABS GATEWAY) */}
                   {selectedPayMethod === 'card' && (() => {
-                      const availableCards = (settings?.cardAccounts && settings.cardAccounts.length > 0)
-                        ? settings.cardAccounts.filter(c => c.isActive !== false)
-                        : [
-                            { id: 'visa_main', cardName: 'Visa / Mastercard Secure', cardType: 'Visa', currency: 'EUR', instructionsAr: 'دفع آمن ومشفر 256-Bit SSL', instructionsEn: '256-Bit SSL Encrypted Payment' }
-                          ];
-                      const activeCard = availableCards[0] || {};
-
                       return (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                          {/* Card Selection if multiple */}
-                          {availableCards.length > 1 && (
-                            <div>
-                              <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 'bold' }}>
-                                {isAr ? 'اختر نوع البطاقة أو بوابة الدفع:' : 'Select Card Type / Gateway:'}
-                              </label>
-                              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                {availableCards.map((c, ci) => (
-                                  <div
-                                    key={c.id || ci}
-                                    style={{
-                                      padding: '8px 14px',
-                                      borderRadius: '8px',
-                                      background: 'rgba(59,130,246,0.1)',
-                                      border: '1px solid #3b82f6',
-                                      color: '#93c5fd',
-                                      fontSize: '0.85rem',
-                                      fontWeight: 'bold',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: '6px'
-                                    }}
-                                  >
-                                    <span>💳</span>
-                                    <span>{c.cardName || c.cardType} ({c.currency || 'EUR'})</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Card Details Mock Form */}
+                          {/* Header & Security */}
                           <div style={{
-                            background: 'linear-gradient(135deg, rgba(30,58,138,0.15) 0%, rgba(15,23,42,0.6) 100%)',
-                            border: '1px solid rgba(59,130,246,0.3)',
+                            background: 'linear-gradient(135deg, rgba(37,99,235,0.1) 0%, rgba(15,23,42,0.8) 100%)',
+                            border: '1px solid rgba(59,130,246,0.4)',
                             borderRadius: '12px',
-                            padding: '1.2rem',
+                            padding: '1.3rem',
                             display: 'flex',
                             flexDirection: 'column',
                             gap: '0.9rem'
                           }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(59,130,246,0.2)', paddingBottom: '0.5rem' }}>
-                              <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#93c5fd' }}>
-                                🔒 {isAr ? 'بوابة الدفع الإلكتروني المشفرة (256-Bit SSL)' : '256-Bit SSL Encrypted Card Gateway'}
-                              </span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(59,130,246,0.2)', paddingBottom: '0.6rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontSize: '1.4rem' }}>💳</span>
+                                <strong style={{ color: '#fff', fontSize: '1.05rem' }}>
+                                  {isAr ? 'الدفع الآمن بالبطاقات البنكية (Visa / Mastercard)' : 'Secure Card Payment (Visa / Mastercard)'}
+                                </strong>
+                              </div>
                               <span style={{ fontSize: '0.75rem', background: '#2563eb', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>
-                                Verified Visa &amp; MC
+                                🔒 3D-Secure OTP
                               </span>
                             </div>
 
-                            <div>
-                              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                                {isAr ? 'رقم البطاقة (Card Number):' : 'Card Number:'}
-                              </label>
-                              <input
-                                type="text"
-                                placeholder="•••• •••• •••• ••••"
-                                maxLength={19}
-                                style={{ width: '100%', padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-en)', letterSpacing: '2px' }}
-                              />
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5' }}>
+                              {isAr 
+                                ? 'سيتم تحويلك إلى صفحة الدفع الآمنة والمشفرة لإدخال بيانات بطاقتك وتأكيد الدفع عبر رمز الـ OTP المرسل لهاتفك من بنكك.' 
+                                : 'You will be redirected to the 256-bit encrypted secure payment page to enter your card details and verify with OTP via your bank.'}
+                            </p>
+
+                            {/* Accepted Card Badges */}
+                            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.3rem' }}>
+                              <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px', padding: '3px 10px', fontWeight: 'bold' }}>💳 Visa</span>
+                              <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px', padding: '3px 10px', fontWeight: 'bold' }}>💳 Mastercard</span>
+                              <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px', padding: '3px 10px', fontWeight: 'bold' }}>💳 American Express</span>
+                              <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px', padding: '3px 10px', fontWeight: 'bold' }}>💳 Mada / Meeza</span>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
-                              <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                                  {isAr ? 'تاريخ الانتهاء (MM/YY):' : 'Expiry (MM/YY):'}
-                                </label>
-                                <input
-                                  type="text"
-                                  placeholder="MM/YY"
-                                  maxLength={5}
-                                  style={{ width: '100%', padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-en)', textAlign: 'center' }}
-                                />
-                              </div>
-                              <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                                  {isAr ? 'رمز الأمان (CVV):' : 'CVV / CVC:'}
-                                </label>
-                                <input
-                                  type="password"
-                                  placeholder="•••"
-                                  maxLength={4}
-                                  style={{ width: '100%', padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--border-medium)', borderRadius: '6px', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-en)', textAlign: 'center' }}
-                                />
-                              </div>
+                            {/* Amount Summary */}
+                            <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '0.8rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.3rem' }}>
+                              <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{isAr ? 'المبلغ الإجمالي للدفع:' : 'Total Amount to Pay:'}</span>
+                              <strong style={{ color: '#4ade80', fontSize: '1.2rem' }}>€{totalAmount.toFixed(2)}</strong>
                             </div>
                           </div>
 
+                          {/* Pay with Paytabs Button */}
                           <button
                             type="button"
-                            onClick={() => handleSimulatedCardPayment()}
+                            onClick={() => handlePaytabsPayment()}
+                            disabled={isSimulatingPayment}
                             className="btn btn-primary"
                             style={{
                               width: '100%',
@@ -2246,12 +2169,24 @@ function CheckoutContent() {
                               fontWeight: 'bold',
                               fontSize: '1.05rem',
                               borderRadius: '10px',
-                              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                              background: isSimulatingPayment ? '#333' : 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                               color: '#fff',
-                              boxShadow: '0 4px 15px rgba(37,99,235,0.4)'
+                              boxShadow: '0 4px 18px rgba(37,99,235,0.45)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '8px',
+                              cursor: isSimulatingPayment ? 'wait' : 'pointer'
                             }}
                           >
-                            💳 {isAr ? `إتمام الدفع الآمن بالفيزا والبطاقة (€${totalAmount.toFixed(2)})` : `Pay €${totalAmount.toFixed(2)} with Visa / Card`}
+                            {isSimulatingPayment ? (
+                              <span>{isAr ? '⏳ جارٍ الانتقال لبوابة الدفع الآمنة...' : '⏳ Connecting to Secure Gateway...'}</span>
+                            ) : (
+                              <>
+                                <span>🔒</span>
+                                <span>{isAr ? `الانتقال للدفع الآمن بالفيزا (€${totalAmount.toFixed(2)})` : `Proceed to Secure Card Payment (€${totalAmount.toFixed(2)})`}</span>
+                              </>
+                            )}
                           </button>
                         </div>
                       );
