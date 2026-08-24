@@ -335,6 +335,145 @@ function CheckoutContent() {
     setCheckoutStep('payment');
   };
 
+  // Direct Visa / Card Payment (Custom Gateway)
+  const handleSimulatedCardPayment = async () => {
+    setIsSimulatingPayment(true);
+    const txId = `card-tx-${Date.now()}`;
+    const bookingId = `BK-${Date.now().toString().slice(-6)}`;
+
+    try {
+      await addBooking({
+        id: bookingId,
+        customer: customerName,
+        email: email,
+        phone: phone,
+        whatsapp: whatsapp || phone,
+        service: titleEn || titleAr || 'Travel Excursion',
+        city: searchParams.get('city') || 'شرم الشيخ',
+        agentId: promoDetails ? promoDetails.agentId || null : null,
+        agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
+        originalAmount: originalTotal,
+        discountAmount: discountAmount,
+        finalAmount: totalAmount,
+        travelers: travelers,
+        date: bookingDate,
+        status: 'في انتظار تأكيد الدفع',
+        promoCode: promoDetails ? promoDetails.code : '',
+        paymentType: 'card',
+        txId: txId,
+        bookingRefCode: bookingRefCode,
+        pickupLocation: pickupLocation,
+        extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
+        children: children,
+        infants: infants,
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice,
+        specialRequests: specialRequests,
+        customerLanguage: customerLanguage,
+        electronicSignature: electronicSignature,
+        signatureTimestamp: signatureTimestamp
+      });
+
+      sendBookingEmail({
+        customerName, email, phone, whatsapp: whatsapp || phone,
+        date: bookingDate, travelers,
+        serviceName: titleEn || titleAr || 'Travel Excursion',
+        originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
+        paymentType: 'card', txId,
+        extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
+        pickupLocation,
+        promoCode: promoDetails?.code || '',
+        agentName: promoDetails?.agentName || translate('directAgent'),
+        children, infants, specialRequests,
+        electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ',
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice,
+        extrasDetails: getSelectedExtrasList()
+      });
+
+      setIsSimulatingPayment(false);
+      const successUrl = `/checkout?status=success&tx=${txId}&bookingId=${bookingId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=card&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&extrasList=${encodeURIComponent(JSON.stringify(getSelectedExtrasList()))}&specialRequests=${encodeURIComponent(specialRequests)}&refCode=${encodeURIComponent(bookingRefCode)}`;
+      router.push(successUrl);
+    } catch (err) {
+      console.error('Error saving card booking:', err);
+      setIsSimulatingPayment(false);
+      alert(isAr ? 'حدث خطأ أثناء حفظ الحجز. يرجى المحاولة مرة أخرى.' : 'Error saving booking. Please try again.');
+    }
+  };
+
+  // Google Pay Payment
+  const handleGooglePayPayment = async () => {
+    setIsSimulatingPayment(true);
+    const txId = `googlepay-tx-${Date.now()}`;
+    const bookingId = `BK-${Date.now().toString().slice(-6)}`;
+
+    try {
+      await addBooking({
+        id: bookingId,
+        customer: customerName,
+        email: email,
+        phone: phone,
+        whatsapp: whatsapp || phone,
+        service: titleEn || titleAr || 'Travel Excursion',
+        city: searchParams.get('city') || 'شرم الشيخ',
+        agentId: promoDetails ? promoDetails.agentId || null : null,
+        agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
+        originalAmount: originalTotal,
+        discountAmount: discountAmount,
+        finalAmount: totalAmount,
+        travelers: travelers,
+        date: bookingDate,
+        status: 'في انتظار تأكيد الدفع',
+        promoCode: promoDetails ? promoDetails.code : '',
+        paymentType: 'google_pay',
+        txId: txId,
+        bookingRefCode: bookingRefCode,
+        pickupLocation: pickupLocation,
+        extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
+        children: children,
+        infants: infants,
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice,
+        specialRequests: specialRequests,
+        customerLanguage: customerLanguage,
+        electronicSignature: electronicSignature,
+        signatureTimestamp: signatureTimestamp
+      });
+
+      sendBookingEmail({
+        customerName, email, phone, whatsapp: whatsapp || phone,
+        date: bookingDate, travelers,
+        serviceName: titleEn || titleAr || 'Travel Excursion',
+        originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
+        paymentType: 'google_pay', txId,
+        extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
+        pickupLocation,
+        promoCode: promoDetails?.code || '',
+        agentName: promoDetails?.agentName || translate('directAgent'),
+        children, infants, specialRequests,
+        electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ',
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice
+      });
+
+      setIsSimulatingPayment(false);
+      const successUrl = `/checkout?status=success&tx=${txId}&bookingId=${bookingId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=google_pay&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&extrasList=${encodeURIComponent(JSON.stringify(getSelectedExtrasList()))}&specialRequests=${encodeURIComponent(specialRequests)}&refCode=${encodeURIComponent(bookingRefCode)}`;
+      router.push(successUrl);
+    } catch (err) {
+      console.error('Error saving Google Pay booking:', err);
+      setIsSimulatingPayment(false);
+      alert(isAr ? 'حدث خطأ. يرجى المحاولة مرة أخرى.' : 'Error. Please try again.');
+    }
+  };
+
   // Handle Card Payment through Dafah
   const handleDafahPayment = () => {
     const baseDafahUrl = createDafahCheckoutSession({
@@ -1778,27 +1917,31 @@ function CheckoutContent() {
                       </span>
                     </button>
 
-                    {/* Apple Pay Option */}
+                    {/* Apple Pay Option - Disabled */}
                     <button
                       type="button"
-                      onClick={() => setSelectedPayMethod('apple_pay')}
+                      disabled
                       style={{
                         padding: '1rem',
                         borderRadius: '10px',
-                        background: 'var(--bg-secondary)',
-                        border: selectedPayMethod === 'apple_pay' ? '2px solid var(--gold-500)' : '1px solid var(--border-medium)',
-                        boxShadow: selectedPayMethod === 'apple_pay' ? 'var(--shadow-glow-gold)' : 'none',
-                        cursor: 'pointer',
+                        background: 'rgba(30,30,30,0.5)',
+                        border: '1px solid rgba(100,100,100,0.3)',
+                        cursor: 'not-allowed',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '0.5rem',
+                        gap: '0.3rem',
+                        opacity: 0.5,
+                        position: 'relative',
                         transition: 'var(--transition-base)'
                       }}
                     >
                       <span style={{ fontSize: '1.5rem' }}>🍏</span>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#888' }}>
                         Apple Pay
+                      </span>
+                      <span style={{ fontSize: '0.6rem', background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '6px', padding: '1px 5px', fontWeight: 'bold' }}>
+                        {isAr ? 'متوقف حالياً' : 'Unavailable'}
                       </span>
                     </button>
 
@@ -1850,27 +1993,31 @@ function CheckoutContent() {
                       </span>
                     </button>
 
-                    {/* Paytabs Option */}
+                    {/* Paytabs Option - Disabled */}
                     <button
                       type="button"
-                      onClick={() => setSelectedPayMethod('paytabs')}
+                      disabled
                       style={{
                         padding: '1rem',
                         borderRadius: '10px',
-                        background: 'var(--bg-secondary)',
-                        border: selectedPayMethod === 'paytabs' ? '2px solid var(--gold-500)' : '1px solid var(--border-medium)',
-                        boxShadow: selectedPayMethod === 'paytabs' ? 'var(--shadow-glow-gold)' : 'none',
-                        cursor: 'pointer',
+                        background: 'rgba(30,30,30,0.5)',
+                        border: '1px solid rgba(100,100,100,0.3)',
+                        cursor: 'not-allowed',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '0.5rem',
+                        gap: '0.3rem',
+                        opacity: 0.5,
+                        position: 'relative',
                         transition: 'var(--transition-base)'
                       }}
                     >
                       <span style={{ fontSize: '1.5rem' }}>💳</span>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#888' }}>
                         Paytabs
+                      </span>
+                      <span style={{ fontSize: '0.6rem', background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '6px', padding: '1px 5px', fontWeight: 'bold' }}>
+                        {isAr ? 'متوقف حالياً' : 'Unavailable'}
                       </span>
                     </button>
                   </div>
@@ -2318,34 +2465,69 @@ function CheckoutContent() {
 
                   {/* GOOGLE PAY SUB-VIEW */}
                   {selectedPayMethod === 'google_pay' && (
-                    <div style={{ textAlign: 'center' }}>
-                      <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', fontWeight: 'bold', textAlign: isAr ? 'right' : 'left' }}>Google Pay:</h4>
-                      <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', marginBottom: '1.5rem', textAlign: isAr ? 'right' : 'left' }}>
-                        {isAr ? 'ادفع بسرعة وأمان باستخدام بطاقتك المحفوظة في حسابك على Google.' : 'Check out instantly and securely using your saved cards on Google Pay.'}
-                      </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                      {/* Header */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '44px', height: '44px', background: 'linear-gradient(135deg, #4285F4, #34A853)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>G</div>
+                        <div>
+                          <h4 style={{ color: '#fff', fontWeight: 'bold', margin: '0 0 2px 0', fontSize: '1.05rem' }}>
+                            {isAr ? 'الدفع عبر Google Pay' : 'Pay with Google Pay'}
+                          </h4>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', margin: 0 }}>
+                            {isAr ? 'ادفع بسرعة وأمان باستخدام بطاقتك المحفوظة في حساب Google.' : 'Check out instantly using your saved cards on Google Pay.'}
+                          </p>
+                        </div>
+                      </div>
 
+                      {/* Security badges */}
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.72rem', background: 'rgba(66,133,244,0.15)', color: '#93c5fd', border: '1px solid rgba(66,133,244,0.3)', borderRadius: '6px', padding: '2px 8px', fontWeight: '600' }}>🔒 Google Encrypted</span>
+                        <span style={{ fontSize: '0.72rem', background: 'rgba(52,168,83,0.15)', color: '#6ee7b7', border: '1px solid rgba(52,168,83,0.3)', borderRadius: '6px', padding: '2px 8px', fontWeight: '600' }}>✓ 2-Step Verified</span>
+                        <span style={{ fontSize: '0.72rem', background: 'rgba(234,179,8,0.15)', color: '#fde047', border: '1px solid rgba(234,179,8,0.3)', borderRadius: '6px', padding: '2px 8px', fontWeight: '600' }}>256-Bit SSL</span>
+                      </div>
+
+                      {/* Amount Summary */}
+                      <div style={{ background: 'rgba(66,133,244,0.08)', border: '1px solid rgba(66,133,244,0.25)', borderRadius: '10px', padding: '1rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>{isAr ? 'المبلغ الإجمالي:' : 'Total Amount:'}</span>
+                          <strong style={{ color: '#4ade80', fontSize: '1.1rem' }}>€{totalAmount.toFixed(2)}</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem', marginTop: '6px' }}>
+                          <span style={{ color: 'var(--text-tertiary)' }}>{isAr ? 'كود الحجز:' : 'Booking Ref:'}</span>
+                          <span style={{ color: '#93c5fd', fontFamily: 'var(--font-en)', fontWeight: '600' }}>{bookingRefCode}</span>
+                        </div>
+                      </div>
+
+                      {/* Google Pay button */}
                       <button
                         type="button"
-                        onClick={() => handleSimulatedWalletPayment('google_pay')}
+                        onClick={() => handleGooglePayPayment()}
+                        disabled={isSimulatingPayment}
                         style={{
                           width: '100%',
-                          height: '52px',
-                          background: '#000000',
+                          height: '56px',
+                          background: isSimulatingPayment ? '#333' : '#000000',
                           border: '1px solid #3c4043',
-                          borderRadius: '8px',
+                          borderRadius: '10px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          cursor: 'pointer',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-                          transition: 'transform 0.15s ease'
+                          cursor: isSimulatingPayment ? 'wait' : 'pointer',
+                          boxShadow: '0 4px 16px rgba(66,133,244,0.25)',
+                          transition: 'all 0.2s ease',
+                          gap: '10px'
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.01)'}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                       >
-                        <span style={{ color: '#ffffff', fontFamily: '"Google Sans", Roboto, sans-serif', fontWeight: '500', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{ fontWeight: '700' }}>Google</span> Pay
-                        </span>
+                        {isSimulatingPayment ? (
+                          <span style={{ color: '#fff', fontSize: '0.95rem' }}>{isAr ? '⏳ جارٍ المعالجة...' : '⏳ Processing...'}</span>
+                        ) : (
+                          <>
+                            <span style={{ color: '#4285F4', fontSize: '1.2rem', fontWeight: '900', fontFamily: 'sans-serif' }}>G</span>
+                            <span style={{ color: '#fff', fontFamily: '"Google Sans", Roboto, sans-serif', fontWeight: '600', fontSize: '1rem' }}>
+                              {isAr ? `ادفع €${totalAmount.toFixed(2)} عبر Google Pay` : `Pay €${totalAmount.toFixed(2)} with Google Pay`}
+                            </span>
+                          </>
+                        )}
                       </button>
                     </div>
                   )}
