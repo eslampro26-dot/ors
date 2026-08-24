@@ -1086,11 +1086,27 @@ export default function AdminBookings() {
             }}>
               <div><strong style={{ color: 'var(--text-tertiary)' }}>Guest:</strong> {receiptModal.booking.customer}</div>
               <div><strong style={{ color: 'var(--text-tertiary)' }}>Phone:</strong> {receiptModal.booking.phone}</div>
-              <div><strong style={{ color: 'var(--text-tertiary)' }}>Amount:</strong> <span style={{ color: 'var(--gold-400)', fontWeight: 'bold' }}>€{receiptModal.booking.finalAmount}</span></div>
-              <div><strong style={{ color: 'var(--text-tertiary)' }}>Bank:</strong> {receiptModal.booking.receiptBankName || 'Direct Transfer'}</div>
+              <div><strong style={{ color: 'var(--text-tertiary)' }}>Amount to Verify:</strong> <span style={{ color: 'var(--gold-400)', fontWeight: 'bold', fontSize: '1rem' }}>€{receiptModal.booking.finalAmount}</span></div>
+              <div><strong style={{ color: 'var(--text-tertiary)' }}>Target Bank:</strong> {receiptModal.booking.receiptBankName || 'Direct Transfer'}</div>
+              <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(59,130,246,0.08)', padding: '6px 10px', borderRadius: '6px', border: '1px solid rgba(59,130,246,0.2)' }}>
+                <strong style={{ color: '#93c5fd' }}>📌 Booking Ref to search in Bank:</strong>
+                <span style={{ color: '#fff', fontFamily: 'var(--font-en)', fontWeight: 'bold', fontSize: '0.95rem' }}>
+                  {receiptModal.booking.bookingRefCode || receiptModal.booking.id}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(receiptModal.booking.bookingRefCode || receiptModal.booking.id);
+                    alert('📋 Booking Reference Code copied! You can now search for it in your Bank statement.');
+                  }}
+                  style={{ background: 'rgba(59,130,246,0.25)', border: '1px solid #3b82f6', color: '#93c5fd', borderRadius: '4px', padding: '2px 8px', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                  Copy Ref 📋
+                </button>
+              </div>
               {receiptModal.booking.receiptTxRef && (
                 <div style={{ gridColumn: 'span 2' }}>
-                  <strong style={{ color: 'var(--text-tertiary)' }}>Client Ref/Note:</strong> {receiptModal.booking.receiptTxRef}
+                  <strong style={{ color: 'var(--text-tertiary)' }}>Client Transfer Note:</strong> {receiptModal.booking.receiptTxRef}
                 </div>
               )}
             </div>

@@ -40,14 +40,26 @@ export async function POST(request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
+    // Validate magic bytes (binary signatures) to block any disguised or malicious files
+    const isJpeg = buffer.length > 3 && buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF;
+    const isPng = buffer.length > 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47;
+    const isWebp = buffer.length > 12 && buffer.subarray(0, 4).toString() === 'RIFF' && buffer.subarray(8, 12).toString() === 'WEBP';
+    const isPdf = buffer.length > 4 && buffer.subarray(0, 4).toString() === '%PDF';
+
+    if (!isJpeg && !isPng && !isWebp && !isPdf) {
+      return NextResponse.json({ 
+        error: 'Invalid file signature. Only authentic image files (JPG, PNG, WEBP) and PDF documents are allowed.' 
+      }, { status: 400 });
+    }
+    
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 8);
     let ext = 'jpg';
-    if (file.type === 'application/pdf') {
+    if (isPdf) {
       ext = 'pdf';
-    } else if (file.type.includes('png')) {
+    } else if (isPng) {
       ext = 'png';
-    } else if (file.type.includes('webp')) {
+    } else if (isWebp) {
       ext = 'webp';
     }
     
