@@ -20,76 +20,24 @@ import { getSettings } from './db';
  */
 export async function createPaytabsPayment(paymentData) {
   try {
-    // Get Paytabs credentials from settings
-    const settings = await getSettings();
-    const profileId = settings?.paytabsProfileId || '';
-    const serverKey = settings?.paytabsServerKey || '';
-    const paytabsApiUrl = settings?.paytabsApiUrl || 'https://secure.paytabs.com/payment/request';
-    const paytabsEnabled = settings?.paytabsEnabled === true || settings?.paytabsEnabled === 'true';
-    
-    if (!paytabsEnabled) {
-      throw new Error('Paytabs payment is not enabled');
-    }
-    
-    if (!profileId || !serverKey) {
-      throw new Error('Paytabs credentials not configured');
-    }
-    
-    const requestBody = {
-      profile_id: profileId,
-      tran_type: 'sale',
-      tran_class: 'ecom',
-      cart_id: paymentData.orderId,
-      cart_description: paymentData.productName,
-      cart_currency: paymentData.currency,
-      cart_amount: paymentData.amount,
-      callback: paymentData.callbackUrl,
-      return: paymentData.successUrl,
-      return_auth: 'signed',
-      customer_details: {
-        name: paymentData.customerName,
-        email: paymentData.customerEmail,
-        phone: paymentData.customerPhone,
-        street1: '',
-        city: '',
-        state: '',
-        country: 'EG',
-        zip: ''
-      },
-      shipping_details: {
-        name: paymentData.customerName,
-        email: paymentData.customerEmail,
-        phone: paymentData.customerPhone,
-        street1: '',
-        city: '',
-        state: '',
-        country: 'EG',
-        zip: ''
-      },
-      frame: false,
-      hide_shipping: true,
-      language: 'en'
-    };
-
-    const response = await fetch(paytabsApiUrl, {
+    const response = await fetch('/api/paytabs/create-payment', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': serverKey
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(paymentData)
     });
 
     const result = await response.json();
 
-    if (result.paypage_url) {
-      return { success: true, paymentUrl: result.paypage_url, tranRef: result.tran_ref };
+    if (result.success && result.paymentUrl) {
+      return { success: true, paymentUrl: result.paymentUrl, tranRef: result.tranRef };
     } else {
-      throw new Error(result.message || 'Failed to create payment page');
+      return { success: false, error: result.error || 'Failed to create payment session' };
     }
   } catch (error) {
-    console.error('Paytabs payment error:', error);
-    return { success: false, error: error.message };
+    console.error('Paytabs payment client error:', error);
+    return { success: false, error: error.message || 'Network error connecting to payment gateway' };
   }
 }
 
