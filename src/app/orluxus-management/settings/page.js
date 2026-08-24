@@ -16,6 +16,20 @@ export default function AdminSettings() {
   const [paypalInstructionsEn, setPaypalInstructionsEn] = useState('Please send the transfer via PayPal with your Booking Reference in the note and upload a screenshot.');
   const [paypalEnabled, setPaypalEnabled] = useState(true);
 
+  // Apple Pay Gateway Settings
+  const [applePayEnabled, setApplePayEnabled] = useState(true);
+  const [applePayMerchantId, setApplePayMerchantId] = useState('merchant.com.orluxus');
+  const [applePayDisplayName, setApplePayDisplayName] = useState('ORLUXUS Travel & Tourism');
+  const [applePayInstructionsAr, setApplePayInstructionsAr] = useState('ادفع بأمان وسرعة بلمسة واحدة أو عبر بصمة الوجه Face ID.');
+  const [applePayInstructionsEn, setApplePayInstructionsEn] = useState('Pay securely and instantly with Face ID / Touch ID via Apple Pay.');
+
+  // Google Pay Gateway Settings
+  const [googlePayEnabled, setGooglePayEnabled] = useState(true);
+  const [googlePayMerchantId, setGooglePayMerchantId] = useState('BCR2DN6TXXXXXX');
+  const [googlePayMerchantName, setGooglePayMerchantName] = useState('ORLUXUS Travel & Tourism');
+  const [googlePayInstructionsAr, setGooglePayInstructionsAr] = useState('ادفع بأمان وسرعة عبر بطاقاتك المحفوظة في Google Pay.');
+  const [googlePayInstructionsEn, setGooglePayInstructionsEn] = useState('Pay securely and instantly using your cards saved in Google Pay.');
+
   // SMTP Email Settings
   const [smtpHost, setSmtpHost] = useState('smtp.gmail.com');
   const [smtpPort, setSmtpPort] = useState('587');
@@ -221,6 +235,20 @@ export default function AdminSettings() {
             setCustomCardGatewayEnabled(data.customCardGatewayEnabled === true || data.customCardGatewayEnabled === 'true');
           }
 
+          // Apple Pay Gateway Settings
+          if (data.applePayMerchantId) setApplePayMerchantId(data.applePayMerchantId);
+          if (data.applePayDisplayName) setApplePayDisplayName(data.applePayDisplayName);
+          if (data.applePayInstructionsAr) setApplePayInstructionsAr(data.applePayInstructionsAr);
+          if (data.applePayInstructionsEn) setApplePayInstructionsEn(data.applePayInstructionsEn);
+          if (data.applePayEnabled !== undefined) setApplePayEnabled(data.applePayEnabled === true || data.applePayEnabled === 'true');
+
+          // Google Pay Gateway Settings
+          if (data.googlePayMerchantId) setGooglePayMerchantId(data.googlePayMerchantId);
+          if (data.googlePayMerchantName) setGooglePayMerchantName(data.googlePayMerchantName);
+          if (data.googlePayInstructionsAr) setGooglePayInstructionsAr(data.googlePayInstructionsAr);
+          if (data.googlePayInstructionsEn) setGooglePayInstructionsEn(data.googlePayInstructionsEn);
+          if (data.googlePayEnabled !== undefined) setGooglePayEnabled(data.googlePayEnabled === true || data.googlePayEnabled === 'true');
+
           if (data.allowReg !== undefined) setAllowReg(data.allowReg === true || data.allowReg === 'true');
           if (data.allowPromo !== undefined) setAllowPromo(data.allowPromo === true || data.allowPromo === 'true');
           if (data.notifyEmail !== undefined) setNotifyEmail(data.notifyEmail === true || data.notifyEmail === 'true');
@@ -292,6 +320,16 @@ export default function AdminSettings() {
           customBankGatewayEnabled,
           cardAccounts,
           customCardGatewayEnabled,
+          applePayEnabled,
+          applePayMerchantId,
+          applePayDisplayName,
+          applePayInstructionsAr,
+          applePayInstructionsEn,
+          googlePayEnabled,
+          googlePayMerchantId,
+          googlePayMerchantName,
+          googlePayInstructionsAr,
+          googlePayInstructionsEn,
         })
       });
       if (res.ok) {
@@ -306,7 +344,7 @@ export default function AdminSettings() {
     }
   };
 
-  // Save Bank Gateway Settings Specifically
+  // Save Payment Gateways Settings Specifically
   const handleSaveBankSettings = async () => {
     try {
       const res = await fetch('/api/settings', {
@@ -317,6 +355,16 @@ export default function AdminSettings() {
           customBankGatewayEnabled,
           cardAccounts,
           customCardGatewayEnabled,
+          applePayEnabled,
+          applePayMerchantId,
+          applePayDisplayName,
+          applePayInstructionsAr,
+          applePayInstructionsEn,
+          googlePayEnabled,
+          googlePayMerchantId,
+          googlePayMerchantName,
+          googlePayInstructionsAr,
+          googlePayInstructionsEn,
         })
       });
       if (res.ok) {
@@ -1460,6 +1508,170 @@ export default function AdminSettings() {
                 💾 Save Card &amp; Visa Gateway Settings
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Apple Pay Gateway Card */}
+        <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.15s', gridColumn: 'span 1', border: '1px solid rgba(255,255,255,0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1.4rem' }}>🍏</span>
+              <div>
+                <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.15rem' }}>Apple Pay Gateway</h3>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>إعدادات وحساب استقبال مدفوعات Apple Pay</span>
+              </div>
+            </div>
+            <span style={{ background: applePayEnabled ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: applePayEnabled ? '#10b981' : '#ef4444', border: applePayEnabled ? '1px solid #10b981' : '1px solid #ef4444', padding: '2px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+              {applePayEnabled ? '✓ Enabled' : '✕ Disabled'}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+            {/* Enable Toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.03)', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+              <input
+                type="checkbox"
+                checked={applePayEnabled}
+                onChange={(e) => setApplePayEnabled(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--gold-500)' }}
+                id="enableApplePayGatewayToggle"
+              />
+              <label htmlFor="enableApplePayGatewayToggle" style={{ cursor: 'pointer', color: '#fff', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                تفعيل الدفع عبر Apple Pay في صفحة الدفع (Checkout)
+              </label>
+            </div>
+
+            {/* Merchant Identifier */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.85rem' }}>
+                🍏 Apple Pay Merchant Identifier:
+              </label>
+              <input
+                type="text"
+                value={applePayMerchantId}
+                onChange={(e) => setApplePayMerchantId(e.target.value)}
+                placeholder="merchant.com.orluxus"
+                style={{ width: '100%', padding: '10px 14px', background: '#172033', color: '#ffffff', border: '1.5px solid #475569', borderRadius: '6px', outline: 'none', fontFamily: 'var(--font-en)' }}
+              />
+            </div>
+
+            {/* Display Name */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.85rem' }}>
+                🏢 Merchant Display Name (اسم التاجر الظاهر للعميل):
+              </label>
+              <input
+                type="text"
+                value={applePayDisplayName}
+                onChange={(e) => setApplePayDisplayName(e.target.value)}
+                placeholder="ORLUXUS Travel & Tourism"
+                style={{ width: '100%', padding: '10px 14px', background: '#172033', color: '#ffffff', border: '1.5px solid #475569', borderRadius: '6px', outline: 'none' }}
+              />
+            </div>
+
+            {/* Instructions Arabic */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.85rem' }}>
+                🇸🇦 تعليمات الدفع للعميل (بالعربية):
+              </label>
+              <textarea
+                value={applePayInstructionsAr}
+                onChange={(e) => setApplePayInstructionsAr(e.target.value)}
+                rows="2"
+                style={{ width: '100%', padding: '8px 12px', background: '#172033', color: '#ffffff', border: '1.5px solid #475569', borderRadius: '6px', outline: 'none', resize: 'vertical' }}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSaveBankSettings}
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '0.8rem', fontWeight: 'bold', background: 'linear-gradient(135deg, #111827, #374151)' }}
+            >
+              💾 Save Apple Pay Settings
+            </button>
+          </div>
+        </div>
+
+        {/* Google Pay Gateway Card */}
+        <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.18s', gridColumn: 'span 1', border: '1px solid rgba(255,255,255,0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1.4rem' }}>🤖</span>
+              <div>
+                <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.15rem' }}>Google Pay Gateway</h3>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>إعدادات وحساب استقبال مدفوعات Google Pay</span>
+              </div>
+            </div>
+            <span style={{ background: googlePayEnabled ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: googlePayEnabled ? '#10b981' : '#ef4444', border: googlePayEnabled ? '1px solid #10b981' : '1px solid #ef4444', padding: '2px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+              {googlePayEnabled ? '✓ Enabled' : '✕ Disabled'}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+            {/* Enable Toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.03)', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+              <input
+                type="checkbox"
+                checked={googlePayEnabled}
+                onChange={(e) => setGooglePayEnabled(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--gold-500)' }}
+                id="enableGooglePayGatewayToggle"
+              />
+              <label htmlFor="enableGooglePayGatewayToggle" style={{ cursor: 'pointer', color: '#fff', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                تفعيل الدفع عبر Google Pay في صفحة الدفع (Checkout)
+              </label>
+            </div>
+
+            {/* Merchant Identifier */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.85rem' }}>
+                🤖 Google Pay Merchant ID:
+              </label>
+              <input
+                type="text"
+                value={googlePayMerchantId}
+                onChange={(e) => setGooglePayMerchantId(e.target.value)}
+                placeholder="BCR2DN6TXXXXXX"
+                style={{ width: '100%', padding: '10px 14px', background: '#172033', color: '#ffffff', border: '1.5px solid #475569', borderRadius: '6px', outline: 'none', fontFamily: 'var(--font-en)' }}
+              />
+            </div>
+
+            {/* Merchant Name */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.85rem' }}>
+                🏢 Google Pay Merchant Name (اسم التاجر الظاهر للعميل):
+              </label>
+              <input
+                type="text"
+                value={googlePayMerchantName}
+                onChange={(e) => setGooglePayMerchantName(e.target.value)}
+                placeholder="ORLUXUS Travel & Tourism"
+                style={{ width: '100%', padding: '10px 14px', background: '#172033', color: '#ffffff', border: '1.5px solid #475569', borderRadius: '6px', outline: 'none' }}
+              />
+            </div>
+
+            {/* Instructions Arabic */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.85rem' }}>
+                🇸🇦 تعليمات الدفع للعميل (بالعربية):
+              </label>
+              <textarea
+                value={googlePayInstructionsAr}
+                onChange={(e) => setGooglePayInstructionsAr(e.target.value)}
+                rows="2"
+                style={{ width: '100%', padding: '8px 12px', background: '#172033', color: '#ffffff', border: '1.5px solid #475569', borderRadius: '6px', outline: 'none', resize: 'vertical' }}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSaveBankSettings}
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '0.8rem', fontWeight: 'bold', background: 'linear-gradient(135deg, #1e3a8a, #2563eb)' }}
+            >
+              💾 Save Google Pay Settings
+            </button>
           </div>
         </div>
 

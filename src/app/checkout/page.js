@@ -474,6 +474,75 @@ function CheckoutContent() {
     }
   };
 
+  // Apple Pay Payment
+  const handleApplePayPayment = async () => {
+    setIsSimulatingPayment(true);
+    const txId = `applepay-tx-${Date.now()}`;
+    const bookingId = `BK-${Date.now().toString().slice(-6)}`;
+
+    try {
+      await addBooking({
+        id: bookingId,
+        customer: customerName,
+        email: email,
+        phone: phone,
+        whatsapp: whatsapp || phone,
+        service: titleEn || titleAr || 'Travel Excursion',
+        city: searchParams.get('city') || 'شرم الشيخ',
+        agentId: promoDetails ? promoDetails.agentId || null : null,
+        agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
+        originalAmount: originalTotal,
+        discountAmount: discountAmount,
+        finalAmount: totalAmount,
+        travelers: travelers,
+        date: bookingDate,
+        status: 'في انتظار تأكيد الدفع',
+        promoCode: promoDetails ? promoDetails.code : '',
+        paymentType: 'apple_pay',
+        txId: txId,
+        bookingRefCode: bookingRefCode,
+        pickupLocation: pickupLocation,
+        extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
+        children: children,
+        infants: infants,
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice,
+        specialRequests: specialRequests,
+        customerLanguage: customerLanguage,
+        electronicSignature: electronicSignature,
+        signatureTimestamp: signatureTimestamp
+      });
+
+      sendBookingEmail({
+        customerName, email, phone, whatsapp: whatsapp || phone,
+        date: bookingDate, travelers,
+        serviceName: titleEn || titleAr || 'Travel Excursion',
+        originalAmount: originalTotal, discountAmount, finalAmount: totalAmount,
+        paymentType: 'apple_pay', txId,
+        extras: getSelectedExtrasString(),
+        extrasDetails: getSelectedExtrasList(),
+        pickupLocation,
+        promoCode: promoDetails?.code || '',
+        agentName: promoDetails?.agentName || translate('directAgent'),
+        children, infants, specialRequests,
+        electronicSignature, signatureTimestamp, city: searchParams.get('city') || 'شرم الشيخ',
+        adultPrice: additionalPersonPrice || basePrice,
+        childPrice: childPrice,
+        infantPrice: infantPrice
+      });
+
+      setIsSimulatingPayment(false);
+      const successUrl = `/checkout?status=success&tx=${txId}&bookingId=${bookingId}&tripId=${tripId}&amount=${totalAmount}&originalAmount=${originalTotal}&discountAmount=${discountAmount}&promoCode=${promoDetails ? promoDetails.code : ''}&agentId=${promoDetails ? promoDetails.agentId || '' : ''}&agentName=${encodeURIComponent(promoDetails ? promoDetails.agentName : translate('directAgent'))}&customerName=${encodeURIComponent(customerName)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&whatsapp=${encodeURIComponent(whatsapp || phone)}&date=${encodeURIComponent(bookingDate)}&travelers=${travelers}&children=${children}&infants=${infants}&basePrice=${basePrice}&additionalPersonPrice=${additionalPersonPrice}&childPrice=${childPrice}&infantPrice=${infantPrice}&title=${encodeURIComponent(titleEn || titleAr)}&paymentType=apple_pay&pickupLocation=${encodeURIComponent(pickupLocation)}&extras=${encodeURIComponent(getSelectedExtrasString())}&extrasList=${encodeURIComponent(JSON.stringify(getSelectedExtrasList()))}&specialRequests=${encodeURIComponent(specialRequests)}&refCode=${encodeURIComponent(bookingRefCode)}`;
+      router.push(successUrl);
+    } catch (err) {
+      console.error('Error saving Apple Pay booking:', err);
+      setIsSimulatingPayment(false);
+      alert(isAr ? 'حدث خطأ أثناء معالجة Apple Pay. يرجى المحاولة مرة أخرى.' : 'Error processing Apple Pay. Please try again.');
+    }
+  };
+
   // Handle Card Payment through Dafah
   const handleDafahPayment = () => {
     const baseDafahUrl = createDafahCheckoutSession({
@@ -1869,21 +1938,26 @@ function CheckoutContent() {
                   {/* Grid of payment method selectors */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.8rem' }}>
                     
-                    {/* Card Option */}
+                    {/* Credit Card Option */}
                     <button
                       type="button"
-                      onClick={() => setSelectedPayMethod('card')}
+                      onClick={() => {
+                        if (settings?.customCardGatewayEnabled !== false) {
+                          setSelectedPayMethod('card');
+                        }
+                      }}
                       style={{
                         padding: '1rem',
                         borderRadius: '10px',
-                        background: 'var(--bg-secondary)',
+                        background: selectedPayMethod === 'card' ? 'rgba(59,130,246,0.1)' : 'var(--bg-secondary)',
                         border: selectedPayMethod === 'card' ? '2px solid var(--gold-500)' : '1px solid var(--border-medium)',
                         boxShadow: selectedPayMethod === 'card' ? 'var(--shadow-glow-gold)' : 'none',
-                        cursor: 'pointer',
+                        cursor: settings?.customCardGatewayEnabled === false ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '0.5rem',
+                        gap: '0.4rem',
+                        opacity: settings?.customCardGatewayEnabled === false ? 0.5 : 1,
                         transition: 'var(--transition-base)'
                       }}
                     >
@@ -1891,23 +1965,33 @@ function CheckoutContent() {
                       <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                         Credit Card
                       </span>
+                      {settings?.customCardGatewayEnabled === false && (
+                        <span style={{ fontSize: '0.6rem', background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '6px', padding: '1px 5px', fontWeight: 'bold' }}>
+                          {isAr ? 'متوقف حالياً' : 'Unavailable'}
+                        </span>
+                      )}
                     </button>
 
                     {/* PayPal Option */}
                     <button
                       type="button"
-                      onClick={() => setSelectedPayMethod('paypal')}
+                      onClick={() => {
+                        if (settings?.paypalEnabled !== false) {
+                          setSelectedPayMethod('paypal');
+                        }
+                      }}
                       style={{
                         padding: '1rem',
                         borderRadius: '10px',
-                        background: 'var(--bg-secondary)',
+                        background: selectedPayMethod === 'paypal' ? 'rgba(0,112,186,0.1)' : 'var(--bg-secondary)',
                         border: selectedPayMethod === 'paypal' ? '2px solid var(--gold-500)' : '1px solid var(--border-medium)',
                         boxShadow: selectedPayMethod === 'paypal' ? 'var(--shadow-glow-gold)' : 'none',
-                        cursor: 'pointer',
+                        cursor: settings?.paypalEnabled === false ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '0.5rem',
+                        gap: '0.4rem',
+                        opacity: settings?.paypalEnabled === false ? 0.5 : 1,
                         transition: 'var(--transition-base)'
                       }}
                     >
@@ -1915,51 +1999,67 @@ function CheckoutContent() {
                       <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                         PayPal
                       </span>
+                      {settings?.paypalEnabled === false && (
+                        <span style={{ fontSize: '0.6rem', background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '6px', padding: '1px 5px', fontWeight: 'bold' }}>
+                          {isAr ? 'متوقف حالياً' : 'Unavailable'}
+                        </span>
+                      )}
                     </button>
 
-                    {/* Apple Pay Option - Disabled */}
+                    {/* Apple Pay Option */}
                     <button
                       type="button"
-                      disabled
+                      onClick={() => {
+                        if (settings?.applePayEnabled !== false) {
+                          setSelectedPayMethod('apple_pay');
+                        }
+                      }}
                       style={{
                         padding: '1rem',
                         borderRadius: '10px',
-                        background: 'rgba(30,30,30,0.5)',
-                        border: '1px solid rgba(100,100,100,0.3)',
-                        cursor: 'not-allowed',
+                        background: selectedPayMethod === 'apple_pay' ? 'rgba(0,0,0,0.6)' : 'var(--bg-secondary)',
+                        border: selectedPayMethod === 'apple_pay' ? '2px solid var(--gold-500)' : '1px solid var(--border-medium)',
+                        boxShadow: selectedPayMethod === 'apple_pay' ? 'var(--shadow-glow-gold)' : 'none',
+                        cursor: settings?.applePayEnabled === false ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '0.3rem',
-                        opacity: 0.5,
-                        position: 'relative',
+                        gap: '0.4rem',
+                        opacity: settings?.applePayEnabled === false ? 0.5 : 1,
                         transition: 'var(--transition-base)'
                       }}
                     >
                       <span style={{ fontSize: '1.5rem' }}>🍏</span>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#888' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                         Apple Pay
                       </span>
-                      <span style={{ fontSize: '0.6rem', background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '6px', padding: '1px 5px', fontWeight: 'bold' }}>
-                        {isAr ? 'متوقف حالياً' : 'Unavailable'}
-                      </span>
+                      {settings?.applePayEnabled === false && (
+                        <span style={{ fontSize: '0.6rem', background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '6px', padding: '1px 5px', fontWeight: 'bold' }}>
+                          {isAr ? 'متوقف حالياً' : 'Unavailable'}
+                        </span>
+                      )}
                     </button>
 
                     {/* Google Pay Option */}
                     <button
                       type="button"
-                      onClick={() => setSelectedPayMethod('google_pay')}
+                      onClick={() => {
+                        if (settings?.googlePayEnabled !== false) {
+                          setSelectedPayMethod('google_pay');
+                        }
+                      }}
                       style={{
                         padding: '1rem',
                         borderRadius: '10px',
-                        background: 'var(--bg-secondary)',
+                        background: selectedPayMethod === 'google_pay' ? 'rgba(66,133,244,0.1)' : 'var(--bg-secondary)',
                         border: selectedPayMethod === 'google_pay' ? '2px solid var(--gold-500)' : '1px solid var(--border-medium)',
                         boxShadow: selectedPayMethod === 'google_pay' ? 'var(--shadow-glow-gold)' : 'none',
-                        cursor: 'pointer',
+                        cursor: settings?.googlePayEnabled === false ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '0.5rem',
+                        gap: '0.4rem',
+                        opacity: settings?.googlePayEnabled === false ? 0.5 : 1,
                         transition: 'var(--transition-base)'
                       }}
                     >
@@ -1967,23 +2067,33 @@ function CheckoutContent() {
                       <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                         Google Pay
                       </span>
+                      {settings?.googlePayEnabled === false && (
+                        <span style={{ fontSize: '0.6rem', background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '6px', padding: '1px 5px', fontWeight: 'bold' }}>
+                          {isAr ? 'متوقف حالياً' : 'Unavailable'}
+                        </span>
+                      )}
                     </button>
 
                     {/* Bank Transfer Option */}
                     <button
                       type="button"
-                      onClick={() => setSelectedPayMethod('bank_transfer')}
+                      onClick={() => {
+                        if (settings?.customBankGatewayEnabled !== false) {
+                          setSelectedPayMethod('bank_transfer');
+                        }
+                      }}
                       style={{
                         padding: '1rem',
                         borderRadius: '10px',
-                        background: 'var(--bg-secondary)',
+                        background: selectedPayMethod === 'bank_transfer' ? 'rgba(201,162,39,0.1)' : 'var(--bg-secondary)',
                         border: selectedPayMethod === 'bank_transfer' ? '2px solid var(--gold-500)' : '1px solid var(--border-medium)',
                         boxShadow: selectedPayMethod === 'bank_transfer' ? 'var(--shadow-glow-gold)' : 'none',
-                        cursor: 'pointer',
+                        cursor: settings?.customBankGatewayEnabled === false ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '0.5rem',
+                        gap: '0.4rem',
+                        opacity: settings?.customBankGatewayEnabled === false ? 0.5 : 1,
                         transition: 'var(--transition-base)'
                       }}
                     >
@@ -1991,6 +2101,11 @@ function CheckoutContent() {
                       <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                         Bank Transfer
                       </span>
+                      {settings?.customBankGatewayEnabled === false && (
+                        <span style={{ fontSize: '0.6rem', background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '6px', padding: '1px 5px', fontWeight: 'bold' }}>
+                          {isAr ? 'متوقف حالياً' : 'Unavailable'}
+                        </span>
+                      )}
                     </button>
 
                     {/* Paytabs Option - Disabled */}
@@ -2430,35 +2545,75 @@ function CheckoutContent() {
 
                   {/* APPLE PAY SUB-VIEW */}
                   {selectedPayMethod === 'apple_pay' && (
-                    <div style={{ textAlign: 'center' }}>
-                      <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', fontWeight: 'bold', textAlign: isAr ? 'right' : 'left' }}> Pay (Apple Pay):</h4>
-                      <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', marginBottom: '1.5rem', textAlign: isAr ? 'right' : 'left' }}>
-                        {isAr ? 'ادفع بسرعة وأمان باستخدام بطاقتك المخزنة في جهاز Apple الخاص بك.' : 'Check out instantly and securely using your saved cards on Apple Pay.'}
-                      </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                      {/* Header */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '44px', height: '44px', background: '#000000', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: '#fff' }}></div>
+                        <div>
+                          <h4 style={{ color: '#fff', fontWeight: 'bold', margin: '0 0 2px 0', fontSize: '1.05rem' }}>
+                            {isAr ? 'الدفع السريع والمشفر عبر Apple Pay' : 'Fast & Encrypted Apple Pay Checkout'}
+                          </h4>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', margin: 0 }}>
+                            {settings?.applePayInstructionsAr && isAr 
+                              ? settings.applePayInstructionsAr 
+                              : (isAr ? 'ادفع بأمان وسرعة بلمسة واحدة عبر Face ID أو Touch ID على جهاز Apple الخاص بك.' : (settings?.applePayInstructionsEn || 'Pay securely and instantly with Face ID or Touch ID on your Apple device.'))}
+                          </p>
+                        </div>
+                      </div>
 
+                      {/* Security & Merchant Info */}
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px', padding: '2px 8px', fontWeight: '600' }}> Touch ID / Face ID</span>
+                        <span style={{ fontSize: '0.72rem', background: 'rgba(52,168,83,0.15)', color: '#6ee7b7', border: '1px solid rgba(52,168,83,0.3)', borderRadius: '6px', padding: '2px 8px', fontWeight: '600' }}>✓ Apple Secure Enclave</span>
+                        <span style={{ fontSize: '0.72rem', background: 'rgba(234,179,8,0.15)', color: '#fde047', border: '1px solid rgba(234,179,8,0.3)', borderRadius: '6px', padding: '2px 8px', fontWeight: '600' }}>256-Bit SSL</span>
+                      </div>
+
+                      {/* Amount & Merchant Display */}
+                      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '1rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>{isAr ? 'المستفيد / التاجر:' : 'Merchant:'}</span>
+                          <strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>{settings?.applePayDisplayName || 'ORLUXUS Travel & Tourism'}</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', marginTop: '6px' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>{isAr ? 'المبلغ الإجمالي:' : 'Total Amount:'}</span>
+                          <strong style={{ color: '#4ade80', fontSize: '1.1rem' }}>€{totalAmount.toFixed(2)}</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem', marginTop: '6px' }}>
+                          <span style={{ color: 'var(--text-tertiary)' }}>{isAr ? 'كود الحجز:' : 'Booking Ref:'}</span>
+                          <span style={{ color: '#93c5fd', fontFamily: 'var(--font-en)', fontWeight: '600' }}>{bookingRefCode}</span>
+                        </div>
+                      </div>
+
+                      {/* Apple Pay Button */}
                       <button
                         type="button"
-                        onClick={() => handleSimulatedWalletPayment('apple_pay')}
+                        onClick={() => handleApplePayPayment()}
+                        disabled={isSimulatingPayment}
                         style={{
                           width: '100%',
-                          height: '52px',
-                          background: '#000000',
-                          border: 'none',
-                          borderRadius: '8px',
+                          height: '56px',
+                          background: isSimulatingPayment ? '#333333' : '#000000',
+                          border: '1.5px solid rgba(255,255,255,0.25)',
+                          borderRadius: '10px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          cursor: 'pointer',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                          transition: 'transform 0.15s ease'
+                          cursor: isSimulatingPayment ? 'wait' : 'pointer',
+                          boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+                          transition: 'all 0.2s ease',
+                          gap: '10px'
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.01)'}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                       >
-                        <svg width="60" height="24" viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12.923 11.233c.012-2.186 1.777-3.236 1.86-3.292-1.012-1.48-2.585-1.68-3.149-1.705-1.344-.136-2.628.796-3.308.796-.681 0-1.748-.775-2.875-.753-1.482.022-2.853.864-3.616 2.193-1.543 2.68-.396 6.643 1.103 8.815.733 1.06 1.6 2.247 2.748 2.205 1.106-.043 1.523-.714 2.785-.714 1.261 0 1.642.714 2.793.693 1.173-.022 1.936-1.077 2.663-2.138.84-1.229 1.187-2.42 1.207-2.482-.025-.011-2.316-.889-2.311-3.618M11.206 5.378c.606-.736 1.012-1.758.902-2.775-.875.035-1.938.583-2.565 1.319-.562.65-.96 1.687-.828 2.684.975.076 1.885-.492 2.491-1.228" fill="#FFFFFF"/>
-                          <text x="28" y="17" fill="#FFFFFF" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif', fontWeight: '700', fontSize: '15px' }}>Pay</text>
-                        </svg>
+                        {isSimulatingPayment ? (
+                          <span style={{ color: '#fff', fontSize: '0.95rem' }}>{isAr ? '⏳ جارٍ المعالجة وتأكيد الدفع...' : '⏳ Processing payment...'}</span>
+                        ) : (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ color: '#fff', fontSize: '1.4rem', lineHeight: 1 }}></span>
+                            <span style={{ color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontWeight: '700', fontSize: '1.1rem' }}>
+                              Pay €{totalAmount.toFixed(2)}
+                            </span>
+                          </div>
+                        )}
                       </button>
                     </div>
                   )}
