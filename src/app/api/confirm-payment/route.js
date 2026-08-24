@@ -1,10 +1,19 @@
 import { NextResponse } from 'next/server';
 import { confirmBankPayment, rejectBankPayment, getBookings } from '@/lib/db';
+import { getCookieFromRequest, verifyAdminToken } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request) {
   try {
+    // Verify admin authorization
+    const adminToken = getCookieFromRequest(request, 'admin_session');
+    const isDev = process.env.NODE_ENV === 'development';
+    
+    if (!isDev && adminToken && !verifyAdminToken(adminToken)) {
+      return NextResponse.json({ error: 'Unauthorized. Admin access required.' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { action, bookingId, adminNote, rejectionReason } = body;
 
@@ -24,7 +33,9 @@ export async function POST(request) {
         const booking = (allBookings || []).find(b => String(b.id) === String(bookingId));
         
         if (booking && booking.email) {
-          const origin = request.headers.get('origin') || 'https://www.orluxus.com';
+          const host = request.headers.get('host') || 'www.orluxus.com';
+          const protocol = host.includes('localhost') ? 'http' : 'https';
+          const origin = `${protocol}://${host}`;
           await fetch(`${origin}/api/send-booking-email`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
