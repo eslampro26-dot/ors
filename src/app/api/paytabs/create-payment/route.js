@@ -28,12 +28,25 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
+    const cleanProfileId = String(profileId).trim();
+    const cleanServerKey = String(serverKey).trim();
+
+    const candidateUrls = [
+      paytabsApiUrl,
+      'https://secure-egypt.paytabs.com/payment/request',
+      'https://secure.paytabs.com/payment/request',
+      'https://secure-global.paytabs.com/payment/request',
+      'https://secure.paytabs.sa/payment/request',
+      'https://secure-jordan.paytabs.com/payment/request',
+      'https://secure-oman.paytabs.com/payment/request'
+    ].filter((url, idx, self) => url && self.indexOf(url) === idx);
+
     const requestBody = {
-      profile_id: profileId,
+      profile_id: cleanProfileId,
       tran_type: 'sale',
       tran_class: 'ecom',
       cart_id: paymentData.orderId || `BK-${Date.now()}`,
-      cart_description: paymentData.productName || 'Travel Booking Excursion',
+      cart_description: paymentData.productName || 'ORLUXUS Travel Excursion',
       cart_currency: paymentData.currency || 'EUR',
       cart_amount: parseFloat(paymentData.amount) || 0,
       callback: paymentData.callbackUrl || `${request.nextUrl.origin}/api/paytabs/callback`,
@@ -41,51 +54,69 @@ export async function POST(request) {
       return_auth: 'signed',
       customer_details: {
         name: paymentData.customerName || 'Valued Guest',
-        email: paymentData.customerEmail || 'info@orluxus.com',
+        email: paymentData.customerEmail || 'guest@orluxus.com',
         phone: paymentData.customerPhone || '+20100000000',
-        street1: '',
+        street1: 'Touristic Area',
         city: paymentData.city || 'Sharm El Sheikh',
-        state: '',
+        state: 'South Sinai',
         country: 'EG',
-        zip: ''
+        zip: '46619'
       },
       shipping_details: {
         name: paymentData.customerName || 'Valued Guest',
-        email: paymentData.customerEmail || 'info@orluxus.com',
+        email: paymentData.customerEmail || 'guest@orluxus.com',
         phone: paymentData.customerPhone || '+20100000000',
-        street1: '',
+        street1: 'Touristic Area',
         city: paymentData.city || 'Sharm El Sheikh',
-        state: '',
+        state: 'South Sinai',
         country: 'EG',
-        zip: ''
+        zip: '46619'
       },
       frame: false,
       hide_shipping: true,
       language: paymentData.language || 'en'
     };
 
-    const response = await fetch(paytabsApiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': serverKey
-      },
-      body: JSON.stringify(requestBody)
-    });
+    let lastError = null;
+    let successfulResult = null;
 
-    const result = await response.json();
+    // Try all regional endpoints automatically without requiring manual switching
+    for (const targetUrl of candidateUrls) {
+      try {
+        const response = await fetch(targetUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': cleanServerKey
+          },
+          body: JSON.stringify(requestBody)
+        });
 
-    if (result.paypage_url) {
-      return NextResponse.json({ 
-        success: true, 
-        paymentUrl: result.paypage_url, 
-        tranRef: result.tran_ref 
-      });
+        const result = await response.json();
+
+        if (result && result.paypage_url) {
+          successfulResult = {
+            success: true,
+            paymentUrl: result.paypage_url,
+            tranRef: result.tran_ref,
+            usedEndpoint: targetUrl
+          };
+          break;
+        } else {
+          lastError = result?.message || result?.error || 'Endpoint failed';
+        }
+      } catch (err) {
+        lastError = err.message;
+      }
+    }
+
+    if (successfulResult) {
+      return NextResponse.json(successfulResult);
     } else {
-      console.error('Paytabs API response error:', result);
+      console.error('Paytabs auto-discovery failed on all endpoints:', lastError);
       return NextResponse.json({ 
         success: false, 
-        error: result.message || 'Failed to create Paytabs payment page' 
+        error: lastError || 'Failed to authenticate with PayTabs servers. Please check your Server Key.' 
       }, { status: 400 });
     }
   } catch (error) {

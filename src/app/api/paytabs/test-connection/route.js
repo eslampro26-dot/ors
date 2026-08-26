@@ -14,10 +14,21 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
-    const endpoint = apiUrl || 'https://secure.paytabs.com/payment/request';
+    const cleanProfileId = String(profileId).trim();
+    const cleanServerKey = String(serverKey).trim();
+
+    const candidateUrls = [
+      apiUrl,
+      'https://secure-egypt.paytabs.com/payment/request',
+      'https://secure.paytabs.com/payment/request',
+      'https://secure-global.paytabs.com/payment/request',
+      'https://secure.paytabs.sa/payment/request',
+      'https://secure-jordan.paytabs.com/payment/request',
+      'https://secure-oman.paytabs.com/payment/request'
+    ].filter((url, idx, self) => url && self.indexOf(url) === idx);
 
     const testBody = {
-      profile_id: String(profileId).trim(),
+      profile_id: cleanProfileId,
       tran_type: 'sale',
       tran_class: 'ecom',
       cart_id: `test_ping_${Date.now()}`,
@@ -38,29 +49,48 @@ export async function POST(request) {
       }
     };
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': String(serverKey).trim()
-      },
-      body: JSON.stringify(testBody)
-    });
+    let lastError = null;
+    let matchedEndpoint = null;
+    let successfulData = null;
 
-    const data = await response.json();
+    for (const ep of candidateUrls) {
+      try {
+        const response = await fetch(ep, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': cleanServerKey
+          },
+          body: JSON.stringify(testBody)
+        });
 
-    if (data.paypage_url) {
+        const data = await response.json();
+
+        if (data && data.paypage_url) {
+          matchedEndpoint = ep;
+          successfulData = data;
+          break;
+        } else {
+          lastError = data?.message || data?.error || 'Authentication error';
+        }
+      } catch (err) {
+        lastError = err.message;
+      }
+    }
+
+    if (successfulData && matchedEndpoint) {
       return NextResponse.json({
         success: true,
-        message: '✅ PayTabs connection successful! Gateway is live and responding.',
-        paypageUrl: data.paypage_url,
-        tranRef: data.tran_ref
+        message: `✅ تم التحقق والاتصال بنجاح مع سيرفر (${matchedEndpoint})! البوابة جاهزة لاستقبال المدفوعات.`,
+        paypageUrl: successfulData.paypage_url,
+        tranRef: successfulData.tran_ref,
+        activeEndpoint: matchedEndpoint
       });
     } else {
       return NextResponse.json({
         success: false,
-        error: data.message || 'Connection failed: ' + JSON.stringify(data),
-        raw: data
+        error: `تعذر الاتصال بجميع سيرفرات PayTabs (${lastError}). يرجى نسخ مفتاح الـ Server Key من لوحة PayTabs بزر النسخ (Copy) للتأكد من عدم وجود أي حرف ناقص.`,
+        lastError
       }, { status: 400 });
     }
   } catch (error) {
