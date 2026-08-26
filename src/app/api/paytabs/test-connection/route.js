@@ -40,8 +40,8 @@ export async function POST(request) {
       tran_class: 'ecom',
       cart_id: `test_ping_${Date.now()}`,
       cart_description: 'ORLUXUS Gateway Connection Test',
-      cart_currency: 'EUR',
-      cart_amount: 1.00,
+      cart_currency: 'EGP',
+      cart_amount: 50.00,
       callback: 'https://orluxus.com/api/paytabs/callback',
       return: 'https://orluxus.com/booking-confirmation',
       customer_details: {

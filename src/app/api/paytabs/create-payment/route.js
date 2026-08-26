@@ -11,8 +11,9 @@ export async function POST(request) {
 
     const profileId = settings?.paytabsProfileId || '';
     const serverKey = settings?.paytabsServerKey || '';
-    const paytabsApiUrl = settings?.paytabsApiUrl || 'https://secure.paytabs.com/payment/request';
+    const paytabsApiUrl = settings?.paytabsApiUrl || 'https://secure-egypt.paytabs.com/payment/request';
     const paytabsEnabled = settings?.paytabsEnabled === true || settings?.paytabsEnabled === 'true';
+    const siteCurrency = settings?.currency || 'EGP';
 
     if (!paytabsEnabled) {
       return NextResponse.json({ 
@@ -31,14 +32,14 @@ export async function POST(request) {
     const cleanProfileId = String(profileId).trim();
     const cleanServerKey = String(serverKey).trim();
 
+    // Use currency from payment request, fallback to site currency
+    const currency = paymentData.currency || siteCurrency || 'EGP';
+
     const candidateUrls = [
       paytabsApiUrl,
       'https://secure-egypt.paytabs.com/payment/request',
       'https://secure.paytabs.com/payment/request',
       'https://secure-global.paytabs.com/payment/request',
-      'https://secure.paytabs.sa/payment/request',
-      'https://secure-jordan.paytabs.com/payment/request',
-      'https://secure-oman.paytabs.com/payment/request'
     ].filter((url, idx, self) => url && self.indexOf(url) === idx);
 
     const requestBody = {
@@ -47,7 +48,7 @@ export async function POST(request) {
       tran_class: 'ecom',
       cart_id: paymentData.orderId || `BK-${Date.now()}`,
       cart_description: paymentData.productName || 'ORLUXUS Travel Excursion',
-      cart_currency: paymentData.currency || 'EUR',
+      cart_currency: currency,
       cart_amount: parseFloat(paymentData.amount) || 0,
       callback: paymentData.callbackUrl || `${request.nextUrl.origin}/api/paytabs/callback`,
       return: paymentData.successUrl || `${request.nextUrl.origin}/booking-confirmation`,
@@ -80,7 +81,6 @@ export async function POST(request) {
     let lastError = null;
     let successfulResult = null;
 
-    // Try all regional endpoints automatically without requiring manual switching
     for (const targetUrl of candidateUrls) {
       try {
         const response = await fetch(targetUrl, {
@@ -92,6 +92,7 @@ export async function POST(request) {
           body: JSON.stringify(requestBody)
         });
 
+        const result = await response.json();
         const payUrl = result?.redirect_url || result?.paypage_url;
 
         if (payUrl) {
@@ -104,19 +105,20 @@ export async function POST(request) {
           break;
         } else {
           lastError = result?.message || result?.error || 'Endpoint failed';
+          console.error(`PayTabs endpoint ${targetUrl} failed:`, result);
         }
       } catch (err) {
         lastError = err.message;
+        console.error(`PayTabs endpoint ${targetUrl} threw:`, err.message);
       }
     }
 
     if (successfulResult) {
       return NextResponse.json(successfulResult);
     } else {
-      console.error('Paytabs auto-discovery failed on all endpoints:', lastError);
       return NextResponse.json({ 
         success: false, 
-        error: lastError || 'Failed to authenticate with PayTabs servers. Please check your Server Key.' 
+        error: lastError || 'Failed to authenticate with PayTabs servers.' 
       }, { status: 400 });
     }
   } catch (error) {
