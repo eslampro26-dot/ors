@@ -1,24 +1,31 @@
 import { NextResponse } from 'next/server';
+import { getSettings } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
 export async function POST(request) {
   try {
-    const { profileId, serverKey, apiUrl } = await request.json();
+    // Read from Firebase directly — never trust what comes from the browser
+    const settings = await getSettings();
+
+    const profileId = settings?.paytabsProfileId || '';
+    const serverKey = settings?.paytabsServerKey || '';
+    const savedApiUrl = settings?.paytabsApiUrl || '';
 
     if (!profileId || !serverKey) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Profile ID and Server Key are required for testing' 
+      return NextResponse.json({
+        success: false,
+        error: 'المفاتيح غير موجودة في قاعدة البيانات. يرجى حفظ Profile ID و Server Key أولاً من الإعدادات.'
       }, { status: 400 });
     }
 
     const cleanProfileId = String(profileId).trim();
     const cleanServerKey = String(serverKey).trim();
 
+    // Try all regional endpoints automatically
     const candidateUrls = [
-      apiUrl,
+      savedApiUrl,
       'https://secure-egypt.paytabs.com/payment/request',
       'https://secure.paytabs.com/payment/request',
       'https://secure-global.paytabs.com/payment/request',
@@ -90,15 +97,17 @@ export async function POST(request) {
     } else {
       return NextResponse.json({
         success: false,
-        error: `تعذر الاتصال بجميع سيرفرات PayTabs (${lastError}). يرجى نسخ مفتاح الـ Server Key من لوحة PayTabs بزر النسخ (Copy) للتأكد من عدم وجود أي حرف ناقص.`,
-        lastError
+        error: `فشل الاتصال بجميع سيرفرات PayTabs. الخطأ: ${lastError}`,
+        storedProfileId: cleanProfileId,
+        storedKeyPreview: cleanServerKey.substring(0, 8) + '...' + cleanServerKey.slice(-4),
+        testedEndpoints: candidateUrls
       }, { status: 400 });
     }
   } catch (error) {
     console.error('Paytabs connection test error:', error);
     return NextResponse.json({
       success: false,
-      error: error.message || 'Network error testing Paytabs endpoint'
+      error: error.message || 'خطأ في السيرفر أثناء اختبار Paytabs'
     }, { status: 500 });
   }
 }
