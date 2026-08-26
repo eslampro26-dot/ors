@@ -32,24 +32,21 @@ export async function POST(request) {
     const cleanProfileId = String(profileId).trim();
     const cleanServerKey = String(serverKey).trim();
 
-    // Use currency from payment request, fallback to site currency
-    const currency = paymentData.currency || siteCurrency || 'EGP';
+    // Primary endpoint: Egypt
+    const primaryUrl = paytabsApiUrl || 'https://secure-egypt.paytabs.com/payment/request';
+    
+    // Requested currency and amount
+    const rawCurrency = paymentData.currency || (siteCurrency.includes('EGP') ? 'EGP' : (siteCurrency.includes('USD') ? 'USD' : 'EUR'));
+    const rawAmount = parseFloat(paymentData.amount) || 0;
 
-    const candidateUrls = [
-      paytabsApiUrl,
-      'https://secure-egypt.paytabs.com/payment/request',
-      'https://secure.paytabs.com/payment/request',
-      'https://secure-global.paytabs.com/payment/request',
-    ].filter((url, idx, self) => url && self.indexOf(url) === idx);
-
-    const requestBody = {
+    const buildPayload = (curr, amt) => ({
       profile_id: cleanProfileId,
       tran_type: 'sale',
       tran_class: 'ecom',
       cart_id: paymentData.orderId || `BK-${Date.now()}`,
       cart_description: paymentData.productName || 'ORLUXUS Travel Excursion',
-      cart_currency: currency,
-      cart_amount: parseFloat(paymentData.amount) || 0,
+      cart_currency: curr,
+      cart_amount: amt,
       callback: paymentData.callbackUrl || `${request.nextUrl.origin}/api/paytabs/callback`,
       return: paymentData.successUrl || `${request.nextUrl.origin}/booking-confirmation`,
       return_auth: 'signed',
@@ -58,67 +55,70 @@ export async function POST(request) {
         email: paymentData.customerEmail || 'guest@orluxus.com',
         phone: paymentData.customerPhone || '+20100000000',
         street1: 'Touristic Area',
-        city: paymentData.city || 'Sharm El Sheikh',
-        state: 'South Sinai',
+        city: paymentData.city || 'Cairo',
+        state: 'Cairo',
         country: 'EG',
-        zip: '46619'
+        zip: '11511'
       },
       shipping_details: {
         name: paymentData.customerName || 'Valued Guest',
         email: paymentData.customerEmail || 'guest@orluxus.com',
         phone: paymentData.customerPhone || '+20100000000',
         street1: 'Touristic Area',
-        city: paymentData.city || 'Sharm El Sheikh',
-        state: 'South Sinai',
+        city: paymentData.city || 'Cairo',
+        state: 'Cairo',
         country: 'EG',
-        zip: '46619'
+        zip: '11511'
       },
       frame: false,
       hide_shipping: true,
       language: paymentData.language || 'en'
-    };
+    });
 
-    let lastError = null;
-    let successfulResult = null;
+    // 1. First Attempt: Try with requested currency
+    let response = await fetch(primaryUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': cleanServerKey
+      },
+      body: JSON.stringify(buildPayload(rawCurrency, rawAmount))
+    });
 
-    for (const targetUrl of candidateUrls) {
-      try {
-        const response = await fetch(targetUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': cleanServerKey
-          },
-          body: JSON.stringify(requestBody)
-        });
+    let result = await response.json();
+    let payUrl = result?.redirect_url || result?.paypage_url;
 
-        const result = await response.json();
-        const payUrl = result?.redirect_url || result?.paypage_url;
+    // 2. If rejected due to currency (e.g. Test profile only supports EGP), fallback to EGP
+    if (!payUrl && (result?.message?.includes('Currency') || result?.code === 206 || result?.message?.includes('currency'))) {
+      console.log(`PayTabs rejected ${rawCurrency}, attempting fallback to EGP...`);
+      // Approximate conversion if amount was in EUR or USD (approx 52 EGP per EUR/USD)
+      const convertedAmount = rawCurrency === 'EGP' ? rawAmount : Math.round(rawAmount * 52);
+      
+      response = await fetch(primaryUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': cleanServerKey
+        },
+        body: JSON.stringify(buildPayload('EGP', convertedAmount))
+      });
 
-        if (payUrl) {
-          successfulResult = {
-            success: true,
-            paymentUrl: payUrl,
-            tranRef: result.tran_ref,
-            usedEndpoint: targetUrl
-          };
-          break;
-        } else {
-          lastError = result?.message || result?.error || 'Endpoint failed';
-          console.error(`PayTabs endpoint ${targetUrl} failed:`, result);
-        }
-      } catch (err) {
-        lastError = err.message;
-        console.error(`PayTabs endpoint ${targetUrl} threw:`, err.message);
-      }
+      result = await response.json();
+      payUrl = result?.redirect_url || result?.paypage_url;
     }
 
-    if (successfulResult) {
-      return NextResponse.json(successfulResult);
+    if (payUrl) {
+      return NextResponse.json({
+        success: true,
+        paymentUrl: payUrl,
+        tranRef: result.tran_ref,
+        usedEndpoint: primaryUrl
+      });
     } else {
+      console.error('PayTabs creation failed:', result);
       return NextResponse.json({ 
         success: false, 
-        error: lastError || 'Failed to authenticate with PayTabs servers.' 
+        error: result?.message || result?.error || 'PayTabs error creating payment session'
       }, { status: 400 });
     }
   } catch (error) {
