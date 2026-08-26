@@ -6,14 +6,29 @@ import { useState, useEffect, useCallback } from 'react';
 let _cache = null;
 let _promise = null;
 
-async function fetchSettings() {
+async function fetchSettings(retries = 2) {
   if (_cache) return _cache;
   if (_promise) return _promise;
 
-  _promise = fetch('/api/settings', { cache: 'no-store' })
-    .then(r => r.ok ? r.json() : {})
-    .then(data => { _cache = data; _promise = null; return data; })
-    .catch(() => { _promise = null; return {}; });
+  _promise = (async () => {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const r = await fetch('/api/settings', { cache: 'no-store' });
+        if (r.ok) {
+          const data = await r.json();
+          _cache = data;
+          _promise = null;
+          return data;
+        }
+      } catch (e) {
+        if (attempt < retries) {
+          await new Promise(res => setTimeout(res, 500 * (attempt + 1)));
+        }
+      }
+    }
+    _promise = null;
+    return {};
+  })();
 
   return _promise;
 }

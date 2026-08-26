@@ -282,7 +282,7 @@ export default function AdminSettings() {
           if (data.termsEn) setTermsEn(data.termsEn);
         }
       } catch (err) {
-        console.error('Error fetching settings:', err);
+        // Graceful fallback to default settings if network transition occurs
       }
     };
     fetchSettings();

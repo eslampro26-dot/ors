@@ -64,6 +64,7 @@ export async function POST(request) {
           body: JSON.stringify(testBody)
         });
 
+        const data = await response.json();
         const payUrl = data?.redirect_url || data?.paypage_url;
 
         if (payUrl) {
