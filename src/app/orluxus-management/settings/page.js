@@ -40,7 +40,7 @@ export default function AdminSettings() {
 
   // Paytabs Payment Gateway Settings
   const [paytabsProfileId, setPaytabsProfileId] = useState('152340');
-  const [paytabsServerKey, setPaytabsServerKey] = useState('S6J9TZMKZW-J92RJLWRLL-K92HRBZRKN');
+  const [paytabsServerKey, setPaytabsServerKey] = useState('S6J9TZWKZW-J92RJLWRLR-K92HRBZRKN');
   const [paytabsClientKey, setPaytabsClientKey] = useState('CMK2KG-HGPR6P-MR6BVR-KN7KNT');
   const [paytabsApiUrl, setPaytabsApiUrl] = useState('https://secure-egypt.paytabs.com/payment/request');
   const [paytabsEnabled, setPaytabsEnabled] = useState(true);

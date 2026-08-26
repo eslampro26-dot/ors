@@ -64,11 +64,11 @@ export async function POST(request) {
           body: JSON.stringify(testBody)
         });
 
-        const data = await response.json();
+        const payUrl = data?.redirect_url || data?.paypage_url;
 
-        if (data && data.paypage_url) {
+        if (payUrl) {
           matchedEndpoint = ep;
-          successfulData = data;
+          successfulData = { ...data, paypage_url: payUrl };
           break;
         } else {
           lastError = data?.message || data?.error || 'Authentication error';

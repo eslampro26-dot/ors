@@ -92,12 +92,12 @@ export async function POST(request) {
           body: JSON.stringify(requestBody)
         });
 
-        const result = await response.json();
+        const payUrl = result?.redirect_url || result?.paypage_url;
 
-        if (result && result.paypage_url) {
+        if (payUrl) {
           successfulResult = {
             success: true,
-            paymentUrl: result.paypage_url,
+            paymentUrl: payUrl,
             tranRef: result.tran_ref,
             usedEndpoint: targetUrl
           };
