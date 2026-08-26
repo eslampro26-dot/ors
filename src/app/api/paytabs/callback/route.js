@@ -1,5 +1,6 @@
 import { verifyPaytabsPayment } from '@/lib/paytabs';
-import { updateBookingStatus } from '@/lib/db';
+import { updateBookingStatus, getBookings } from '@/lib/db';
+import { sendBookingEmailServer } from '@/lib/serverEmail';
 
 export async function POST(request) {
   try {
@@ -13,12 +14,38 @@ export async function POST(request) {
     }
     
     if (verification.paid) {
-      // Update booking status to Confirmed
       const tranRef = callbackData.tran_ref;
-      // Extract booking ID from cart_id or tran_ref
-      const bookingId = callbackData.cart_id || tranRef;
+      const cartId = callbackData.cart_id;
+      const bookingId = cartId || tranRef;
       
+      // 1. Update booking status to Confirmed in database
       await updateBookingStatus(bookingId, 'Confirmed');
+      
+      // 2. Fetch full booking details to dispatch confirmed ticket email
+      try {
+        const allBookings = await getBookings();
+        const matchedBooking = (allBookings || []).find(b => 
+          b.id === bookingId || 
+          b.id === cartId || 
+          b.txId === tranRef ||
+          (b.id && cartId && b.id.includes(cartId))
+        );
+
+        if (matchedBooking && matchedBooking.email) {
+          console.log('[PayTabs Callback] Dispatching automatic confirmed email ticket to guest:', matchedBooking.email);
+          await sendBookingEmailServer({
+            ...matchedBooking,
+            status: 'Confirmed',
+            paymentType: 'paytabs',
+            txId: tranRef || matchedBooking.txId,
+            serviceName: matchedBooking.service || matchedBooking.serviceName,
+            customerName: matchedBooking.customer || matchedBooking.customerName,
+            finalAmount: verification.amount || matchedBooking.finalAmount
+          });
+        }
+      } catch (emailErr) {
+        console.error('[PayTabs Callback] Failed to dispatch automatic email ticket:', emailErr);
+      }
       
       return Response.json({ 
         success: true, 

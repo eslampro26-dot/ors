@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { confirmBankPayment, rejectBankPayment, getBookings } from '@/lib/db';
 import { getCookieFromRequest, verifyAdminToken } from '@/lib/auth';
+import { sendBookingEmailServer } from '@/lib/serverEmail';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,50 +28,44 @@ export async function POST(request) {
         return NextResponse.json({ error: 'Failed to confirm booking payment' }, { status: 500 });
       }
 
-      // Try sending confirmation email to customer
+      // Automatically send confirmation ticket email to customer and company
       try {
         const allBookings = await getBookings();
         const booking = (allBookings || []).find(b => String(b.id) === String(bookingId));
         
         if (booking && booking.email) {
-          const host = request.headers.get('host') || 'www.orluxus.com';
-          const protocol = host.includes('localhost') ? 'http' : 'https';
-          const origin = `${protocol}://${host}`;
-          await fetch(`${origin}/api/send-booking-email`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              customerName: booking.customer || booking.name || 'Valued Guest',
-              email: booking.email,
-              phone: booking.phone || '',
-              whatsapp: booking.whatsapp || booking.phone || '',
-              date: booking.date || new Date().toISOString().split('T')[0],
-              travelers: booking.travelers || 1,
-              children: booking.children || 0,
-              infants: booking.infants || 0,
-              serviceName: booking.service || 'ORLUXUS VIP Service',
-              originalAmount: booking.originalAmount || booking.finalAmount || 0,
-              discountAmount: booking.discountAmount || 0,
-              finalAmount: booking.finalAmount || 0,
-              paymentType: 'Direct Bank Transfer (Confirmed)',
-              txId: booking.receiptTxRef || booking.id,
-              extras: booking.extras || '',
-              extrasDetails: booking.extrasDetails || [],
-              pickupLocation: booking.pickupLocation || '',
-              promoCode: booking.promoCode || '',
-              agentName: booking.agentName || '',
-              specialRequests: booking.specialRequests || [],
-              adultPrice: booking.adultPrice,
-              childPrice: booking.childPrice,
-              infantPrice: booking.infantPrice
-            })
-          }).catch(e => console.warn('Email trigger warning:', e));
+          console.log('[Confirm Payment] Sending ticket email to:', booking.email);
+          await sendBookingEmailServer({
+            customerName: booking.customer || booking.name || 'Valued Guest',
+            email: booking.email,
+            phone: booking.phone || '',
+            whatsapp: booking.whatsapp || booking.phone || '',
+            date: booking.date || new Date().toISOString().split('T')[0],
+            travelers: booking.travelers || 1,
+            children: booking.children || 0,
+            infants: booking.infants || 0,
+            serviceName: booking.service || 'ORLUXUS VIP Service',
+            originalAmount: booking.originalAmount || booking.finalAmount || 0,
+            discountAmount: booking.discountAmount || 0,
+            finalAmount: booking.finalAmount || 0,
+            paymentType: booking.paymentType || 'Confirmed Payment',
+            status: 'Confirmed',
+            txId: booking.receiptTxRef || booking.txId || booking.id,
+            extras: booking.extras || '',
+            pickupLocation: booking.pickupLocation || '',
+            promoCode: booking.promoCode || '',
+            agentName: booking.agentName || '',
+            specialRequests: booking.specialRequests || '',
+            adultPrice: booking.adultPrice,
+            childPrice: booking.childPrice,
+            infantPrice: booking.infantPrice
+          });
         }
       } catch (emailErr) {
-        console.warn('Error triggering confirmation email:', emailErr);
+        console.warn('Error triggering confirmation email in confirm-payment:', emailErr);
       }
 
-      return NextResponse.json({ success: true, message: 'Payment confirmed successfully' });
+      return NextResponse.json({ success: true, message: 'Payment confirmed and ticket email sent successfully' });
     } else if (action === 'reject') {
       const result = await rejectBankPayment(bookingId, rejectionReason);
       if (!result) {

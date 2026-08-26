@@ -182,6 +182,59 @@ export default function AdminBookings() {
     }
   };
 
+  // Manual Send/Resend Email Ticket to Guest
+  const handleSendTicketEmail = async (booking) => {
+    if (!booking.email) {
+      alert('⚠️ هذا الحجز لا يحتوي على بريد إلكتروني للعميل / No customer email found in this booking.');
+      return;
+    }
+    
+    setActionLoading(true);
+    try {
+      const res = await fetch('/api/send-booking-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: booking.customer || booking.customerName || 'Valued Guest',
+          email: booking.email,
+          phone: booking.phone || '',
+          whatsapp: booking.whatsapp || booking.phone || '',
+          date: booking.date || new Date().toISOString().split('T')[0],
+          travelers: booking.travelers || 1,
+          children: booking.children || 0,
+          infants: booking.infants || 0,
+          serviceName: booking.service || booking.serviceName || 'ORLUXUS VIP Excursion',
+          originalAmount: booking.originalAmount || booking.finalAmount || 0,
+          discountAmount: booking.discountAmount || 0,
+          finalAmount: booking.finalAmount || 0,
+          paymentType: booking.paymentType || 'Confirmed',
+          status: booking.status || 'Confirmed',
+          txId: booking.txId || booking.id,
+          extras: booking.extras || '',
+          pickupLocation: booking.pickupLocation || '',
+          promoCode: booking.promoCode || '',
+          agentName: booking.agentName || '',
+          specialRequests: booking.specialRequests || '',
+          adultPrice: booking.adultPrice,
+          childPrice: booking.childPrice,
+          infantPrice: booking.infantPrice
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert(`✅ تم إرسال تذكرة وفاتورة الحجز بنجاح إلى بريد العميل:\n${booking.email}`);
+      } else {
+        alert(`❌ تعذر إرسال الإيميل: ${data.error || 'يرجى مراجعة إعدادات الـ SMTP'}`);
+      }
+    } catch (e) {
+      console.error('Error sending ticket email:', e);
+      alert('❌ حدث خطأ أثناء إرسال البريد الإلكتروني.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Print Digital Agreement
   const handlePrintAgreement = async (booking) => {
     // 1. Fetch custom terms from settings BEFORE opening popup window
@@ -966,6 +1019,29 @@ export default function AdminBookings() {
                             </button>
                           </>
                         )}
+
+                        {/* Send Ticket Email to Guest */}
+                        <button
+                          type="button"
+                          onClick={() => handleSendTicketEmail(booking)}
+                          disabled={actionLoading}
+                          title="Send/Resend Official Ticket Email to Customer"
+                          style={{
+                            padding: '5px 10px',
+                            background: 'rgba(16,185,129,0.15)',
+                            color: '#10b981',
+                            border: '1px solid #10b981',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '0.8rem',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          📧 Ticket
+                        </button>
 
                         {/* Print Invoice */}
                         <button

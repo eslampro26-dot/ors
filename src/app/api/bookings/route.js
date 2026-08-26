@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getBookings, addBooking, updateBookingStatus, deleteBooking } from '@/lib/db';
-import { getCookieFromRequest, verifyAgentToken } from '@/lib/auth'
+import { getCookieFromRequest, verifyAgentToken } from '@/lib/auth';
+import { sendBookingEmailServer } from '@/lib/serverEmail';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,6 @@ export async function POST(request) {
     const body = await request.json();
 
     // If an agent session cookie is present, attribute booking to that agent
-    // Public customers (no cookie) are still allowed — only override agentId if not already set
     const token = getCookieFromRequest(request, 'agent_session');
     if (token) {
       const agentPayload = verifyAgentToken(token);
@@ -32,7 +32,6 @@ export async function POST(request) {
       return NextResponse.json({ error: 'بيانات الحجز ناقصة.' }, { status: 400 });
     }
 
-    // Accept both number and string amounts
     const finalAmount = Number(body.finalAmount);
     if (isNaN(finalAmount) || finalAmount < 0) {
       return NextResponse.json({ error: 'قيمة الحجز غير صحيحة.' }, { status: 400 });
@@ -52,9 +51,31 @@ export async function POST(request) {
 
 export async function PUT(request) {
   try {
-    const { id, status } = await request.json();
+    const { id, status, sendEmail } = await request.json();
     if (!id || !status) return NextResponse.json({ error: 'Missing id or status' }, { status: 400 });
+    
     const result = await updateBookingStatus(id, status);
+    
+    // If status is updated to Confirmed or sendEmail is requested, dispatch confirmed ticket email
+    if (result && (status === 'Confirmed' || status === 'مؤكد' || sendEmail === true)) {
+      try {
+        const allBookings = await getBookings();
+        const booking = (allBookings || []).find(b => String(b.id) === String(id));
+        if (booking && booking.email) {
+          console.log('[Bookings API] Sending confirmation email for booking:', id, 'to:', booking.email);
+          await sendBookingEmailServer({
+            ...booking,
+            status: 'Confirmed',
+            serviceName: booking.service || booking.serviceName,
+            customerName: booking.customer || booking.customerName,
+            txId: booking.txId || booking.id
+          });
+        }
+      } catch (emailErr) {
+        console.warn('[Bookings API] Failed to send email on status update:', emailErr);
+      }
+    }
+
     return NextResponse.json({ success: !!result });
   } catch (e) {
     return NextResponse.json({ error: 'Failed to update booking' }, { status: 500 });
