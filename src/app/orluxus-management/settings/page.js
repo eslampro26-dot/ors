@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { getSettings, saveSettings } from '@/lib/db';
@@ -39,10 +39,13 @@ export default function AdminSettings() {
   const [smtpTestStatus, setSmtpTestStatus] = useState(''); // '', 'testing', 'ok', 'fail'
 
   // Paytabs Payment Gateway Settings
-  const [paytabsProfileId, setPaytabsProfileId] = useState('');
-  const [paytabsServerKey, setPaytabsServerKey] = useState('');
-  const [paytabsApiUrl, setPaytabsApiUrl] = useState('https://secure.paytabs.com/payment/request');
-  const [paytabsEnabled, setPaytabsEnabled] = useState(false);
+  const [paytabsProfileId, setPaytabsProfileId] = useState('152340');
+  const [paytabsServerKey, setPaytabsServerKey] = useState('S6J9TZMKZW-J92RJLWRLL-K92HRBZRKN');
+  const [paytabsClientKey, setPaytabsClientKey] = useState('CMK2KG-HGPR6P-MR6BVR-KN7KNT');
+  const [paytabsApiUrl, setPaytabsApiUrl] = useState('https://secure-egypt.paytabs.com/payment/request');
+  const [paytabsEnabled, setPaytabsEnabled] = useState(true);
+  const [paytabsTestStatus, setPaytabsTestStatus] = useState(''); // '', 'testing', 'ok', 'fail'
+  const [paytabsTestMessage, setPaytabsTestMessage] = useState('');
 
   // Custom Direct Bank Payment Gateway Settings
   const defaultBankAccounts = [
@@ -208,6 +211,7 @@ export default function AdminSettings() {
           // Paytabs Settings
           if (data.paytabsProfileId) setPaytabsProfileId(data.paytabsProfileId);
           if (data.paytabsServerKey) setPaytabsServerKey(data.paytabsServerKey);
+          if (data.paytabsClientKey) setPaytabsClientKey(data.paytabsClientKey);
           if (data.paytabsApiUrl) setPaytabsApiUrl(data.paytabsApiUrl);
           if (data.paytabsEnabled !== undefined) setPaytabsEnabled(data.paytabsEnabled === true || data.paytabsEnabled === 'true');
           
@@ -314,6 +318,7 @@ export default function AdminSettings() {
           companyEmail,
           paytabsProfileId,
           paytabsServerKey,
+          paytabsClientKey,
           paytabsApiUrl,
           paytabsEnabled,
           bankAccounts,
@@ -341,6 +346,34 @@ export default function AdminSettings() {
     } catch (err) {
       console.error('Error saving settings:', err);
       alert('❌ Failed to save settings!');
+    }
+  };
+
+  // Test Paytabs Connection Live Handshake
+  const handleTestPaytabs = async () => {
+    setPaytabsTestStatus('testing');
+    setPaytabsTestMessage('');
+    try {
+      const res = await fetch('/api/paytabs/test-connection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profileId: paytabsProfileId,
+          serverKey: paytabsServerKey,
+          apiUrl: paytabsApiUrl
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setPaytabsTestStatus('ok');
+        setPaytabsTestMessage(data.message || '✅ PayTabs connection successful! Ready for live payments.');
+      } else {
+        setPaytabsTestStatus('fail');
+        setPaytabsTestMessage(`⚠️ PayTabs Response: ${data.error || 'Connection failed. Please check Server Key.'}`);
+      }
+    } catch (e) {
+      setPaytabsTestStatus('fail');
+      setPaytabsTestMessage(`❌ Network error: ${e.message}`);
     }
   };
 
@@ -939,39 +972,47 @@ export default function AdminSettings() {
         </div>
 
         {/* Paytabs Payment Gateway Settings */}
-        <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.16s' }}>
-          <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.5rem' }}>💳 Paytabs Payment Gateway</h3>
-          
-          {(!paytabsProfileId || !paytabsServerKey) && (
-            <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', padding: '0.8rem 1rem', borderRadius: '8px', color: '#f87171', fontSize: '0.82rem', marginBottom: '1.2rem', fontWeight: '700', lineHeight: '1.5' }}>
-              ⚠️ Important Notice: Paytabs credentials are not configured yet. Paytabs payment option will not be available to customers until valid Profile ID and Server Key are saved.
+        <div className="glass-card animate-fade-in-up" style={{ animationDelay: '0.16s', border: '1px solid rgba(59,130,246,0.3)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.6rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '1.5rem' }}>💳</span>
+              <div>
+                <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.15rem' }}>Paytabs Payment Gateway</h3>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>بوابة الدفع الإلكتروني الرسمية للفيزا والماستركارد مع تأكيد OTP التلقائي</span>
+              </div>
             </div>
-          )}
-
+            <span style={{ background: paytabsEnabled ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', color: paytabsEnabled ? '#10b981' : '#ef4444', border: paytabsEnabled ? '1px solid #10b981' : '1px solid #ef4444', padding: '2px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+              {paytabsEnabled ? '✓ Enabled (نشط)' : '✕ Disabled (معطل)'}
+            </span>
+          </div>
+          
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             
-            {/* Enable Paytabs */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+            {/* Enable Paytabs Toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(59,130,246,0.06)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.2)' }}>
               <input 
                 type="checkbox" 
                 checked={paytabsEnabled}
                 onChange={(e) => setPaytabsEnabled(e.target.checked)}
                 style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                id="paytabsToggle"
               />
-              <div>
-                <label style={{ display: 'block', color: 'var(--text-primary)', fontWeight: 'bold', cursor: 'pointer' }}>Enable Paytabs Payment</label>
-                <span style={{ display: 'block', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>Allow customers to pay using Paytabs payment gateway</span>
-              </div>
+              <label htmlFor="paytabsToggle" style={{ display: 'block', cursor: 'pointer' }}>
+                <span style={{ display: 'block', color: 'var(--text-primary)', fontWeight: 'bold' }}>تفعيل بوابة Paytabs للدفع بالفيزا والبطاقات</span>
+                <span style={{ display: 'block', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>يسمح للعملاء بالدفع الفوري ببطاقاتهم مع خصم المبلغ وإيداعه في حسابك البنكي تلقائياً</span>
+              </label>
             </div>
 
             {/* Paytabs Profile ID */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Paytabs Profile ID</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.88rem' }}>
+                🔑 Paytabs Profile ID (معرف الحساب):
+              </label>
               <input 
                 type="text" 
                 value={paytabsProfileId} 
                 onChange={(e) => setPaytabsProfileId(e.target.value)}
-                placeholder="Enter your Paytabs Profile ID"
+                placeholder="152340"
                 autoComplete="off"
                 style={{ 
                   width: '100%', 
@@ -979,43 +1020,24 @@ export default function AdminSettings() {
                   background: 'rgba(255,255,255,0.04)', 
                   color: 'white', 
                   border: '1px solid var(--border-medium)', 
-                  borderRadius: '6px',
+                  borderRadius: '6px', 
                   outline: 'none',
-                  fontFamily: 'var(--font-en)'
+                  fontFamily: 'var(--font-en)',
+                  fontSize: '0.95rem'
                 }} 
               />
             </div>
 
             {/* Paytabs Server Key */}
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Paytabs Server Key</label>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.88rem' }}>
+                🔒 Paytabs Server Key (مفتاح السيرفر):
+              </label>
               <input 
-                type="password" 
+                type="text" 
                 value={paytabsServerKey} 
                 onChange={(e) => setPaytabsServerKey(e.target.value)}
-                placeholder="Enter your Paytabs Server Key"
-                autoComplete="new-password"
-                style={{ 
-                  width: '100%', 
-                  padding: '10px 14px', 
-                  background: 'rgba(255,255,255,0.04)', 
-                  color: 'white', 
-                  border: '1px solid var(--border-medium)', 
-                  borderRadius: '6px',
-                  outline: 'none',
-                  fontFamily: 'var(--font-en)'
-                }} 
-              />
-            </div>
-
-            {/* Paytabs API URL */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Paytabs API URL</label>
-              <input 
-                type="url" 
-                value={paytabsApiUrl} 
-                onChange={(e) => setPaytabsApiUrl(e.target.value)}
-                placeholder="https://secure.paytabs.com/payment/request"
+                placeholder="S6J9TZMKZW-J92RJLWRLL-K92HRBZRKN"
                 autoComplete="off"
                 style={{ 
                   width: '100%', 
@@ -1023,24 +1045,160 @@ export default function AdminSettings() {
                   background: 'rgba(255,255,255,0.04)', 
                   color: 'white', 
                   border: '1px solid var(--border-medium)', 
-                  borderRadius: '6px',
+                  borderRadius: '6px', 
                   outline: 'none',
-                  fontFamily: 'var(--font-en)'
+                  fontFamily: 'var(--font-en)',
+                  fontSize: '0.92rem'
                 }} 
               />
             </div>
 
-            {/* Save Button */}
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+            {/* Paytabs Client Key */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.88rem' }}>
+                🌐 Paytabs Client Key (المفتاح العام):
+              </label>
+              <input 
+                type="text" 
+                value={paytabsClientKey} 
+                onChange={(e) => setPaytabsClientKey(e.target.value)}
+                placeholder="CMK2KG-HGPR6P-MR6BVR-KN7KNT"
+                autoComplete="off"
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.04)', 
+                  color: 'white', 
+                  border: '1px solid var(--border-medium)', 
+                  borderRadius: '6px', 
+                  outline: 'none',
+                  fontFamily: 'var(--font-en)',
+                  fontSize: '0.92rem'
+                }} 
+              />
+            </div>
+
+            {/* Paytabs API URL / Region Selector */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold', fontSize: '0.88rem' }}>
+                🌍 Paytabs API Endpoint (سيرفر المنطقة):
+              </label>
+              
+              {/* Region Presets */}
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setPaytabsApiUrl('https://secure-egypt.paytabs.com/payment/request')}
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: '0.78rem',
+                    borderRadius: '6px',
+                    background: paytabsApiUrl.includes('secure-egypt') ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.05)',
+                    border: paytabsApiUrl.includes('secure-egypt') ? '1px solid #3b82f6' : '1px solid var(--border-medium)',
+                    color: paytabsApiUrl.includes('secure-egypt') ? '#93c5fd' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  🇪🇬 Egypt (مصر)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaytabsApiUrl('https://secure.paytabs.com/payment/request')}
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: '0.78rem',
+                    borderRadius: '6px',
+                    background: paytabsApiUrl === 'https://secure.paytabs.com/payment/request' ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.05)',
+                    border: paytabsApiUrl === 'https://secure.paytabs.com/payment/request' ? '1px solid #3b82f6' : '1px solid var(--border-medium)',
+                    color: paytabsApiUrl === 'https://secure.paytabs.com/payment/request' ? '#93c5fd' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  🌍 Global / UAE (دولي / الإمارات)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaytabsApiUrl('https://secure.paytabs.sa/payment/request')}
+                  style={{
+                    padding: '4px 10px',
+                    fontSize: '0.78rem',
+                    borderRadius: '6px',
+                    background: paytabsApiUrl.includes('paytabs.sa') ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.05)',
+                    border: paytabsApiUrl.includes('paytabs.sa') ? '1px solid #3b82f6' : '1px solid var(--border-medium)',
+                    color: paytabsApiUrl.includes('paytabs.sa') ? '#93c5fd' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  🇸🇦 Saudi Arabia (السعودية)
+                </button>
+              </div>
+
+              <input 
+                type="url" 
+                value={paytabsApiUrl} 
+                onChange={(e) => setPaytabsApiUrl(e.target.value)}
+                placeholder="https://secure-egypt.paytabs.com/payment/request"
+                autoComplete="off"
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 14px', 
+                  background: 'rgba(255,255,255,0.04)', 
+                  color: 'white', 
+                  border: '1px solid var(--border-medium)', 
+                  borderRadius: '6px', 
+                  outline: 'none',
+                  fontFamily: 'var(--font-en)',
+                  fontSize: '0.88rem'
+                }} 
+              />
+            </div>
+
+            {/* Test Status Banner */}
+            {paytabsTestMessage && (
+              <div style={{
+                padding: '0.8rem 1rem',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+                fontWeight: 'bold',
+                lineHeight: '1.4',
+                background: paytabsTestStatus === 'ok' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
+                border: paytabsTestStatus === 'ok' ? '1px solid #10b981' : '1px solid #ef4444',
+                color: paytabsTestStatus === 'ok' ? '#4ade80' : '#f87171'
+              }}>
+                {paytabsTestMessage}
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
               <button 
                 onClick={handleSaveSettings} 
                 className="btn btn-primary" 
                 style={{ 
+                  flex: 1,
                   padding: '0.8rem 1.2rem', 
                   fontWeight: 'bold'
                 }}
               >
                 💾 Save Paytabs Settings
+              </button>
+              <button 
+                type="button"
+                onClick={handleTestPaytabs} 
+                className="btn btn-secondary" 
+                style={{ 
+                  padding: '0.8rem 1.2rem', 
+                  background: paytabsTestStatus === 'ok' ? '#10b981' : paytabsTestStatus === 'fail' ? '#ef4444' : 'rgba(59,130,246,0.15)',
+                  color: paytabsTestStatus === 'ok' || paytabsTestStatus === 'fail' ? 'white' : '#93c5fd',
+                  borderColor: '#3b82f6',
+                  fontWeight: 'bold'
+                }}
+                disabled={paytabsTestStatus === 'testing'}
+              >
+                {paytabsTestStatus === 'testing' ? '⏳ Testing...' : '⚡ Test Connection'}
               </button>
             </div>
           </div>
