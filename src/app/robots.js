@@ -3,7 +3,13 @@ export default function robots() {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/agent/', '/orluxus-management/', '/checkout/'],
+      disallow: [
+        '/agent/',
+        '/orluxus-management/',
+        '/checkout/',
+        '/booking-confirmation/',
+        '/api/'
+      ],
     },
     sitemap: 'https://orluxus.com/sitemap.xml',
   };
