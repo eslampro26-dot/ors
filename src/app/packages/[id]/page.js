@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 
 import TranslatedText from '@/components/TranslatedText';
+import DualPrice from '@/components/DualPrice';
 
 const packageBackgrounds = {
   'relaxation': 'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1600&q=80',
@@ -250,9 +251,13 @@ export default function PackagePage({ params }) {
                   }}>
                     <div style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
                       <span style={{ color: 'var(--text-tertiary)', fontSize: 'var(--font-size-xs)' }}>{t('common.from')}</span>
-                      <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', color: 'var(--gold-600)', fontSize: 'var(--font-size-2xl)' }}>
-                        {item.currency || '€'}{activeTier.price}
-                      </div>
+                      <DualPrice 
+                        amount={activeTier.price} 
+                        baseCurrency={item.currency || '€'} 
+                        layout="stacked"
+                        fontSize="var(--font-size-xl)"
+                        color="var(--gold-500)"
+                      />
                     </div>
                     <div style={{ textAlign: locale === 'ar' ? 'left' : 'right' }}>
                       <span style={{ color: 'var(--text-tertiary)', fontSize: 'var(--font-size-xs)' }}>{t('common.duration')}</span>

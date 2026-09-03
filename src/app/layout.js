@@ -7,6 +7,7 @@ import ToastProvider from "@/components/Toast";
 import SkipToContent from "@/components/SkipToContent";
 import { getSeoMetadata } from "@/lib/seo";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { CurrencyProvider } from "@/context/CurrencyContext";
 import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
 import GlobalBackground from "@/components/GlobalBackground";
 import { Playfair_Display, Poppins, Tajawal } from 'next/font/google';
@@ -101,15 +102,17 @@ export default function RootLayout({ children, params }) {
       <body suppressHydrationWarning>
         <GlobalBackground />
         <LanguageProvider>
-          <SkipToContent />
-          <SplashScreen />
-          <LocaleProvider />
-          <ServiceWorkerRegistrar />
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
-          <WhatsAppFloatingButton />
-          <ToastProvider />
+          <CurrencyProvider>
+            <SkipToContent />
+            <SplashScreen />
+            <LocaleProvider />
+            <ServiceWorkerRegistrar />
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+            <WhatsAppFloatingButton />
+            <ToastProvider />
+          </CurrencyProvider>
         </LanguageProvider>
       </body>
     </html>

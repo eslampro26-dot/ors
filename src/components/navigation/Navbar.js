@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { cities, internalPackages, getLocalizedCity, getLocalizedPackage, getCategoryName } from '@/lib/data';
 import styles from './Navbar.module.css';
 import LanguageSwitcher from './LanguageSwitcher';
+import CurrencySwitcher from './CurrencySwitcher';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function Navbar() {
@@ -156,8 +157,9 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Right Header Actions (Mobile Toggle FIRST, then Language) - Always visible at top */}
+        {/* Right Header Actions: Currency, Language & Mobile Toggle */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', zIndex: 60, flexShrink: 0 }}>
+          <CurrencySwitcher onCurrencyChange={() => setMobileOpen(false)} />
           <LanguageSwitcher onLanguageChange={() => setMobileOpen(false)} />
           <button 
             className={styles.mobileToggle} 

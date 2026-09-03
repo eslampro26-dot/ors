@@ -8,6 +8,7 @@ import { validatePromoCode, addBooking, getSettings } from '@/lib/db';
 import { createDafahCheckoutSession } from '@/lib/dafah';
 import { createPaytabsPayment } from '@/lib/paytabs';
 import { useLanguage } from '@/context/LanguageContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import { useSettings } from '@/hooks/useSettings';
 import DafahSimulatedGateway from '@/components/DafahSimulatedGateway';
 import TranslatedText from '@/components/TranslatedText';
@@ -18,6 +19,7 @@ function CheckoutContent() {
   const { locale, t: tGlobal, isReady } = useLanguage();
   const isAr = locale === 'ar';
   const { settings } = useSettings();
+  const { currency, currencyDetails, convert, getEgpSettlement, formatDual } = useCurrency();
 
   const emergencyNum = settings?.emergencyPhone || '+201038820014';
   const whatsappNum = settings?.whatsapp || '+201038820019';
@@ -273,6 +275,12 @@ function CheckoutContent() {
   // Clamp discount
   discountAmount = Math.min(originalTotal, discountAmount);
   const totalAmount = originalTotal - discountAmount;
+
+  // Multi-Currency & EGP Settlement Calculations
+  const convertedOriginalTotal = convert(originalTotal);
+  const convertedDiscount = convert(discountAmount);
+  const convertedTotal = convert(totalAmount);
+  const { egpAmount: finalEgpAmount, appliedRate } = getEgpSettlement(convertedTotal, currency);
 
 
   // Handle Promo Verification
@@ -573,15 +581,17 @@ function CheckoutContent() {
     router.push(url.pathname + url.search);
   };
 
-  // Handle Card Payment through Paytabs
+  // Handle Card Payment through Paytabs with strict EGP settlement compliance
   const handlePaytabsPayment = async () => {
     setIsSimulatingPayment(true);
     const txId = `paytabs-tx-${Date.now()}`;
+    const bookingId = `BK-${txId.replace('paytabs-tx-', '')}`;
+    const serviceTitle = locale === 'ar' ? (titleAr || titleEn || 'Travel Excursion') : (titleEn || titleAr || 'Travel Excursion');
     
     try {
-      // First create the booking
+      // 1. Create the booking with complete multi-currency audit trail
       await addBooking({
-        id: `BK-${txId.replace('paytabs-tx-', '')}`,
+        id: bookingId,
         customer: customerName,
         email: email,
         phone: phone,
@@ -590,9 +600,14 @@ function CheckoutContent() {
         city: searchParams.get('city') || 'شرم الشيخ',
         agentId: promoDetails ? promoDetails.agentId || null : null,
         agentName: promoDetails ? promoDetails.agentName : translate('directAgent'),
-        originalAmount: originalTotal,
-        discountAmount: discountAmount,
-        finalAmount: totalAmount,
+        originalAmount: convertedTotal,
+        original_amount: convertedTotal,
+        original_currency: currency,
+        applied_exchange_rate: appliedRate,
+        final_egp_amount: finalEgpAmount,
+        finalAmount: finalEgpAmount, // Primary settlement amount in EGP
+        currency: 'EGP',
+        settlement_currency: 'EGP',
         travelers: travelers,
         status: 'قيد الانتظار', // Pending until payment is confirmed
         promoCode: promoDetails ? promoDetails.code : '',
@@ -611,16 +626,20 @@ function CheckoutContent() {
         signatureTimestamp: signatureTimestamp
       });
 
-      // Create Paytabs payment
+      // 2. Create PayTabs payment strictly in EGP
       const paymentResult = await createPaytabsPayment({
-        amount: totalAmount,
-        currency: settings?.currency?.includes('EGP') ? 'EGP' : (settings?.currency?.includes('USD') ? 'USD' : 'EUR'),
+        amount: finalEgpAmount, // Strict EGP settlement amount
+        currency: 'EGP',        // Strict EGP currency compliance
+        originalAmount: convertedTotal,
+        originalCurrency: currency,
+        appliedExchangeRate: appliedRate,
+        finalEgpAmount: finalEgpAmount,
         customerName: customerName,
         customerEmail: email,
         customerPhone: phone,
-        orderId: `BK-${txId.replace('paytabs-tx-', '')}`,
-        productName: locale === 'ar' ? (titleAr || titleEn || 'Travel Excursion') : (titleEn || titleAr || 'Travel Excursion'),
-        successUrl: `${window.location.origin}/booking-confirmation?status=success&paymentType=paytabs&tx=${txId}&tripId=${tripId}&price=${basePrice}&titleAr=${encodeURIComponent(titleAr)}&titleEn=${encodeURIComponent(titleEn)}&type=${type}&category=${category}&city=${searchParams.get('city')}`,
+        orderId: bookingId,
+        productName: `${serviceTitle} - Original: ${convertedTotal} ${currency} (Rate: ${appliedRate})`,
+        successUrl: `${window.location.origin}/booking-confirmation?status=success&paymentType=paytabs&tx=${txId}&tripId=${tripId}&price=${basePrice}&titleAr=${encodeURIComponent(titleAr)}&titleEn=${encodeURIComponent(titleEn)}&type=${type}&category=${category}&city=${searchParams.get('city')}&originalAmount=${convertedTotal}&originalCurrency=${currency}&egpAmount=${finalEgpAmount}`,
         cancelUrl: `${window.location.origin}/checkout?status=failed&tripId=${tripId}&price=${basePrice}&titleAr=${encodeURIComponent(titleAr)}&type=${type}`,
         callbackUrl: `${window.location.origin}/api/paytabs/callback`
       });
@@ -1851,9 +1870,35 @@ function CheckoutContent() {
 
               <div style={{ borderTop: '2px solid var(--border-medium)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-primary)' }}>{translate('totalDue')}</span>
-                <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', fontSize: '2rem', color: 'var(--gold-600)' }}>
-                  €{totalAmount.toFixed(2)}
+                <div style={{ textAlign: isAr ? 'left' : 'right' }}>
+                  <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', fontSize: '2rem', color: 'var(--gold-500)' }}>
+                    {currencyDetails?.symbol || '€'}{convertedTotal.toLocaleString()}
+                  </div>
+                  {currency !== 'EGP' && (
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
+                      {isAr ? 'المعادل بالجنيه المصري:' : 'Settlement equivalent:'}{' '}
+                      <span style={{ color: '#10b981', fontWeight: 'bold' }}>{finalEgpAmount.toLocaleString()} EGP</span>
+                    </div>
+                  )}
                 </div>
+              </div>
+
+              {/* Compliance & Central Bank Currency Disclaimer */}
+              <div style={{
+                marginTop: '1rem',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                background: 'rgba(201, 162, 39, 0.08)',
+                border: '1px solid rgba(201, 162, 39, 0.25)',
+                fontSize: '0.8rem',
+                lineHeight: '1.5',
+                color: 'var(--text-secondary)',
+                textAlign: isAr ? 'right' : 'left'
+              }}>
+                <span style={{ fontWeight: 'bold', color: 'var(--gold-400)' }}>ℹ️ {isAr ? 'إشعار الدفع والعملة:' : 'Payment Currency Notice:'}</span>{' '}
+                {isAr 
+                  ? 'الأسعار معروضة بالعملة المحددة لتسهيل المقارنة. سيتم خصم المبلغ بالجنيه المصري (EGP) وفقاً لسعر الصرف اليومي للبنك المركزي.'
+                  : 'Prices are shown in your selected currency for convenience. Charges will be processed in EGP (Egyptian Pounds) based on the current daily central bank exchange rate.'}
               </div>
 
               <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.5rem', color: 'var(--text-tertiary)', fontSize: '0.8rem', lineHeight: '1.4' }}>
@@ -2807,9 +2852,35 @@ function CheckoutContent() {
 
             <div style={{ borderTop: '2px solid var(--border-medium)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-primary)' }}>{translate('totalDue')}</span>
-              <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', fontSize: '2rem', color: 'var(--gold-600)' }}>
-                €{totalAmount.toFixed(2)}
+              <div style={{ textAlign: isAr ? 'left' : 'right' }}>
+                <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', fontSize: '2rem', color: 'var(--gold-500)' }}>
+                  {currencyDetails?.symbol || '€'}{convertedTotal.toLocaleString()}
+                </div>
+                {currency !== 'EGP' && (
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
+                    {isAr ? 'المعادل بالجنيه المصري:' : 'Settlement equivalent:'}{' '}
+                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>{finalEgpAmount.toLocaleString()} EGP</span>
+                  </div>
+                )}
               </div>
+            </div>
+
+            {/* Compliance & Central Bank Currency Disclaimer */}
+            <div style={{
+              marginTop: '1rem',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              background: 'rgba(201, 162, 39, 0.08)',
+              border: '1px solid rgba(201, 162, 39, 0.25)',
+              fontSize: '0.8rem',
+              lineHeight: '1.5',
+              color: 'var(--text-secondary)',
+              textAlign: isAr ? 'right' : 'left'
+            }}>
+              <span style={{ fontWeight: 'bold', color: 'var(--gold-400)' }}>ℹ️ {isAr ? 'إشعار الدفع والعملة:' : 'Payment Currency Notice:'}</span>{' '}
+              {isAr 
+                ? 'الأسعار معروضة بالعملة المحددة لتسهيل المقارنة. سيتم خصم المبلغ بالجنيه المصري (EGP) وفقاً لسعر الصرف اليومي للبنك المركزي.'
+                : 'Prices are shown in your selected currency for convenience. Charges will be processed in EGP (Egyptian Pounds) based on the current daily central bank exchange rate.'}
             </div>
 
             <div style={{ marginTop: '2rem', display: 'flex', gap: '0.5rem', color: 'var(--text-tertiary)', fontSize: '0.8rem', lineHeight: '1.4' }}>

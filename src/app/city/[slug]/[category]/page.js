@@ -11,6 +11,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import TranslatedText from '@/components/TranslatedText';
 import TranslatedTextWithFallback from '@/components/TranslatedTextWithFallback';
 import ServiceReviews from '@/components/ServiceReviews';
+import DualPrice from '@/components/DualPrice';
 
 
 export default function CategoryPage({ params }) {
@@ -395,8 +396,14 @@ export default function CategoryPage({ params }) {
                           <TranslatedTextWithFallback trip={trip} locale={locale} />
                         </h3>
                       </div>
-                      <div style={{ fontFamily: 'var(--font-en)', fontWeight: '800', color: 'var(--gold-600)', fontSize: '1.35rem', whiteSpace: 'nowrap', textShadow: '0 0 1px rgba(217, 119, 6, 0.1)' }}>
-                        {trip.currency || '€'}{activeTier.price}
+                      <div style={{ textAlign: locale === 'ar' ? 'left' : 'right' }}>
+                        <DualPrice 
+                          amount={activeTier.price} 
+                          baseCurrency={trip.currency || '€'} 
+                          layout="stacked"
+                          fontSize="1.35rem"
+                          color="var(--gold-500)"
+                        />
                       </div>
                     </div>
 
@@ -735,9 +742,11 @@ export default function CategoryPage({ params }) {
                   <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                     <span>⏱️ {translateDuration(mdTrip, locale)}</span>
                     <span>⭐ {mdTrip.rating || '5.0'} ({mdTrip.reviews || '1'} {lbl('reviews')})</span>
-                    <span style={{ fontFamily: 'var(--font-en)', fontWeight: '800', color: 'var(--gold-500)', fontSize: '1.15rem', direction: 'ltr' }}>
-                      {mdTrip.currency || '€'}{mdTier?.price || mdTrip.price}
-                    </span>
+                    <DualPrice 
+                      amount={mdTier?.price || mdTrip.price} 
+                      baseCurrency={mdTrip.currency || '€'} 
+                      fontSize="1.15rem"
+                    />
                   </div>
                 </div>
 
