@@ -244,10 +244,9 @@ export default function AdminBookings() {
       const res = await fetch('/api/settings');
       if (res.ok) {
         const data = await res.json();
-        if (data.settings) {
-          customTermsAr = data.settings.customTermsAr || '';
-          customTermsEn = data.settings.customTermsEn || '';
-        }
+        const s = data.settings || data;
+        customTermsAr = s.customTermsAr || s.termsAr || '';
+        customTermsEn = s.customTermsEn || s.termsEn || '';
       }
     } catch (e) {
       console.warn('Could not load custom terms from settings, using default:', e);
@@ -527,14 +526,17 @@ export default function AdminBookings() {
               <p><strong>${t.payment}:</strong> ${t.methodLabel}</p>
               ${booking.agentName ? `<p><strong>Agent:</strong> ${booking.agentName}</p>` : ''}
               ${booking.promoCode ? `<p><strong>Promo Code:</strong> ${booking.promoCode}</p>` : ''}
+              ${booking.specialRequests ? `<p><strong>Special Requests:</strong> ${booking.specialRequests}</p>` : ''}
+              ${booking.extras ? `<p><strong>Additional Services:</strong> ${booking.extras}</p>` : ''}
             </div>
           </div>
 
-          ${booking.addons && booking.addons.length > 0 ? `
+          ${(booking.addons && booking.addons.length > 0) || booking.extrasDetails ? `
           <div class="info-grid" style="margin-top: 20px;">
             <div class="info-block" style="grid-column: span 2;">
-              <h4>Additional Services</h4>
-              ${booking.addons.map(addon => `<p>• ${addon.name || addon.nameEn || addon.nameAr}: ${addon.price ? currSym + addon.price : ''}</p>`).join('')}
+              <h4>Additional Services / Extras</h4>
+              ${booking.addons ? booking.addons.map(addon => `<p>• ${addon.name || addon.nameEn || addon.nameAr}: ${addon.price ? currSym + addon.price : ''}</p>`).join('') : ''}
+              ${booking.extrasDetails ? (Array.isArray(booking.extrasDetails) ? booking.extrasDetails.map(ex => `<p>• ${ex.name || ex.title || ex}: ${ex.price ? currSym + ex.price : ''}</p>`).join('') : `<p>• ${booking.extrasDetails}</p>`) : ''}
             </div>
           </div>
           ` : ''}
@@ -571,6 +573,28 @@ export default function AdminBookings() {
                   <td style="text-align: right; font-weight: bold;">${currSym}${(Number(booking.infants || 0) * Number(booking.infantPrice || 0)).toFixed(2)}</td>
                 </tr>
               ` : ''}
+              ${(() => {
+                // Show extras row if person-based totals don't add up to originalAmount
+                const adultP = Number(booking.adultPrice || 0);
+                const childP = Number(booking.childPrice || 0);
+                const infantP = Number(booking.infantPrice || 0);
+                const adultQty = Number(booking.travelers || 1);
+                const childQty = Number(booking.children || 0);
+                const infantQty = Number(booking.infants || 0);
+                const personTotal = (adultQty * adultP) + (childQty * childP) + (infantQty * infantP);
+                const origAmt = Number(booking.originalAmount || booking.finalAmount || 0);
+                const extrasAmt = origAmt - personTotal;
+                if (extrasAmt > 0.01) {
+                  const extrasLabel = booking.extras ? `Additional Services (${booking.extras})` : 'Additional Services / Extras';
+                  return `<tr>
+                  <td><strong>${extrasLabel}</strong></td>
+                  <td style="text-align: center;">1</td>
+                  <td style="text-align: right;">${currSym}${extrasAmt.toFixed(2)}</td>
+                  <td style="text-align: right; font-weight: bold;">${currSym}${extrasAmt.toFixed(2)}</td>
+                </tr>`;
+                }
+                return '';
+              })()}
               ${booking.discountAmount > 0 ? `
                 <tr style="color: #000000; background: #ffffff;">
                   <td><strong>Promo Discount</strong> ${booking.promoCode ? `(${booking.promoCode})` : ''}</td>
@@ -853,6 +877,16 @@ export default function AdminBookings() {
                       <span style={{ fontSize: '11px', color: 'var(--gold-500)', background: 'rgba(251,191,36,0.08)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginTop: '4px' }}>
                         📍 {booking.city}
                       </span>
+                      {booking.specialRequests && (
+                        <div style={{ fontSize: '11px', color: '#93c5fd', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span>⭐</span> <span>{booking.specialRequests}</span>
+                        </div>
+                      )}
+                      {booking.extras && (
+                        <div style={{ fontSize: '11px', color: '#34d399', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span>🎁</span> <span>{booking.extras}</span>
+                        </div>
+                      )}
                     </td>
                     <td style={{ padding: '1.2rem 1rem', color: 'var(--text-secondary)' }}>
                       {booking.agentId ? (

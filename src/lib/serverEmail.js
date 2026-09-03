@@ -136,6 +136,25 @@ export function buildBookingInvoiceHTML(data) {
             <td style="text-align:right; font-weight:600; color:#f0f6fc;">€${childTotal.toFixed(2)}</td>
           </tr>
           ` : ''}
+          ${numInfants > 0 ? `
+          <tr>
+            <td style="color:#8b949e; padding: 4px 0;">Infants (${numInfants}x):</td>
+            <td style="text-align:right; font-weight:600; color:#f0f6fc;">€${infantTotal.toFixed(2)}</td>
+          </tr>
+          ` : ''}
+          ${(() => {
+            // Compute extras total from the difference between originalAmount and person-based totals
+            const personTotal = adultTotal + childTotal + infantTotal;
+            const extrasAmt = Number(originalAmount) - personTotal;
+            if (extrasAmt > 0.01) {
+              const extrasLabel = data.extras ? `Additional Services (${data.extras})` : 'Additional Services / Extras';
+              return `<tr>
+            <td style="color:#8b949e; padding: 4px 0;">🎁 ${extrasLabel}:</td>
+            <td style="text-align:right; font-weight:600; color:#f0f6fc;">€${extrasAmt.toFixed(2)}</td>
+          </tr>`;
+            }
+            return '';
+          })()}
           ${discountAmount > 0 ? `
           <tr>
             <td style="color:#10b981; padding: 4px 0;">Discount Applied (${promoCode || 'Promo'}):</td>
@@ -145,9 +164,9 @@ export function buildBookingInvoiceHTML(data) {
           <tr style="border-top: 1px solid #30363d;">
             <td style="padding-top: 10px; font-weight:bold; font-size:16px; color:#d4af37;">Total Paid:</td>
             <td style="padding-top: 10px; text-align:right; font-weight:bold; font-size:18px; color:#10b981;">
-              ${data.original_currency && data.original_currency !== 'EGP' 
-                ? `${data.original_amount} ${data.original_currency} <span style="font-size:13px; color:#8b949e; display:block;">(${Number(data.final_egp_amount || finalAmount).toLocaleString()} EGP)</span>`
-                : `${Number(finalAmount || originalAmount).toLocaleString()} EGP`}
+              ${data.original_currency && data.original_currency !== 'EGP' && data.final_egp_amount
+                ? `${data.original_amount} ${data.original_currency} <span style="font-size:13px; color:#8b949e; display:block;">(${Number(data.final_egp_amount).toLocaleString()} EGP)</span>`
+                : `€${Number(finalAmount || originalAmount).toFixed(2)}`}
             </td>
           </tr>
         </table>
