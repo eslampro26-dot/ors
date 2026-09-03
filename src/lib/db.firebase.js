@@ -269,7 +269,10 @@ export async function getTrips(slug, category) {
 
   try {
     const snapshot = await safeGetDocs(collection(db, COL.TRIPS));
-    if (!snapshot || snapshot.empty) return staticTrips;
+
+    // Even if snapshot is empty, we cannot skip – there may be tombstones stored
+    // However if snapshot is truly null (Firebase unreachable) return static trips as-is
+    if (!snapshot) return staticTrips;
 
     const allCustomDocs = snapshot.docs.map(d => {
       const data = d.data();
@@ -284,15 +287,22 @@ export async function getTrips(slug, category) {
     });
 
     // 1. Filter deleted tombstones SCOPED TO THIS CITY & CATEGORY
+    //    Also match tombstones stored by Firestore doc ID pattern `del_slug_cat_id`
     const deletedIds = new Set(
       allCustomDocs
-        .filter(t => t.deleted && (
+        .filter(t => t.deleted === true && (
           !t.slug || String(t.slug).toLowerCase() === cleanSlug
         ) && (
           !t.category || String(t.category).toLowerCase() === cleanCat
         ))
         .map(t => String(t.id))
     );
+
+    // If the snapshot is empty but tombstones exist (deletedIds not empty), apply them
+    if (snapshot.empty && deletedIds.size === 0) {
+      // Truly no data at all in Firebase – return static trips untouched
+      return staticTrips;
+    }
 
     // 2. Filter custom/edited docs SCOPED TO THIS CITY & CATEGORY
     const categoryTrips = allCustomDocs.filter(t =>
@@ -306,7 +316,7 @@ export async function getTrips(slug, category) {
       customTripMap.set(String(t.id), t);
     });
 
-    // 3. Merge static trips with custom/edited docs
+    // 3. Merge static trips with custom/edited docs; respect tombstones
     const mergedStaticTrips = staticTrips
       .filter(st => !deletedIds.has(String(st.id)))
       .map(st => {
@@ -323,6 +333,8 @@ export async function getTrips(slug, category) {
     return [...mergedStaticTrips, ...brandNewTrips];
   } catch (e) {
     console.error('Error in getTrips:', e);
+    // On error fall back to static trips — deleted items will be hidden client-side
+    // by the localDeletedTripIds state in the admin dashboard
     return staticTrips;
   }
 }

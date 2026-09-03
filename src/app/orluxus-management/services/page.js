@@ -45,6 +45,9 @@ export default function AdminServices() {
   // State for loaded data to allow immediate reactive UI updates
   const [tripsData, setTripsData] = useState({});
   const [packagesData, setPackagesData] = useState({});
+  // Local set of deleted trip IDs – ensures static/default trips are hidden immediately
+  // even if Firebase tombstone hasn't propagated yet or circuit-breaker is active
+  const [localDeletedTripIds, setLocalDeletedTripIds] = useState(new Set());
   
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -789,25 +792,29 @@ export default function AdminServices() {
   };
 
   const handleDeleteTrip = async (cityId, catId, tripId) => {
-    if (confirm('Are you sure you want to delete this service?')) {
-      try {
-        // Optimistically remove from screen state immediately using correct state: tripsData
-        setTripsData(prev => {
-          const cityTrips = prev[cityId];
-          if (!cityTrips) return prev;
-          return {
-            ...prev,
-            [cityId]: {
-              ...cityTrips,
-              [catId]: (cityTrips[catId] || []).filter(item => String(item.id) !== String(tripId))
-            }
-          };
-        });
+    if (confirm('هل أنت متأكد من حذف هذه الخدمة؟ لا يمكن التراجع عن الحذف.\nAre you sure you want to delete this service?')) {
+      // 1. Add to local deleted set IMMEDIATELY – prevents it re-appearing from static data
+      setLocalDeletedTripIds(prev => new Set([...prev, String(tripId)]));
 
+      // 2. Optimistically remove from screen state
+      setTripsData(prev => {
+        const cityTrips = prev[cityId];
+        if (!cityTrips) return prev;
+        return {
+          ...prev,
+          [cityId]: {
+            ...cityTrips,
+            [catId]: (cityTrips[catId] || []).filter(item => String(item.id) !== String(tripId))
+          }
+        };
+      });
+
+      try {
         await deleteTrip(cityId, catId, tripId);
         await reloadCurrentCity();
       } catch (err) {
         console.error('Error deleting trip:', err);
+        // Keep the local deletion even if Firebase failed – reload to sync state
         await reloadCurrentCity();
       }
     }
@@ -964,9 +971,15 @@ export default function AdminServices() {
                       </div>
 
                       {/* Trips list in this category */}
-                      {trips.length > 0 ? (
+                      {(() => {
+                        // Apply local deletion filter – hides static trips even if Firebase tombstone
+                        // hasn't fully propagated yet (circuit breaker / offline / cache issue)
+                        const visibleTrips = (trips || []).filter(
+                          t => !localDeletedTripIds.has(String(t.id))
+                        );
+                        return visibleTrips.length > 0 ? (
                         <div className={styles.tripsGrid}>
-                          {trips.map(trip => (
+                          {visibleTrips.map(trip => (
                             <div key={trip.id} className="glass-card" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', position: 'relative' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
@@ -1023,7 +1036,7 @@ export default function AdminServices() {
                             ➕ Add First Service Now
                           </button>
                         </div>
-                      )}
+                      )})()}
                     </div>
                   );
                 })}
