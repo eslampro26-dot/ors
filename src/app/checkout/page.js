@@ -2653,10 +2653,13 @@ function CheckoutContent() {
                           fontSize: '1rem',
                           borderRadius: '10px',
                           background: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
-                          border: 'none'
+                          border: 'none',
+                          cursor: 'pointer'
                         }}
                       >
-                        Pay with Paytabs - EGP {totalAmount.toFixed(2)}
+                        {isAr 
+                          ? `ادفع عبر Paytabs — ${finalEgpAmount.toLocaleString()} جنيه مصري (${currencyDetails?.symbol || '€'}${convertedTotal.toLocaleString()})`
+                          : `Pay with Paytabs — ${finalEgpAmount.toLocaleString()} EGP (${currencyDetails?.symbol || '€'}${convertedTotal.toLocaleString()})`}
                       </button>
                     </div>
                   )}
@@ -3344,20 +3347,26 @@ function CheckoutContent() {
                       e.preventDefault();
                       setModalTitle(translate('readTerms'));
                       const isAr = locale === 'ar';
-                      const text = isAr
-                        ? (settings?.dataProtection || settings?.dataProtectionEn || 'لا توجد شروط.')
-                        : (settings?.dataProtectionEn || settings?.dataProtection || 'No terms provided.');
-                      setModalContent(text);
+                      const baseTerms = isAr
+                        ? (settings?.termsAr || settings?.customTermsAr || '')
+                        : (settings?.termsEn || settings?.customTermsEn || '');
+                      const dataProt = isAr
+                        ? (settings?.dataProtection || settings?.dataProtectionEn || '')
+                        : (settings?.dataProtectionEn || settings?.dataProtection || '');
+                      const fullText = [baseTerms, dataProt].filter(Boolean).join('\n\n---\n\n') || (isAr ? 'لا توجد شروط مدخلة حالياً.' : 'No terms provided.');
+                      setModalContent(fullText);
                       setShowTermsModal(true);
                     };
                     const openPolicy = (e) => {
                       e.preventDefault();
                       setModalTitle(translate('readPolicy'));
                       const isAr = locale === 'ar';
-                      const text = isAr
-                        ? (settings?.legalCancellation || settings?.legalCancellationEn || 'لا توجد سياسة.')
-                        : (settings?.legalCancellationEn || settings?.legalCancellation || 'No policy provided.');
-                      setModalContent(text);
+                      const cancelPolicy = isAr
+                        ? (settings?.legalCancellation || settings?.legalCancellationEn || '')
+                        : (settings?.legalCancellationEn || settings?.legalCancellation || '');
+                      const generalTerms = isAr ? (settings?.termsAr || '') : (settings?.termsEn || '');
+                      const fullPolicy = [cancelPolicy, generalTerms].filter(Boolean).join('\n\n---\n\n') || (isAr ? 'لا توجد سياسة إلغاء حالياً.' : 'No policy provided.');
+                      setModalContent(fullPolicy);
                       setShowTermsModal(true);
                     };
 

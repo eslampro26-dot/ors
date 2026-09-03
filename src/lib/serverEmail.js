@@ -162,8 +162,10 @@ export function buildBookingInvoiceHTML(data) {
           </tr>
           ` : ''}
           <tr style="border-top: 1px solid #30363d;">
-            <td style="padding-top: 10px; font-weight:bold; font-size:16px; color:#d4af37;">Total Paid:</td>
-            <td style="padding-top: 10px; text-align:right; font-weight:bold; font-size:18px; color:#10b981;">
+            <td style="padding-top: 10px; font-weight:bold; font-size:15px; color:#d4af37;">
+              ${isOnsite ? '💵 Amount Due upon Arrival (Cash):' : (isBank ? '⏳ Amount to Transfer:' : 'Total Paid:')}
+            </td>
+            <td style="padding-top: 10px; text-align:right; font-weight:bold; font-size:18px; color:${isOnsite ? '#f59e0b' : '#10b981'};">
               ${data.original_currency && data.original_currency !== 'EGP' && data.final_egp_amount
                 ? `${data.original_amount} ${data.original_currency} <span style="font-size:13px; color:#8b949e; display:block;">(${Number(data.final_egp_amount).toLocaleString()} EGP)</span>`
                 : `€${Number(finalAmount || originalAmount).toFixed(2)}`}
