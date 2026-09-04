@@ -50,25 +50,50 @@ export async function GET(request) {
       return NextResponse.json({ error: 'No booking found with this reference number.' }, { status: 404 });
     }
 
-    // Return only safe public fields
-    // `customer` may be stored as a plain string or as an object { name, ... }
+    // Return complete booking fields for public ticket & contract verification
     const custName = typeof found.customer === 'string'
       ? found.customer
       : (found.customer?.name || found.customerName || '');
 
     return NextResponse.json({
       ref: (found.txId || found.id || '').toUpperCase(),
+      bookingRefCode: found.bookingRefCode || '',
       customerName: custName,
-      service: found.service || '',
+      email: found.email || found.customerEmail || '',
+      phone: found.phone || '',
+      whatsapp: found.whatsapp || found.phone || '',
+      service: found.service || found.serviceName || '',
+      city: found.city || '',
       date: found.date || found.bookingDate || '',
-      travelers: found.travelers || 1,
-      amount: found.finalAmount || found.amount || 0,
+      travelers: Number(found.travelers) || 1,
+      children: Number(found.children) || 0,
+      infants: Number(found.infants) || 0,
+      adultPrice: Number(found.adultPrice) || 0,
+      childPrice: Number(found.childPrice) || 0,
+      infantPrice: Number(found.infantPrice) || 0,
+      originalAmount: Number(found.originalAmount || found.amount || found.finalAmount || 0),
+      discountAmount: Number(found.discountAmount) || 0,
+      finalAmount: Number(found.finalAmount || found.amount || 0),
+      amount: Number(found.finalAmount || found.amount || 0),
+      currency: found.currency || '€',
       status: found.status || 'pending',
       paymentType: found.paymentType || '',
       agentName: found.agentName || '',
+      agentId: found.agentId || '',
+      promoCode: found.promoCode || '',
       pickup: found.pickupLocation || found.pickup || '',
+      pickupLocation: found.pickupLocation || found.pickup || '',
+      extras: found.extras || '',
+      extrasDetails: found.extrasDetails || [],
       specialRequests: found.specialRequests || found.comments || '',
       createdAt: found.createdAt || '',
+      electronicSignature: found.electronicSignature || {
+        name: custName,
+        email: found.email || '',
+        phone: found.phone || '',
+        timestamp: found.createdAt || new Date().toISOString()
+      },
+      signatureTimestamp: found.signatureTimestamp || found.createdAt || ''
     });
 
   } catch (e) {

@@ -113,23 +113,24 @@ function BookingConfirmationContent() {
     : `${numAdults} ${t('booking.persons')}`;
 
   const rows = booking ? [
-    { label: t('booking.customer'), value: booking.customerName || booking.customer || '—' },
-    { label: t('booking.service'), value: booking.service || '—' },
-    { label: t('booking.date'), value: booking.date || '—' },
-    { label: t('booking.travelers'), value: travelersDisplay },
-    { label: t('booking.amount'), value: '€' + finalAmt.toFixed(2) },
-    { label: t('booking.payStatus'), value: statusLabel },
-    { label: t('booking.payMethod'), value: payLabel },
-    ...(booking.email ? [{ label: 'Email', value: booking.email }] : []),
-    ...(booking.phone ? [{ label: 'Phone', value: booking.phone }] : []),
+    { label: t('booking.customer') || 'Customer Name', value: booking.customerName || booking.customer || '—' },
+    { label: t('booking.service') || 'Service', value: booking.service || '—' },
+    { label: isAr ? 'المدينة / الوجهة' : 'City / Destination', value: booking.city || '—' },
+    { label: t('booking.date') || 'Scheduled Date', value: booking.date || '—' },
+    { label: t('booking.travelers') || 'Travelers', value: travelersDisplay },
+    { label: t('booking.amount') || 'Total Amount', value: '€' + finalAmt.toFixed(2) },
+    { label: t('booking.payStatus') || 'Payment Status', value: statusLabel },
+    { label: t('booking.payMethod') || 'Payment Method', value: payLabel },
+    ...(booking.email ? [{ label: isAr ? 'البريد الإلكتروني' : 'Email Address', value: booking.email }] : []),
+    ...(booking.phone ? [{ label: isAr ? 'رقم الهاتف' : 'Contact Phone', value: booking.phone }] : []),
     ...(booking.whatsapp ? [{ label: 'WhatsApp', value: booking.whatsapp }] : []),
+    ...(booking.pickupLocation || booking.pickup ? [{ label: t('booking.pickup') || 'Pickup Location', value: booking.pickupLocation || booking.pickup }] : []),
     ...(booking.agentName && booking.agentName !== 'مباشر (بدون وكيل)' && booking.agentName !== 'مباشر' && booking.agentName !== 'Direct (No Agent)' && booking.agentName !== 'Direct'
-      ? [{ label: t('booking.agent'), value: (booking.promoCode || booking.agentId || '—').toUpperCase() }]
+      ? [{ label: t('booking.agent') || 'Agent', value: (booking.promoCode || booking.agentId || '—').toUpperCase() }]
       : []),
-    ...(booking.pickup ? [{ label: t('booking.pickup'), value: booking.pickup }] : []),
-    ...(booking.extras ? [{ label: 'Add-ons', value: booking.extras, fullWidth: true }] : []),
-    ...(booking.promoCode && (!booking.agentId || booking.agentId === '') ? [{ label: 'Promo Code', value: booking.promoCode }] : []),
-    ...(booking.specialRequests ? [{ label: t('booking.specialRequests'), value: booking.specialRequests, fullWidth: true }] : []),
+    ...(booking.promoCode && (!booking.agentId || booking.agentId === '') ? [{ label: isAr ? 'كود الخصم' : 'Promo Code', value: booking.promoCode }] : []),
+    ...(booking.extras ? [{ label: isAr ? 'الخدمات الإضافية' : 'Add-ons / Extras', value: booking.extras, fullWidth: true }] : []),
+    ...(booking.specialRequests ? [{ label: t('booking.specialRequests') || 'Special Requests / Notes', value: booking.specialRequests, fullWidth: true }] : []),
   ] : [];
 
   const statusEmoji = { confirmed: '✅', pending: '⏳', cancelled: '❌', completed: '✔️' }[statusKey] || '📋';
@@ -158,7 +159,7 @@ function BookingConfirmationContent() {
         </div>
       </div>
 
-      <div className="container animate-fade-in-up" style={{ maxWidth: '680px', paddingTop: '3rem' }}>
+      <div className="container animate-fade-in-up" style={{ maxWidth: '780px', paddingTop: '3rem' }}>
         <form onSubmit={handleSearch} style={{ marginBottom: '2.5rem' }}>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <input
@@ -191,11 +192,11 @@ function BookingConfirmationContent() {
           <>
             <style dangerouslySetInnerHTML={{ __html: `
               @media print {
-                @page { size: A4 portrait; margin: 10mm; }
+                @page { size: A4 portrait; margin: 8mm; }
                 body { background: #ffffff !important; color: #0f172a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                 .hide-print, nav, footer, button { display: none !important; }
                 #confirmation-sheet { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; page-break-inside: avoid !important; }
-                #confirmation-sheet * { direction: ltr !important; text-align: left !important; font-family: var(--font-en) !important; }
+                #confirmation-sheet * { font-family: var(--font-en), var(--font-ar), sans-serif !important; }
               }
             ` }} />
 
@@ -205,11 +206,14 @@ function BookingConfirmationContent() {
               maxWidth: '100%', margin: '0 auto', width: '100%'
             }}>
               {/* Invoice Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1.2rem', borderBottom: '2px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1.2rem', borderBottom: '2px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div>
-                    <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#d97706', margin: 0, letterSpacing: '3px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
-                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: '600' }}>MARKETING TOURISM AGENCY</span>
+                    <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#d97706', margin: 0, letterSpacing: '2px', fontFamily: 'var(--font-en)' }}>ORLUXUS</h2>
+                    <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '700', display: 'block' }}>MARKETING &amp; TOURISM AGENCY</span>
+                    <span style={{ fontSize: '0.75rem', color: '#334155', display: 'block', marginTop: '2px' }}>
+                      📍 <a href="https://maps.app.goo.gl/7tsNKEHJ8cEBcR9Q6" target="_blank" rel="noopener noreferrer" style={{ color: '#0284c7', textDecoration: 'underline' }}>Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533</a>
+                    </span>
                   </div>
                 </div>
                 <div style={{ textAlign: isAr ? 'left' : 'right' }}>
@@ -232,7 +236,7 @@ function BookingConfirmationContent() {
               </div>
 
               {/* Data Table */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.8rem', marginBottom: '1.2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.8rem', marginBottom: '1.5rem' }}>
                 {rows.map(({ label, value, fullWidth }, i) => (
                   <div key={i} style={{
                     background: fullWidth ? '#fff7ed' : '#f8fafc',
@@ -257,13 +261,13 @@ function BookingConfirmationContent() {
                   : (numAdults > 0 ? Math.max(0, originalAmt - (numChildren * childPriceVal) - (numInfants * infantPriceVal)) / numAdults : 0);
 
                 return (
-                  <div style={{ marginBottom: '1.2rem' }}>
-                    <h4 style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 'bold', margin: '0 0 0.6rem', textAlign: isAr ? 'right' : 'left' }}>
-                      💰 Price Breakdown
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <h4 style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 'bold', margin: '0 0 0.6rem', textAlign: isAr ? 'right' : 'left' }}>
+                      💰 {isAr ? 'تفاصيل الحساب والفاتورة' : 'Price Breakdown & Invoice Summary'}
                     </h4>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
                       <thead>
-                        <tr style={{ background: '#f8fafc' }}>
+                        <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                           <th style={{ padding: '10px 12px', textAlign: isAr ? 'right' : 'left', color: '#64748b', fontWeight: '700', fontSize: '0.75rem', textTransform: 'uppercase' }}>Service</th>
                           <th style={{ padding: '10px 12px', textAlign: 'center', color: '#64748b', fontWeight: '700', fontSize: '0.75rem' }}>Qty</th>
                           <th style={{ padding: '10px 12px', textAlign: 'right', color: '#64748b', fontWeight: '700', fontSize: '0.75rem' }}>Rate</th>
@@ -335,42 +339,94 @@ function BookingConfirmationContent() {
                 </div>
               )})()}
 
-              {/* Emergency Contact & Digital Signature Block */}
-              <div style={{ border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '1rem 1.2rem', marginBottom: '1.2rem', background: '#ffffff' }}>
-                <h4 style={{ margin: '0 0 6px', fontSize: '0.75rem', color: '#d97706', textTransform: 'uppercase', letterSpacing: '1px', textAlign: isAr ? 'right' : 'left', fontWeight: 'bold' }}>
-                  {t('booking.termsTitle')}
-                </h4>
-                <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#0f172a', lineHeight: '1.5', textAlign: isAr ? 'right' : 'left' }}>
-                  {t('booking.termsBody', { name: booking.customerName })}
-                </p>
-                
-                <div style={{ background: '#f8fafc', borderRadius: '6px', padding: '8px 12px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '0.8rem', fontSize: '0.75rem', color: '#64748b', border: '1px solid #e2e8f0' }}>
-                  <span><strong>{t('booking.digitallyAgreed')}:</strong> {booking.customerName}</span>
-                  {booking.createdAt && (
-                    <span>
-                      <strong>{t('booking.bookingTime')}:</strong>{' '}
-                      {(() => {
-                        try {
-                          const dateObj = booking.createdAt?.seconds ? new Date(booking.createdAt.seconds * 1000) : new Date(booking.createdAt);
-                          return isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
-                        } catch {
-                          return '—';
-                        }
-                      })()}
-                    </span>
-                  )}
-                  <span><strong>{t('booking.bookingRef')}:</strong> {booking.ref}</span>
+              {/* Comprehensive Legal Contract & Digital Signature Agreement */}
+              <div style={{ border: '1.5px solid #d97706', borderRadius: '10px', padding: '1.5rem', marginBottom: '1.5rem', background: '#fffbeb', color: '#0f172a' }}>
+                <div style={{ textAlign: 'center', borderBottom: '1px solid #fde68a', paddingBottom: '10px', marginBottom: '12px' }}>
+                  <h4 style={{ margin: '0 0 4px', fontSize: '1rem', color: '#92400e', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '900' }}>
+                    ⚖️ اتفاقية خدمات التسويق والوساطة السياحية وتوثيق التوقيع الإلكتروني
+                  </h4>
+                  <div style={{ fontSize: '0.75rem', color: '#b45309', fontWeight: 'bold' }}>
+                    INTEGRATED MARKETING &amp; TOURISM BROKERAGE AGREEMENT
+                  </div>
                 </div>
 
-                {/* Emergency Contact Information (Dynamic from settings) */}
-                <div style={{ marginTop: '0.8rem', paddingTop: '0.6rem', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', fontSize: '0.75rem', color: '#0f172a', fontWeight: '600' }}>
-                  <span>24/7 Emergency Support Hotline: {emergencyPhone}</span>
+                {/* Parties Details */}
+                <div style={{ fontSize: '0.8rem', background: '#ffffff', border: '1px solid #fde68a', borderRadius: '6px', padding: '10px', marginBottom: '12px', lineHeight: '1.6' }}>
+                  <div><strong>الطرف الأول:</strong> شركة أورلوكسوس للتسويق والوساطة السياحية (ORLUXUS MARKETING &amp; BRANDING) — المقر: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533.</div>
+                  <div><strong>الطرف الثاني (العميل):</strong> {booking.customerName || booking.customer} {booking.email ? `(${booking.email})` : ''} {booking.phone ? `— الهاتف: ${booking.phone}` : ''}.</div>
+                </div>
+
+                {/* Electronic Signature Record */}
+                <div style={{ background: '#ffffff', borderRadius: '8px', padding: '12px 14px', border: '1.5px solid #d97706', marginBottom: '12px', fontSize: '0.82rem' }}>
+                  <div style={{ fontWeight: 'bold', color: '#92400e', marginBottom: '8px', fontSize: '0.85rem' }}>
+                    📝 تفاصيل التوقيع الإلكتروني المعتمد / Digital Signature Record:
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px' }}>
+                    <div><span style={{ color: '#64748b' }}>اسم الموقع:</span> <strong>{booking.customerName || booking.customer}</strong></div>
+                    <div><span style={{ color: '#64748b' }}>البريد الإلكتروني:</span> <strong>{booking.email || '—'}</strong></div>
+                    <div>
+                      <span style={{ color: '#64748b' }}>تاريخ ووقت التوقيع:</span>{' '}
+                      <strong>
+                        {(() => {
+                          try {
+                            const dateObj = booking.createdAt?.seconds ? new Date(booking.createdAt.seconds * 1000) : new Date(booking.createdAt || Date.now());
+                            return isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                          } catch {
+                            return '—';
+                          }
+                        })()}
+                      </strong>
+                    </div>
+                    <div><span style={{ color: '#64748b' }}>رقم المرجع والمعاملة:</span> <strong style={{ color: '#d97706' }}>#{booking.ref}</strong></div>
+                  </div>
+                  <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #e2e8f0', color: '#15803d', fontWeight: 'bold', fontSize: '0.78rem' }}>
+                    ✓ توقيع إلكتروني ملزم ونافذ قانوناً بموجب المادة (14) من قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004.
+                  </div>
+                </div>
+
+                {/* Full Contract Articles */}
+                <div style={{ fontSize: '0.76rem', color: '#475569', lineHeight: '1.7', textAlign: 'justify' }}>
+                  <p style={{ margin: '0 0 6px 0' }}>
+                    <strong>المادة (1) - طبيعة عمل الشركة:</strong> تقر الشركة بأنها منصة تسويق إلكتروني وعلامة تجارية تعمل كوسيط تنظيمي ومسوق للخدمات السياحية والترفيهية بين العملاء ومقدمي الخدمات المرخصين، وتتولى تنظيم الحجوزات والمتابعة وخدمة العملاء.
+                  </p>
+                  <p style="margin: 0 0 6px 0;" style={{ margin: '0 0 6px 0' }}>
+                    <strong>المادة (2) - الموافقة الإلكترونية ونفاذ العقد:</strong> بموجب النقر على زر الموافقة وإتمام الحجز والدفع، يُعد ذلك رضاءً وتوقيعاً إلكترونياً صحيحاً ونافذاً ومنتجاً لكافة آثاره القانونية طبقاً لأحكام قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004 ولا يجوز إنكار حجيته.
+                  </p>
+                  <p style={{ margin: '0 0 6px 0' }}>
+                    <strong>المادة (3) - سياسة الإلغاء والاسترداد:</strong> يخضع الإلغاء والاسترداد للشروط المعلنة عند الحجز، ويتاح الإلغاء المجاني حتى 48 ساعة قبل موعد انطلاق الرحلة طبقاً لأحكام قانون حماية المستهلك رقم 181 لسنة 2018.
+                  </p>
+                  <p style={{ margin: '0 0 6px 0' }}>
+                    <strong>المادة (4) - إقرار المخاطر والسلامة الشخصية:</strong> يقر العميل بعلمه بطبيعة الأنشطة والرحلات، والتزامه الكامل بتعليمات السلامة الصادرة عن المرشدين والمشرفين ومشاركته بمسؤوليته الشخصية.
+                  </p>
+                  <p style={{ margin: '0 0 6px 0' }}>
+                    <strong>المادة (5) - حماية البيانات والخصوصية:</strong> تلتزم الشركة بجمع ومعالجة بيانات العميل في نطاق تنفيذ الحجز وتقديم الخدمة فقط وبأعلى معايير الأمان طبقاً لقانون حماية البيانات الشخصية المصري رقم 151 لسنة 2020.
+                  </p>
+                  <p style={{ margin: '0 0 8px 0' }}>
+                    <strong>المادة (6) - القانون الواجب التطبيق:</strong> تخضع هذه الاتفاقية وتفسر وفقاً لأحكام القوانين السارية في جمهورية مصر العربية، وتختص محاكم القاهرة بفض أي نزاع قد ينشأ عنها في حال تعذر الحل الودي.
+                  </p>
+                </div>
+
+                {/* Signatures Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #fde68a', fontSize: '0.8rem' }}>
+                  <div>
+                    <span style={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>توقيع الطرف الأول:</span>
+                    <strong style={{ color: '#92400e' }}>ORLUXUS MARKETING &amp; BRANDING</strong>
+                  </div>
+                  <div style={{ textAlign: isAr ? 'left' : 'right' }}>
+                    <span style={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>توقيع الطرف الثاني (العميل):</span>
+                    <strong style={{ color: '#15803d' }}>✓ {booking.customerName || booking.customer} [توقيع رقمي موثق]</strong>
+                  </div>
+                </div>
+
+                {/* Emergency Contact Information */}
+                <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed #fde68a', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', fontSize: '0.75rem', color: '#92400e', fontWeight: 'bold' }}>
+                  <span>24/7 Emergency Hotline: {emergencyPhone}</span>
                   <span>WhatsApp: {whatsappPhone}</span>
                 </div>
               </div>
 
               <div style={{ textAlign: 'center', paddingTop: '0.8rem', borderTop: '1px dashed #e2e8f0', fontSize: '0.78rem', color: '#64748b', fontWeight: 'bold' }}>
-                {t('booking.thankYou')}
+                {t('booking.thankYou') || 'Thank you for choosing ORLUXUS. We wish you an unforgettable journey!'}
               </div>
             </div>
           </>

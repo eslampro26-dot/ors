@@ -182,67 +182,88 @@ export function buildBookingInvoiceHTML(data) {
 
       <!-- Electronic Contract & Digital Signature Section -->
       <div style="margin-top: 25px; border-top: 2px dashed #30363d; padding-top: 20px;">
-        <div class="section-title">📜 Digital Contract & Electronic Signature / العقد والتوقيع الإلكتروني</div>
+        <div class="section-title">📜 اتفاقية الوساطة السياحية والتسويق الإلكتروني والتوقيع الرقمي / Legal Agreement & Digital Signature</div>
         
-        <div style="background: #0d1117; border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 8px; padding: 18px; margin-bottom: 15px;">
-          <div style="font-size: 13px; color: #d4af37; font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">
-            ⚖️ Integrated Tourism Brokerage Agreement &amp; Digital Signature Record
+        <div style="background: #0d1117; border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 8px; padding: 20px; margin-bottom: 15px; line-height: 1.6;">
+          
+          <div style="text-align: center; border-bottom: 1px solid #30363d; padding-bottom: 12px; margin-bottom: 14px;">
+            <div style="font-size: 14px; color: #d4af37; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+              اتفاقية خدمات التسويق والوساطة السياحية والتنظيمية
+            </div>
+            <div style="font-size: 11px; color: #8b949e; margin-top: 3px;">
+              INTEGRATED MARKETING &amp; TOURISM BROKERAGE AGREEMENT
+            </div>
           </div>
-          <p style="font-size: 12px; color: #8b949e; margin: 0 0 12px 0; line-height: 1.6;">
-            This document serves as the legally binding electronic agreement between <strong>ORLUXUS MARKETING &amp; BRANDING</strong> and <strong>${(data.electronicSignature?.name || customerName || 'Valued Guest')}</strong>, formally executed via electronic consent pursuant to Egyptian Electronic Signature Law No. 15 of 2004.
-          </p>
 
-          <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 12px;">
-            <tr style="border-bottom: 1px solid #21262d;">
-              <td style="color: #8b949e; padding: 6px 0; width: 45%;">Signatory Full Name:</td>
-              <td style="color: #f0f6fc; font-weight: bold; text-align: right;">${(data.electronicSignature?.name || customerName || 'Valued Guest')}</td>
-            </tr>
-            <tr style="border-bottom: 1px solid #21262d;">
-              <td style="color: #8b949e; padding: 6px 0;">Verified Email Address:</td>
-              <td style="color: #f0f6fc; text-align: right;">${(data.electronicSignature?.email || email || 'N/A')}</td>
-            </tr>
-            ${phone ? `
-            <tr style="border-bottom: 1px solid #21262d;">
-              <td style="color: #8b949e; padding: 6px 0;">Contact Phone:</td>
-              <td style="color: #f0f6fc; text-align: right;">${phone}</td>
-            </tr>
-            ` : ''}
-            <tr style="border-bottom: 1px solid #21262d;">
-              <td style="color: #8b949e; padding: 6px 0;">Signing Timestamp:</td>
-              <td style="color: #f0f6fc; text-align: right; font-family: monospace;">${new Date(data.electronicSignature?.timestamp || data.signatureTimestamp || Date.now()).toLocaleString('en-GB')}</td>
-            </tr>
-            <tr style="border-bottom: 1px solid #21262d;">
-              <td style="color: #8b949e; padding: 6px 0;">Contract Reference / TX:</td>
-              <td style="color: #d4af37; text-align: right; font-family: monospace; font-weight: bold;">#${invoiceNo}</td>
-            </tr>
-            <tr>
-              <td style="color: #8b949e; padding: 6px 0;">Legal Status:</td>
-              <td style="color: #10b981; text-align: right; font-weight: bold;">✓ Digitally Signed &amp; Legally Binding (Law 15/2004)</td>
-            </tr>
-          </table>
+          <!-- Parties -->
+          <div style="font-size: 12px; color: #c9d1d9; background: rgba(255,255,255,0.02); border: 1px solid #21262d; border-radius: 6px; padding: 10px; margin-bottom: 14px;">
+            <p style="margin: 0 0 6px 0;"><strong>الطرف الأول:</strong> شركة أورلوكسوس للتسويق والوساطة السياحية (ORLUXUS MARKETING &amp; BRANDING) — المقر: Taksim El-Nasr, Hurghada 1, Red Sea 1966533.</p>
+            <p style="margin: 0;"><strong>الطرف الثاني (العميل):</strong> ${(data.electronicSignature?.name || customerName || 'Valued Guest')} — البريد الإلكتروني: ${(data.electronicSignature?.email || email || 'N/A')}${phone ? ` — الهاتف: ${phone}` : ''}.</p>
+          </div>
 
-          <div style="background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 6px; padding: 12px; font-size: 11px; color: #c9d1d9; line-height: 1.6;">
-            <p style="margin: 0 0 6px 0; font-weight: bold; color: #d4af37;">Summary of Agreed Contractual Terms:</p>
-            <ul style="margin: 0; padding-inline-start: 18px;">
-              <li><strong>Scope:</strong> ORLUXUS operates as an authorized marketing broker and booking coordinator between clients and professional tour operators.</li>
-              <li><strong>Cancellation Policy:</strong> Free cancellation up to 48 hours prior to departure. Late cancellations or no-shows may incur fees as specified in policy.</li>
-              <li><strong>Safety &amp; Risks:</strong> Guest undertakes to follow safety instructions from tour leaders and participates under personal responsibility.</li>
-              <li><strong>Data Protection:</strong> All personal data is collected and processed in full compliance with Egyptian Data Protection Law No. 151 of 2020.</li>
-            </ul>
+          <!-- Signature Verification Box -->
+          <div style="background: rgba(212, 175, 55, 0.08); border: 1.5px solid rgba(212, 175, 55, 0.4); border-radius: 6px; padding: 14px; margin-bottom: 16px;">
+            <div style="font-size: 12px; color: #d4af37; font-weight: bold; margin-bottom: 8px;">
+              📝 تفاصيل وبيانات التوقيع الإلكتروني الموثق / Electronic Signature Record:
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+              <tr style="border-bottom: 1px solid rgba(212,175,55,0.2);">
+                <td style="color: #8b949e; padding: 5px 0;">الاسم الكامل للموقع:</td>
+                <td style="color: #f0f6fc; font-weight: bold; text-align: right;">${(data.electronicSignature?.name || customerName || 'Valued Guest')}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(212,175,55,0.2);">
+                <td style="color: #8b949e; padding: 5px 0;">البريد الإلكتروني المعتمد:</td>
+                <td style="color: #f0f6fc; text-align: right;">${(data.electronicSignature?.email || email || 'N/A')}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(212,175,55,0.2);">
+                <td style="color: #8b949e; padding: 5px 0;">تاريخ ووقت التوقيع:</td>
+                <td style="color: #f0f6fc; text-align: right; font-family: monospace;">${new Date(data.electronicSignature?.timestamp || data.signatureTimestamp || Date.now()).toLocaleString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(212,175,55,0.2);">
+                <td style="color: #8b949e; padding: 5px 0;">كود المرجع والمعاملة:</td>
+                <td style="color: #d4af37; text-align: right; font-family: monospace; font-weight: bold;">#${invoiceNo}</td>
+              </tr>
+              <tr>
+                <td style="color: #8b949e; padding: 5px 0;">السند والحجية القانونية:</td>
+                <td style="color: #10b981; text-align: right; font-weight: bold;">✓ توقيع إلكتروني نافذ وملزم قانوناً (قانون 15 لسنة 2004)</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Full Contract Articles -->
+          <div style="font-size: 11px; color: #8b949e; text-align: justify; line-height: 1.7;">
+            <p style="margin: 0 0 8px 0; color: #c9d1d9;">
+              <strong>المادة (1) - طبيعة عمل الشركة:</strong> تقر الشركة بأنها منصة تسويق إلكتروني وعلامة تجارية تعمل كوسيط تنظيمي ومسوق للخدمات السياحية والترفيهية بين العملاء ومقدمي الخدمات المرخصين، وتتولى تنظيم الحجوزات والمتابعة وخدمة العملاء.
+            </p>
+            <p style="margin: 0 0 8px 0; color: #c9d1d9;">
+              <strong>المادة (2) - الموافقة الإلكترونية ونفاذ العقد:</strong> بموجب النقر على زر الموافقة وإتمام الحجز والدفع، يُعد ذلك رضاءً وتوقيعاً إلكترونياً صحيحاً ونافذاً ومنتجاً لكافة آثاره القانونية طبقاً لأحكام قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004 ولا يجوز إنكار حجيته.
+            </p>
+            <p style="margin: 0 0 8px 0; color: #c9d1d9;">
+              <strong>المادة (3) - سياسة الإلغاء والاسترداد:</strong> يخضع الإلغاء والاسترداد للشروط المعلنة عند الحجز، ويتاح الإلغاء المجاني حتى 48 ساعة قبل موعد انطلاق الرحلة طبقاً لأحكام قانون حماية المستهلك رقم 181 لسنة 2018.
+            </p>
+            <p style="margin: 0 0 8px 0; color: #c9d1d9;">
+              <strong>المادة (4) - إقرار المخاطر والسلامة الشخصية:</strong> يقر العميل بعلمه بطبيعة الأنشطة البحرية والرحلات، والتزامه الكامل بتعليمات السلامة الصادرة عن المرشدين والمشرفين، ومشاركته بمسؤوليته الشخصية مع التوصية بالحصول على وثيقة تأمين سفر.
+            </p>
+            <p style="margin: 0 0 8px 0; color: #c9d1d9;">
+              <strong>المادة (5) - حماية البيانات والخصوصية:</strong> تلتزم الشركة بجمع ومعالجة بيانات العميل في نطاق تنفيذ الحجز وتقديم الخدمة فقط وبأعلى معايير الأمان طبقاً لقانون حماية البيانات الشخصية المصري رقم 151 لسنة 2020.
+            </p>
+            <p style="margin: 0 0 12px 0; color: #c9d1d9;">
+              <strong>المادة (6) - القانون الواجب التطبيق:</strong> تخضع هذه الاتفاقية وتفسر وفقاً لأحكام القوانين السارية في جمهورية مصر العربية، وتختص محاكم القاهرة بفض أي نزاع قد ينشأ عنها في حال تعذر الحل الودي.
+            </p>
           </div>
 
           <!-- Signatures Box -->
-          <table style="width: 100%; border-collapse: collapse; margin-top: 14px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px;">
+          <table style="width: 100%; border-collapse: collapse; margin-top: 14px; padding-top: 12px; border-top: 1px solid #30363d; font-size: 12px;">
             <tr>
               <td style="vertical-align: top; width: 50%;">
-                <span style="color: #8b949e; display: block; margin-bottom: 2px;">Company Authorized Signature:</span>
-                <strong style="color: #d4af37;">ORLUXUS MARKETING &amp; BRANDING</strong>
-                <span style="display: block; color: #8b949e; font-size: 10px; margin-top: 2px;">Taksim El-Nasr, Hurghada 1, Red Sea 1966533</span>
+                <span style="color: #8b949e; display: block; font-size: 11px; margin-bottom: 3px;">توقيع الطرف الأول (الشركة):</span>
+                <strong style="color: #d4af37; font-size: 13px;">ORLUXUS MARKETING &amp; BRANDING</strong>
+                <span style="display: block; color: #8b949e; font-size: 10px; margin-top: 2px;">مقر الشركة: Taksim El-Nasr, Hurghada 1, Red Sea</span>
               </td>
               <td style="vertical-align: top; text-align: right; width: 50%;">
-                <span style="color: #8b949e; display: block; margin-bottom: 2px;">Guest Digital Signature:</span>
-                <strong style="color: #10b981;">✓ ${(data.electronicSignature?.name || customerName || 'Valued Guest')}</strong>
-                <span style="display: block; color: #10b981; font-size: 10px; margin-top: 2px;">[Digitally Verified Consent]</span>
+                <span style="color: #8b949e; display: block; font-size: 11px; margin-bottom: 3px;">توقيع الطرف الثاني (العميل):</span>
+                <strong style="color: #10b981; font-size: 13px;">✓ ${(data.electronicSignature?.name || customerName || 'Valued Guest')}</strong>
+                <span style="display: block; color: #10b981; font-size: 10px; margin-top: 2px;">[توقيع وموافقة إلكترونية موثقة]</span>
               </td>
             </tr>
           </table>
