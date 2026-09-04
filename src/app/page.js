@@ -1208,8 +1208,13 @@ export default function Home() {
           {/* Column 5: Contact Support */}
           <div>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>{t('common.customSupport')}</h4>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', marginBottom: '1rem' }}>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', marginBottom: '0.5rem' }}>
               {t('footer.contactEmail') ? t('footer.contactEmail').replace('{email}', socialMedia.email || 'info@orluxus.com') : `Contact us via email: ${socialMedia.email || 'info@orluxus.com'}`}
+            </p>
+            {/* Company Address */}
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '1rem', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+              <span style={{ fontSize: '1rem', lineHeight: 1 }}>📍</span>
+              <span>{siteSettings?.companyAddress || 'Cairo & Sharm El Sheikh, Egypt 🇪🇬'}</span>
             </p>
             <a 
               href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`} 

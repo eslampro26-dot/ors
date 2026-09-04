@@ -3416,23 +3416,27 @@ function CheckoutContent() {
                   })()}
                 </label>
 
-                {/* Electronic Signature Display */}
-                {electronicSignature && (
+                {/* Electronic Signature Preview — shown when terms accepted + name filled */}
+                {termsAccepted && customerName.trim() && (
                   <div style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid var(--border-subtle)',
+                    background: 'rgba(212,175,55,0.07)',
+                    border: '1px solid rgba(212,175,55,0.3)',
                     borderRadius: '8px',
                     padding: '1rem',
-                    marginTop: '0.5rem'
+                    marginTop: '0.75rem'
                   }}>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginBottom: '0.5rem' }}>
-                      {locale === 'ar' ? '📝 التوقيع الإلكتروني' : '📝 Electronic Signature'}
+                    <div style={{ fontSize: '0.8rem', color: 'var(--gold-500)', marginBottom: '0.5rem', fontWeight: '600' }}>
+                      {locale === 'ar' ? '📝 التوقيع الإلكتروني — معاينة الاتفاقية' : '📝 Electronic Signature — Agreement Preview'}
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                      <div><strong>{locale === 'ar' ? 'الاسم:' : 'Name:'}</strong> {electronicSignature.name}</div>
-                      <div><strong>{locale === 'ar' ? 'البريد الإلكتروني:' : 'Email:'}</strong> {electronicSignature.email}</div>
-                      <div><strong>{locale === 'ar' ? 'التوقيع:' : 'Signature:'}</strong> {electronicSignature.name}</div>
-                      <div><strong>{locale === 'ar' ? 'التاريخ والوقت:' : 'Date & Time:'}</strong> {new Date(electronicSignature.timestamp).toLocaleString()}</div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                      <div><strong>{locale === 'ar' ? 'الاسم:' : 'Name:'}</strong> {customerName}</div>
+                      {email && <div><strong>{locale === 'ar' ? 'البريد الإلكتروني:' : 'Email:'}</strong> {email}</div>}
+                      <div><strong>{locale === 'ar' ? 'التاريخ:' : 'Date:'}</strong> {new Date().toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-GB')}</div>
+                      <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--text-tertiary)', fontStyle: 'italic' }}>
+                        {locale === 'ar'
+                          ? '✅ بالضغط على زر المتابعة، يُعدّ هذا توقيعاً رقمياً ملزماً قانونياً على هذه الاتفاقية.'
+                          : '✅ By clicking Proceed, this constitutes your legally binding digital signature on this agreement.'}
+                      </div>
                     </div>
                   </div>
                 )}

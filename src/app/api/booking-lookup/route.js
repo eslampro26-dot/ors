@@ -11,7 +11,8 @@ export const dynamic = 'force-dynamic';
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const ref = (searchParams.get('ref') || '').trim().toUpperCase();
+    // Strip leading # if user typed it (e.g. "#0319982" → "0319982")
+    const ref = (searchParams.get('ref') || '').trim().replace(/^#/, '').toUpperCase();
 
     if (!ref || ref.length < 4) {
       return NextResponse.json({ error: 'Please provide a valid booking reference.' }, { status: 400 });
@@ -19,21 +20,28 @@ export async function GET(request) {
 
     const bookings = await getBookings();
 
-    // Match by exact reference (txId or id) or clean suffix match (preventing generic prefix matches)
+    // Match by exact reference (txId, id, bookingRefCode) or clean suffix match
     const found = bookings.find(b => {
       const txId = (b.txId || '').toUpperCase();
       const id = (b.id || '').toUpperCase();
-      
-      if (txId === ref || id === ref) return true;
+      const bookingRefCode = (b.bookingRefCode || '').toUpperCase();
+
+      if (txId === ref || id === ref || bookingRefCode === ref) return true;
       if (txId && ref.includes(txId)) return true;
       if (id && ref.includes(id)) return true;
+      if (bookingRefCode && (bookingRefCode.includes(ref) || ref.includes(bookingRefCode))) return true;
 
       // Clean up common prefixes to prevent matching empty prefixes
-      const cleanRef = ref.replace(/^(CASH-TX-|PP-TX-|BANK-TX-|DAFAH-TX-|BK-)/, '').trim();
+      const cleanRef = ref.replace(/^(CASH-TX-|PP-TX-|BANK-TX-|DAFAH-TX-|BK-|ORLX-)/, '').trim();
       const cleanTxId = txId.replace(/^(CASH-TX-|PP-TX-|BANK-TX-|DAFAH-TX-|BK-)/, '').trim();
       const cleanId = id.replace(/^(CASH-TX-|PP-TX-|BANK-TX-|DAFAH-TX-|BK-)/, '').trim();
+      const cleanRefCode = bookingRefCode.replace(/^ORLX-/, '').trim();
 
       if (!cleanRef || cleanRef.length < 4) return false;
+
+      // Match by suffix (user types last 7 digits of timestamp)
+      if (cleanTxId.endsWith(cleanRef) || cleanTxId.includes(cleanRef)) return true;
+      if (cleanRefCode === cleanRef) return true;
 
       return cleanTxId === cleanRef || cleanId === cleanRef || cleanTxId.includes(cleanRef) || cleanRef.includes(cleanTxId);
     });
