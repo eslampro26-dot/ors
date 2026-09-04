@@ -15,11 +15,14 @@ export async function GET() {
       console.warn('Auto backup check notice:', err?.message);
     });
 
-    const backups = await listBackups();
-    return NextResponse.json({ success: true, backups });
+    const backups = await listBackups().catch(err => {
+      console.warn('listBackups fallback to empty:', err?.message);
+      return [];
+    });
+    return NextResponse.json({ success: true, backups: backups || [] });
   } catch (error) {
     console.error('Error in GET /api/admin/backups:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message, backups: [] }, { status: 500 });
   }
 }
 
