@@ -1,7 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
-import { CANCELLATION_POLICY_EN, TERMS_AND_CONDITIONS_EN } from '@/lib/legalPoliciesData';
+import React, { useState, useEffect } from 'react';
+import { 
+  SUPPORTED_LEGAL_LANGUAGES, 
+  getLegalUI, 
+  getTermsAndConditions, 
+  getCancellationPolicy 
+} from '@/lib/legalPoliciesData';
 
 export default function LegalPoliciesModal({
   isOpen,
@@ -14,15 +19,31 @@ export default function LegalPoliciesModal({
   locale = 'en',
   initialTab = 'both' // 'both' | 'terms' | 'cancellation'
 }) {
+  const [currentLang, setCurrentLang] = useState(locale || 'ar');
   const [activeTab, setActiveTab] = useState(initialTab);
-  const isAr = locale === 'ar';
+
+  // Sync with locale prop when opened
+  useEffect(() => {
+    if (locale) {
+      setCurrentLang(locale);
+    }
+  }, [locale, isOpen]);
 
   if (!isOpen) return null;
 
-  const clientDisplayName = customerName?.trim() || (isAr ? '[اسم العميل]' : '[Client Name]');
-  const clientDisplayEmail = email?.trim() || (isAr ? '[البريد الإلكتروني]' : '[Email Address]');
-  const clientDisplayPhone = phone?.trim() || (isAr ? '[رقم الهاتف]' : '[Phone Number]');
-  const sigDate = new Date().toLocaleString(isAr ? 'ar-EG' : 'en-GB', {
+  const langMeta = SUPPORTED_LEGAL_LANGUAGES.find(l => l.code === currentLang) || SUPPORTED_LEGAL_LANGUAGES[0];
+  const isRtl = langMeta.dir === 'rtl';
+
+  const ui = getLegalUI(currentLang);
+  const terms = getTermsAndConditions(currentLang);
+  const cancellation = getCancellationPolicy(currentLang);
+
+  const clientDisplayName = customerName?.trim() || (isRtl ? '[اسم العميل]' : '[Client Name]');
+  const clientDisplayEmail = email?.trim() || (isRtl ? '[البريد الإلكتروني]' : '[Email Address]');
+  const clientDisplayPhone = phone?.trim() || (isRtl ? '[رقم الهاتف]' : '[Phone Number]');
+  const clientDisplayService = serviceName?.trim() || (isRtl ? '[الخدمة المختارة]' : '[Selected Trip / Service]');
+  
+  const sigDate = new Date().toLocaleString(isRtl ? 'ar-EG' : 'en-GB', {
     year: 'numeric', month: 'short', day: '2-digit',
     hour: '2-digit', minute: '2-digit', second: '2-digit'
   });
@@ -40,41 +61,45 @@ export default function LegalPoliciesModal({
     <div 
       className="legal-modal-overlay"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      dir={isRtl ? 'rtl' : 'ltr'}
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(5, 7, 12, 0.88)',
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
         zIndex: 99999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 'clamp(8px, 2vw, 24px)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        direction: isAr ? 'rtl' : 'ltr'
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)'
       }}
     >
       <div 
-        className="legal-modal-container glass-card animate-scale-up"
+        className="legal-modal-container glass-card"
         style={{
-          background: 'linear-gradient(180deg, #131823 0%, #0d111a 100%)',
+          backgroundImage: `linear-gradient(180deg, rgba(253, 251, 247, 0.95) 0%, rgba(248, 246, 240, 0.98) 100%), url('/egypt_bg.jpg')`,
+          backgroundAttachment: 'scroll',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
           width: '100%',
-          maxWidth: '1280px',
-          maxHeight: '92vh',
+          maxWidth: '1320px',
+          maxHeight: '94vh',
           borderRadius: '16px',
-          border: '1px solid rgba(212, 175, 55, 0.35)',
-          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 35px rgba(212, 175, 55, 0.15)',
+          border: '1px solid rgba(201, 162, 39, 0.4)',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.25), 0 0 35px rgba(201, 162, 39, 0.15)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          color: '#e6edf3'
+          color: '#1f2937',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Cairo", "Tajawal", Helvetica, Arial, sans-serif'
         }}
       >
         {/* Modal Top Header */}
         <div style={{
-          padding: '16px 24px',
-          background: 'rgba(0, 0, 0, 0.4)',
-          borderBottom: '1px solid rgba(212, 175, 55, 0.25)',
+          padding: '14px 22px',
+          background: 'rgba(255, 255, 255, 0.96)',
+          borderBottom: '1px solid rgba(201, 162, 39, 0.3)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -83,35 +108,35 @@ export default function LegalPoliciesModal({
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '1.4rem' }}>⚖️</span>
+              <span style={{ fontSize: '1.3rem' }}>⚖️</span>
               <h2 style={{
                 margin: 0,
                 fontSize: 'clamp(1rem, 2vw, 1.25rem)',
-                color: '#d4af37',
-                fontWeight: '800',
-                letterSpacing: '0.5px'
+                color: '#8c6a12',
+                fontWeight: '900',
+                letterSpacing: '0.3px'
               }}>
-                {isAr ? 'الاتفاقية الرسمية، الشروط والأحكام وسياسة الإلغاء' : 'Official Legal Contract: Terms, Conditions & Cancellation Policy'}
+                {ui.pageTitle}
               </h2>
             </div>
-            <p style={{ margin: '3px 0 0 0', fontSize: '0.78rem', color: '#8b949e' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '0.78rem', color: '#6b7280' }}>
               ORLUXUS MARKETING AND BRANDING • Hurghada, Red Sea, Egypt
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <button
               onClick={handlePrint}
               type="button"
               className="hide-print"
               style={{
-                background: 'rgba(212, 175, 55, 0.12)',
-                border: '1px solid rgba(212, 175, 55, 0.5)',
-                color: '#d4af37',
+                background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.12), rgba(201, 162, 39, 0.06))',
+                border: '1px solid #c9a227',
+                color: '#8c6a12',
                 borderRadius: '8px',
                 padding: '6px 14px',
                 fontSize: '0.82rem',
-                fontWeight: 'bold',
+                fontWeight: '700',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -119,412 +144,493 @@ export default function LegalPoliciesModal({
                 transition: 'all 0.2s'
               }}
             >
-              🖨️ {isAr ? 'طباعة / حفظ PDF' : 'Print / Save PDF'}
+              {ui.printBtn}
             </button>
 
             <button
               onClick={onClose}
               type="button"
               className="hide-print"
+              aria-label="Close modal"
               style={{
-                background: 'rgba(255, 255, 255, 0.06)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                color: '#fff',
-                width: '34px',
-                height: '34px',
+                background: '#ffffff',
+                border: '1px solid #d1d5db',
+                color: '#4b5563',
+                width: '32px',
+                height: '32px',
                 borderRadius: '50%',
                 fontSize: '1.2rem',
-                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
                 lineHeight: 1
               }}
             >
-              ✕
+              ×
             </button>
           </div>
         </div>
 
-        {/* Client Digital Verification Banner */}
-        <div style={{
-          background: 'rgba(212, 175, 55, 0.05)',
-          borderBottom: '1px solid rgba(212, 175, 55, 0.15)',
-          padding: '10px 24px',
-          fontSize: '0.8rem',
-          color: '#c9d1d9',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '8px 16px'
+        {/* 10 Languages Selector Bar inside modal */}
+        <div className="hide-print" style={{
+          background: 'rgba(255, 255, 255, 0.92)',
+          borderBottom: '1px solid rgba(201, 162, 39, 0.2)',
+          padding: '8px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          overflowX: 'auto',
+          flexWrap: 'nowrap'
         }}>
-          <div><strong style={{ color: '#d4af37' }}>{isAr ? 'العميل (الطرف الثاني):' : 'Client (2nd Party):'}</strong> {clientDisplayName}</div>
-          <div><strong style={{ color: '#d4af37' }}>{isAr ? 'البريد:' : 'Email:'}</strong> {clientDisplayEmail}</div>
-          <div><strong style={{ color: '#d4af37' }}>{isAr ? 'الهاتف:' : 'Phone:'}</strong> {clientDisplayPhone}</div>
-          <div><strong style={{ color: '#d4af37' }}>{isAr ? 'الرحلة/الخدمة:' : 'Excursion:'}</strong> {serviceName || (isAr ? 'رحلة سياحية' : 'Selected Tour')}</div>
-          <div><strong style={{ color: '#d4af37' }}>{isAr ? 'التاريخ والوقت:' : 'Timestamp:'}</strong> {sigDate}</div>
-          <div><strong style={{ color: '#10b981' }}>{isAr ? 'السند القانوني:' : 'Legal Basis:'}</strong> {isAr ? 'قانون 15 لسنة 2004' : 'Egyptian Law 15/2004'}</div>
+          <span style={{ 
+            fontSize: '0.8rem', 
+            fontWeight: '700', 
+            color: '#8c6a12',
+            whiteSpace: 'nowrap',
+            marginRight: isRtl ? '0' : '4px',
+            marginLeft: isRtl ? '4px' : '0'
+          }}>
+            🌐 {ui.selectLanguage}
+          </span>
+          {SUPPORTED_LEGAL_LANGUAGES.map((lang) => {
+            const isActive = currentLang === lang.code;
+            return (
+              <button
+                key={lang.code}
+                onClick={() => setCurrentLang(lang.code)}
+                style={{
+                  background: isActive ? 'linear-gradient(135deg, #c9a227, #aa841a)' : '#ffffff',
+                  color: isActive ? '#ffffff' : '#374151',
+                  border: isActive ? '1px solid #aa841a' : '1px solid #e5e7eb',
+                  borderRadius: '16px',
+                  padding: '3px 10px',
+                  fontSize: '0.78rem',
+                  fontWeight: isActive ? '700' : '500',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  boxShadow: isActive ? '0 2px 6px rgba(201, 162, 39, 0.25)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span>{lang.flag}</span>
+                <span>{lang.name}</span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* View Switcher Controls (Dual Split vs Individual Part) */}
+        {/* Client Digital Verification Identity Card */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.88)',
+          borderBottom: '1px solid rgba(201, 162, 39, 0.25)',
+          padding: '12px 22px'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '6px',
+            flexWrap: 'wrap',
+            gap: '8px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ color: '#059669', fontSize: '0.95rem' }}>🔒</span>
+              <span style={{ fontSize: '0.82rem', fontWeight: '800', color: '#8c6a12', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                {ui.clientRecordTitle}
+              </span>
+            </div>
+            <span style={{ fontSize: '0.74rem', color: '#6b7280', background: 'rgba(201, 162, 39, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>
+              {ui.lawNote}
+            </span>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '8px 16px',
+            fontSize: '0.82rem'
+          }}>
+            <div>
+              <span style={{ color: '#6b7280' }}>{ui.clientName} </span>
+              <strong style={{ color: '#111827' }}>{clientDisplayName}</strong>
+            </div>
+            <div>
+              <span style={{ color: '#6b7280' }}>{ui.clientEmail} </span>
+              <strong style={{ color: '#111827' }}>{clientDisplayEmail}</strong>
+            </div>
+            <div>
+              <span style={{ color: '#6b7280' }}>{ui.clientPhone} </span>
+              <strong style={{ color: '#111827' }}>{clientDisplayPhone}</strong>
+            </div>
+            <div>
+              <span style={{ color: '#6b7280' }}>{ui.serviceName} </span>
+              <strong style={{ color: '#8c6a12' }}>{clientDisplayService}</strong>
+            </div>
+            <div>
+              <span style={{ color: '#6b7280' }}>{ui.recordedTimestamp} </span>
+              <strong style={{ color: '#111827' }}>{sigDate}</strong>
+            </div>
+          </div>
+        </div>
+
+        {/* Egyptian Law Precedence Banner */}
+        <div style={{
+          background: 'rgba(254, 243, 199, 0.92)',
+          borderBottom: '1px solid #f59e0b',
+          padding: '8px 22px',
+          fontSize: '0.78rem',
+          color: '#92400e',
+          lineHeight: '1.5'
+        }}>
+          {ui.prevailWarning}
+        </div>
+
+        {/* View Mode Tabs */}
         <div className="hide-print" style={{
-          padding: '8px 24px',
-          background: 'rgba(0, 0, 0, 0.25)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
+          background: 'rgba(255, 255, 255, 0.94)',
+          borderBottom: '1px solid rgba(201, 162, 39, 0.25)',
+          padding: '8px 22px',
           display: 'flex',
           gap: '8px',
-          alignItems: 'center',
-          overflowX: 'auto'
+          flexWrap: 'wrap'
         }}>
-          <span style={{ fontSize: '0.8rem', color: '#8b949e', whiteSpace: 'nowrap' }}>
-            {isAr ? 'طريقة العرض:' : 'Layout View:'}
-          </span>
           <button
             type="button"
             onClick={() => setActiveTab('both')}
             style={{
-              background: activeTab === 'both' ? 'linear-gradient(135deg, #d4af37, #aa820a)' : 'rgba(255, 255, 255, 0.05)',
-              color: activeTab === 'both' ? '#000' : '#fff',
-              border: 'none',
-              padding: '5px 14px',
-              borderRadius: '20px',
-              fontSize: '0.8rem',
-              fontWeight: 'bold',
+              padding: '6px 14px',
+              borderRadius: '8px',
+              fontSize: '0.82rem',
+              fontWeight: '700',
               cursor: 'pointer',
-              whiteSpace: 'nowrap'
+              background: activeTab === 'both' ? '#c9a227' : '#ffffff',
+              color: activeTab === 'both' ? '#ffffff' : '#374151',
+              border: activeTab === 'both' ? '1px solid #aa841a' : '1px solid #d1d5db',
+              boxShadow: activeTab === 'both' ? '0 2px 8px rgba(201, 162, 39, 0.25)' : 'none',
+              transition: 'all 0.15s'
             }}
           >
-            ⚖️ {isAr ? 'عرض القسمين معاً (نصفين)' : 'Split Side-by-Side (Both Halves)'}
+            {ui.tabBoth}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('terms')}
             style={{
-              background: activeTab === 'terms' ? 'linear-gradient(135deg, #d4af37, #aa820a)' : 'rgba(255, 255, 255, 0.05)',
-              color: activeTab === 'terms' ? '#000' : '#fff',
-              border: 'none',
-              padding: '5px 14px',
-              borderRadius: '20px',
-              fontSize: '0.8rem',
-              fontWeight: 'bold',
+              padding: '6px 14px',
+              borderRadius: '8px',
+              fontSize: '0.82rem',
+              fontWeight: '700',
               cursor: 'pointer',
-              whiteSpace: 'nowrap'
+              background: activeTab === 'terms' ? '#c9a227' : '#ffffff',
+              color: activeTab === 'terms' ? '#ffffff' : '#374151',
+              border: activeTab === 'terms' ? '1px solid #aa841a' : '1px solid #d1d5db',
+              boxShadow: activeTab === 'terms' ? '0 2px 8px rgba(201, 162, 39, 0.25)' : 'none',
+              transition: 'all 0.15s'
             }}
           >
-            📜 {isAr ? 'الشروط والأحكام فقط' : 'Terms & Conditions Only'}
+            {ui.tabTerms}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('cancellation')}
             style={{
-              background: activeTab === 'cancellation' ? 'linear-gradient(135deg, #d4af37, #aa820a)' : 'rgba(255, 255, 255, 0.05)',
-              color: activeTab === 'cancellation' ? '#000' : '#fff',
-              border: 'none',
-              padding: '5px 14px',
-              borderRadius: '20px',
-              fontSize: '0.8rem',
-              fontWeight: 'bold',
+              padding: '6px 14px',
+              borderRadius: '8px',
+              fontSize: '0.82rem',
+              fontWeight: '700',
               cursor: 'pointer',
-              whiteSpace: 'nowrap'
+              background: activeTab === 'cancellation' ? '#c9a227' : '#ffffff',
+              color: activeTab === 'cancellation' ? '#ffffff' : '#374151',
+              border: activeTab === 'cancellation' ? '1px solid #aa841a' : '1px solid #d1d5db',
+              boxShadow: activeTab === 'cancellation' ? '0 2px 8px rgba(201, 162, 39, 0.25)' : 'none',
+              transition: 'all 0.15s'
             }}
           >
-            🔄 {isAr ? 'سياسة الإلغاء والاسترداد فقط' : 'Cancellation Policy Only'}
+            {ui.tabCancellation}
           </button>
         </div>
 
-        {/* Scrollable Dual-Pane Content Body */}
+        {/* Main Scrollable Content Area */}
         <div style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '20px 24px',
-          display: activeTab === 'both' ? 'grid' : 'block',
-          gridTemplateColumns: activeTab === 'both' ? 'repeat(auto-fit, minmax(380px, 1fr))' : '1fr',
-          gap: '24px'
+          padding: '20px 22px',
+          display: 'grid',
+          gridTemplateColumns: activeTab === 'both' ? 'repeat(auto-fit, minmax(min(100%, 540px), 1fr))' : '1fr',
+          gap: '20px',
+          alignItems: 'start'
         }}>
           
-          {/* ══════ PART ONE: TERMS AND CONDITIONS ══════ */}
+          {/* SECTION 1: TERMS & CONDITIONS */}
           {(activeTab === 'both' || activeTab === 'terms') && (
             <div style={{
-              background: 'rgba(0, 0, 0, 0.22)',
+              background: '#ffffff',
               borderRadius: '12px',
-              border: '1px solid rgba(212, 175, 55, 0.25)',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px'
+              border: '1px solid rgba(201, 162, 39, 0.3)',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.03)',
+              padding: '20px'
             }}>
-              {/* Part 1 Header Badge */}
-              <div style={{ borderBottom: '2px solid #d4af37', paddingBottom: '10px' }}>
+              <div style={{
+                borderBottom: '2px solid rgba(201, 162, 39, 0.35)',
+                paddingBottom: '12px',
+                marginBottom: '16px'
+              }}>
                 <span style={{
-                  background: 'rgba(212, 175, 55, 0.15)',
-                  color: '#d4af37',
-                  padding: '3px 10px',
-                  borderRadius: '12px',
-                  fontSize: '0.72rem',
-                  fontWeight: 'bold',
+                  background: '#8c6a12',
+                  color: '#ffffff',
+                  fontSize: '0.68rem',
+                  fontWeight: '800',
+                  padding: '2px 8px',
+                  borderRadius: '10px',
                   textTransform: 'uppercase'
                 }}>
-                  PART 1 / الجزء الأول
+                  {ui.part1Title}
                 </span>
-                <h3 style={{ margin: '6px 0 2px 0', color: '#fff', fontSize: '1.1rem', fontWeight: '800' }}>
-                  {TERMS_AND_CONDITIONS_EN.title}
-                </h3>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: '#8b949e' }}>
-                  Integrated Marketing Services &amp; Tourism Brokerage Terms
-                </p>
-              </div>
-
-              {/* Important Electronic Consent Callout */}
-              <div style={{
-                background: 'rgba(212, 175, 55, 0.08)',
-                borderLeft: isAr ? 'none' : '4px solid #d4af37',
-                borderRight: isAr ? '4px solid #d4af37' : 'none',
-                padding: '12px 14px',
-                borderRadius: '6px',
-                fontSize: '0.8rem',
-                lineHeight: '1.6',
-                color: '#f0f6fc'
-              }}>
-                <strong style={{ color: '#d4af37', display: 'block', marginBottom: '4px' }}>
-                  ⚠️ IMPORTANT: ELECTRONIC CONSENT &amp; BINDING AGREEMENT
-                </strong>
-                Please read these Terms and Conditions carefully before using our platform or making a booking. By proceeding, you enter into a legally binding agreement with <strong>ORLUXUS MARKETING AND BRANDING</strong>.
-              </div>
-
-              {/* Sections 1 to 15 */}
-              {TERMS_AND_CONDITIONS_EN.sections.map((sec) => (
-                <div key={sec.num} style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
-                  borderRadius: '8px',
-                  padding: '14px'
+                <h3 style={{
+                  fontSize: '1.15rem',
+                  color: '#111827',
+                  margin: '8px 0 4px 0',
+                  fontWeight: '800'
                 }}>
-                  <h4 style={{
-                    margin: '0 0 8px 0',
-                    color: '#d4af37',
-                    fontSize: '0.9rem',
-                    fontWeight: '700'
-                  }}>
-                    {sec.title}
-                  </h4>
-                  <div style={{
-                    fontSize: '0.82rem',
-                    lineHeight: '1.7',
-                    color: '#c9d1d9',
-                    whiteSpace: 'pre-wrap'
-                  }}>
-                    {sec.content}
-                  </div>
+                  {terms.title}
+                </h3>
+                <div style={{
+                  background: 'rgba(201, 162, 39, 0.08)',
+                  border: '1px solid rgba(201, 162, 39, 0.2)',
+                  borderRadius: '6px',
+                  padding: '8px 10px',
+                  marginTop: '8px',
+                  fontSize: '0.78rem',
+                  color: '#4b5563',
+                  lineHeight: '1.55'
+                }}>
+                  {terms.importantNotice}
                 </div>
-              ))}
-
-              {/* Part 1 Footer */}
-              <div style={{
-                fontSize: '0.75rem',
-                color: '#8b949e',
-                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                paddingTop: '10px'
-              }}>
-                <strong>{TERMS_AND_CONDITIONS_EN.footer.company}</strong> • {TERMS_AND_CONDITIONS_EN.footer.address}
-              </div>
-            </div>
-          )}
-
-          {/* ══════ PART TWO: CANCELLATION AND REFUND POLICY ══════ */}
-          {(activeTab === 'both' || activeTab === 'cancellation') && (
-            <div style={{
-              background: 'rgba(0, 0, 0, 0.22)',
-              borderRadius: '12px',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px'
-            }}>
-              {/* Part 2 Header Badge */}
-              <div style={{ borderBottom: '2px solid #60a5fa', paddingBottom: '10px' }}>
-                <span style={{
-                  background: 'rgba(59, 130, 246, 0.15)',
-                  color: '#60a5fa',
-                  padding: '3px 10px',
-                  borderRadius: '12px',
-                  fontSize: '0.72rem',
-                  fontWeight: 'bold',
-                  textTransform: 'uppercase'
-                }}>
-                  PART 2 / الجزء الثاني
-                </span>
-                <h3 style={{ margin: '6px 0 2px 0', color: '#fff', fontSize: '1.1rem', fontWeight: '800' }}>
-                  {CANCELLATION_POLICY_EN.title}
-                </h3>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: '#8b949e' }}>
-                  {CANCELLATION_POLICY_EN.subtitle}
-                </p>
               </div>
 
-              {/* Preamble & Legal Basis */}
-              <div style={{
-                background: 'rgba(59, 130, 246, 0.08)',
-                borderLeft: isAr ? 'none' : '4px solid #60a5fa',
-                borderRight: isAr ? '4px solid #60a5fa' : 'none',
-                padding: '12px 14px',
-                borderRadius: '6px',
-                fontSize: '0.8rem',
-                lineHeight: '1.6',
-                color: '#f0f6fc'
-              }}>
-                <strong style={{ color: '#60a5fa', display: 'block', marginBottom: '4px' }}>
-                  ⚖️ {CANCELLATION_POLICY_EN.preamble.title}
-                </strong>
-                {CANCELLATION_POLICY_EN.preamble.paragraphs.map((p, idx) => (
-                  <p key={idx} style={{ margin: '0 0 6px 0', whiteSpace: 'pre-wrap' }}>{p}</p>
-                ))}
-              </div>
-
-              {/* Articles 1 to 9 */}
-              {CANCELLATION_POLICY_EN.articles.map((art) => (
-                <div key={art.num} style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
-                  borderRadius: '8px',
-                  padding: '14px'
-                }}>
-                  <h4 style={{
-                    margin: '0 0 8px 0',
-                    color: '#60a5fa',
-                    fontSize: '0.9rem',
-                    fontWeight: '700'
-                  }}>
-                    {art.title}
-                  </h4>
-                  {art.intro && (
-                    <p style={{ margin: '0 0 8px 0', fontSize: '0.8rem', color: '#8b949e', fontStyle: 'italic' }}>
-                      {art.intro}
-                    </p>
-                  )}
-                  {art.clauses && art.clauses.map((clause, cIdx) => (
-                    <div key={cIdx} style={{
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {terms.sections.map((section) => (
+                  <div 
+                    key={section.num}
+                    style={{
+                      background: '#fafafa',
+                      borderRadius: '8px',
+                      padding: '12px 14px',
+                      border: '1px solid #f3f4f6'
+                    }}
+                  >
+                    <h4 style={{
+                      margin: '0 0 6px 0',
+                      fontSize: '0.88rem',
+                      color: '#8c6a12',
+                      fontWeight: '800'
+                    }}>
+                      {section.title}
+                    </h4>
+                    <div style={{
+                      color: '#374151',
                       fontSize: '0.82rem',
                       lineHeight: '1.7',
-                      color: '#c9d1d9',
-                      marginBottom: '8px',
-                      whiteSpace: 'pre-wrap'
+                      whiteSpace: 'pre-line'
                     }}>
-                      {clause}
+                      {section.content}
                     </div>
-                  ))}
-
-                  {/* Article 9 Legislative Support Table */}
-                  {art.table && (
-                    <div style={{ marginTop: '12px', overflowX: 'auto' }}>
-                      <p style={{ fontSize: '0.78rem', color: '#8b949e', marginBottom: '6px' }}>{art.tableIntro}</p>
-                      <table style={{
-                        width: '100%',
-                        borderCollapse: 'collapse',
-                        fontSize: '0.75rem',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                      }}>
-                        <thead>
-                          <tr style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', textAlign: isAr ? 'right' : 'left' }}>
-                            <th style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>Legislative Law</th>
-                            <th style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>Article</th>
-                            <th style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>Purpose / Legal Effect</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {art.table.map((row, rIdx) => (
-                            <tr key={rIdx} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                              <td style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#d4af37', fontWeight: '600' }}>{row.law}</td>
-                              <td style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#60a5fa', fontWeight: 'bold' }}>{row.article}</td>
-                              <td style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#c9d1d9' }}>{row.purpose}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Part 2 Footer */}
-              <div style={{
-                fontSize: '0.75rem',
-                color: '#8b949e',
-                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                paddingTop: '10px'
-              }}>
-                <strong>{CANCELLATION_POLICY_EN.footer.company}</strong> • {CANCELLATION_POLICY_EN.footer.address}
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
+          {/* SECTION 2: CANCELLATION POLICY */}
+          {(activeTab === 'both' || activeTab === 'cancellation') && (
+            <div style={{
+              background: '#ffffff',
+              borderRadius: '12px',
+              border: '1px solid rgba(201, 162, 39, 0.3)',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.03)',
+              padding: '20px'
+            }}>
+              <div style={{
+                borderBottom: '2px solid rgba(201, 162, 39, 0.35)',
+                paddingBottom: '12px',
+                marginBottom: '16px'
+              }}>
+                <span style={{
+                  background: '#c9a227',
+                  color: '#ffffff',
+                  fontSize: '0.68rem',
+                  fontWeight: '800',
+                  padding: '2px 8px',
+                  borderRadius: '10px',
+                  textTransform: 'uppercase'
+                }}>
+                  {ui.part2Title}
+                </span>
+                <h3 style={{
+                  fontSize: '1.15rem',
+                  color: '#111827',
+                  margin: '8px 0 4px 0',
+                  fontWeight: '800'
+                }}>
+                  {cancellation.title}
+                </h3>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: '#6b7280', fontStyle: 'italic' }}>
+                  {cancellation.subtitle}
+                </p>
+
+                {cancellation.preamble && (
+                  <div style={{
+                    background: 'rgba(201, 162, 39, 0.08)',
+                    border: '1px solid rgba(201, 162, 39, 0.2)',
+                    borderRadius: '6px',
+                    padding: '8px 10px',
+                    marginTop: '8px'
+                  }}>
+                    <div style={{ fontWeight: '700', fontSize: '0.8rem', color: '#8c6a12', marginBottom: '2px' }}>
+                      ⚖️ {cancellation.preamble.title}
+                    </div>
+                    {cancellation.preamble.paragraphs.map((p, pIdx) => (
+                      <p key={pIdx} style={{ margin: '2px 0', fontSize: '0.78rem', color: '#4b5563', whiteSpace: 'pre-line' }}>
+                        {p}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {cancellation.articles.map((article) => (
+                  <div
+                    key={article.num}
+                    style={{
+                      background: '#fafafa',
+                      borderRadius: '8px',
+                      padding: '12px 14px',
+                      border: '1px solid #f3f4f6'
+                    }}
+                  >
+                    <h4 style={{
+                      margin: '0 0 6px 0',
+                      fontSize: '0.88rem',
+                      color: '#8c6a12',
+                      fontWeight: '800'
+                    }}>
+                      {article.title}
+                    </h4>
+                    {article.intro && (
+                      <p style={{ margin: '0 0 6px 0', fontSize: '0.8rem', color: '#4b5563', fontStyle: 'italic' }}>
+                        {article.intro}
+                      </p>
+                    )}
+                    {article.clauses && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {article.clauses.map((clause, cIdx) => (
+                          <div key={cIdx} style={{ fontSize: '0.82rem', color: '#374151', lineHeight: '1.7', whiteSpace: 'pre-line' }}>
+                            {clause}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {article.table && (
+                      <div style={{ marginTop: '10px', overflowX: 'auto' }}>
+                        <table style={{
+                          width: '100%',
+                          borderCollapse: 'collapse',
+                          fontSize: '0.76rem',
+                          background: '#ffffff',
+                          borderRadius: '6px',
+                          overflow: 'hidden',
+                          border: '1px solid #e5e7eb'
+                        }}>
+                          <thead>
+                            <tr style={{ background: 'rgba(201, 162, 39, 0.12)', color: '#8c6a12' }}>
+                              <th style={{ padding: '6px 8px', textAlign: isRtl ? 'right' : 'left', fontWeight: '700' }}>{ui.thLaw}</th>
+                              <th style={{ padding: '6px 8px', textAlign: isRtl ? 'right' : 'left', fontWeight: '700' }}>{ui.thArticle}</th>
+                              <th style={{ padding: '6px 8px', textAlign: isRtl ? 'right' : 'left', fontWeight: '700' }}>{ui.thPurpose}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {article.table.map((row, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid #f3f4f6', background: rIdx % 2 === 0 ? '#ffffff' : '#f9fafb' }}>
+                                <td style={{ padding: '6px 8px', fontWeight: '600', color: '#1f2937' }}>{row.law}</td>
+                                <td style={{ padding: '6px 8px', color: '#8c6a12', fontWeight: '600' }}>{row.article}</td>
+                                <td style={{ padding: '6px 8px', color: '#4b5563', lineHeight: '1.4' }}>{row.purpose}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Arabic Language Prevalence Notice */}
+        {/* Modal Bottom Action Footer */}
         <div style={{
-          padding: '8px 24px',
-          background: 'rgba(212, 175, 55, 0.08)',
-          borderTop: '1px solid rgba(212, 175, 55, 0.2)',
-          fontSize: '0.74rem',
-          color: '#d4af37',
-          textAlign: 'center',
-          fontStyle: 'italic'
-        }}>
-          * Language Prevalence Notice: This Agreement is prepared in Arabic. In case of translation into any other language, the Arabic version shall prevail in the event of any conflict or dispute. (تكون النسخة العربية هي السائدة عند أي نزاع أو تعارض).
-        </div>
-
-        {/* Modal Actions Footer */}
-        <div className="hide-print" style={{
-          padding: '14px 24px',
-          background: 'rgba(0, 0, 0, 0.4)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+          padding: '14px 22px',
+          background: 'rgba(255, 255, 255, 0.98)',
+          borderTop: '1px solid rgba(201, 162, 39, 0.3)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           gap: '12px',
           flexWrap: 'wrap'
         }}>
-          <div style={{ fontSize: '0.78rem', color: '#8b949e' }}>
-            {isAr ? 'بالنقر أدناه، تُقر بموافقتك الإلكترونية الكاملة على الجزئين.' : 'By clicking below, you confirm full electronic agreement to both parts.'}
-          </div>
+          <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>
+            🔒 {ui.lawBadge || 'ORLUXUS Official Verified Digital Contract Record'}
+          </span>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <button
-              type="button"
               onClick={onClose}
-              className="btn btn-secondary"
+              type="button"
               style={{
-                padding: '8px 20px',
-                fontSize: '0.85rem',
+                background: '#ffffff',
+                border: '1px solid #d1d5db',
+                color: '#4b5563',
                 borderRadius: '8px',
+                padding: '8px 16px',
+                fontSize: '0.84rem',
+                fontWeight: '600',
                 cursor: 'pointer'
               }}
             >
-              {isAr ? 'إغلاق' : 'Close'}
+              {ui.closeModal}
             </button>
 
-            <button
-              type="button"
-              onClick={handleAcceptAndClose}
-              className="btn btn-primary"
-              style={{
-                background: 'linear-gradient(135deg, #d4af37 0%, #aa820a 100%)',
-                color: '#000',
-                fontWeight: '800',
-                padding: '8px 24px',
-                fontSize: '0.88rem',
-                borderRadius: '8px',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 15px rgba(212, 175, 55, 0.3)'
-              }}
-            >
-              ✓ {isAr ? 'قرأت ووافقت على الشروط وسياسة الإلغاء' : 'I Have Read & Accept Both Terms & Policy'}
-            </button>
+            {onAccept && (
+              <button
+                onClick={handleAcceptAndClose}
+                type="button"
+                style={{
+                  background: 'linear-gradient(135deg, #c9a227, #aa841a)',
+                  border: '1px solid #8c6a12',
+                  color: '#ffffff',
+                  borderRadius: '8px',
+                  padding: '8px 20px',
+                  fontSize: '0.86rem',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(201, 162, 39, 0.35)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {ui.acceptBtn}
+              </button>
+            )}
           </div>
         </div>
+
       </div>
     </div>
   );

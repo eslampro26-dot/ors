@@ -2,393 +2,561 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { CANCELLATION_POLICY_EN, TERMS_AND_CONDITIONS_EN } from '@/lib/legalPoliciesData';
+import { 
+  SUPPORTED_LEGAL_LANGUAGES, 
+  getLegalUI, 
+  getTermsAndConditions, 
+  getCancellationPolicy 
+} from '@/lib/legalPoliciesData';
 
 export default function TermsAndCancellationPage() {
+  const [currentLang, setCurrentLang] = useState('ar');
   const [activeTab, setActiveTab] = useState('both'); // 'both' | 'terms' | 'cancellation'
+
+  const langMeta = SUPPORTED_LEGAL_LANGUAGES.find(l => l.code === currentLang) || SUPPORTED_LEGAL_LANGUAGES[0];
+  const isRtl = langMeta.dir === 'rtl';
+
+  const ui = getLegalUI(currentLang);
+  const terms = getTermsAndConditions(currentLang);
+  const cancellation = getCancellationPolicy(currentLang);
 
   const handlePrint = () => {
     window.print();
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(180deg, #090d16 0%, #05070c 100%)',
-      color: '#e6edf3',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
-    }}>
+    <div 
+      dir={isRtl ? 'rtl' : 'ltr'}
+      style={{
+        minHeight: '100vh',
+        backgroundImage: `linear-gradient(180deg, rgba(253, 251, 247, 0.93) 0%, rgba(248, 246, 240, 0.96) 100%), url('/egypt_bg.jpg')`,
+        backgroundAttachment: 'fixed',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        color: '#1f2937',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Cairo", "Tajawal", Helvetica, Arial, sans-serif',
+        lineHeight: 1.7
+      }}
+    >
       {/* Top Brand Navigation */}
       <nav className="hide-print" style={{
-        padding: '16px 24px',
-        background: 'rgba(13, 17, 26, 0.9)',
-        borderBottom: '1px solid rgba(212, 175, 55, 0.3)',
+        padding: '14px 24px',
+        background: 'rgba(255, 255, 255, 0.95)',
+        borderBottom: '1px solid rgba(201, 162, 39, 0.35)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        backdropFilter: 'blur(10px)'
+        backdropFilter: 'blur(12px)',
+        flexWrap: 'wrap',
+        gap: '12px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link href="/" style={{ color: '#d4af37', textDecoration: 'none', fontWeight: '900', fontSize: '1.3rem', letterSpacing: '1px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <Link href="/" style={{ 
+            color: '#8c6a12', 
+            textDecoration: 'none', 
+            fontWeight: '900', 
+            fontSize: '1.35rem', 
+            letterSpacing: '1px',
+            fontFamily: 'var(--font-en, serif)'
+          }}>
             ORLUXUS
           </Link>
-          <span style={{ color: '#8b949e', fontSize: '0.85rem' }}>| Official Legal Portal</span>
+          <span style={{ 
+            color: '#6b7280', 
+            fontSize: '0.85rem',
+            fontWeight: '600',
+            borderLeft: isRtl ? 'none' : '1px solid #d1d5db',
+            borderRight: isRtl ? '1px solid #d1d5db' : 'none',
+            paddingLeft: isRtl ? '0' : '12px',
+            paddingRight: isRtl ? '12px' : '0'
+          }}>
+            {ui.portalBadge}
+          </span>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <button
             onClick={handlePrint}
             style={{
-              background: 'rgba(212, 175, 55, 0.12)',
-              border: '1px solid rgba(212, 175, 55, 0.5)',
-              color: '#d4af37',
+              background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.15), rgba(201, 162, 39, 0.08))',
+              border: '1px solid #c9a227',
+              color: '#8c6a12',
               borderRadius: '8px',
-              padding: '6px 16px',
+              padding: '7px 16px',
               fontSize: '0.85rem',
-              fontWeight: 'bold',
-              cursor: 'pointer'
+              fontWeight: '700',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 6px rgba(201, 162, 39, 0.15)',
+              transition: 'all 0.2s'
             }}
           >
-            🖨️ Print / Save as PDF
+            {ui.printBtn}
           </button>
           <Link
             href="/"
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              color: '#fff',
+              background: '#ffffff',
+              border: '1px solid #d1d5db',
+              color: '#374151',
               borderRadius: '8px',
-              padding: '6px 16px',
+              padding: '7px 16px',
               fontSize: '0.85rem',
-              textDecoration: 'none'
+              fontWeight: '600',
+              textDecoration: 'none',
+              transition: 'all 0.2s'
             }}
           >
-            ← Return to Home
+            {ui.returnHome}
           </Link>
         </div>
       </nav>
 
+      {/* Language Selector Bar (10 Languages with Flags) */}
+      <div className="hide-print" style={{
+        background: 'rgba(255, 255, 255, 0.88)',
+        borderBottom: '1px solid rgba(201, 162, 39, 0.25)',
+        padding: '10px 20px',
+        backdropFilter: 'blur(8px)'
+      }}>
+        <div style={{
+          maxWidth: '1400px',
+          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          flexWrap: 'wrap'
+        }}>
+          <span style={{ 
+            fontSize: '0.85rem', 
+            fontWeight: '700', 
+            color: '#8c6a12',
+            marginRight: isRtl ? '0' : '6px',
+            marginLeft: isRtl ? '6px' : '0'
+          }}>
+            🌐 {ui.selectLanguage}
+          </span>
+          {SUPPORTED_LEGAL_LANGUAGES.map((lang) => {
+            const isActive = currentLang === lang.code;
+            return (
+              <button
+                key={lang.code}
+                onClick={() => setCurrentLang(lang.code)}
+                style={{
+                  background: isActive ? 'linear-gradient(135deg, #c9a227, #aa841a)' : '#ffffff',
+                  color: isActive ? '#ffffff' : '#374151',
+                  border: isActive ? '1px solid #aa841a' : '1px solid #e5e7eb',
+                  borderRadius: '20px',
+                  padding: '5px 12px',
+                  fontSize: '0.82rem',
+                  fontWeight: isActive ? '700' : '500',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: isActive ? '0 2px 8px rgba(201, 162, 39, 0.3)' : '0 1px 3px rgba(0,0,0,0.04)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <span>{lang.flag}</span>
+                <span>{lang.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Main Container */}
       <main style={{ maxWidth: '1400px', margin: '0 auto', padding: '30px 20px 60px 20px' }}>
         
-        {/* Hero Title */}
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <span style={{
-            display: 'inline-block',
-            background: 'rgba(212, 175, 55, 0.15)',
-            color: '#d4af37',
-            padding: '4px 14px',
+        {/* Hero Header */}
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'rgba(201, 162, 39, 0.12)',
+            color: '#8c6a12',
+            padding: '5px 16px',
             borderRadius: '20px',
-            fontSize: '0.8rem',
-            fontWeight: 'bold',
-            marginBottom: '8px',
-            textTransform: 'uppercase',
-            border: '1px solid rgba(212, 175, 55, 0.3)'
+            fontSize: '0.82rem',
+            fontWeight: '700',
+            marginBottom: '12px',
+            border: '1px solid rgba(201, 162, 39, 0.35)'
           }}>
-            Legal &amp; Regulatory Framework
-          </span>
+            <span>⚖️</span>
+            <span>{ui.portalBadge}</span>
+          </div>
           <h1 style={{
-            fontSize: 'clamp(1.5rem, 3vw, 2.3rem)',
+            fontSize: 'clamp(1.5rem, 3.2vw, 2.3rem)',
             fontWeight: '900',
-            color: '#fff',
-            margin: '0 0 10px 0'
+            color: '#111827',
+            margin: '0 0 10px 0',
+            letterSpacing: '-0.5px'
           }}>
-            ORLUXUS Legal Agreement &amp; Policies
+            {ui.pageTitle}
           </h1>
-          <p style={{ maxWidth: '750px', margin: '0 auto', color: '#8b949e', fontSize: '0.92rem', lineHeight: '1.6' }}>
-            Comprehensive Terms &amp; Conditions and Cancellation &amp; Refund Policy governing all excursions, activities, and bookings arranged via ORLUXUS Marketing &amp; Branding.
+          <p style={{
+            maxWidth: '820px',
+            margin: '0 auto',
+            color: '#4b5563',
+            fontSize: 'clamp(0.9rem, 1.5vw, 1.05rem)',
+            lineHeight: '1.6'
+          }}>
+            {ui.pageSubtitle}
           </p>
         </div>
 
-        {/* Tab Controls */}
+        {/* Egyptian Law Precedence Warning Banner */}
+        <div style={{
+          background: 'rgba(254, 243, 199, 0.9)',
+          border: '1px solid #f59e0b',
+          borderRadius: '12px',
+          padding: '14px 18px',
+          marginBottom: '25px',
+          fontSize: '0.86rem',
+          color: '#92400e',
+          lineHeight: '1.65',
+          backdropFilter: 'blur(6px)',
+          boxShadow: '0 2px 10px rgba(245, 158, 11, 0.08)'
+        }}>
+          {ui.prevailWarning}
+        </div>
+
+        {/* View Switcher Tabs */}
         <div className="hide-print" style={{
           display: 'flex',
           justifyContent: 'center',
-          gap: '10px',
-          marginBottom: '25px',
+          gap: '8px',
+          marginBottom: '26px',
           flexWrap: 'wrap'
         }}>
           <button
             onClick={() => setActiveTab('both')}
             style={{
-              background: activeTab === 'both' ? 'linear-gradient(135deg, #d4af37, #aa820a)' : 'rgba(255, 255, 255, 0.06)',
-              color: activeTab === 'both' ? '#000' : '#fff',
-              border: 'none',
-              padding: '8px 20px',
-              borderRadius: '25px',
+              padding: '10px 20px',
+              borderRadius: '10px',
+              fontWeight: '700',
               fontSize: '0.9rem',
-              fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              background: activeTab === 'both' ? '#c9a227' : '#ffffff',
+              color: activeTab === 'both' ? '#ffffff' : '#374151',
+              border: activeTab === 'both' ? '1px solid #aa841a' : '1px solid #d1d5db',
+              boxShadow: activeTab === 'both' ? '0 4px 14px rgba(201, 162, 39, 0.25)' : '0 1px 3px rgba(0,0,0,0.05)'
             }}
           >
-            ⚖️ Split View: Both Halves Side-by-Side (صفحة مقسومة جزئين)
+            {ui.tabBoth}
           </button>
           <button
             onClick={() => setActiveTab('terms')}
             style={{
-              background: activeTab === 'terms' ? 'linear-gradient(135deg, #d4af37, #aa820a)' : 'rgba(255, 255, 255, 0.06)',
-              color: activeTab === 'terms' ? '#000' : '#fff',
-              border: 'none',
-              padding: '8px 20px',
-              borderRadius: '25px',
+              padding: '10px 20px',
+              borderRadius: '10px',
+              fontWeight: '700',
               fontSize: '0.9rem',
-              fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              background: activeTab === 'terms' ? '#c9a227' : '#ffffff',
+              color: activeTab === 'terms' ? '#ffffff' : '#374151',
+              border: activeTab === 'terms' ? '1px solid #aa841a' : '1px solid #d1d5db',
+              boxShadow: activeTab === 'terms' ? '0 4px 14px rgba(201, 162, 39, 0.25)' : '0 1px 3px rgba(0,0,0,0.05)'
             }}
           >
-            📜 Part 1: Terms &amp; Conditions Only
+            {ui.tabTerms}
           </button>
           <button
             onClick={() => setActiveTab('cancellation')}
             style={{
-              background: activeTab === 'cancellation' ? 'linear-gradient(135deg, #d4af37, #aa820a)' : 'rgba(255, 255, 255, 0.06)',
-              color: activeTab === 'cancellation' ? '#000' : '#fff',
-              border: 'none',
-              padding: '8px 20px',
-              borderRadius: '25px',
+              padding: '10px 20px',
+              borderRadius: '10px',
+              fontWeight: '700',
               fontSize: '0.9rem',
-              fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              background: activeTab === 'cancellation' ? '#c9a227' : '#ffffff',
+              color: activeTab === 'cancellation' ? '#ffffff' : '#374151',
+              border: activeTab === 'cancellation' ? '1px solid #aa841a' : '1px solid #d1d5db',
+              boxShadow: activeTab === 'cancellation' ? '0 4px 14px rgba(201, 162, 39, 0.25)' : '0 1px 3px rgba(0,0,0,0.05)'
             }}
           >
-            🔄 Part 2: Cancellation Policy Only
+            {ui.tabCancellation}
           </button>
         </div>
 
-        {/* Dual Split Content */}
+        {/* Dual Split Content Container */}
         <div style={{
-          display: activeTab === 'both' ? 'grid' : 'block',
-          gridTemplateColumns: activeTab === 'both' ? 'repeat(auto-fit, minmax(420px, 1fr))' : '1fr',
-          gap: '28px',
+          display: 'grid',
+          gridTemplateColumns: activeTab === 'both' ? 'repeat(auto-fit, minmax(min(100%, 580px), 1fr))' : '1fr',
+          gap: '24px',
           alignItems: 'start'
         }}>
-
-          {/* ══════ PART ONE ══════ */}
+          
+          {/* SECTION 1: TERMS & CONDITIONS */}
           {(activeTab === 'both' || activeTab === 'terms') && (
             <div style={{
-              background: 'rgba(16, 22, 34, 0.7)',
+              background: 'rgba(255, 255, 255, 0.94)',
               borderRadius: '16px',
-              border: '1px solid rgba(212, 175, 55, 0.3)',
-              padding: '24px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '18px'
+              border: '1px solid rgba(201, 162, 39, 0.35)',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05), 0 0 20px rgba(201, 162, 39, 0.08)',
+              padding: 'clamp(20px, 3vw, 32px)',
+              backdropFilter: 'blur(16px)'
             }}>
-              <div style={{ borderBottom: '2px solid #d4af37', paddingBottom: '12px' }}>
-                <span style={{
-                  background: 'rgba(212, 175, 55, 0.15)',
-                  color: '#d4af37',
-                  padding: '3px 12px',
-                  borderRadius: '12px',
-                  fontSize: '0.75rem',
-                  fontWeight: 'bold',
-                  textTransform: 'uppercase'
-                }}>
-                  PART ONE (الجزء الأول)
-                </span>
-                <h2 style={{ margin: '8px 0 4px 0', color: '#fff', fontSize: '1.25rem', fontWeight: '800' }}>
-                  {TERMS_AND_CONDITIONS_EN.title}
-                </h2>
-              </div>
-
+              {/* Column Header */}
               <div style={{
-                background: 'rgba(212, 175, 55, 0.08)',
-                borderLeft: '4px solid #d4af37',
-                padding: '14px',
-                borderRadius: '6px',
-                fontSize: '0.84rem',
-                lineHeight: '1.6',
-                color: '#f0f6fc'
+                borderBottom: '2px solid rgba(201, 162, 39, 0.35)',
+                paddingBottom: '16px',
+                marginBottom: '20px'
               }}>
-                <strong style={{ color: '#d4af37', display: 'block', marginBottom: '4px' }}>
-                  ⚠️ IMPORTANT: ELECTRONIC CONSENT &amp; BINDING AGREEMENT
-                </strong>
-                Please read these Terms and Conditions carefully before using our platform or making a booking. By proceeding, you enter into a legally binding agreement with <strong>ORLUXUS MARKETING AND BRANDING</strong>.
-              </div>
-
-              {TERMS_AND_CONDITIONS_EN.sections.map((sec) => (
-                <div key={sec.num} style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                <span style={{
+                  background: '#8c6a12',
+                  color: '#ffffff',
+                  fontSize: '0.72rem',
+                  fontWeight: '800',
+                  padding: '3px 10px',
+                  borderRadius: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  {ui.part1Title}
+                </span>
+                <h2 style={{
+                  fontSize: 'clamp(1.15rem, 2vw, 1.45rem)',
+                  color: '#111827',
+                  margin: '10px 0 6px 0',
+                  fontWeight: '800'
+                }}>
+                  {terms.title}
+                </h2>
+                <div style={{
+                  background: 'rgba(201, 162, 39, 0.08)',
+                  border: '1px solid rgba(201, 162, 39, 0.25)',
                   borderRadius: '8px',
-                  padding: '14px'
+                  padding: '10px 14px',
+                  marginTop: '12px',
+                  fontSize: '0.84rem',
+                  color: '#4b5563',
+                  lineHeight: '1.6'
                 }}>
-                  <h3 style={{
-                    margin: '0 0 8px 0',
-                    color: '#d4af37',
-                    fontSize: '0.92rem',
-                    fontWeight: '700'
-                  }}>
-                    {sec.title}
-                  </h3>
-                  <div style={{
-                    fontSize: '0.84rem',
-                    lineHeight: '1.7',
-                    color: '#c9d1d9',
-                    whiteSpace: 'pre-wrap'
-                  }}>
-                    {sec.content}
-                  </div>
+                  {terms.importantNotice}
                 </div>
-              ))}
-
-              <div style={{
-                fontSize: '0.78rem',
-                color: '#8b949e',
-                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                paddingTop: '12px'
-              }}>
-                <strong>{TERMS_AND_CONDITIONS_EN.footer.company}</strong><br />
-                {TERMS_AND_CONDITIONS_EN.footer.address}
-              </div>
-            </div>
-          )}
-
-          {/* ══════ PART TWO ══════ */}
-          {(activeTab === 'both' || activeTab === 'cancellation') && (
-            <div style={{
-              background: 'rgba(16, 22, 34, 0.7)',
-              borderRadius: '16px',
-              border: '1px solid rgba(59, 130, 246, 0.35)',
-              padding: '24px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '18px'
-            }}>
-              <div style={{ borderBottom: '2px solid #60a5fa', paddingBottom: '12px' }}>
-                <span style={{
-                  background: 'rgba(59, 130, 246, 0.15)',
-                  color: '#60a5fa',
-                  padding: '3px 12px',
-                  borderRadius: '12px',
-                  fontSize: '0.75rem',
-                  fontWeight: 'bold',
-                  textTransform: 'uppercase'
-                }}>
-                  PART TWO (الجزء الثاني)
-                </span>
-                <h2 style={{ margin: '8px 0 4px 0', color: '#fff', fontSize: '1.25rem', fontWeight: '800' }}>
-                  {CANCELLATION_POLICY_EN.title}
-                </h2>
-                <p style={{ margin: 0, fontSize: '0.78rem', color: '#8b949e' }}>
-                  {CANCELLATION_POLICY_EN.subtitle}
-                </p>
               </div>
 
-              <div style={{
-                background: 'rgba(59, 130, 246, 0.08)',
-                borderLeft: '4px solid #60a5fa',
-                padding: '14px',
-                borderRadius: '6px',
-                fontSize: '0.84rem',
-                lineHeight: '1.6',
-                color: '#f0f6fc'
-              }}>
-                <strong style={{ color: '#60a5fa', display: 'block', marginBottom: '4px' }}>
-                  ⚖️ {CANCELLATION_POLICY_EN.preamble.title}
-                </strong>
-                {CANCELLATION_POLICY_EN.preamble.paragraphs.map((p, idx) => (
-                  <p key={idx} style={{ margin: '0 0 6px 0', whiteSpace: 'pre-wrap' }}>{p}</p>
+              {/* Sections List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {terms.sections.map((section) => (
+                  <article 
+                    key={section.num}
+                    style={{
+                      background: '#ffffff',
+                      borderRadius: '10px',
+                      padding: '16px 18px',
+                      border: '1px solid #e5e7eb',
+                      boxShadow: '0 1px 4px rgba(0, 0, 0, 0.02)'
+                    }}
+                  >
+                    <h3 style={{
+                      margin: '0 0 10px 0',
+                      fontSize: '0.98rem',
+                      color: '#8c6a12',
+                      fontWeight: '800',
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      gap: '8px'
+                    }}>
+                      <span>{section.title}</span>
+                    </h3>
+                    <div style={{
+                      color: '#374151',
+                      fontSize: '0.88rem',
+                      lineHeight: '1.75',
+                      whiteSpace: 'pre-line'
+                    }}>
+                      {section.content}
+                    </div>
+                  </article>
                 ))}
               </div>
-
-              {CANCELLATION_POLICY_EN.articles.map((art) => (
-                <div key={art.num} style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
-                  borderRadius: '8px',
-                  padding: '14px'
-                }}>
-                  <h3 style={{
-                    margin: '0 0 8px 0',
-                    color: '#60a5fa',
-                    fontSize: '0.92rem',
-                    fontWeight: '700'
-                  }}>
-                    {art.title}
-                  </h3>
-                  {art.intro && (
-                    <p style={{ margin: '0 0 8px 0', fontSize: '0.82rem', color: '#8b949e', fontStyle: 'italic' }}>
-                      {art.intro}
-                    </p>
-                  )}
-                  {art.clauses && art.clauses.map((clause, cIdx) => (
-                    <div key={cIdx} style={{
-                      fontSize: '0.84rem',
-                      lineHeight: '1.7',
-                      color: '#c9d1d9',
-                      marginBottom: '8px',
-                      whiteSpace: 'pre-wrap'
-                    }}>
-                      {clause}
-                    </div>
-                  ))}
-
-                  {art.table && (
-                    <div style={{ marginTop: '14px', overflowX: 'auto' }}>
-                      <p style={{ fontSize: '0.8rem', color: '#8b949e', marginBottom: '8px' }}>{art.tableIntro}</p>
-                      <table style={{
-                        width: '100%',
-                        borderCollapse: 'collapse',
-                        fontSize: '0.78rem',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                      }}>
-                        <thead>
-                          <tr style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', textAlign: 'left' }}>
-                            <th style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>Legislative Law</th>
-                            <th style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>Article</th>
-                            <th style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>Purpose / Legal Effect</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {art.table.map((row, rIdx) => (
-                            <tr key={rIdx} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                              <td style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#d4af37', fontWeight: '600' }}>{row.law}</td>
-                              <td style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#60a5fa', fontWeight: 'bold' }}>{row.article}</td>
-                              <td style={{ padding: '8px', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#c9d1d9' }}>{row.purpose}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              <div style={{
-                fontSize: '0.78rem',
-                color: '#8b949e',
-                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                paddingTop: '12px'
-              }}>
-                <strong>{CANCELLATION_POLICY_EN.footer.company}</strong><br />
-                {CANCELLATION_POLICY_EN.footer.address}
-              </div>
             </div>
           )}
 
+          {/* SECTION 2: CANCELLATION & REFUND POLICY */}
+          {(activeTab === 'both' || activeTab === 'cancellation') && (
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.94)',
+              borderRadius: '16px',
+              border: '1px solid rgba(201, 162, 39, 0.35)',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05), 0 0 20px rgba(201, 162, 39, 0.08)',
+              padding: 'clamp(20px, 3vw, 32px)',
+              backdropFilter: 'blur(16px)'
+            }}>
+              {/* Column Header */}
+              <div style={{
+                borderBottom: '2px solid rgba(201, 162, 39, 0.35)',
+                paddingBottom: '16px',
+                marginBottom: '20px'
+              }}>
+                <span style={{
+                  background: '#c9a227',
+                  color: '#ffffff',
+                  fontSize: '0.72rem',
+                  fontWeight: '800',
+                  padding: '3px 10px',
+                  borderRadius: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  {ui.part2Title}
+                </span>
+                <h2 style={{
+                  fontSize: 'clamp(1.15rem, 2vw, 1.45rem)',
+                  color: '#111827',
+                  margin: '10px 0 6px 0',
+                  fontWeight: '800'
+                }}>
+                  {cancellation.title}
+                </h2>
+                <p style={{ margin: 0, fontSize: '0.84rem', color: '#6b7280', fontStyle: 'italic' }}>
+                  {cancellation.subtitle}
+                </p>
+
+                {/* Preamble */}
+                {cancellation.preamble && (
+                  <div style={{
+                    background: 'rgba(201, 162, 39, 0.08)',
+                    border: '1px solid rgba(201, 162, 39, 0.25)',
+                    borderRadius: '8px',
+                    padding: '12px 14px',
+                    marginTop: '12px'
+                  }}>
+                    <div style={{ fontWeight: '700', fontSize: '0.85rem', color: '#8c6a12', marginBottom: '4px' }}>
+                      ⚖️ {cancellation.preamble.title}
+                    </div>
+                    {cancellation.preamble.paragraphs.map((p, pIdx) => (
+                      <p key={pIdx} style={{ margin: '4px 0', fontSize: '0.84rem', color: '#4b5563', whiteSpace: 'pre-line' }}>
+                        {p}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Articles List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {cancellation.articles.map((article) => (
+                  <article
+                    key={article.num}
+                    style={{
+                      background: '#ffffff',
+                      borderRadius: '10px',
+                      padding: '16px 18px',
+                      border: '1px solid #e5e7eb',
+                      boxShadow: '0 1px 4px rgba(0, 0, 0, 0.02)'
+                    }}
+                  >
+                    <h3 style={{
+                      margin: '0 0 10px 0',
+                      fontSize: '0.98rem',
+                      color: '#8c6a12',
+                      fontWeight: '800'
+                    }}>
+                      {article.title}
+                    </h3>
+                    {article.intro && (
+                      <p style={{ margin: '0 0 10px 0', fontSize: '0.86rem', color: '#4b5563', fontStyle: 'italic' }}>
+                        {article.intro}
+                      </p>
+                    )}
+                    {article.clauses && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {article.clauses.map((clause, cIdx) => (
+                          <div key={cIdx} style={{ fontSize: '0.88rem', color: '#374151', lineHeight: '1.75', whiteSpace: 'pre-line' }}>
+                            {clause}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Article 9: Statutory Table */}
+                    {article.table && (
+                      <div style={{ marginTop: '14px', overflowX: 'auto' }}>
+                        <table style={{
+                          width: '100%',
+                          borderCollapse: 'collapse',
+                          fontSize: '0.82rem',
+                          background: '#fafafa',
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          border: '1px solid #e5e7eb'
+                        }}>
+                          <thead>
+                            <tr style={{ background: 'rgba(201, 162, 39, 0.12)', color: '#8c6a12', borderBottom: '1px solid rgba(201, 162, 39, 0.25)' }}>
+                              <th style={{ padding: '8px 12px', textAlign: isRtl ? 'right' : 'left', fontWeight: '700' }}>{ui.thLaw}</th>
+                              <th style={{ padding: '8px 12px', textAlign: isRtl ? 'right' : 'left', fontWeight: '700' }}>{ui.thArticle}</th>
+                              <th style={{ padding: '8px 12px', textAlign: isRtl ? 'right' : 'left', fontWeight: '700' }}>{ui.thPurpose}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {article.table.map((row, rIdx) => (
+                              <tr key={rIdx} style={{ borderBottom: '1px solid #f3f4f6', background: rIdx % 2 === 0 ? '#ffffff' : '#f9fafb' }}>
+                                <td style={{ padding: '8px 12px', fontWeight: '600', color: '#1f2937' }}>{row.law}</td>
+                                <td style={{ padding: '8px 12px', color: '#8c6a12', fontWeight: '600' }}>{row.article}</td>
+                                <td style={{ padding: '8px 12px', color: '#4b5563', lineHeight: '1.5' }}>{row.purpose}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Language Notice */}
-        <div style={{
+        {/* Footer */}
+        <footer style={{
           marginTop: '40px',
-          padding: '16px',
-          borderRadius: '10px',
-          background: 'rgba(212, 175, 55, 0.08)',
-          border: '1px solid rgba(212, 175, 55, 0.25)',
           textAlign: 'center',
-          color: '#d4af37',
-          fontSize: '0.85rem'
+          color: '#6b7280',
+          fontSize: '0.84rem',
+          borderTop: '1px solid rgba(201, 162, 39, 0.25)',
+          paddingTop: '20px'
         }}>
-          * Note on Language: This Agreement and Cancellation Policy are prepared in the Arabic language. In case of translation into English or any other language, the Arabic version shall prevail in the event of any conflict or dispute. (تكون النسخة العربية هي السائدة عند أي نزاع).
-        </div>
+          <p style={{ margin: '0 0 6px 0', fontWeight: '700', color: '#8c6a12' }}>
+            {ui.footerCompany}
+          </p>
+          <p style={{ margin: '0 0 10px 0' }}>
+            📍 {ui.footerAddress}
+          </p>
+          <p style={{ margin: 0, fontSize: '0.78rem' }}>
+            © {new Date().getFullYear()} ORLUXUS. {ui.lawBadge || 'All rights reserved.'}
+          </p>
+        </footer>
 
       </main>
+
+      {/* Print Specific CSS */}
+      <style jsx global>{`
+        @media print {
+          .hide-print {
+            display: none !important;
+          }
+          body {
+            background: #ffffff !important;
+            color: #000000 !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
