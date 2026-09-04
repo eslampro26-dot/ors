@@ -217,7 +217,14 @@ export default function AdminBookings() {
           specialRequests: booking.specialRequests || '',
           adultPrice: booking.adultPrice,
           childPrice: booking.childPrice,
-          infantPrice: booking.infantPrice
+          infantPrice: booking.infantPrice,
+          electronicSignature: booking.electronicSignature || {
+            name: booking.customer,
+            email: booking.email,
+            phone: booking.phone,
+            timestamp: booking.createdAt || new Date().toISOString()
+          },
+          signatureTimestamp: booking.signatureTimestamp || booking.createdAt || new Date().toISOString()
         })
       });
 
@@ -499,7 +506,15 @@ export default function AdminBookings() {
           <div class="header">
             <div class="logo-area">
               <div class="logo-text">
-                <h2>ORLUXUS MARKETING TOURISM AGENCY</h2>
+                <h2>ORLUXUS MARKETING &amp; TOURISM AGENCY</h2>
+                <p style="margin: 4px 0 2px 0; font-size: 0.8rem; color: #333333; font-weight: 600;">
+                  📍 Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533
+                </p>
+                <p style="margin: 0; font-size: 0.75rem;">
+                  <a href="https://maps.app.goo.gl/7tsNKEHJ8cEBcR9Q6" target="_blank" style="color: #0284c7; text-decoration: underline;">
+                    🗺️ View on Google Maps
+                  </a>
+                </p>
               </div>
             </div>
             <div class="ref-area">

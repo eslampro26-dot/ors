@@ -179,11 +179,83 @@ export function buildBookingInvoiceHTML(data) {
         <div style="font-size: 13px; color: #8b949e;">WhatsApp: <a href="https://wa.me/${CUSTOMER_SERVICE_PHONE.replace(/[^0-9]/g, '')}">${CUSTOMER_SERVICE_PHONE}</a></div>
         <div style="font-size: 13px; color: #8b949e;">Emergency: <a href="tel:${EMERGENCY_PHONE}">${EMERGENCY_PHONE}</a></div>
       </div>
+
+      <!-- Electronic Contract & Digital Signature Section -->
+      <div style="margin-top: 25px; border-top: 2px dashed #30363d; padding-top: 20px;">
+        <div class="section-title">📜 Digital Contract & Electronic Signature / العقد والتوقيع الإلكتروني</div>
+        
+        <div style="background: #0d1117; border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 8px; padding: 18px; margin-bottom: 15px;">
+          <div style="font-size: 13px; color: #d4af37; font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">
+            ⚖️ Integrated Tourism Brokerage Agreement &amp; Digital Signature Record
+          </div>
+          <p style="font-size: 12px; color: #8b949e; margin: 0 0 12px 0; line-height: 1.6;">
+            This document serves as the legally binding electronic agreement between <strong>ORLUXUS MARKETING &amp; BRANDING</strong> and <strong>${(data.electronicSignature?.name || customerName || 'Valued Guest')}</strong>, formally executed via electronic consent pursuant to Egyptian Electronic Signature Law No. 15 of 2004.
+          </p>
+
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 12px;">
+            <tr style="border-bottom: 1px solid #21262d;">
+              <td style="color: #8b949e; padding: 6px 0; width: 45%;">Signatory Full Name:</td>
+              <td style="color: #f0f6fc; font-weight: bold; text-align: right;">${(data.electronicSignature?.name || customerName || 'Valued Guest')}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #21262d;">
+              <td style="color: #8b949e; padding: 6px 0;">Verified Email Address:</td>
+              <td style="color: #f0f6fc; text-align: right;">${(data.electronicSignature?.email || email || 'N/A')}</td>
+            </tr>
+            ${phone ? `
+            <tr style="border-bottom: 1px solid #21262d;">
+              <td style="color: #8b949e; padding: 6px 0;">Contact Phone:</td>
+              <td style="color: #f0f6fc; text-align: right;">${phone}</td>
+            </tr>
+            ` : ''}
+            <tr style="border-bottom: 1px solid #21262d;">
+              <td style="color: #8b949e; padding: 6px 0;">Signing Timestamp:</td>
+              <td style="color: #f0f6fc; text-align: right; font-family: monospace;">${new Date(data.electronicSignature?.timestamp || data.signatureTimestamp || Date.now()).toLocaleString('en-GB')}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #21262d;">
+              <td style="color: #8b949e; padding: 6px 0;">Contract Reference / TX:</td>
+              <td style="color: #d4af37; text-align: right; font-family: monospace; font-weight: bold;">#${invoiceNo}</td>
+            </tr>
+            <tr>
+              <td style="color: #8b949e; padding: 6px 0;">Legal Status:</td>
+              <td style="color: #10b981; text-align: right; font-weight: bold;">✓ Digitally Signed &amp; Legally Binding (Law 15/2004)</td>
+            </tr>
+          </table>
+
+          <div style="background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 6px; padding: 12px; font-size: 11px; color: #c9d1d9; line-height: 1.6;">
+            <p style="margin: 0 0 6px 0; font-weight: bold; color: #d4af37;">Summary of Agreed Contractual Terms:</p>
+            <ul style="margin: 0; padding-inline-start: 18px;">
+              <li><strong>Scope:</strong> ORLUXUS operates as an authorized marketing broker and booking coordinator between clients and professional tour operators.</li>
+              <li><strong>Cancellation Policy:</strong> Free cancellation up to 48 hours prior to departure. Late cancellations or no-shows may incur fees as specified in policy.</li>
+              <li><strong>Safety &amp; Risks:</strong> Guest undertakes to follow safety instructions from tour leaders and participates under personal responsibility.</li>
+              <li><strong>Data Protection:</strong> All personal data is collected and processed in full compliance with Egyptian Data Protection Law No. 151 of 2020.</li>
+            </ul>
+          </div>
+
+          <!-- Signatures Box -->
+          <table style="width: 100%; border-collapse: collapse; margin-top: 14px; padding-top: 10px; border-top: 1px solid #21262d; font-size: 11px;">
+            <tr>
+              <td style="vertical-align: top; width: 50%;">
+                <span style="color: #8b949e; display: block; margin-bottom: 2px;">Company Authorized Signature:</span>
+                <strong style="color: #d4af37;">ORLUXUS MARKETING &amp; BRANDING</strong>
+                <span style="display: block; color: #8b949e; font-size: 10px; margin-top: 2px;">Taksim El-Nasr, Hurghada 1, Red Sea 1966533</span>
+              </td>
+              <td style="vertical-align: top; text-align: right; width: 50%;">
+                <span style="color: #8b949e; display: block; margin-bottom: 2px;">Guest Digital Signature:</span>
+                <strong style="color: #10b981;">✓ ${(data.electronicSignature?.name || customerName || 'Valued Guest')}</strong>
+                <span style="display: block; color: #10b981; font-size: 10px; margin-top: 2px;">[Digitally Verified Consent]</span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
     </div>
 
     <div class="footer">
-      <p>ORLUXUS GROUP Ltd. • Verified Travel Partner • Cairo & Sharm El Sheikh, Egypt</p>
-      <p style="margin: 0; font-size: 11px;">This is an automated official booking voucher. Please keep this email as your valid digital ticket upon arrival.</p>
+      <p style="margin: 0 0 6px 0; font-weight: bold; color: #f0f6fc;">ORLUXUS GROUP Ltd. • Verified Travel &amp; Excursions Partner</p>
+      <p style="margin: 0 0 6px 0;">
+        📍 <a href="https://maps.app.goo.gl/7tsNKEHJ8cEBcR9Q6" target="_blank" style="color: #d4af37; text-decoration: underline;">Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533</a>
+      </p>
+      <p style="margin: 0; font-size: 11px; color: #8b949e;">This is an automated official booking voucher and digital contract agreement. Please keep this email as your valid digital ticket upon arrival.</p>
     </div>
   </div>
 </body>

@@ -10,28 +10,6 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { CurrencyProvider } from "@/context/CurrencyContext";
 import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
 import GlobalBackground from "@/components/GlobalBackground";
-import { Playfair_Display, Poppins, Tajawal } from 'next/font/google';
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-playfair',
-  display: 'swap',
-});
-
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['400', '600', '700'],
-  variable: '--font-poppins',
-  display: 'swap',
-});
-
-const tajawal = Tajawal({
-  subsets: ['arabic'],
-  weight: ['400', '700'],
-  variable: '--font-tajawal',
-  display: 'swap',
-});
 
 const RTL_LOCALES = ['ar'];
 
@@ -57,8 +35,11 @@ export default function RootLayout({ children, params }) {
   const dir = getDirection(locale);
 
   return (
-    <html lang={locale} dir={dir} className={`${playfair.variable} ${poppins.variable} ${tajawal.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang={locale} dir={dir} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5.0, user-scalable=yes" />
         <link rel="alternate" hrefLang="en" href="https://orluxus.com/" />
         <link rel="alternate" hrefLang="ar" href="https://orluxus.com/ar/" />

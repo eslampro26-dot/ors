@@ -1211,11 +1211,29 @@ export default function Home() {
             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', marginBottom: '0.5rem' }}>
               {t('footer.contactEmail') ? t('footer.contactEmail').replace('{email}', socialMedia.email || 'info@orluxus.com') : `Contact us via email: ${socialMedia.email || 'info@orluxus.com'}`}
             </p>
-            {/* Company Address */}
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: '1rem', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-              <span style={{ fontSize: '1rem', lineHeight: 1 }}>📍</span>
-              <span>{siteSettings?.companyAddress || 'Cairo & Sharm El Sheikh, Egypt 🇪🇬'}</span>
-            </p>
+            {/* Company Address with Google Maps link */}
+            <a 
+              href={siteSettings?.googleMapsUrl || "https://maps.app.goo.gl/7tsNKEHJ8cEBcR9Q6"} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              title="View on Google Maps"
+              style={{
+                color: 'rgba(255,255,255,0.7)',
+                fontSize: '0.82rem',
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '6px',
+                textDecoration: 'none',
+                lineHeight: '1.4',
+                transition: 'color 0.2s ease'
+              }}
+            >
+              <span style={{ fontSize: '1rem', lineHeight: 1, flexShrink: 0 }}>📍</span>
+              <span style={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}>
+                {siteSettings?.companyAddress || 'Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533'}
+              </span>
+            </a>
             <a 
               href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`} 
               target="_blank" 
