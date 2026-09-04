@@ -12,6 +12,7 @@ import { useCurrency } from '@/context/CurrencyContext';
 import { useSettings } from '@/hooks/useSettings';
 import DafahSimulatedGateway from '@/components/DafahSimulatedGateway';
 import TranslatedText from '@/components/TranslatedText';
+import LegalPoliciesModal from '@/components/LegalPoliciesModal';
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -115,6 +116,8 @@ function CheckoutContent() {
   const [selectedExtras, setSelectedExtras] = useState({});
   const [specialRequests, setSpecialRequests] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [legalModalOpen, setLegalModalOpen] = useState(false);
+  const [legalModalTab, setLegalModalTab] = useState('both');
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
   const [modalTitle, setModalTitle] = useState('');
@@ -3336,167 +3339,21 @@ function CheckoutContent() {
               {/* Full Legal Agreement & Terms Box */}
               {(() => {
                 const openTerms = (e) => {
-                  e.preventDefault();
-                  setModalTitle(locale === 'ar' ? '⚖️ اتفاقية الوساطة السياحية والتسويق الإلكتروني الكاملة' : '⚖️ Integrated Marketing Services & Tourism Brokerage Agreement — Full Legal Contract');
-                  const clientName = customerName?.trim() || (locale === 'ar' ? '[اسم العميل]' : '[Client Name]');
-                  const clientEmail = email?.trim() || (locale === 'ar' ? '[البريد الإلكتروني]' : '[Email Address]');
-                  const clientPhone = phone?.trim() || (locale === 'ar' ? '[رقم الهاتف]' : '[Phone Number]');
-                  const sigDate = new Date().toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-GB');
-
-                  const contractText = `INTEGRATED MARKETING SERVICES AND TOURISM BROKERAGE AGREEMENT
-Between: ORLUXUS MARKETING AND BRANDING (the "Company")
-Headquarters: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt
-And: ${clientName} (email: ${clientEmail}, phone: ${clientPhone})
-(hereinafter referred to as the "Client")
-
-ELECTRONIC SIGNATURE & VERIFICATION RECORD:
-• Signatory / Client Full Name: ${clientName}
-• Registered Email: ${clientEmail}
-• Contact Phone: ${clientPhone}
-• Electronic Signature Verification: ${clientName}
-• Verification Timestamp: ${sigDate}
-• Service / Tour Requested: ${titleEn || titleAr || 'Selected Excursion'}
-• Governing Law: Egyptian Electronic Signature Law No. 15 of 2004
-
-═══════════════════════════════════════════════════════════════
-PREAMBLE
-WHEREAS the Company operates in the field of electronic marketing and branding, and provides an electronic platform acting as a marketing and organizational broker between Clients and providers of tourism, entertainment, hospitality, transportation, and other services related to tourism and entertainment within and outside the Arab Republic of Egypt;
-WHEREAS the Company expressly declares that it is not a licensed tourism company, does not provide tourism services itself, and only provides services within the limits of electronic marketing, brokerage between Clients and service providers, and the organization and coordination of bookings and activities;
-WHEREAS the Client wishes to benefit from the Company's services through its electronic platforms;
-NOW, THEREFORE, the Parties have agreed as follows:
-
-═══════════════════════════════════════════════════════════════
-PART ONE: GENERAL TERMS AND CONDITIONS
-
-Article (1): Definition of the Company and Scope of Work
-The Company is defined as a company operating in the field of marketing and branding, providing an electronic platform that acts as a marketing and organizational broker between Clients and providers of tourism, entertainment, hospitality, transportation, and other services related to tourism and entertainment within and outside the Arab Republic of Egypt.
-The Company acknowledges and expressly declares that it is not a licensed tourism company, does not provide tourism services itself, and only provides its services within the following limits:
-• Electronic marketing of tourism and entertainment services on behalf of service providers.
-• Brokerage between Clients and service providers.
-• Coordination of bookings and activities.
-
-Article (2): Electronic Consent and Formation of Contract
-First: Methods of Consent: Upon clicking the "I agree to the Terms and Conditions" button, or clicking "Complete Booking" or "Confirm Payment", or completing the booking through the website.
-Second: Effects of Consent: This shall be deemed a final and legally binding electronic consent in accordance with Egyptian Electronic Signature Law No. 15 of 2004, whereby Article (14) stipulates that the legal validity of a contract may not be denied merely because it was concluded by electronic means. The Client acknowledges having read all Terms, Privacy Policy, and Risk Acknowledgment, and agrees that this electronic signature has the same legal validity as a handwritten signature.
-Third: Effectiveness of the Contract: Concluded and effective immediately upon electronic consent.
-
-Article (3): Nature of Company's Work and Scope of Its Role
-The Company acts as a broker and booking organizer. Its role is limited to marketing, coordinating bookings, monitoring quality, and providing technical support. In the case of services provided through third parties, the direct contractual relationship arises between the Client and the primary service provider. The Company shall not be a party to any contract between the Client and the service provider.
-
-Article (4): Company's Liability
-The Company's liability is an obligation of means (marketing, organization, coordination) and not an obligation of result. The Company shall not bear liability for any default or breach by independent service providers, nor for the quality or suitability of services provided by third parties.
-
-Article (5): Disclaimer of Company Liability
-The Company bears no liability for damages arising from: 1) Adverse weather. 2) Natural disasters. 3) Closure of beaches/islands/ports by authorities. 4) Government, security, or administrative decisions. 5) Transportation delays/cancellations. 6) Activity cancellations by operators. 7) Injuries from Client violation of safety instructions. 8) Loss or theft of personal property. 9) Third-party acts. 10) Force majeure events under the Egyptian Civil Code.
-
-Article (6): Client's Obligations and Liability
-The Client undertakes to provide accurate information, comply with scheduled times, follow safety instructions, respect Egyptian laws and tourist establishment rules, not endanger self or others, and disclose any health conditions. The Client bears full responsibility for violations or damages caused to third parties.
-
-Article (7): Injuries, Accidents, and Risks
-The Client acknowledges that marine, sports, and tourism activities involve potential natural risks including drowning, physical injuries, and weather exposure. Participation is at the Client's personal responsibility. The Company recommends obtaining comprehensive travel insurance prior to the trip.
-
-Article (8): Cancellation and Refund Policy
-Free cancellation is available up to 48 hours prior to the scheduled excursion date in accordance with Consumer Protection Law No. 181 of 2018. Cancellations within 48 hours or no-shows are non-refundable. Banking, transfer, and administrative expenses may be deducted.
-
-Article (9): Prices and Payment
-Prices displayed are subject to modification prior to final booking confirmation in cases of exchange rate fluctuations or provider cost increases. A booking is confirmed only upon receipt of the official Electronic Confirmation Voucher.
-
-Article (10): Program Modification
-The Company reserves the right to modify trip programs, schedules, or activity order for operational, meteorological, or security reasons. Client continuation constitutes implied acceptance.
-
-Article (11): Intellectual Property
-All website content, logos, branding, trademarks, texts, and images are the exclusive property of ORLUXUS and protected under Egyptian and international IP laws.
-
-Article (12): Governing Law
-This Agreement shall be governed by and construed in accordance with the laws of the Arab Republic of Egypt, including Civil Code No. 131 of 1948, Consumer Protection Law No. 181 of 2018, Electronic Signature Law No. 15 of 2004, and Data Protection Law No. 151 of 2020.
-
-Article (13): Dispute Resolution & Arbitration
-Parties shall seek amicable settlement within 30 days. Failing that, disputes shall be referred to arbitration under Egyptian Arbitration Law No. 27 of 1994 in Cairo in the Arabic language, or to the exclusive jurisdiction of the competent courts of Cairo.
-
-Article (14): General Provisions
-Severability: If any provision is invalid, remaining provisions remain in full force.
-
-═══════════════════════════════════════════════════════════════
-PART TWO: PRIVACY POLICY & DATA PROTECTION
-
-Articles (15-27): Personal Data Protection
-In compliance with Personal Data Protection Law No. 151 of 2020 and its Executive Regulations No. 816 of 2025, the Company collects identification, contact, booking, and payment data solely for executing bookings, customer support, and legal compliance. Data is processed securely with encryption and firewalls. The Client has the right to access, rectify, erase, restrict, or object to data processing, and withdraw consent by contacting info@orluxus.com or +201038820014.
-
-═══════════════════════════════════════════════════════════════
-PART THREE: DISCLAIMER AND RISK ACKNOWLEDGMENT
-(Applicable to Marine and Recreational Activities)
-
-Articles (28-36): Risk Acknowledgment
-Applies to all marine excursions, snorkeling, diving, island visits, desert safaris, and recreational activities. The Client acknowledges awareness of potential natural risks (drowning, injuries, marine life, weather exposure, equipment). Participation is strictly under personal responsibility. The Client agrees to wear safety equipment (life jackets), follow guide instructions, disclose medical conditions, and abstain from alcohol or substances before and during activities. The Client consents to promotional photography unless written withdrawal is submitted.
-
-═══════════════════════════════════════════════════════════════
-PART FOUR: CLIENT'S FINAL ACKNOWLEDGMENT & ELECTRONIC EXECUTION
-
-☑ I acknowledge that I have read and understood all Terms and Conditions, Privacy Policy, and Risk Acknowledgment in this Agreement.
-☑ I agree that clicking "Complete Booking" or "Confirm Payment" constitutes a legally binding electronic signature under Egyptian Electronic Signature Law No. 15 of 2004.
-☑ I acknowledge that ORLUXUS MARKETING AND BRANDING operates as a marketing broker and organizer, not as a licensed tourism carrier.
-☑ I agree to the Cancellation and Refund Policy (48-hour free cancellation) and Data Protection Policy.
-☑ I bear full responsibility for my personal safety and compliance with all safety guidelines.
-☑ I acknowledge that I am at least 18 years of age (or authorized by my legal guardian).
-
-═══════════════════════════════════════════════════════════════
-FINAL PROVISIONS & EXECUTION
-
-COMPANY: ORLUXUS MARKETING AND BRANDING
-Registered Address: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt
-Google Maps: https://maps.app.goo.gl/7tsNKEHJ8cEBcR9Q6
-Customer Service: +201038820019 | Emergency: +201038820014
-Date of Execution: ${sigDate}
-
-═══════════════════════════════════════════════════════════════
-LANGUAGE PREVALENCE NOTE:
-This Agreement is prepared in the Arabic language. In the event of a translation into any other language, the Arabic version shall prevail and be considered the authoritative and legally binding version in the event of any conflict, discrepancy, or dispute.
-
-حرر هذا العقد والاتفاقية باللغة العربية، وتكون النسخة العربية هي النسخة المعتمدة والسائدة والملزمة قانوناً عند أي نزاع أو تعارض أو اختلاف مع أي ترجمة أخرى.
-═══════════════════════════════════════════════════════════════`;
-
-                  setModalContent(contractText);
-                  setShowTermsModal(true);
+                  if (e) e.preventDefault();
+                  setLegalModalTab('terms');
+                  setLegalModalOpen(true);
                 };
 
                 const openPolicy = (e) => {
-                  e.preventDefault();
-                  setModalTitle(locale === 'ar' ? '📋 سياسة الإلغاء والاسترداد وحماية البيانات' : '📋 Cancellation, Refund & Privacy Policy');
-                  const isAr = locale === 'ar';
-                  const policyText = isAr
-                    ? `سياسة الإلغاء والاسترداد وحماية البيانات الرسمية — ORLUXUS
+                  if (e) e.preventDefault();
+                  setLegalModalTab('cancellation');
+                  setLegalModalOpen(true);
+                };
 
-1. سياسة الإلغاء والاسترداد (قانون حماية المستهلك رقم 181 لسنة 2018):
-• إلغاء مجاني متاح حتى 48 ساعة قبل موعد انطلاق الرحلة مع استرداد المبلغ المدفوع.
-• في حالة الإلغاء خلال أقل من 48 ساعة أو عدم الحضور (No-Show)، يُعد الحجز غير قابل للاسترداد لتغطية النفقات التشغيلية والتجهيزات المحجوزة مسبقاً لدى مقدمي الخدمات.
-• في حالة إلغاء الرحلة من قبل الشركة أو السلطات بسبب سوء الأحوال الجوية أو الظروف القاهرة، يحق للعميل استرداد كامل المبلغ أو إعادة جدولة الرحلة لموعد بديل مجاناً.
-• يتم استرداد المبالغ بنفس طريقة الدفع الأصلية مع خصم الرسوم البنكية إن وجدت.
-
-2. سياسة حماية البيانات والخصوصية (القانون رقم 151 لسنة 2020):
-• تلتزم ORLUXUS بأعلى معايير حماية البيانات الشخصية والأمان الإلكتروني المشفر (SSL 256-bit).
-• لا يتم بيع أو مشاركة بياناتك الشخصية مع أي طرف ثالث لأغراض تجارية، وتُستخدم حصرياً لتنفيذ الحجز وإصدار الفواتير والتواصل التنظيمي.
-
-3. العنوان الرسمي:
-Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533
-خدمة العملاء: 201038820019+ | الطوارئ: 201038820014+`
-                    : `Official Cancellation, Refund & Privacy Policy — ORLUXUS
-
-1. Cancellation & Refund Policy (Consumer Protection Law No. 181 of 2018):
-• Free cancellation is available up to 48 hours prior to the scheduled tour start time with full refund.
-• Cancellations made within 48 hours of departure or no-shows are non-refundable to cover confirmed advance logistics with partner operators.
-• In case of weather-related cancellations or port authority closures, guests are offered a full refund or free rescheduling to an alternative date.
-• Approved refunds are processed back via the original payment method. Banking processing fees may apply.
-
-2. Data Protection & Privacy (Law No. 151 of 2020 & GDPR Standards):
-• ORLUXUS maintains high-level 256-bit SSL encryption for all personal and financial transactions.
-• Traveler data is never shared or sold for third-party commercial marketing and is strictly utilized for booking coordination, voucher issuance, and safety compliance.
-
-3. Official Address & Contacts:
-Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt
-Customer Service: +201038820019 | 24/7 Emergency: +201038820014`;
-
-                  setModalContent(policyText);
-                  setShowTermsModal(true);
+                const openBoth = (e) => {
+                  if (e) e.preventDefault();
+                  setLegalModalTab('both');
+                  setLegalModalOpen(true);
                 };
 
                 return (
@@ -3516,6 +3373,37 @@ Customer Service: +201038820019 | 24/7 Emergency: +201038820014`;
                         {locale === 'ar' ? 'القانون رقم 15 لسنة 2004' : 'Egyptian Law 15/2004'}
                       </span>
                     </div>
+
+                    {/* Prominent Button to open the full dual-split legal page */}
+                    <button
+                      type="button"
+                      onClick={openBoth}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        marginBottom: '12px',
+                        background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.06) 100%)',
+                        border: '1px solid var(--gold-500)',
+                        borderRadius: '8px',
+                        color: 'var(--gold-400)',
+                        fontWeight: '800',
+                        fontSize: '0.88rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        transition: 'all 0.2s',
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+                      }}
+                    >
+                      <span style={{ fontSize: '1.2rem' }}>⚖️</span>
+                      <span>
+                        {locale === 'ar'
+                          ? 'فتح وقراءة الشروط والأحكام وسياسة الإلغاء الكاملة (صفحة مقسومة نصفين)'
+                          : 'Open Full Terms & Conditions & Cancellation Policy (Dual Split View)'}
+                      </span>
+                    </button>
 
                     {/* Contract Core Articles Preview Box */}
                     <div style={{
@@ -3635,50 +3523,18 @@ Customer Service: +201038820019 | 24/7 Emergency: +201038820014`;
       </div>
 
       {/* Terms Modal Overlay */}
-      {showTermsModal && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
-          backdropFilter: 'blur(5px)'
-        }}>
-          <div className="glass-card animate-scale-up" style={{
-            background: 'var(--bg-primary)', width: '100%', maxWidth: '780px',
-            borderRadius: '12px', padding: '2rem', border: '1px solid var(--border-accent)',
-            boxShadow: 'var(--shadow-glow-gold)', textAlign: isAr ? 'right' : 'left',
-            maxHeight: '85vh', display: 'flex', flexDirection: 'column'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.8rem' }}>
-              <h3 style={{ color: 'var(--gold-400)', margin: 0, fontSize: '1.15rem', fontWeight: 'bold' }}>
-                <TranslatedText text={modalTitle} />
-              </h3>
-              <button 
-                type="button"
-                onClick={() => window.print()}
-                style={{
-                  background: 'rgba(212,175,55,0.1)',
-                  border: '1px solid var(--gold-500)',
-                  color: 'var(--gold-400)',
-                  borderRadius: '6px',
-                  padding: '5px 12px',
-                  fontSize: '0.82rem',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
-                }}
-              >
-                🖨️ {isAr ? 'طباعة العقد' : 'Print / Save PDF'}
-              </button>
-            </div>
-            <div style={{ color: 'var(--text-secondary)', lineHeight: '1.8', whiteSpace: 'pre-wrap', flex: 1, overflowY: 'auto', marginBottom: '1.5rem', fontSize: '0.86rem', padding: '0.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: '6px', border: '1px solid var(--border-subtle)' }}>
-              <TranslatedText text={modalContent} />
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <button className="btn btn-primary" onClick={() => setShowTermsModal(false)} style={{ padding: '0.7rem 2.5rem' }}>
-                {isAr ? 'إغلاق' : 'Close'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Complete Dual-Split Legal Policies Modal */}
+      <LegalPoliciesModal
+        isOpen={legalModalOpen}
+        onClose={() => setLegalModalOpen(false)}
+        onAccept={() => setTermsAccepted(true)}
+        customerName={customerName}
+        email={email}
+        phone={phone}
+        serviceName={titleEn || titleAr}
+        locale={locale}
+        initialTab={legalModalTab}
+      />
     </main>
   );
 }
