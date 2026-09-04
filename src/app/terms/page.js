@@ -20,10 +20,6 @@ export default function TermsAndCancellationPage() {
   const terms = getTermsAndConditions(currentLang);
   const cancellation = getCancellationPolicy(currentLang);
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
     <div 
       dir={isRtl ? 'rtl' : 'ltr'}
@@ -80,26 +76,6 @@ export default function TermsAndCancellationPage() {
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <button
-            onClick={handlePrint}
-            style={{
-              background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.15), rgba(201, 162, 39, 0.08))',
-              border: '1px solid #c9a227',
-              color: '#8c6a12',
-              borderRadius: '8px',
-              padding: '7px 16px',
-              fontSize: '0.85rem',
-              fontWeight: '700',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 6px rgba(201, 162, 39, 0.15)',
-              transition: 'all 0.2s'
-            }}
-          >
-            {ui.printBtn}
-          </button>
           <Link
             href="/"
             style={{
@@ -545,15 +521,12 @@ export default function TermsAndCancellationPage() {
 
       </main>
 
-      {/* Print Specific CSS */}
+      {/* Block Printing Completely */}
       <style jsx global>{`
         @media print {
-          .hide-print {
+          body, html, main, nav {
             display: none !important;
-          }
-          body {
-            background: #ffffff !important;
-            color: #000000 !important;
+            visibility: hidden !important;
           }
         }
       `}</style>

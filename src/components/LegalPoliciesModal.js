@@ -48,10 +48,6 @@ export default function LegalPoliciesModal({
     hour: '2-digit', minute: '2-digit', second: '2-digit'
   });
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const handleAcceptAndClose = () => {
     if (onAccept) onAccept();
     onClose();
@@ -125,28 +121,6 @@ export default function LegalPoliciesModal({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <button
-              onClick={handlePrint}
-              type="button"
-              className="hide-print"
-              style={{
-                background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.12), rgba(201, 162, 39, 0.06))',
-                border: '1px solid #c9a227',
-                color: '#8c6a12',
-                borderRadius: '8px',
-                padding: '6px 14px',
-                fontSize: '0.82rem',
-                fontWeight: '700',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                transition: 'all 0.2s'
-              }}
-            >
-              {ui.printBtn}
-            </button>
-
             <button
               onClick={onClose}
               type="button"
@@ -631,7 +605,18 @@ export default function LegalPoliciesModal({
           </div>
         </div>
 
+        {/* Prevent and block printing */}
+        <style jsx global>{`
+          @media print {
+            .legal-modal-overlay, .legal-modal-container {
+              display: none !important;
+              visibility: hidden !important;
+            }
+          }
+        `}</style>
+
       </div>
     </div>
   );
 }
+
