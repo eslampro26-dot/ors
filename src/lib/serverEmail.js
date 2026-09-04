@@ -276,8 +276,11 @@ export function buildBookingInvoiceHTML(data) {
             <p style="margin: 0 0 8px 0; color: #c9d1d9;">
               <strong>Article (5) - Personal Data Protection:</strong> Personal data is securely processed strictly for reservation fulfillment under Egyptian Personal Data Protection Law No. 151 of 2020.
             </p>
-            <p style="margin: 0 0 12px 0; color: #c9d1d9;">
+            <p style="margin: 0 0 10px 0; color: #c9d1d9;">
               <strong>Article (6) - Governing Law &amp; Jurisdiction:</strong> This Agreement is governed by the applicable laws of the Arab Republic of Egypt. Any unresolved disputes shall be subject to the exclusive jurisdiction of the competent courts of Egypt.
+            </p>
+            <p style="margin: 8px 0 0 0; padding-top: 8px; border-top: 1px dashed rgba(212,175,55,0.3); font-size: 10px; color: #d4af37; font-style: italic;">
+              * Note: This Agreement is prepared in the Arabic language. In the event of a translation into any other language, the Arabic version shall prevail in any conflict or dispute. (تكون النسخة العربية هي السائدة عند أي نزاع).
             </p>
             `}
           </div>

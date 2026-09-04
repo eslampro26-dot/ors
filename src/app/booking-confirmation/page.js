@@ -438,6 +438,9 @@ function BookingConfirmationContent() {
                       <p style={{ margin: '0 0 8px 0' }}>
                         <strong>Article (6) - Governing Law &amp; Jurisdiction:</strong> This Agreement is governed by the applicable laws of the Arab Republic of Egypt.
                       </p>
+                      <p style={{ margin: '6px 0 0 0', paddingTop: '6px', borderTop: '1px dashed #fde68a', fontSize: '0.72rem', color: '#92400e', fontStyle: 'italic' }}>
+                        * Note: This Agreement is prepared in the Arabic language. In the event of a translation into any other language, the Arabic version shall prevail in any conflict or dispute. (تكون النسخة العربية هي السائدة عند أي نزاع).
+                      </p>
                     </>
                   )}
                 </div>
