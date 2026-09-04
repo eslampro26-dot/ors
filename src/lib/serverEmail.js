@@ -45,6 +45,7 @@ export function buildBookingInvoiceHTML(data) {
   const infantTotal = numInfants * infantPriceVal;
 
   const lang = (data.locale || data.customerLanguage || 'en').toLowerCase();
+  const isAr = lang === 'ar';
 
   return `
 <!DOCTYPE html>
