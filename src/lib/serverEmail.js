@@ -182,56 +182,66 @@ export function buildBookingInvoiceHTML(data) {
 
       <!-- Electronic Contract & Digital Signature Section -->
       <div style="margin-top: 25px; border-top: 2px dashed #30363d; padding-top: 20px;">
-        <div class="section-title">📜 اتفاقية الوساطة السياحية والتسويق الإلكتروني والتوقيع الرقمي / Legal Agreement & Digital Signature</div>
+        <div class="section-title">
+          ${isAr ? '📜 اتفاقية الوساطة السياحية والتسويق الإلكتروني والتوقيع الرقمي' : '📜 Integrated Tourism Brokerage Agreement & Digital Signature'}
+        </div>
         
-        <div style="background: #0d1117; border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 8px; padding: 20px; margin-bottom: 15px; line-height: 1.6;">
+        <div style="background: #0d1117; border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 8px; padding: 20px; margin-bottom: 15px; line-height: 1.6; direction: ${isAr ? 'rtl' : 'ltr'}; text-align: ${isAr ? 'right' : 'left'};">
           
           <div style="text-align: center; border-bottom: 1px solid #30363d; padding-bottom: 12px; margin-bottom: 14px;">
             <div style="font-size: 14px; color: #d4af37; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
-              اتفاقية خدمات التسويق والوساطة السياحية والتنظيمية
+              ${isAr ? 'اتفاقية خدمات التسويق والوساطة السياحية والتنظيمية' : 'INTEGRATED MARKETING &amp; TOURISM BROKERAGE AGREEMENT'}
             </div>
             <div style="font-size: 11px; color: #8b949e; margin-top: 3px;">
-              INTEGRATED MARKETING &amp; TOURISM BROKERAGE AGREEMENT
+              ${isAr ? 'INTEGRATED MARKETING &amp; TOURISM BROKERAGE AGREEMENT' : 'Official Electronic Contract & Legal Digital Signature Record'}
             </div>
           </div>
 
           <!-- Parties -->
           <div style="font-size: 12px; color: #c9d1d9; background: rgba(255,255,255,0.02); border: 1px solid #21262d; border-radius: 6px; padding: 10px; margin-bottom: 14px;">
-            <p style="margin: 0 0 6px 0;"><strong>الطرف الأول:</strong> شركة أورلوكسوس للتسويق والوساطة السياحية (ORLUXUS MARKETING &amp; BRANDING) — المقر: Taksim El-Nasr, Hurghada 1, Red Sea 1966533.</p>
-            <p style="margin: 0;"><strong>الطرف الثاني (العميل):</strong> ${(data.electronicSignature?.name || customerName || 'Valued Guest')} — البريد الإلكتروني: ${(data.electronicSignature?.email || email || 'N/A')}${phone ? ` — الهاتف: ${phone}` : ''}.</p>
+            ${isAr ? `
+            <p style="margin: 0 0 6px 0;"><strong>الطرف الأول:</strong> شركة أورلوكسوس للتسويق والوساطة السياحية (ORLUXUS MARKETING &amp; BRANDING) — المقر: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533.</p>
+            <p style="margin: 0;"><strong>الطرف الثاني (العميل):</strong> ${(data.electronicSignature?.name || customerName || 'العميل المحترم')} — البريد الإلكتروني: ${(data.electronicSignature?.email || email || 'N/A')}${phone ? ` — الهاتف: ${phone}` : ''}.</p>
+            ` : `
+            <p style="margin: 0 0 6px 0;"><strong>First Party (Company):</strong> ORLUXUS MARKETING &amp; BRANDING — Registered Address: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt.</p>
+            <p style="margin: 0;"><strong>Second Party (Client):</strong> ${(data.electronicSignature?.name || customerName || 'Valued Guest')} — Email: ${(data.electronicSignature?.email || email || 'N/A')}${phone ? ` — Phone: ${phone}` : ''}.</p>
+            `}
           </div>
 
           <!-- Signature Verification Box -->
           <div style="background: rgba(212, 175, 55, 0.08); border: 1.5px solid rgba(212, 175, 55, 0.4); border-radius: 6px; padding: 14px; margin-bottom: 16px;">
             <div style="font-size: 12px; color: #d4af37; font-weight: bold; margin-bottom: 8px;">
-              📝 تفاصيل وبيانات التوقيع الإلكتروني الموثق / Electronic Signature Record:
+              ${isAr ? '📝 تفاصيل وبيانات التوقيع الإلكتروني الموثق:' : '📝 Electronic Signature & Digital Verification Record:'}
             </div>
             <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
               <tr style="border-bottom: 1px solid rgba(212,175,55,0.2);">
-                <td style="color: #8b949e; padding: 5px 0;">الاسم الكامل للموقع:</td>
-                <td style="color: #f0f6fc; font-weight: bold; text-align: right;">${(data.electronicSignature?.name || customerName || 'Valued Guest')}</td>
+                <td style="color: #8b949e; padding: 5px 0;">${isAr ? 'الاسم الكامل للموقع:' : 'Full Signer Name:'}</td>
+                <td style="color: #f0f6fc; font-weight: bold; text-align: ${isAr ? 'left' : 'right'};">${(data.electronicSignature?.name || customerName || 'Valued Guest')}</td>
               </tr>
               <tr style="border-bottom: 1px solid rgba(212,175,55,0.2);">
-                <td style="color: #8b949e; padding: 5px 0;">البريد الإلكتروني المعتمد:</td>
-                <td style="color: #f0f6fc; text-align: right;">${(data.electronicSignature?.email || email || 'N/A')}</td>
+                <td style="color: #8b949e; padding: 5px 0;">${isAr ? 'البريد الإلكتروني المعتمد:' : 'Verified Email:'}</td>
+                <td style="color: #f0f6fc; text-align: ${isAr ? 'left' : 'right'};">${(data.electronicSignature?.email || email || 'N/A')}</td>
               </tr>
               <tr style="border-bottom: 1px solid rgba(212,175,55,0.2);">
-                <td style="color: #8b949e; padding: 5px 0;">تاريخ ووقت التوقيع:</td>
-                <td style="color: #f0f6fc; text-align: right; font-family: monospace;">${new Date(data.electronicSignature?.timestamp || data.signatureTimestamp || Date.now()).toLocaleString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
+                <td style="color: #8b949e; padding: 5px 0;">${isAr ? 'تاريخ ووقت التوقيع:' : 'Signature Timestamp:'}</td>
+                <td style="color: #f0f6fc; text-align: ${isAr ? 'left' : 'right'}; font-family: monospace;">${new Date(data.electronicSignature?.timestamp || data.signatureTimestamp || Date.now()).toLocaleString(isAr ? 'ar-EG' : 'en-GB', { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
               </tr>
               <tr style="border-bottom: 1px solid rgba(212,175,55,0.2);">
-                <td style="color: #8b949e; padding: 5px 0;">كود المرجع والمعاملة:</td>
-                <td style="color: #d4af37; text-align: right; font-family: monospace; font-weight: bold;">#${invoiceNo}</td>
+                <td style="color: #8b949e; padding: 5px 0;">${isAr ? 'كود المرجع والمعاملة:' : 'Reference / TX:'}</td>
+                <td style="color: #d4af37; text-align: ${isAr ? 'left' : 'right'}; font-family: monospace; font-weight: bold;">#${invoiceNo}</td>
               </tr>
               <tr>
-                <td style="color: #8b949e; padding: 5px 0;">السند والحجية القانونية:</td>
-                <td style="color: #10b981; text-align: right; font-weight: bold;">✓ توقيع إلكتروني نافذ وملزم قانوناً (قانون 15 لسنة 2004)</td>
+                <td style="color: #8b949e; padding: 5px 0;">${isAr ? 'السند والحجية القانونية:' : 'Legal Validity:'}</td>
+                <td style="color: #10b981; text-align: ${isAr ? 'left' : 'right'}; font-weight: bold;">
+                  ${isAr ? '✓ توقيع إلكتروني نافذ وملزم قانوناً (المادة 14 من قانون 15 لسنة 2004)' : '✓ Legally binding electronic signature under Egyptian E-Signature Law No. 15 of 2004 (Article 14)'}
+                </td>
               </tr>
             </table>
           </div>
 
           <!-- Full Contract Articles -->
           <div style="font-size: 11px; color: #8b949e; text-align: justify; line-height: 1.7;">
+            ${isAr ? `
             <p style="margin: 0 0 8px 0; color: #c9d1d9;">
               <strong>المادة (1) - طبيعة عمل الشركة:</strong> تقر الشركة بأنها منصة تسويق إلكتروني وعلامة تجارية تعمل كوسيط تنظيمي ومسوق للخدمات السياحية والترفيهية بين العملاء ومقدمي الخدمات المرخصين، وتتولى تنظيم الحجوزات والمتابعة وخدمة العملاء.
             </p>
@@ -250,20 +260,40 @@ export function buildBookingInvoiceHTML(data) {
             <p style="margin: 0 0 12px 0; color: #c9d1d9;">
               <strong>المادة (6) - القانون الواجب التطبيق:</strong> تخضع هذه الاتفاقية وتفسر وفقاً لأحكام القوانين السارية في جمهورية مصر العربية، وتختص محاكم القاهرة بفض أي نزاع قد ينشأ عنها في حال تعذر الحل الودي.
             </p>
+            ` : `
+            <p style="margin: 0 0 8px 0; color: #c9d1d9;">
+              <strong>Article (1) - Nature of Company &amp; Scope:</strong> ORLUXUS operates as an electronic marketing platform and organizational broker connecting clients with authorized professional excursion and tour operators.
+            </p>
+            <p style="margin: 0 0 8px 0; color: #c9d1d9;">
+              <strong>Article (2) - Electronic Consent &amp; Binding Effect:</strong> Client consent via digital booking submission constitutes a valid and binding electronic signature under Egyptian Electronic Signature Law No. 15 of 2004 (Article 14).
+            </p>
+            <p style="margin: 0 0 8px 0; color: #c9d1d9;">
+              <strong>Article (3) - Cancellation &amp; Refund Policy:</strong> Free cancellation is granted up to 48 hours prior to the scheduled excursion date in full compliance with Egyptian Consumer Protection Law No. 181 of 2018.
+            </p>
+            <p style="margin: 0 0 8px 0; color: #c9d1d9;">
+              <strong>Article (4) - Safety &amp; Assumption of Risk:</strong> The traveler undertakes to follow all safety guidance from instructors and tour guides and participates under personal responsibility. Comprehensive travel insurance is recommended.
+            </p>
+            <p style="margin: 0 0 8px 0; color: #c9d1d9;">
+              <strong>Article (5) - Personal Data Protection:</strong> Personal data is securely processed strictly for reservation fulfillment under Egyptian Personal Data Protection Law No. 151 of 2020.
+            </p>
+            <p style="margin: 0 0 12px 0; color: #c9d1d9;">
+              <strong>Article (6) - Governing Law &amp; Jurisdiction:</strong> This Agreement is governed by the applicable laws of the Arab Republic of Egypt. Any unresolved disputes shall be subject to the exclusive jurisdiction of the competent courts of Egypt.
+            </p>
+            `}
           </div>
 
           <!-- Signatures Box -->
           <table style="width: 100%; border-collapse: collapse; margin-top: 14px; padding-top: 12px; border-top: 1px solid #30363d; font-size: 12px;">
             <tr>
               <td style="vertical-align: top; width: 50%;">
-                <span style="color: #8b949e; display: block; font-size: 11px; margin-bottom: 3px;">توقيع الطرف الأول (الشركة):</span>
+                <span style="color: #8b949e; display: block; font-size: 11px; margin-bottom: 3px;">${isAr ? 'توقيع الطرف الأول (الشركة):' : 'First Party Signature:'}</span>
                 <strong style="color: #d4af37; font-size: 13px;">ORLUXUS MARKETING &amp; BRANDING</strong>
-                <span style="display: block; color: #8b949e; font-size: 10px; margin-top: 2px;">مقر الشركة: Taksim El-Nasr, Hurghada 1, Red Sea</span>
+                <span style="display: block; color: #8b949e; font-size: 10px; margin-top: 2px;">${isAr ? 'مقر الشركة: Taksim El-Nasr, Hurghada 1, Red Sea' : 'Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533'}</span>
               </td>
-              <td style="vertical-align: top; text-align: right; width: 50%;">
-                <span style="color: #8b949e; display: block; font-size: 11px; margin-bottom: 3px;">توقيع الطرف الثاني (العميل):</span>
+              <td style="vertical-align: top; text-align: ${isAr ? 'left' : 'right'}; width: 50%;">
+                <span style="color: #8b949e; display: block; font-size: 11px; margin-bottom: 3px;">${isAr ? 'توقيع الطرف الثاني (العميل):' : 'Second Party Digital Signature:'}</span>
                 <strong style="color: #10b981; font-size: 13px;">✓ ${(data.electronicSignature?.name || customerName || 'Valued Guest')}</strong>
-                <span style="display: block; color: #10b981; font-size: 10px; margin-top: 2px;">[توقيع وموافقة إلكترونية موثقة]</span>
+                <span style="display: block; color: #10b981; font-size: 10px; margin-top: 2px;">${isAr ? '[توقيع وموافقة إلكترونية موثقة]' : '[Verified Electronic Signature &amp; Consent]'}</span>
               </td>
             </tr>
           </table>

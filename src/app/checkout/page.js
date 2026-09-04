@@ -3333,114 +3333,154 @@ function CheckoutContent() {
                 )}
               </div>
 
-              {/* Terms Checkbox with Electronic Signature */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.2rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                    style={{ width: '20px', height: '20px', cursor: 'pointer' }}
-                  />
-                  {(() => {
-                    const openTerms = (e) => {
-                      e.preventDefault();
-                      setModalTitle(translate('readTerms'));
-                      const isAr = locale === 'ar';
-                      const baseTerms = isAr
-                        ? (settings?.termsAr || settings?.customTermsAr || '')
-                        : (settings?.termsEn || settings?.customTermsEn || '');
-                      const dataProt = isAr
-                        ? (settings?.dataProtection || settings?.dataProtectionEn || '')
-                        : (settings?.dataProtectionEn || settings?.dataProtection || '');
-                      const fullText = [baseTerms, dataProt].filter(Boolean).join('\n\n---\n\n') || (isAr ? 'لا توجد شروط مدخلة حالياً.' : 'No terms provided.');
-                      setModalContent(fullText);
-                      setShowTermsModal(true);
-                    };
-                    const openPolicy = (e) => {
-                      e.preventDefault();
-                      setModalTitle(translate('readPolicy'));
-                      const isAr = locale === 'ar';
-                      const cancelPolicy = isAr
-                        ? (settings?.legalCancellation || settings?.legalCancellationEn || '')
-                        : (settings?.legalCancellationEn || settings?.legalCancellation || '');
-                      const generalTerms = isAr ? (settings?.termsAr || '') : (settings?.termsEn || '');
-                      const fullPolicy = [cancelPolicy, generalTerms].filter(Boolean).join('\n\n---\n\n') || (isAr ? 'لا توجد سياسة إلغاء حالياً.' : 'No policy provided.');
-                      setModalContent(fullPolicy);
-                      setShowTermsModal(true);
-                    };
+              {/* Full Legal Agreement & Terms Box */}
+              {(() => {
+                const openTerms = (e) => {
+                  e.preventDefault();
+                  setModalTitle(translate('readTerms'));
+                  const isAr = locale === 'ar';
+                  const baseTerms = isAr
+                    ? (settings?.termsAr || settings?.customTermsAr || '')
+                    : (settings?.termsEn || settings?.customTermsEn || '');
+                  const dataProt = isAr
+                    ? (settings?.dataProtection || settings?.dataProtectionEn || '')
+                    : (settings?.dataProtectionEn || settings?.dataProtection || '');
+                  const fullText = [baseTerms, dataProt].filter(Boolean).join('\n\n---\n\n') || (isAr ? 'لا توجد شروط مدخلة حالياً.' : 'No terms provided.');
+                  setModalContent(fullText);
+                  setShowTermsModal(true);
+                };
+                const openPolicy = (e) => {
+                  e.preventDefault();
+                  setModalTitle(translate('readPolicy'));
+                  const isAr = locale === 'ar';
+                  const cancelPolicy = isAr
+                    ? (settings?.legalCancellation || settings?.legalCancellationEn || '')
+                    : (settings?.legalCancellationEn || settings?.legalCancellation || '');
+                  const generalTerms = isAr ? (settings?.termsAr || '') : (settings?.termsEn || '');
+                  const fullPolicy = [cancelPolicy, generalTerms].filter(Boolean).join('\n\n---\n\n') || (isAr ? 'لا توجد سياسة إلغاء حالياً.' : 'No policy provided.');
+                  setModalContent(fullPolicy);
+                  setShowTermsModal(true);
+                };
 
-                    if (locale === 'de') {
-                      return (
-                        <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                          Ich stimme den{' '}
-                          <a href="#" onClick={openTerms} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
-                            Allgemeinen Geschäftsbedingungen
-                          </a>{' '}
-                          und{' '}
-                          <a href="#" onClick={openPolicy} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
-                            Stornierungsbedingungen
-                          </a>{' '}
-                          zu.
-                        </span>
-                      );
-                    }
-
-                    if (locale === 'ar') {
-                      return (
-                        <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                          أوافق على{' '}
-                          <a href="#" onClick={openTerms} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
-                            الشروط والأحكام
-                          </a>{' '}
-                          و{' '}
-                          <a href="#" onClick={openPolicy} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
-                            سياسة الإلغاء
-                          </a>
-                        </span>
-                      );
-                    }
-
-                    return (
-                      <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                        I agree to the{' '}
-                        <a href="#" onClick={openTerms} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
-                          Terms &amp; Conditions
-                        </a>{' '}
-                        and{' '}
-                        <a href="#" onClick={openPolicy} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
-                          Cancellation Policy
-                        </a>
-                      </span>
-                    );
-                  })()}
-                </label>
-
-                {/* Electronic Signature Preview — shown when terms accepted + name filled */}
-                {termsAccepted && customerName.trim() && (
+                return (
                   <div style={{
-                    background: 'rgba(212,175,55,0.07)',
+                    background: 'rgba(212,175,55,0.04)',
                     border: '1px solid rgba(212,175,55,0.3)',
-                    borderRadius: '8px',
-                    padding: '1rem',
-                    marginTop: '0.75rem'
+                    borderRadius: '10px',
+                    padding: '1.2rem',
+                    marginTop: '1.2rem',
+                    marginBottom: '1rem'
                   }}>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--gold-500)', marginBottom: '0.5rem', fontWeight: '600' }}>
-                      {locale === 'ar' ? '📝 التوقيع الإلكتروني — معاينة الاتفاقية' : '📝 Electronic Signature — Agreement Preview'}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(212,175,55,0.2)', paddingBottom: '8px', marginBottom: '10px' }}>
+                      <h4 style={{ margin: 0, fontSize: '0.92rem', color: 'var(--gold-500)', fontWeight: 'bold' }}>
+                        {locale === 'ar' ? '⚖️ اتفاقية خدمات التسويق والوساطة السياحية والتوقيع الإلكتروني' : '⚖️ Integrated Tourism Brokerage Agreement & Electronic Signature'}
+                      </h4>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                        {locale === 'ar' ? 'القانون رقم 15 لسنة 2004' : 'Egyptian Law 15/2004'}
+                      </span>
                     </div>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                      <div><strong>{locale === 'ar' ? 'الاسم:' : 'Name:'}</strong> {customerName}</div>
-                      {email && <div><strong>{locale === 'ar' ? 'البريد الإلكتروني:' : 'Email:'}</strong> {email}</div>}
-                      <div><strong>{locale === 'ar' ? 'التاريخ:' : 'Date:'}</strong> {new Date().toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-GB')}</div>
-                      <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--text-tertiary)', fontStyle: 'italic' }}>
-                        {locale === 'ar'
-                          ? '✅ بالضغط على زر المتابعة، يُعدّ هذا توقيعاً رقمياً ملزماً قانونياً على هذه الاتفاقية.'
-                          : '✅ By clicking Proceed, this constitutes your legally binding digital signature on this agreement.'}
+
+                    {/* Contract Core Articles Preview Box */}
+                    <div style={{
+                      maxHeight: '140px',
+                      overflowY: 'auto',
+                      background: 'rgba(0,0,0,0.2)',
+                      border: '1px solid var(--border-subtle)',
+                      borderRadius: '6px',
+                      padding: '10px 12px',
+                      fontSize: '0.78rem',
+                      color: 'var(--text-secondary)',
+                      lineHeight: '1.6',
+                      marginBottom: '12px'
+                    }}>
+                      {locale === 'ar' ? (
+                        <>
+                          <p style={{ margin: '0 0 6px 0' }}><strong>المادة (1) - طبيعة عمل الشركة:</strong> تقر شركة أورلوكسوس بأنها منصة تسويق إلكتروني وعلامة تجارية تعمل كوسيط تنظيمي ومسوق للخدمات السياحية والترفيهية بين العملاء ومقدمي الخدمات المرخصين.</p>
+                          <p style={{ margin: '0 0 6px 0' }}><strong>المادة (2) - حجية التوقيع الإلكتروني:</strong> بموجب النقر على زر الموافقة وإتمام الحجز، يُعد ذلك رضاءً وتوقيعاً إلكترونياً صحيحاً ونافذاً ومنتجاً لكافة آثاره القانونية طبقاً لأحكام قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004.</p>
+                          <p style={{ margin: '0 0 6px 0' }}><strong>المادة (3) - سياسة الإلغاء والاسترداد:</strong> يتاح الإلغاء المجاني حتى 48 ساعة قبل موعد الرحلة طبقاً لأحكام قانون حماية المستهلك رقم 181 لسنة 2018.</p>
+                          <p style={{ margin: '0 0 6px 0' }}><strong>المادة (4) - إقرار المخاطر والسلامة:</strong> يلتزم العميل بتعليمات السلامة الصادرة عن المرشدين والمشرفين ومشاركته بمسؤوليته الشخصية.</p>
+                          <p style={{ margin: '0' }}><strong>المادة (5) - حماية البيانات:</strong> تلتزم الشركة بحماية بيانات العميل وسريتها طبقاً لقانون حماية البيانات الشخصية رقم 151 لسنة 2020.</p>
+                        </>
+                      ) : (
+                        <>
+                          <p style={{ margin: '0 0 6px 0' }}><strong>Article (1) - Nature of Brokerage:</strong> ORLUXUS operates as an electronic marketing platform and booking coordinator between clients and authorized professional tour operators.</p>
+                          <p style={{ margin: '0 0 6px 0' }}><strong>Article (2) - Electronic Consent & Signature:</strong> Clicking agreement and proceeding constitutes a legally binding electronic signature under Egyptian Electronic Signature Law No. 15 of 2004.</p>
+                          <p style={{ margin: '0 0 6px 0' }}><strong>Article (3) - Cancellation Policy:</strong> Free cancellation is available up to 48 hours prior to scheduled departure under Consumer Protection Law No. 181 of 2018.</p>
+                          <p style={{ margin: '0 0 6px 0' }}><strong>Article (4) - Safety & Assumption of Risk:</strong> Guest agrees to adhere strictly to all safety guidelines and participates under personal responsibility.</p>
+                          <p style={{ margin: '0' }}><strong>Article (5) - Data Privacy:</strong> Personal data is securely processed in strict compliance with Personal Data Protection Law No. 151 of 2020.</p>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Checkbox Consent */}
+                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', cursor: 'pointer', marginBottom: '0.5rem' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={termsAccepted} 
+                        onChange={e => setTermsAccepted(e.target.checked)}
+                        style={{ marginTop: '3px', width: '17px', height: '17px', accentColor: 'var(--gold-500)', cursor: 'pointer' }}
+                      />
+                      <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)', fontWeight: '600' }}>
+                        {locale === 'ar' ? (
+                          <>
+                            أوافق وأقر ببنود{' '}
+                            <a href="#" onClick={openTerms} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
+                              الشروط والأحكام واتفاقية الوساطة
+                            </a>{' '}
+                            و{' '}
+                            <a href="#" onClick={openPolicy} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
+                              سياسة الإلغاء والخصوصية
+                            </a>
+                          </>
+                        ) : (
+                          <>
+                            I agree and accept the{' '}
+                            <a href="#" onClick={openTerms} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
+                              Terms &amp; Brokerage Agreement
+                            </a>{' '}
+                            and{' '}
+                            <a href="#" onClick={openPolicy} style={{ color: 'var(--gold-500)', textDecoration: 'underline' }}>
+                              Cancellation Policy
+                            </a>
+                          </>
+                        )}
+                      </span>
+                    </label>
+
+                    {/* Digital Signature Record Box */}
+                    {customerName.trim() && (
+                      <div style={{
+                        background: termsAccepted ? 'rgba(16,185,129,0.06)' : 'rgba(212,175,55,0.06)',
+                        border: termsAccepted ? '1px solid rgba(16,185,129,0.3)' : '1px dashed rgba(212,175,55,0.3)',
+                        borderRadius: '8px',
+                        padding: '0.9rem 1rem',
+                        marginTop: '0.8rem',
+                        fontSize: '0.82rem'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                          <strong style={{ color: termsAccepted ? '#10b981' : 'var(--gold-500)' }}>
+                            {locale === 'ar' ? '✍️ التوقيع الإلكتروني الرقمي المعتمد:' : '✍️ Verified Digital Signature Record:'}
+                          </strong>
+                          <span style={{ fontSize: '0.72rem', color: termsAccepted ? '#10b981' : 'var(--text-tertiary)', fontWeight: 'bold' }}>
+                            {termsAccepted ? (locale === 'ar' ? '✓ تم التوقيع والموافقة' : '✓ Signed & Agreed') : (locale === 'ar' ? '⏳ في انتظار تأكيد الموافقة' : '⏳ Pending Consent')}
+                          </span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '6px', color: 'var(--text-secondary)' }}>
+                          <div><strong>{locale === 'ar' ? 'اسم الموقع:' : 'Signatory:'}</strong> {customerName}</div>
+                          {email && <div><strong>{locale === 'ar' ? 'البريد:' : 'Email:'}</strong> {email}</div>}
+                          {phone && <div><strong>{locale === 'ar' ? 'الهاتف:' : 'Phone:'}</strong> {phone}</div>}
+                          <div><strong>{locale === 'ar' ? 'التاريخ:' : 'Date:'}</strong> {new Date().toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-GB')}</div>
+                        </div>
+                        <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed var(--border-subtle)', fontSize: '0.75rem', color: termsAccepted ? '#10b981' : 'var(--text-tertiary)' }}>
+                          {locale === 'ar'
+                            ? '✓ بالنقر على زر المتابعة للدفع، يُعد هذا توقيعاً رقمياً صحيحاً ونافذاً قانوناً بموجب القانون المصري رقم 15 لسنة 2004.'
+                            : '✓ By proceeding to payment, this constitutes a valid and legally binding digital signature under Egyptian Law No. 15 of 2004.'}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
-                )}
-              </div>
+                );
+              })()}
 
               {/* Pay Button */}
               <button 

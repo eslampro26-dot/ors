@@ -343,78 +343,114 @@ function BookingConfirmationContent() {
               <div style={{ border: '1.5px solid #d97706', borderRadius: '10px', padding: '1.5rem', marginBottom: '1.5rem', background: '#fffbeb', color: '#0f172a' }}>
                 <div style={{ textAlign: 'center', borderBottom: '1px solid #fde68a', paddingBottom: '10px', marginBottom: '12px' }}>
                   <h4 style={{ margin: '0 0 4px', fontSize: '1rem', color: '#92400e', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '900' }}>
-                    ⚖️ اتفاقية خدمات التسويق والوساطة السياحية وتوثيق التوقيع الإلكتروني
+                    {isAr ? '⚖️ اتفاقية خدمات التسويق والوساطة السياحية وتوثيق التوقيع الإلكتروني' : '⚖️ Integrated Tourism Brokerage Agreement & Electronic Signature Record'}
                   </h4>
                   <div style={{ fontSize: '0.75rem', color: '#b45309', fontWeight: 'bold' }}>
-                    INTEGRATED MARKETING &amp; TOURISM BROKERAGE AGREEMENT
+                    {isAr ? 'ORLUXUS MARKETING & BRANDING' : 'OFFICIALLY EXECUTED DIGITAL CONTRACT — LAW NO. 15 OF 2004'}
                   </div>
                 </div>
 
                 {/* Parties Details */}
                 <div style={{ fontSize: '0.8rem', background: '#ffffff', border: '1px solid #fde68a', borderRadius: '6px', padding: '10px', marginBottom: '12px', lineHeight: '1.6' }}>
-                  <div><strong>الطرف الأول:</strong> شركة أورلوكسوس للتسويق والوساطة السياحية (ORLUXUS MARKETING &amp; BRANDING) — المقر: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533.</div>
-                  <div><strong>الطرف الثاني (العميل):</strong> {booking.customerName || booking.customer} {booking.email ? `(${booking.email})` : ''} {booking.phone ? `— الهاتف: ${booking.phone}` : ''}.</div>
+                  {isAr ? (
+                    <>
+                      <div><strong>الطرف الأول:</strong> شركة أورلوكسوس للتسويق والوساطة السياحية (ORLUXUS MARKETING &amp; BRANDING) — المقر: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533.</div>
+                      <div><strong>الطرف الثاني (العميل):</strong> {booking.customerName || booking.customer} {booking.email ? `(${booking.email})` : ''} {booking.phone ? `— الهاتف: ${booking.phone}` : ''}.</div>
+                    </>
+                  ) : (
+                    <>
+                      <div><strong>First Party (Company):</strong> ORLUXUS MARKETING &amp; BRANDING — Registered Address: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt.</div>
+                      <div><strong>Second Party (Client):</strong> {booking.customerName || booking.customer} {booking.email ? `(${booking.email})` : ''} {booking.phone ? `— Phone: ${booking.phone}` : ''}.</div>
+                    </>
+                  )}
                 </div>
 
                 {/* Electronic Signature Record */}
                 <div style={{ background: '#ffffff', borderRadius: '8px', padding: '12px 14px', border: '1.5px solid #d97706', marginBottom: '12px', fontSize: '0.82rem' }}>
                   <div style={{ fontWeight: 'bold', color: '#92400e', marginBottom: '8px', fontSize: '0.85rem' }}>
-                    📝 تفاصيل التوقيع الإلكتروني المعتمد / Digital Signature Record:
+                    {isAr ? '📝 تفاصيل التوقيع الإلكتروني المعتمد:' : '📝 Verified Digital Signature & Consent Record:'}
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px' }}>
-                    <div><span style={{ color: '#64748b' }}>اسم الموقع:</span> <strong>{booking.customerName || booking.customer}</strong></div>
-                    <div><span style={{ color: '#64748b' }}>البريد الإلكتروني:</span> <strong>{booking.email || '—'}</strong></div>
+                    <div><span style={{ color: '#64748b' }}>{isAr ? 'اسم الموقع:' : 'Signatory Full Name:'}</span> <strong>{booking.customerName || booking.customer}</strong></div>
+                    <div><span style={{ color: '#64748b' }}>{isAr ? 'البريد الإلكتروني:' : 'Verified Email:'}</span> <strong>{booking.email || '—'}</strong></div>
                     <div>
-                      <span style={{ color: '#64748b' }}>تاريخ ووقت التوقيع:</span>{' '}
+                      <span style={{ color: '#64748b' }}>{isAr ? 'تاريخ ووقت التوقيع:' : 'Signature Timestamp:'}</span>{' '}
                       <strong>
                         {(() => {
                           try {
                             const dateObj = booking.createdAt?.seconds ? new Date(booking.createdAt.seconds * 1000) : new Date(booking.createdAt || Date.now());
-                            return isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                            return isNaN(dateObj.getTime()) ? '—' : dateObj.toLocaleString(isAr ? 'ar-EG' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
                           } catch {
                             return '—';
                           }
                         })()}
                       </strong>
                     </div>
-                    <div><span style={{ color: '#64748b' }}>رقم المرجع والمعاملة:</span> <strong style={{ color: '#d97706' }}>#{booking.ref}</strong></div>
+                    <div><span style={{ color: '#64748b' }}>{isAr ? 'رقم المرجع والمعاملة:' : 'Reference / TX:'}</span> <strong style={{ color: '#d97706' }}>#{booking.ref}</strong></div>
                   </div>
                   <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px dashed #e2e8f0', color: '#15803d', fontWeight: 'bold', fontSize: '0.78rem' }}>
-                    ✓ توقيع إلكتروني ملزم ونافذ قانوناً بموجب المادة (14) من قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004.
+                    {isAr
+                      ? '✓ توقيع إلكتروني ملزم ونافذ قانوناً بموجب المادة (14) من قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004.'
+                      : '✓ Legally binding electronic signature under Egyptian Electronic Signature Law No. 15 of 2004 (Article 14).'}
                   </div>
                 </div>
 
                 {/* Full Contract Articles */}
                 <div style={{ fontSize: '0.76rem', color: '#475569', lineHeight: '1.7', textAlign: 'justify' }}>
-                  <p style={{ margin: '0 0 6px 0' }}>
-                    <strong>المادة (1) - طبيعة عمل الشركة:</strong> تقر الشركة بأنها منصة تسويق إلكتروني وعلامة تجارية تعمل كوسيط تنظيمي ومسوق للخدمات السياحية والترفيهية بين العملاء ومقدمي الخدمات المرخصين، وتتولى تنظيم الحجوزات والمتابعة وخدمة العملاء.
-                  </p>
-                  <p style="margin: 0 0 6px 0;" style={{ margin: '0 0 6px 0' }}>
-                    <strong>المادة (2) - الموافقة الإلكترونية ونفاذ العقد:</strong> بموجب النقر على زر الموافقة وإتمام الحجز والدفع، يُعد ذلك رضاءً وتوقيعاً إلكترونياً صحيحاً ونافذاً ومنتجاً لكافة آثاره القانونية طبقاً لأحكام قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004 ولا يجوز إنكار حجيته.
-                  </p>
-                  <p style={{ margin: '0 0 6px 0' }}>
-                    <strong>المادة (3) - سياسة الإلغاء والاسترداد:</strong> يخضع الإلغاء والاسترداد للشروط المعلنة عند الحجز، ويتاح الإلغاء المجاني حتى 48 ساعة قبل موعد انطلاق الرحلة طبقاً لأحكام قانون حماية المستهلك رقم 181 لسنة 2018.
-                  </p>
-                  <p style={{ margin: '0 0 6px 0' }}>
-                    <strong>المادة (4) - إقرار المخاطر والسلامة الشخصية:</strong> يقر العميل بعلمه بطبيعة الأنشطة والرحلات، والتزامه الكامل بتعليمات السلامة الصادرة عن المرشدين والمشرفين ومشاركته بمسؤوليته الشخصية.
-                  </p>
-                  <p style={{ margin: '0 0 6px 0' }}>
-                    <strong>المادة (5) - حماية البيانات والخصوصية:</strong> تلتزم الشركة بجمع ومعالجة بيانات العميل في نطاق تنفيذ الحجز وتقديم الخدمة فقط وبأعلى معايير الأمان طبقاً لقانون حماية البيانات الشخصية المصري رقم 151 لسنة 2020.
-                  </p>
-                  <p style={{ margin: '0 0 8px 0' }}>
-                    <strong>المادة (6) - القانون الواجب التطبيق:</strong> تخضع هذه الاتفاقية وتفسر وفقاً لأحكام القوانين السارية في جمهورية مصر العربية، وتختص محاكم القاهرة بفض أي نزاع قد ينشأ عنها في حال تعذر الحل الودي.
-                  </p>
+                  {isAr ? (
+                    <>
+                      <p style={{ margin: '0 0 6px 0' }}>
+                        <strong>المادة (1) - طبيعة عمل الشركة:</strong> تقر الشركة بأنها منصة تسويق إلكتروني وعلامة تجارية تعمل كوسيط تنظيمي ومسوق للخدمات السياحية والترفيهية بين العملاء ومقدمي الخدمات المرخصين، وتتولى تنظيم الحجوزات والمتابعة وخدمة العملاء.
+                      </p>
+                      <p style={{ margin: '0 0 6px 0' }}>
+                        <strong>المادة (2) - الموافقة الإلكترونية ونفاذ العقد:</strong> بموجب النقر على زر الموافقة وإتمام الحجز والدفع، يُعد ذلك رضاءً وتوقيعاً إلكترونياً صحيحاً ونافذاً ومنتجاً لكافة آثاره القانونية طبقاً لأحكام قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004 ولا يجوز إنكار حجيته.
+                      </p>
+                      <p style={{ margin: '0 0 6px 0' }}>
+                        <strong>المادة (3) - سياسة الإلغاء والاسترداد:</strong> يخضع الإلغاء والاسترداد للشروط المعلنة عند الحجز، ويتاح الإلغاء المجاني حتى 48 ساعة قبل موعد انطلاق الرحلة طبقاً لأحكام قانون حماية المستهلك رقم 181 لسنة 2018.
+                      </p>
+                      <p style={{ margin: '0 0 6px 0' }}>
+                        <strong>المادة (4) - إقرار المخاطر والسلامة الشخصية:</strong> يقر العميل بعلمه بطبيعة الأنشطة والرحلات، والتزامه الكامل بتعليمات السلامة الصادرة عن المرشدين والمشرفين ومشاركته بمسؤوليته الشخصية.
+                      </p>
+                      <p style={{ margin: '0 0 6px 0' }}>
+                        <strong>المادة (5) - حماية البيانات والخصوصية:</strong> تلتزم الشركة بجمع ومعالجة بيانات العميل في نطاق تنفيذ الحجز وتقديم الخدمة فقط وبأعلى معايير الأمان طبقاً لقانون حماية البيانات الشخصية المصري رقم 151 لسنة 2020.
+                      </p>
+                      <p style={{ margin: '0 0 8px 0' }}>
+                        <strong>المادة (6) - القانون الواجب التطبيق:</strong> تخضع هذه الاتفاقية وتفسر وفقاً لأحكام القوانين السارية في جمهورية مصر العربية، وتختص محاكم القاهرة بفض أي نزاع قد ينشأ عنها في حال تعذر الحل الودي.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p style={{ margin: '0 0 6px 0' }}>
+                        <strong>Article (1) - Nature of the Company &amp; Scope:</strong> ORLUXUS operates as an electronic marketing platform and organizational broker connecting clients with authorized professional excursion and tour operators.
+                      </p>
+                      <p style={{ margin: '0 0 6px 0' }}>
+                        <strong>Article (2) - Electronic Consent &amp; Binding Effect:</strong> Client consent via digital booking submission constitutes a valid and binding electronic signature under Egyptian Electronic Signature Law No. 15 of 2004 (Article 14).
+                      </p>
+                      <p style={{ margin: '0 0 6px 0' }}>
+                        <strong>Article (3) - Cancellation &amp; Refund Policy:</strong> Free cancellation is granted up to 48 hours prior to the scheduled excursion date in full compliance with Egyptian Consumer Protection Law No. 181 of 2018.
+                      </p>
+                      <p style={{ margin: '0 0 6px 0' }}>
+                        <strong>Article (4) - Safety &amp; Assumption of Risk:</strong> The traveler undertakes to follow all safety guidance from instructors and tour guides and participates under personal responsibility.
+                      </p>
+                      <p style={{ margin: '0 0 6px 0' }}>
+                        <strong>Article (5) - Personal Data Protection:</strong> Personal data is securely processed strictly for reservation fulfillment under Egyptian Personal Data Protection Law No. 151 of 2020.
+                      </p>
+                      <p style={{ margin: '0 0 8px 0' }}>
+                        <strong>Article (6) - Governing Law &amp; Jurisdiction:</strong> This Agreement is governed by the applicable laws of the Arab Republic of Egypt.
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 {/* Signatures Row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #fde68a', fontSize: '0.8rem' }}>
                   <div>
-                    <span style={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>توقيع الطرف الأول:</span>
+                    <span style={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>{isAr ? 'توقيع الطرف الأول:' : 'First Party Signature:'}</span>
                     <strong style={{ color: '#92400e' }}>ORLUXUS MARKETING &amp; BRANDING</strong>
                   </div>
                   <div style={{ textAlign: isAr ? 'left' : 'right' }}>
-                    <span style={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>توقيع الطرف الثاني (العميل):</span>
-                    <strong style={{ color: '#15803d' }}>✓ {booking.customerName || booking.customer} [توقيع رقمي موثق]</strong>
+                    <span style={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>{isAr ? 'توقيع الطرف الثاني (العميل):' : 'Second Party Digital Signature:'}</span>
+                    <strong style={{ color: '#15803d' }}>✓ {booking.customerName || booking.customer} [{isAr ? 'توقيع رقمي موثق' : 'Digitally Verified'}]</strong>
                   </div>
                 </div>
 
