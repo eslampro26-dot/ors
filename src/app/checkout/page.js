@@ -216,10 +216,21 @@ function CheckoutContent() {
   // Helper: Send booking confirmation email
   const sendBookingEmail = async (bookingData) => {
     try {
+      const payload = {
+        ...bookingData,
+        electronicSignature: bookingData.electronicSignature || electronicSignature || {
+          name: customerName,
+          email: email,
+          phone: phone,
+          timestamp: new Date().toISOString(),
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+        },
+        signatureTimestamp: bookingData.signatureTimestamp || signatureTimestamp || new Date().toISOString()
+      };
       await fetch('/api/send-booking-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bookingData),
+        body: JSON.stringify(payload),
       });
     } catch (err) {
       console.error('[checkout] Email send error (non-blocking):', err);
