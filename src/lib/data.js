@@ -544,28 +544,7 @@ export const sampleTrips = {
     ]
   },
   "marsa-alam": {
-    "sea-trips": [
-      {
-        id: 12,
-        titleAr: "رحلة السنوركل في شعب صمدي (بيت الدلافين)",
-        titleEn: "Samadai Reef (Dolphin House) Snorkeling Cruise",
-        descriptionAr: "رحلة بحرية مميزة لشعب صمدي (بيت الدلافين) للاستمتاع بالسنوركل في المياه الفيروزية الصافية والسباحة بجوار الدلافين البرية في بيئتها الطبيعية الآمنة.",
-        descriptionEn: "A premium cruise to Samadai Reef (Dolphin House). Snorkel in turquoise clear water and experience the magical opportunity to swim alongside wild spinner dolphins.",
-        price: 45, currency: "€", rating: 4.9, reviews: 110,
-        image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80",
-        duration: "Full Day", includes: "Snorkeling gear, buffet lunch, drinks, transfers"
-      },
-      {
-        id: 13,
-        titleAr: "رحلة محمية وادي الجمال وشاطئ شرم اللولي",
-        titleEn: "Wadi El Gemal & Sharm El Luli Day Tour",
-        descriptionAr: "استكشف جمال وادي الجمال وشاطئ شرم اللولي المصنف عالمياً برماله البيضاء الناعمة ومياهه الشبيهة ببحيرات السباحة الكريستالية.",
-        descriptionEn: "Explore the ecological wonders of Wadi El Gemal protectorate and swim at the world-famous Sharm El Luli beach, known for white powdery sands and crystal-clear shallow lagoons.",
-        price: 55, currency: "€", rating: 4.8, reviews: 88,
-        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
-        duration: "Full Day", includes: "Protected area entry, snorkeling gear, lunch, transfers"
-      }
-    ],
+    "sea-trips": [],
     "restaurants": [
       {
         id: "rest-marsa-1",

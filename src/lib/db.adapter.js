@@ -286,7 +286,7 @@ export async function getTrips(slug, category) {
   if (isFirebaseConfigured()) {
     try {
       const fbResult = await fbGetTrips(slug, category);
-      if (Array.isArray(fbResult) && fbResult.length > 0) {
+      if (Array.isArray(fbResult)) {
         return fbResult;
       }
     } catch (e) {
@@ -296,7 +296,7 @@ export async function getTrips(slug, category) {
 
   // 2. Try Server API route
   const res = await apiCall(`/api/trips?slug=${slug}&category=${category}`);
-  if (Array.isArray(res) && res.length > 0) {
+  if (Array.isArray(res)) {
     return res;
   }
 
@@ -310,7 +310,7 @@ export async function getAllTrips() {
   if (isFirebaseConfigured()) {
     try {
       const fbResult = await fbGetAllTrips();
-      if (Array.isArray(fbResult) && fbResult.length > 0) {
+      if (Array.isArray(fbResult)) {
         return fbResult;
       }
     } catch (e) {
