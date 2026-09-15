@@ -64,9 +64,20 @@ const nextConfig = {
   // ─── Redirects ───
   async redirects() {
     return [
+      // 301 Permanent Redirect for legacy locale prefixes -> canonical clean URLs
       {
-        source: '/ar',
-        destination: '/ar/',
+        source: '/:locale(ar|de|fr|es|it|ru|tr)',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/:locale(ar|de|fr|es|it|ru|tr)/',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/:locale(ar|de|fr|es|it|ru|tr)/:path*',
+        destination: '/:path*',
         permanent: true,
       },
     ];

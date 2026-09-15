@@ -9,21 +9,18 @@ export default async function sitemap() {
   const SITE_URL = 'https://orluxus.com';
   const urlMap = new Map();
   
-  // Helper to add localized entries
+  // Helper to add canonical real entries
   const addPage = (path, priority = 0.5, lastMod = new Date(), changeFrequency = 'weekly') => {
-    const locales = ['', '/ar', '/de', '/fr', '/es', '/it', '/ru', '/tr'];
-    locales.forEach((loc) => {
-      const cleanPath = path === '' ? '/' : (path.startsWith('/') ? path : `/${path}`);
-      const fullUrl = `${SITE_URL}${loc}${cleanPath === '/' ? '' : cleanPath}`;
-      const finalUrl = fullUrl.endsWith('/') && fullUrl !== `${SITE_URL}/` && !fullUrl.endsWith('.xml') ? fullUrl.slice(0, -1) : fullUrl;
-      
-      // Store in map to prevent any duplicate URLs
-      urlMap.set(finalUrl, {
-        url: finalUrl,
-        lastModified: lastMod,
-        changeFrequency: path === '' ? 'daily' : changeFrequency,
-        priority,
-      });
+    const cleanPath = path === '' ? '/' : (path.startsWith('/') ? path : `/${path}`);
+    const fullUrl = `${SITE_URL}${cleanPath === '/' ? '' : cleanPath}`;
+    const finalUrl = fullUrl.endsWith('/') && fullUrl !== `${SITE_URL}/` && !fullUrl.endsWith('.xml') ? fullUrl.slice(0, -1) : fullUrl;
+    
+    // Store in map to prevent any duplicate URLs
+    urlMap.set(finalUrl, {
+      url: finalUrl,
+      lastModified: lastMod,
+      changeFrequency: path === '' ? 'daily' : changeFrequency,
+      priority,
     });
   };
 
@@ -32,6 +29,7 @@ export default async function sitemap() {
   addPage('/our-story', 0.8, new Date(), 'weekly');
   addPage('/reviews', 0.8, new Date(), 'weekly');
   addPage('/entertainment', 0.8, new Date(), 'weekly');
+  addPage('/terms', 0.6, new Date(), 'monthly');
 
   // 2. City Destination Pages and Categories
   cities.forEach((city) => {
