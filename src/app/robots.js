@@ -11,6 +11,6 @@ export default function robots() {
         '/api/'
       ],
     },
-    sitemap: 'https://orluxus.com/sitemap.xml',
+    sitemap: 'https://www.orluxus.com/sitemap.xml',
   };
 }

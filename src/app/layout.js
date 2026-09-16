@@ -41,10 +41,10 @@ export default function RootLayout({ children, params }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5.0, user-scalable=yes" />
-        <link rel="alternate" hrefLang="en" href="https://orluxus.com/" />
-        <link rel="alternate" hrefLang="ar" href="https://orluxus.com/ar/" />
-        <link rel="alternate" hrefLang="x-default" href="https://orluxus.com/" />
-        <link rel="alternate" type="application/rss+xml" href="https://orluxus.com/rss.xml" title="ORLUXUS RSS Feed" />
+        <link rel="alternate" hrefLang="en" href="https://www.orluxus.com/" />
+        <link rel="alternate" hrefLang="ar" href="https://www.orluxus.com/" />
+        <link rel="alternate" hrefLang="x-default" href="https://www.orluxus.com/" />
+        <link rel="alternate" type="application/rss+xml" href="https://www.orluxus.com/rss.xml" title="ORLUXUS RSS Feed" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#d97706" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
@@ -57,9 +57,9 @@ export default function RootLayout({ children, params }) {
               "@context": "https://schema.org",
               "@type": "TravelAgency",
               "name": "ORLUXUS",
-              "url": "https://orluxus.com",
-              "logo": "https://orluxus.com/logo_gold_full.png",
-              "image": "https://orluxus.com/logo_gold_full.png",
+              "url": "https://www.orluxus.com",
+              "logo": "https://www.orluxus.com/logo_gold_full.png",
+              "image": "https://www.orluxus.com/logo_gold_full.png",
               "description": locale === 'ar' 
                 ? "أورلوكسوس - اكتشف الرحلات البحرية الفاخرة والسفاري الصحراوية وجولات مصر الاستثنائية بروح عائلية."
                 : "ORLUXUS - Discover premium marine trips, desert safaris, and unforgettable Egypt tours with a family-first experience.",

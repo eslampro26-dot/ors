@@ -1,4 +1,4 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://orluxus.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.orluxus.com';
 
 const metadataByLocale = {
   en: {
@@ -16,24 +16,21 @@ const metadataByLocale = {
 };
 
 /**
- * Build canonical URL for a locale
+ * Build canonical URL
  */
-function getCanonicalUrl(locale) {
-  return locale === 'en' ? `${SITE_URL}/` : `${SITE_URL}/${locale}/`;
+function getCanonicalUrl() {
+  return `${SITE_URL}/`;
 }
 
 /**
  * Generate hreflang alternates for all supported locales
  */
 function getHreflangAlternates() {
-  const locales = ['en', 'ar'];
-  const alternates = {};
-  locales.forEach((loc) => {
-    alternates[loc] = getCanonicalUrl(loc);
-  });
-  // x-default points to the default locale
-  alternates['x-default'] = getCanonicalUrl('en');
-  return alternates;
+  return {
+    'x-default': `${SITE_URL}/`,
+    'en': `${SITE_URL}/`,
+    'ar': `${SITE_URL}/`,
+  };
 }
 
 /**

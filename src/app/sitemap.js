@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function sitemap() {
-  const SITE_URL = 'https://orluxus.com';
+  const SITE_URL = 'https://www.orluxus.com';
   const urlMap = new Map();
   
   // Helper to add canonical real entries
