@@ -31,12 +31,15 @@ export default async function sitemap() {
   addPage('/entertainment', 0.8, new Date(), 'weekly');
   addPage('/terms', 0.6, new Date(), 'monthly');
 
-  // 2. City Destination Pages and Categories
+  // 2. City Destination Pages, Tours, Guides, and Categories
   cities.forEach((city) => {
     addPage(`/city/${city.slug}`, 0.9, new Date(), 'weekly');
     
     // Dedicated city tour pages
     addPage(`/city/${city.slug}/tours`, 0.85, new Date(), 'weekly');
+
+    // Dedicated comprehensive city guide pages
+    addPage(`/city/${city.slug}/guide`, 0.85, new Date(), 'weekly');
     
     if (city.categories && Array.isArray(city.categories)) {
       city.categories.forEach((cat) => {

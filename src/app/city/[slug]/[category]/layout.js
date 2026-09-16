@@ -1,7 +1,7 @@
 import { cities } from '@/lib/data';
 import { getCategorySeoMetadata } from '@/lib/seo-city';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://orluxus.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.orluxus.com';
 
 export async function generateMetadata({ params }) {
   const { slug, category } = await params;
