@@ -1,7 +1,7 @@
 // SEO City Metadata — All cities and categories with targeted keywords
 // Used by generateMetadata() in city and category layout files
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://orluxus.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.orluxus.com';
 
 // ============================================================
 // CITY SEO DATA
@@ -216,7 +216,7 @@ export function getCitySeoMetadata(slug, locale = 'en') {
   const data = citySeoData[slug];
   if (!data) return null;
   const locData = data[locale] || data.en;
-  const path = locale === 'en' ? `/city/${slug}` : `/ar/city/${slug}`;
+  const path = `/city/${slug}`;
 
   return {
     title: locData.title,
@@ -224,10 +224,10 @@ export function getCitySeoMetadata(slug, locale = 'en') {
     keywords: locData.keywords,
     metadataBase: new URL(SITE_URL),
     alternates: {
-      canonical: `${SITE_URL}${locale === 'en' ? '' : '/ar'}/city/${slug}`,
+      canonical: `${SITE_URL}/city/${slug}`,
       languages: {
         en: `${SITE_URL}/city/${slug}`,
-        ar: `${SITE_URL}/ar/city/${slug}`,
+        ar: `${SITE_URL}/city/${slug}`,
         'x-default': `${SITE_URL}/city/${slug}`,
       },
     },
@@ -262,7 +262,7 @@ export function getCategorySeoMetadata(slug, category, cityNameEn, cityNameAr, l
   const title = typeof locData.title === 'function' ? locData.title(cityName) : locData.title;
   const description = typeof locData.description === 'function' ? locData.description(cityName) : locData.description;
   const keywords = locData.keywords && typeof locData.keywords === 'function' ? locData.keywords(cityNameEn) : (locData.keywords || '');
-  const path = locale === 'en' ? `/city/${slug}/${category}` : `/ar/city/${slug}/${category}`;
+  const path = `/city/${slug}/${category}`;
 
   return {
     title,
@@ -270,10 +270,10 @@ export function getCategorySeoMetadata(slug, category, cityNameEn, cityNameAr, l
     keywords,
     metadataBase: new URL(SITE_URL),
     alternates: {
-      canonical: `${SITE_URL}${locale === 'en' ? '' : '/ar'}/city/${slug}/${category}`,
+      canonical: `${SITE_URL}/city/${slug}/${category}`,
       languages: {
         en: `${SITE_URL}/city/${slug}/${category}`,
-        ar: `${SITE_URL}/ar/city/${slug}/${category}`,
+        ar: `${SITE_URL}/city/${slug}/${category}`,
         'x-default': `${SITE_URL}/city/${slug}/${category}`,
       },
     },

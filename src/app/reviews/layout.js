@@ -1,4 +1,4 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://orluxus.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.orluxus.com';
 
 export const metadata = {
   title: 'Guest Reviews & Ratings | ORLUXUS Egypt Tours',
@@ -8,7 +8,7 @@ export const metadata = {
     canonical: `${SITE_URL}/reviews`,
     languages: {
       en: `${SITE_URL}/reviews`,
-      ar: `${SITE_URL}/ar/reviews`,
+      ar: `${SITE_URL}/reviews`,
       'x-default': `${SITE_URL}/reviews`,
     }
   },

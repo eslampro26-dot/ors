@@ -2,7 +2,7 @@ import { internalPackages } from '@/lib/data';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://orluxus.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.orluxus.com';
 
 async function fetchPackage(id) {
   // 1. Check static data first
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }) {
       canonical,
       languages: {
         en: `${SITE_URL}/packages/${id}`,
-        ar: `${SITE_URL}/ar/packages/${id}`,
+        ar: `${SITE_URL}/packages/${id}`,
         'x-default': `${SITE_URL}/packages/${id}`,
       },
     },

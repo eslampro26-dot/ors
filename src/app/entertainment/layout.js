@@ -1,4 +1,4 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://orluxus.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.orluxus.com';
 
 export const metadata = {
   title: 'Nightlife, Shows & Entertainment in Egypt | ORLUXUS',
@@ -8,7 +8,7 @@ export const metadata = {
     canonical: `${SITE_URL}/entertainment`,
     languages: {
       en: `${SITE_URL}/entertainment`,
-      ar: `${SITE_URL}/ar/entertainment`,
+      ar: `${SITE_URL}/entertainment`,
       'x-default': `${SITE_URL}/entertainment`,
     }
   },

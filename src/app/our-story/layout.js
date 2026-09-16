@@ -1,4 +1,4 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://orluxus.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.orluxus.com';
 
 export const metadata = {
   title: 'Our Story & Heritage | ORLUXUS Luxury Travel Egypt',
@@ -8,7 +8,7 @@ export const metadata = {
     canonical: `${SITE_URL}/our-story`,
     languages: {
       en: `${SITE_URL}/our-story`,
-      ar: `${SITE_URL}/ar/our-story`,
+      ar: `${SITE_URL}/our-story`,
       'x-default': `${SITE_URL}/our-story`,
     }
   },
