@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 
 const BG_IMAGES = [
-  'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1200&q=70',
-  'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1200&q=70',
-  'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=70',
-  'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=70',
-  'https://images.unsplash.com/photo-1553913861-c0fddf2619ee?auto=format&fit=crop&w=1200&q=70',
-  'https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&w=1200&q=70',
+  'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=1920&q=85',
+  'https://images.unsplash.com/photo-1582967788606-a171c1080cb0?auto=format&fit=crop&w=1920&q=85',
+  'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1920&q=85',
+  'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1920&q=85',
+  'https://images.unsplash.com/photo-1553913861-c0fddf2619ee?auto=format&fit=crop&w=1920&q=85',
+  'https://images.unsplash.com/photo-1488085061387-422e29b40080?auto=format&fit=crop&w=1920&q=85',
 ];
 
 export default function GlobalBackground() {
@@ -56,26 +57,34 @@ export default function GlobalBackground() {
 
   return (
     <div className="global-bg-container">
-      {/* Current image — always visible */}
-      <div
-        className="global-bg-slide active"
-        style={{ backgroundImage: `url(${currentImg})` }}
-      />
-      {/* Next image — fades in over current only when fully loaded */}
-      {nextImg && (
-        <div
-          className={`global-bg-slide${showNext ? ' active' : ''}`}
-          style={{ backgroundImage: `url(${nextImg})` }}
+      {/* Current Hero Image using next/image with priority={true} & quality={85} for ultra-fast LCP */}
+      <div className="global-bg-slide active">
+        <Image
+          src={currentImg}
+          alt="ORLUXUS Hero Experience"
+          fill
+          priority={true}
+          quality={85}
+          sizes="100vw"
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
         />
-      )}
-      <div className="global-bg-overlay" />
-
-      {/* Native Browser Preloader - zero garbage collection, zero NS_BINDING_ABORTED */}
-      <div style={{ display: 'none', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
-        {BG_IMAGES.map((src, i) => (
-          <img key={i} src={src} alt="preload" loading="eager" />
-        ))}
       </div>
+
+      {/* Next image for smooth cross-fade */}
+      {nextImg && (
+        <div className={`global-bg-slide${showNext ? ' active' : ''}`}>
+          <Image
+            src={nextImg}
+            alt="ORLUXUS Luxury Destination"
+            fill
+            quality={85}
+            sizes="100vw"
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
+          />
+        </div>
+      )}
+
+      <div className="global-bg-overlay" />
 
       <style jsx global>{`
         .global-bg-container {
@@ -91,10 +100,7 @@ export default function GlobalBackground() {
 
         .global-bg-slide {
           position: absolute;
-          inset: -5%;
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
+          inset: -2%;
           opacity: 0;
           pointer-events: none;
           transform: scale(1.02);

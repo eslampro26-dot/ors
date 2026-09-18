@@ -35,27 +35,12 @@ const nextConfig = {
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate, s-maxage=3600' },
           { key: 'X-Content-Language', value: 'en, ar' },
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.paypalobjects.com https://apis.google.com https://fonts.googleapis.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://res.cloudinary.com https://*.googleusercontent.com https://firebasestorage.googleapis.com https://*.firebasestorage.app https://www.google.com https://*.google.com",
-              "media-src 'self' https://assets.mixkit.co",
-              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebasestorage.app https://www.paypal.com https://firestore.googleapis.com https://*.firestore.googleapis.com https://*.firebaseapp.com",
-              "frame-src 'self' https://www.paypal.com https://orluxus.firebaseapp.com https://*.firebaseapp.com https://*.youtube.com https://*.youtube-nocookie.com https://player.vimeo.com https://*.vimeo.com https://accounts.google.com",
-              "object-src 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-            ].join('; '),
-          },
         ],
       },
     ];
