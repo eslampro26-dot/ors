@@ -8,6 +8,15 @@ import LanguageSwitcher from './LanguageSwitcher';
 import CurrencySwitcher from './CurrencySwitcher';
 import { useLanguage } from '@/context/LanguageContext';
 
+// Official Site Logo — Orluxus Marketing Tourism Agency (Text Only)
+function Logo() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <span className={styles.logoTextString}>ORLUXUS</span>
+    </div>
+  );
+}
+
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -34,13 +43,6 @@ export default function Navbar() {
   const handleDropdownToggle = (id) => {
     setActiveDropdown(activeDropdown === id ? null : id);
   };
-
-  // Official Site Logo — Orluxus Marketing Tourism Agency (Text Only)
-  const Logo = () => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <span className={styles.logoTextString}>ORLUXUS</span>
-    </div>
-  );
 
   if (!isReady) {
     return (

@@ -329,8 +329,6 @@ export async function initializeDB() {
   return true;
 }
 
-export async function updateTrip() { return false; }
-
 export async function updateTrip(id, tripData) {
   if (!isUpstashConfigured()) return false;
   // البحث عن الرحلة في جميع الفئات والمدينة

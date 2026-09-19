@@ -184,10 +184,7 @@ export default function AdminDestinations() {
           const displayDescAr = currentData.descriptionAr !== undefined ? currentData.descriptionAr : city.descriptionAr;
           const displayDescEn = currentData.descriptionEn !== undefined ? currentData.descriptionEn : city.descriptionEn;
           
-          // Add timestamp to prevent browser caching when image is updated
-          const imageUrl = displayImage.startsWith('data:') 
-            ? displayImage 
-            : `${displayImage}${displayImage.includes('?') ? '&' : '?'}t=${Date.now()}`;
+          const imageUrl = displayImage;
 
           return (
             <div key={city.slug} className="glass-card" style={{ padding: '1.5rem', display: 'flex', gap: '2rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
