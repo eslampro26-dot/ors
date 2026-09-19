@@ -11,6 +11,8 @@ import { CurrencyProvider } from "@/context/CurrencyContext";
 import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
 import GlobalBackground from "@/components/GlobalBackground";
 
+import { headers } from "next/headers";
+
 const RTL_LOCALES = ['ar'];
 
 function getDirection(locale) {
@@ -30,7 +32,10 @@ export async function generateMetadata({ params }) {
   return getSeoMetadata(locale);
 }
 
-export default function RootLayout({ children, params }) {
+export default async function RootLayout({ children, params }) {
+  const headersList = await headers();
+  const nonce = headersList.get('x-nonce') || undefined;
+
   const locale = params?.locale || 'en';
   const dir = getDirection(locale);
 
@@ -58,6 +63,7 @@ export default function RootLayout({ children, params }) {
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon-32x32.png" />
         <script
+          nonce={nonce}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
