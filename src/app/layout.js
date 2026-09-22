@@ -10,6 +10,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { CurrencyProvider } from "@/context/CurrencyContext";
 import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
 import GlobalBackground from "@/components/GlobalBackground";
+import LegalFooter from "@/components/LegalFooter";
 
 import { headers } from "next/headers";
 
@@ -108,6 +109,7 @@ export default async function RootLayout({ children, params }) {
             <ToastProvider />
           </CurrencyProvider>
         </LanguageProvider>
+        <LegalFooter />
       </body>
     </html>
   );

@@ -3341,13 +3341,19 @@ function CheckoutContent() {
                   </p>
                 )}
                 {promoSuccess && (
-                  <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: 'var(--emerald-500)', fontWeight: 'bold' }}>
-                    ✓ {promoSuccess}
-                  </p>
+                  <div>
+                    <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: 'var(--emerald-500)', fontWeight: 'bold' }}>
+                      ✓ {promoSuccess}
+                    </p>
+                    <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.78rem', color: 'var(--text-tertiary, #6b7280)', fontStyle: 'italic' }}>
+                      {locale === 'ar'
+                        ? '🔄 ملاحظة: في حالة الإلغاء، يُحسب الاسترداد على المبلغ الفعلي المدفوع بعد الخصم، ويُعاد بنفس البطاقة البنكية خلال 7-14 يوم عمل.'
+                        : '🔄 Note: Refunds are calculated on the actual amount paid after discount, returned to the same card within 7–14 business days.'}
+                    </p>
+                  </div>
                 )}
               </div>
 
-              {/* Full Legal Agreement & Terms Box */}
               {(() => {
                 const openTerms = (e) => {
                   if (e) e.preventDefault();
@@ -3372,7 +3378,7 @@ function CheckoutContent() {
                     marginTop: '1.2rem',
                     marginBottom: '0.8rem'
                   }}>
-                    {/* Checkbox Consent (Clean single row) */}
+                    {/* Checkbox Consent */}
                     <label style={{ 
                       display: 'flex', 
                       alignItems: 'flex-start', 
@@ -3395,27 +3401,68 @@ function CheckoutContent() {
                           <>
                             أوافق وأقبل{' '}
                             <a href="#" onClick={openTerms} style={{ color: 'var(--gold-500)', textDecoration: 'underline', fontWeight: '700' }}>
-                              الشروط والأحكام واتفاقية الوساطة
-                            </a>{' '}
-                            و{' '}
+                              الشروط والأحكام
+                            </a>
+                            {' '}و{' '}
                             <a href="#" onClick={openPolicy} style={{ color: 'var(--gold-500)', textDecoration: 'underline', fontWeight: '700' }}>
-                              سياسة الإلغاء
+                              سياسة الإلغاء والاسترداد
+                            </a>
+                            {' '}و{' '}
+                            <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-500)', textDecoration: 'underline', fontWeight: '700' }}>
+                              سياسة الخصوصية
+                            </a>
+                            {' '}و{' '}
+                            <a href="/service-delivery" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-500)', textDecoration: 'underline', fontWeight: '700' }}>
+                              سياسة تقديم الخدمة
                             </a>
                           </>
                         ) : (
                           <>
                             I agree and accept the{' '}
                             <a href="#" onClick={openTerms} style={{ color: 'var(--gold-500)', textDecoration: 'underline', fontWeight: '700' }}>
-                              Terms &amp; Brokerage Agreement
-                            </a>{' '}
-                            and{' '}
+                              Terms & Conditions
+                            </a>
+                            {' '}and{' '}
                             <a href="#" onClick={openPolicy} style={{ color: 'var(--gold-500)', textDecoration: 'underline', fontWeight: '700' }}>
                               Cancellation Policy
+                            </a>
+                            {' '}and{' '}
+                            <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-500)', textDecoration: 'underline', fontWeight: '700' }}>
+                              Privacy Policy
+                            </a>
+                            {' '}and{' '}
+                            <a href="/service-delivery" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-500)', textDecoration: 'underline', fontWeight: '700' }}>
+                              Service Delivery Policy
                             </a>
                           </>
                         )}
                       </span>
                     </label>
+
+                    {/* PayTabs Trust & Refund Badge */}
+                    <div style={{
+                      marginTop: '0.75rem',
+                      padding: '0.85rem 1rem',
+                      background: 'linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(5,150,105,0.08) 100%)',
+                      border: '1px solid rgba(16,185,129,0.25)',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '0.5rem 1.2rem',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      {[
+                        { icon: '🔒', text: locale === 'ar' ? 'SSL 256-bit' : 'SSL 256-bit' },
+                        { icon: '🛡️', text: 'PCI DSS Level 1' },
+                        { icon: '💳', text: 'PayTabs · Visa · Mastercard' },
+                        { icon: '🔄', text: locale === 'ar' ? 'استرداد 7-14 يوم عمل على نفس البطاقة' : 'Refund in 7–14 business days to same card' },
+                      ].map((b) => (
+                        <span key={b.text} style={{ fontSize: '0.75rem', color: 'var(--emerald-700, #065f46)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {b.icon} {b.text}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 );
               })()}

@@ -30,6 +30,8 @@ export default async function sitemap() {
   addPage('/reviews', 0.8, new Date(), 'weekly');
   addPage('/entertainment', 0.8, new Date(), 'weekly');
   addPage('/terms', 0.6, new Date(), 'monthly');
+  addPage('/privacy', 0.6, new Date(), 'monthly');
+  addPage('/service-delivery', 0.6, new Date(), 'monthly');
 
   // 2. City Destination Pages, Tours, Guides, and Categories
   cities.forEach((city) => {
