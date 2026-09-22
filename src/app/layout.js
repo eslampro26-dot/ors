@@ -107,9 +107,9 @@ export default async function RootLayout({ children, params }) {
             </ErrorBoundary>
             <WhatsAppFloatingButton />
             <ToastProvider />
+            <LegalFooter />
           </CurrencyProvider>
         </LanguageProvider>
-        <LegalFooter />
       </body>
     </html>
   );
