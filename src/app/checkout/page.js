@@ -2801,7 +2801,7 @@ function CheckoutContent() {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>{translate('basePrice')}</span>
-                <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>€{basePrice}</span>
+                <span style={{ fontWeight: 'bold', color: 'var(--text-primary)', fontFamily: 'var(--font-en)' }}>{currencyDetails?.symbol || 'EGP'} {convert(basePrice).toLocaleString()}</span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -2814,7 +2814,7 @@ function CheckoutContent() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
                   <span style={{ color: 'var(--text-tertiary)' }}>• {translate('childrenLabel')} ×{children}</span>
                   <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                    {childPrice > 0 ? `+€${(childPrice * children).toFixed(2)}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
+                    {childPrice > 0 ? `+${currencyDetails?.symbol || 'EGP'} ${convert(childPrice * children).toLocaleString()}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
                   </span>
                 </div>
               )}
@@ -2824,12 +2824,12 @@ function CheckoutContent() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
                   <span style={{ color: 'var(--text-tertiary)' }}>• {translate('infantsLabel')} ×{infants}</span>
                   <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                    {infantPrice > 0 ? `+€${(infantPrice * infants).toFixed(2)}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
+                    {infantPrice > 0 ? `+${currencyDetails?.symbol || 'EGP'} ${convert(infantPrice * infants).toLocaleString()}` : (locale === 'ar' ? 'مجاناً' : '✓ Free')}
                   </span>
                 </div>
               )}
 
-              {/* Extras Cost rows - dynamic from settings or fallback */}
+              {/* Extras Cost rows */}
               {((settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : [
                 { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking' },
                 { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', price: 15, unit: 'person' },
@@ -2847,7 +2847,7 @@ function CheckoutContent() {
                       }[addon.id] || addon.nameEn) : (locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr))}
                     </span>
                     <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                      +€{(addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? (addon.price * travelers) : addon.price}
+                      +{currencyDetails?.symbol || 'EGP'} {convert((addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? (addon.price * travelers) : addon.price).toLocaleString()}
                     </span>
                   </div>
                 ) : null
@@ -2856,13 +2856,13 @@ function CheckoutContent() {
               {promoDetails && discountAmount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#10b981', background: 'rgba(16,185,129,0.06)', borderRadius: '8px', padding: '0.5rem 0.8rem', border: '1px solid rgba(16,185,129,0.15)' }}>
                   <span style={{ fontSize: '0.9rem' }}>🎟️ {translate('discount')} <strong style={{ fontFamily: 'var(--font-en)', letterSpacing: '1px' }}>{promoDetails.code}</strong></span>
-                  <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
+                  <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-{currencyDetails?.symbol || 'EGP'} {convert(discountAmount).toLocaleString()}</span>
                 </div>
               )}
               {!promoDetails && discountAmount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--coral-500)' }}>
                   <span>{translate('discount')}</span>
-                  <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-€{discountAmount.toFixed(2)}</span>
+                  <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-en)' }}>-{currencyDetails?.symbol || 'EGP'} {convert(discountAmount).toLocaleString()}</span>
                 </div>
               )}
             </div>

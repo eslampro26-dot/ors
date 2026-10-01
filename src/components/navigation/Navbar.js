@@ -159,9 +159,9 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Right Header Actions: Currency, Language & Mobile Toggle */}
+        {/* Right Header Actions: Language & Mobile Toggle */}
+        {/* CurrencySwitcher hidden temporarily — EGP only mode for Geidea gateway */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', zIndex: 60, flexShrink: 0 }}>
-          <CurrencySwitcher onCurrencyChange={() => setMobileOpen(false)} />
           <LanguageSwitcher onLanguageChange={() => setMobileOpen(false)} />
           <button 
             className={styles.mobileToggle} 

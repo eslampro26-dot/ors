@@ -53,7 +53,8 @@ export const DEFAULT_EXCHANGE_RATES = {
   EGP: 53.5
 };
 
-export const DEFAULT_CURRENCY = 'EUR';
+// Set to EGP temporarily for Geidea payment gateway approval
+export const DEFAULT_CURRENCY = 'EGP';
 
 /**
  * Converts an amount from base EUR to the specified target currency

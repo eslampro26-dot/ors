@@ -17,20 +17,15 @@ export function CurrencyProvider({ children }) {
   const [rates, setRates] = useState(DEFAULT_EXCHANGE_RATES);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. Initialize from localStorage or cookie on mount
+  // 1. Force EGP mode temporarily for Geidea payment gateway approval
   useEffect(() => {
+    // Always force EGP
+    setCurrencyState('EGP');
     try {
-      const saved = localStorage.getItem('orluxus_currency');
-      if (saved && SUPPORTED_CURRENCIES[saved]) {
-        setCurrencyState(saved);
-      } else {
-        const cookieMatch = document.cookie.match(/orluxus_currency=([^;]*)/);
-        if (cookieMatch && SUPPORTED_CURRENCIES[cookieMatch[1]]) {
-          setCurrencyState(cookieMatch[1]);
-        }
-      }
+      localStorage.setItem('orluxus_currency', 'EGP');
+      document.cookie = 'orluxus_currency=EGP; path=/; max-age=31536000; SameSite=Lax';
     } catch (e) {
-      console.warn('Could not read currency preference:', e);
+      // ignore
     }
   }, []);
 
