@@ -157,6 +157,34 @@ export default function Navbar() {
           <Link href="/booking-confirmation" className={styles.navLink} onClick={() => setMobileOpen(false)}>
             {t('nav.myBooking')}
           </Link>
+
+          {/* 6. Install App PWA Trigger */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileOpen(false);
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new Event('open-pwa-install'));
+              }
+            }}
+            className={styles.navLink}
+            style={{
+              background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%)',
+              border: '1px solid rgba(201, 162, 39, 0.4)',
+              borderRadius: '8px',
+              color: '#d4aa30',
+              fontWeight: '700',
+              padding: '6px 12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              fontSize: '0.85rem',
+            }}
+          >
+            <span>📲</span>
+            <span>{locale === 'ar' ? 'تثبيت التطبيق' : 'Install App'}</span>
+          </button>
         </div>
 
         {/* Right Header Actions: Language & Mobile Toggle */}

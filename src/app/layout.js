@@ -11,6 +11,7 @@ import { CurrencyProvider } from "@/context/CurrencyContext";
 import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
 import GlobalBackground from "@/components/GlobalBackground";
 import LegalFooter from "@/components/LegalFooter";
+import InstallAppBanner from "@/components/InstallAppBanner";
 
 import { headers } from "next/headers";
 
@@ -106,6 +107,7 @@ export default async function RootLayout({ children, params }) {
               {children}
             </ErrorBoundary>
             <WhatsAppFloatingButton />
+            <InstallAppBanner />
             <ToastProvider />
             <LegalFooter />
           </CurrencyProvider>

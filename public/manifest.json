@@ -1,12 +1,13 @@
-
 {
-  "name": "ORLUXUS - With A Family Spirit",
+  "id": "/",
+  "name": "ORLUXUS - Luxury Trips & Experiences",
   "short_name": "ORLUXUS",
-  "description": "Book premium marine cruises, desert safaris, and local city excursions in Egypt",
+  "description": "Book premium marine cruises, desert safaris, and local city excursions in Egypt with a family spirit",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0e1a",
-  "theme_color": "#d97706",
+  "theme_color": "#0a0e1a",
   "orientation": "portrait-primary",
   "lang": "en",
   "categories": ["travel", "lifestyle"],
@@ -15,26 +16,37 @@
       "src": "/logo_gold_icon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/logo_gold_icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/logo_gold_full.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [],
-  "shortcuts": [
-    {
-      "name": "Sharm El Sheikh",
-      "url": "/city/sharm-el-sheikh",
-      "description": "Explore Sharm El Sheikh trips"
+      "purpose": "any"
     },
     {
-      "name": "Hurghada",
+      "src": "/logo_gold_full.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Hurghada Trips",
       "url": "/city/hurghada",
-      "description": "Explore Hurghada trips"
+      "description": "Explore Hurghada excursions"
+    },
+    {
+      "name": "Sharm El Sheikh Trips",
+      "url": "/city/sharm-el-sheikh",
+      "description": "Explore Sharm El Sheikh excursions"
     }
   ]
 }
