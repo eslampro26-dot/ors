@@ -54,7 +54,7 @@ export default function LegalFooter() {
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '0.5rem 1.5rem', marginBottom: '0.9rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
         <span>🔒 SSL 256-bit Encrypted</span>
         <span>🛡️ PCI DSS Compliant</span>
-        <span>💳 Visa · Mastercard · PayTabs</span>
+        <span>💳 Visa · Mastercard</span>
         <span>🔄 {txt.refund}</span>
       </div>
 

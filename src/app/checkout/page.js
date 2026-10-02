@@ -2882,23 +2882,7 @@ function CheckoutContent() {
               </div>
             </div>
 
-            {/* Compliance & Central Bank Currency Disclaimer */}
-            <div style={{
-              marginTop: '1rem',
-              padding: '10px 14px',
-              borderRadius: '8px',
-              background: 'rgba(201, 162, 39, 0.08)',
-              border: '1px solid rgba(201, 162, 39, 0.25)',
-              fontSize: '0.8rem',
-              lineHeight: '1.5',
-              color: 'var(--text-secondary)',
-              textAlign: isAr ? 'right' : 'left'
-            }}>
-              <span style={{ fontWeight: 'bold', color: 'var(--gold-400)' }}>ℹ️ {isAr ? 'إشعار الدفع والعملة:' : 'Payment Currency Notice:'}</span>{' '}
-              {isAr 
-                ? 'الأسعار معروضة بالعملة المحددة لتسهيل المقارنة. سيتم خصم المبلغ بالجنيه المصري (EGP) وفقاً لسعر الصرف اليومي للبنك المركزي.'
-                : 'Prices are shown in your selected currency for convenience. Charges will be processed in EGP (Egyptian Pounds) based on the current daily central bank exchange rate.'}
-            </div>
+
 
             <div style={{ marginTop: '2rem', display: 'flex', gap: '0.5rem', color: 'var(--text-tertiary)', fontSize: '0.8rem', lineHeight: '1.4' }}>
               <span>🔒</span>
@@ -3439,30 +3423,6 @@ function CheckoutContent() {
                       </span>
                     </label>
 
-                    {/* PayTabs Trust & Refund Badge */}
-                    <div style={{
-                      marginTop: '0.75rem',
-                      padding: '0.85rem 1rem',
-                      background: 'linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(5,150,105,0.08) 100%)',
-                      border: '1px solid rgba(16,185,129,0.25)',
-                      borderRadius: '8px',
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '0.5rem 1.2rem',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      {[
-                        { icon: '🔒', text: locale === 'ar' ? 'SSL 256-bit' : 'SSL 256-bit' },
-                        { icon: '🛡️', text: 'PCI DSS Level 1' },
-                        { icon: '💳', text: 'PayTabs · Visa · Mastercard' },
-                        { icon: '🔄', text: locale === 'ar' ? 'استرداد 7-14 يوم عمل على نفس البطاقة' : 'Refund in 7–14 business days to same card' },
-                      ].map((b) => (
-                        <span key={b.text} style={{ fontSize: '0.75rem', color: 'var(--emerald-700, #065f46)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          {b.icon} {b.text}
-                        </span>
-                      ))}
-                    </div>
                   </div>
                 );
               })()}
