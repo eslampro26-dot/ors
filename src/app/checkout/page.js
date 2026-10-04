@@ -1862,7 +1862,7 @@ function CheckoutContent() {
                         }[addon.id] || addon.nameEn) : (locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr))}
                       </span>
                       <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                        +€{(addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? (addon.price * travelers) : addon.price}
+                        +{(addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? (addon.price * travelers) : addon.price} EGP
                       </span>
                     </div>
                   ) : null
@@ -3177,9 +3177,9 @@ function CheckoutContent() {
                                 const isPerPerson = addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch';
                                 const totalAddonCost = isPerPerson ? (addon.price * travelers) : addon.price;
                                 if (isPerPerson && travelers > 1) {
-                                  return `(+€${totalAddonCost} = €${addon.price} × ${travelers})`;
+                                  return `(+${totalAddonCost} EGP = ${addon.price} EGP × ${travelers})`;
                                 }
-                                return `(+€${totalAddonCost})`;
+                                return `(+${totalAddonCost} EGP)`;
                               })()}
                             </span>
                           </label>
