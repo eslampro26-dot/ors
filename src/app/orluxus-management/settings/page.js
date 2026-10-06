@@ -1757,7 +1757,7 @@ export default function AdminSettings() {
         </div>
         <div className="admin-card-body">
           <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-            These add-ons will appear during customer checkout. You can customize titles, prices, and descriptions freely.
+            These add-ons will appear during customer checkout. Enter prices in EUR; checkout converts them to EGP at a fixed rate of 55 EGP per EUR.
           </p>
           {checkoutAddons.map((addon, index) => (
             <div key={addon.id || index} style={{ marginBottom: '1.2rem', padding: '1.2rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
@@ -2335,4 +2335,3 @@ export default function AdminSettings() {
     </div>
   );
 }
-

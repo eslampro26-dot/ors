@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { DEFAULT_EXCHANGE_RATES } from '@/lib/currency';
+import { DEFAULT_EXCHANGE_RATES, EUR_TO_EGP_RATE } from '@/lib/currency';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 86400; // Cache for 24 hours
@@ -45,7 +45,7 @@ export async function GET() {
           USD: Number((data.rates.USD || 1.08).toFixed(3)),
           GBP: Number((data.rates.GBP || 0.85).toFixed(3)),
           SAR: Number((data.rates.SAR || 4.05).toFixed(3)),
-          EGP: Number((data.rates.EGP || 53.5).toFixed(2))
+          EGP: EUR_TO_EGP_RATE
         };
 
         cachedRates = {

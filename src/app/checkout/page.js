@@ -22,6 +22,15 @@ function CheckoutContent() {
   const { settings } = useSettings();
   const { currency, currencyDetails, convert, getEgpSettlement, formatDual } = useCurrency();
 
+  const defaultCheckoutAddons = [
+    { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', nameDe: 'Privater Reiseleiter', price: 25, unit: 'booking' },
+    { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', nameDe: 'Mittagessen & Erfrischungsgetränke', price: 15, unit: 'person' },
+    { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', nameDe: 'Privater Hin- und Rücktransfer', price: 30, unit: 'booking' },
+    { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', nameDe: 'Professionelles Fotoshooting', price: 20, unit: 'booking' },
+    { id: 'vip', nameEn: 'VIP AIRPORT SERVICE', nameAr: 'خدمة المطار VIP', nameDe: 'VIP Flughafenservice', price: 55, unit: 'booking' },
+  ];
+  const checkoutAddons = settings?.checkoutAddons?.length ? settings.checkoutAddons : defaultCheckoutAddons;
+
   const emergencyNum = settings?.emergencyPhone || '+201038820014';
   const whatsappNum = settings?.whatsapp || '+201038820019';
 
@@ -167,14 +176,7 @@ function CheckoutContent() {
 
   // Helpers to format selected extras
   const getSelectedExtrasList = () => {
-    const defaultAddons = [
-      { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', nameDe: 'Privater Reiseleiter', price: 1750, unit: 'booking' },
-      { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', nameDe: 'Mittagessen & Erfrischungsgetränke', price: 15, unit: 'person' },
-      { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', nameDe: 'Privater Hin- und Rücktransfer', price: 650, unit: 'booking' },
-      { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', nameDe: 'Professionelles Fotoshooting', price: 2500, unit: 'booking' },
-      { id: 'vip', nameEn: 'VIP AIRPORT SERVICE', nameAr: 'خدمة المطار VIP', nameDe: 'VIP Flughafenservice', price: 2750, unit: 'booking' },
-    ];
-    const addons = (settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : defaultAddons;
+    const addons = checkoutAddons;
     const list = [];
     addons.forEach(addon => {
       if (selectedExtras[addon.id]) {
@@ -1846,13 +1848,7 @@ function CheckoutContent() {
                 )}
 
                 {/* Extras Cost rows */}
-                {((settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : [
-                  { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 1750, unit: 'booking' },
-                  { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', price: 15, unit: 'person' },
-                  { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 650, unit: 'booking' },
-                  { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 2500, unit: 'booking' },
-                  { id: 'vip', nameEn: 'VIP AIRPORT SERVICE', nameAr: 'خدمة المطار VIP', price: 2750, unit: 'booking' },
-                ]).map(addon => (
+                {checkoutAddons.map(addon => (
                   selectedExtras[addon.id] ? (
                     <div key={addon.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
                       <span style={{ color: 'var(--text-tertiary)' }}>
@@ -1865,7 +1861,7 @@ function CheckoutContent() {
                         }[addon.id] || addon.nameEn) : (locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr))}
                       </span>
                       <span style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-en)' }}>
-                        +{(addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? ((addon.price * travelers).toLocaleString()) : addon.price.toLocaleString()} EGP
+                        +EGP {convert((addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.id === 'lunch') ? (addon.price * travelers) : addon.price).toLocaleString()}
                       </span>
                     </div>
                   ) : null
@@ -2833,12 +2829,7 @@ function CheckoutContent() {
               )}
 
               {/* Extras Cost rows */}
-              {((settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : [
-                { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 25, unit: 'booking' },
-                { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', price: 15, unit: 'person' },
-                { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 30, unit: 'booking' },
-                { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 20, unit: 'booking' },
-              ]).map(addon => (
+              {checkoutAddons.map(addon => (
                 selectedExtras[addon.id] ? (
                   <div key={addon.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
                     <span style={{ color: 'var(--text-tertiary)' }}>
@@ -3140,12 +3131,7 @@ function CheckoutContent() {
               </div>
 
               {/* PREMIUM EXTRAS & ADD-ONS */}
-              {((settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : [
-                { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 1338, unit: 'booking', descAr: 'مرشد سياحي مرخص يرافقكم طوال الرحلة لشرح المعالم وتسهيل الدخول.', descEn: 'A licensed tour guide to accompany you throughout the trip.' },
-                { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', price: 803, unit: 'person', descAr: 'وجبة غداء بوفيه مفتوح أو قائمة طعام محددة مع مشروبات غازية ومياه معدنية.', descEn: 'Buffet or set menu lunch with soft drinks and mineral water.' },
-                { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 1605, unit: 'booking', descAr: 'سيارة خاصة حديثة ومكيفة تنقلكم من الفندق إلى مكان الرحلة وتعود بكم بعد الانتهاء.', descEn: 'Modern private air-conditioned vehicle to and from your hotel.' },
-                { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 1070, unit: 'booking', descAr: 'مصور محترف يرافقكم لالتقاط أجمل اللحظات وتسليمكم الصور بنظام رقمي عالي الجودة.', descEn: 'A professional photographer to capture your best memories.' },
-              ]).length > 0 && (
+              {checkoutAddons.length > 0 && (
                 <div style={{ 
                   display: 'flex', 
                   flexDirection: 'column', 
@@ -3156,13 +3142,7 @@ function CheckoutContent() {
                   <h4 style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem' }}>{translate('extrasTitle')}</h4>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                    {((settings?.checkoutAddons && settings.checkoutAddons.length > 0) ? settings.checkoutAddons : [
-                      { id: 'guide', nameEn: 'Private Tour Guide', nameAr: 'مرشد سياحي خاص', price: 1338, unit: 'booking', descAr: 'مرشد سياحي مرخص يرافقكم طوال الرحلة لشرح المعالم وتسهيل الدخول.', descEn: 'A licensed tour guide to accompany you throughout the trip.' },
-                      { id: 'lunch', nameEn: 'Lunch & Soft Drinks', nameAr: 'وجبة غداء ومشروبات', price: 803, unit: 'person', descAr: 'وجبة غداء بوفيه مفتوح أو قائمة طعام محددة مع مشروبات غازية ومياه معدنية.', descEn: 'Buffet or set menu lunch with soft drinks and mineral water.' },
-                      { id: 'transfer', nameEn: 'Round-trip Private Transfer', nameAr: 'انتقالات خاصة ذهاب وعودة', price: 1605, unit: 'booking', descAr: 'سيارة خاصة حديثة ومكيفة تنقلكم من الفندق إلى مكان الرحلة وتعود بكم بعد الانتهاء.', descEn: 'Modern private air-conditioned vehicle to and from your hotel.' },
-                      { id: 'photos', nameEn: 'Professional Photography Session', nameAr: 'جلسة تصوير احترافية', price: 1070, unit: 'booking', descAr: 'مصور محترف يرافقكم لالتقاط أجمل اللحظات وتسليمكم الصور بنظام رقمي عالي الجودة.', descEn: 'A professional photographer to capture your best memories.' },
-                      { id: 'vip', nameEn: 'VIP AIRPORT SERVICE', nameAr: 'خدمة المطار VIP', price: 1472, unit: 'booking', descAr: 'خدمة استقبال VIP في المطار مع مساعدة في الإجراءات وتسهيل الدخول.', descEn: 'VIP airport meet & assist service with fast-track procedures.' },
-                    ]).map(addon => {
+                    {checkoutAddons.map(addon => {
                       const name = locale === 'ar' ? (addon.nameAr || addon.nameEn) : (addon.nameEn || addon.nameAr);
                       const desc = locale === 'ar' ? (addon.descAr || addon.descEn) : (addon.descEn || addon.descAr);
                       return (
@@ -3181,9 +3161,9 @@ function CheckoutContent() {
                                 const isPerPerson = addon.unit === 'person' || addon.nameEn?.toLowerCase().includes('/ person') || addon.nameAr?.includes('للفرد') || addon.id === 'lunch';
                                 const totalAddonCost = isPerPerson ? (addon.price * travelers) : addon.price;
                                 if (isPerPerson && travelers > 1) {
-                                  return `(+${totalAddonCost.toLocaleString()} EGP = ${addon.price.toLocaleString()} EGP × ${travelers})`;
+                                  return `(+${convert(totalAddonCost).toLocaleString()} EGP = ${convert(addon.price).toLocaleString()} EGP × ${travelers})`;
                                 }
-                                return `(+${totalAddonCost.toLocaleString()} EGP)`;
+                                return `(+${convert(totalAddonCost).toLocaleString()} EGP)`;
                               })()}
                             </span>
                           </label>

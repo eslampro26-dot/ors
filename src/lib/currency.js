@@ -44,13 +44,16 @@ export const SUPPORTED_CURRENCIES = {
   }
 };
 
-// Fallback daily central bank exchange rates (relative to 1 EUR)
+// EGP checkout prices use the business's fixed EUR conversion rate.
+export const EUR_TO_EGP_RATE = 55;
+
+// Fallback exchange rates relative to 1 EUR; EGP uses the fixed business rate above.
 export const DEFAULT_EXCHANGE_RATES = {
   EUR: 1.0,
   USD: 1.08,
   GBP: 0.85,
   SAR: 4.05,
-  EGP: 53.5
+  EGP: EUR_TO_EGP_RATE
 };
 
 // Set to EGP temporarily for Geidea payment gateway approval
