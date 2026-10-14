@@ -12,6 +12,7 @@ import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
 import GlobalBackground from "@/components/GlobalBackground";
 
 import InstallAppBanner from "@/components/InstallAppBanner";
+import MainFooter from "@/components/MainFooter";
 
 import { headers } from "next/headers";
 
@@ -109,6 +110,7 @@ export default async function RootLayout({ children, params }) {
             <WhatsAppFloatingButton />
             <InstallAppBanner />
             <ToastProvider />
+            <MainFooter />
           </CurrencyProvider>
         </LanguageProvider>
       </body>
