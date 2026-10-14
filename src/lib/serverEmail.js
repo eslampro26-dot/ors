@@ -184,27 +184,27 @@ export function buildBookingInvoiceHTML(data) {
       <!-- Electronic Contract & Digital Signature Section -->
       <div style="margin-top: 25px; border-top: 2px dashed #30363d; padding-top: 20px;">
         <div class="section-title">
-          ${isAr ? '📜 اتفاقية الوساطة السياحية والتسويق الإلكتروني والتوقيع الرقمي' : '📜 Integrated Tourism Brokerage Agreement & Digital Signature'}
+          ${isAr ? '📜 اتفاقية تنظيم وحجز الرحلات والتجارب السياحية والتوقيع الرقمي' : '📜 Tourism Services Booking Agreement & Digital Signature'}
         </div>
         
         <div style="background: #0d1117; border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 8px; padding: 20px; margin-bottom: 15px; line-height: 1.6; direction: ${isAr ? 'rtl' : 'ltr'}; text-align: ${isAr ? 'right' : 'left'};">
           
           <div style="text-align: center; border-bottom: 1px solid #30363d; padding-bottom: 12px; margin-bottom: 14px;">
             <div style="font-size: 14px; color: #d4af37; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
-              ${isAr ? 'اتفاقية خدمات التسويق والوساطة السياحية والتنظيمية' : 'INTEGRATED MARKETING &amp; TOURISM BROKERAGE AGREEMENT'}
+              ${isAr ? 'اتفاقية تنظيم وحجز الخدمات والرحلات السياحية' : 'TOURISM SERVICES &amp; EXPERIENCES BOOKING AGREEMENT'}
             </div>
             <div style="font-size: 11px; color: #8b949e; margin-top: 3px;">
-              ${isAr ? 'INTEGRATED MARKETING &amp; TOURISM BROKERAGE AGREEMENT' : 'Official Electronic Contract & Legal Digital Signature Record'}
+              ${isAr ? 'TOURISM SERVICES &amp; EXPERIENCES BOOKING AGREEMENT' : 'Official Electronic Contract & Legal Digital Signature Record'}
             </div>
           </div>
 
           <!-- Parties -->
           <div style="font-size: 12px; color: #c9d1d9; background: rgba(255,255,255,0.02); border: 1px solid #21262d; border-radius: 6px; padding: 10px; margin-bottom: 14px;">
             ${isAr ? `
-            <p style="margin: 0 0 6px 0;"><strong>الطرف الأول:</strong> شركة أورلوكسوس للتسويق والوساطة السياحية (ORLUXUS MARKETING &amp; BRANDING) — المقر: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533.</p>
+            <p style="margin: 0 0 6px 0;"><strong>الطرف الأول:</strong> شركة أورلوكسوس لتنظيم الرحلات والخدمات السياحية (ORLUXUS) — المقر: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533.</p>
             <p style="margin: 0;"><strong>الطرف الثاني (العميل):</strong> ${(data.electronicSignature?.name || customerName || 'العميل المحترم')} — البريد الإلكتروني: ${(data.electronicSignature?.email || email || 'N/A')}${phone ? ` — الهاتف: ${phone}` : ''}.</p>
             ` : `
-            <p style="margin: 0 0 6px 0;"><strong>First Party (Company):</strong> ORLUXUS MARKETING &amp; BRANDING — Registered Address: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt.</p>
+            <p style="margin: 0 0 6px 0;"><strong>First Party (Company):</strong> ORLUXUS Luxury Tourism &amp; Experiences — Registered Address: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt.</p>
             <p style="margin: 0;"><strong>Second Party (Client):</strong> ${(data.electronicSignature?.name || customerName || 'Valued Guest')} — Email: ${(data.electronicSignature?.email || email || 'N/A')}${phone ? ` — Phone: ${phone}` : ''}.</p>
             `}
           </div>
@@ -244,7 +244,7 @@ export function buildBookingInvoiceHTML(data) {
           <div style="font-size: 11px; color: #8b949e; text-align: justify; line-height: 1.7;">
             ${isAr ? `
             <p style="margin: 0 0 8px 0; color: #c9d1d9;">
-              <strong>المادة (1) - طبيعة عمل الشركة:</strong> تقر الشركة بأنها منصة تسويق إلكتروني وعلامة تجارية تعمل كوسيط تنظيمي ومسوق للخدمات السياحية والترفيهية بين العملاء ومقدمي الخدمات المرخصين، وتتولى تنظيم الحجوزات والمتابعة وخدمة العملاء.
+              <strong>المادة (1) - طبيعة عمل الشركة:</strong> تقدم وتنظم الشركة أرقى الرحلات والتجارب السياحية والأنشطة الترفيهية والبحرية، وتتولى تنظيم الحجوزات والمتابعة وخدمة العملاء بأعلى معايير الجودة والأمان لضيوفها.
             </p>
             <p style="margin: 0 0 8px 0; color: #c9d1d9;">
               <strong>المادة (2) - الموافقة الإلكترونية ونفاذ العقد:</strong> بموجب النقر على زر الموافقة وإتمام الحجز والدفع، يُعد ذلك رضاءً وتوقيعاً إلكترونياً صحيحاً ونافذاً ومنتجاً لكافة آثاره القانونية طبقاً لأحكام قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004 ولا يجوز إنكار حجيته.
@@ -263,7 +263,7 @@ export function buildBookingInvoiceHTML(data) {
             </p>
             ` : `
             <p style="margin: 0 0 8px 0; color: #c9d1d9;">
-              <strong>Article (1) - Nature of Company &amp; Scope:</strong> ORLUXUS operates as an electronic marketing platform and organizational broker connecting clients with authorized professional excursion and tour operators.
+              <strong>Article (1) - Nature of Company &amp; Scope:</strong> ORLUXUS operates as a premier luxury tourism and travel experiences provider organizing bespoke excursions, yacht charters, and premium tours.
             </p>
             <p style="margin: 0 0 8px 0; color: #c9d1d9;">
               <strong>Article (2) - Electronic Consent &amp; Binding Effect:</strong> Client consent via digital booking submission constitutes a valid and binding electronic signature under Egyptian Electronic Signature Law No. 15 of 2004 (Article 14).

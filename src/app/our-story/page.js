@@ -27,8 +27,8 @@ const CONTENT_FALLBACKS = {
     en: 'Our team consists of professional tour guides and local experts trained to the highest hospitality standards.'
   },
   legalCompany: {
-    ar: 'أورلوكسوس هي شركة سياحية مسجلة ومرخصة رسمياً من وزارة السياحة المصرية، وتخضع للقوانين المصرية المنظمة للنشاط السياحي.',
-    en: 'ORLUXUS is a fully registered and licensed tourism company operating under the regulations of the Egyptian Ministry of Tourism.'
+    ar: 'ORLUXUS هي شركة سياحية متخصصة في تقديم وتنظيم أرقى تجارب السياحة الفاخرة والرحلات البحرية في البحر الأحمر (الغردقة، شرم الشيخ، مرسى علم، والساحل الشمالي). نحرص على تقديم أعلى معايير الجودة والضيافة لضيوفنا الكرام.',
+    en: 'ORLUXUS is a premier luxury tourism and travel experiences provider specializing in luxury Red Sea excursions, private yachts, and bespoke tours across Hurghada, Sharm El-Sheikh, Marsa Alam, and the North Coast.'
   },
   legalCancellation: {
     ar: 'يمكن إلغاء الحجز مجاناً قبل 48 ساعة من موعد الرحلة. في حال الإلغاء المتأخر أو عدم الحضور، يتم تطبيق رسوم إلغاء تعادل قيمة الليلة الأولى أو 50% من قيمة الرحلة حسب نوع البرنامج.',
@@ -211,6 +211,130 @@ export default function OurStoryPage() {
               ))}
             </div>
 
+            {/* ─── من نحن / About Section ─── */}
+            <div style={{
+              marginTop: '2.5rem',
+              padding: '2rem',
+              background: 'rgba(201,162,39,0.04)',
+              border: '1.5px solid rgba(201,162,39,0.3)',
+              borderRadius: '16px',
+              direction: locale === 'ar' ? 'rtl' : 'ltr',
+              textAlign: locale === 'ar' ? 'right' : 'left',
+            }}>
+              <h3 style={{
+                margin: '0 0 1rem 0',
+                fontSize: '1.1rem',
+                fontWeight: '800',
+                color: 'var(--gold-400)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                🏛️ {locale === 'ar' ? 'من نحن — الهوية والخدمات' : 'About Us — Identity & Services'}
+              </h3>
+
+              <p style={{ margin: '0 0 1.2rem 0', lineHeight: '1.8', fontSize: '0.97rem', color: 'var(--text-primary)' }}>
+                {locale === 'ar'
+                  ? 'ORLUXUS هي شركة رائدة في تقديم وتنظيم أرقى الرحلات السياحية الفاخرة والأنشطة البحرية في البحر الأحمر وجمهورية مصر العربية (الغردقة، شرم الشيخ، مرسى علم، والساحل الشمالي). نلتزم بتقديم تجارب استثنائية وفق أعلى معايير الجودة والضيافة العالمية لضيوفنا.'
+                  : 'ORLUXUS is a premier luxury tourism and travel experiences provider in Egypt, specializing in luxury Red Sea excursions, private yacht charters, and tailor-made journeys across Hurghada, Sharm El-Sheikh, Marsa Alam, and the North Coast. We are dedicated to delivering world-class hospitality, absolute comfort, and unforgettable experiences.'}
+              </p>
+
+              {/* Company Details Grid */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '0.9rem',
+                marginTop: '1rem',
+                paddingTop: '1rem',
+                borderTop: '1px solid rgba(201,162,39,0.15)'
+              }}>
+                {[
+                  {
+                    icon: '🏢',
+                    label: locale === 'ar' ? 'الاسم التجاري' : 'Trade Name',
+                    value: 'ORLUXUS MARKETING AND BRANDING'
+                  },
+                  {
+                    icon: '📍',
+                    label: locale === 'ar' ? 'العنوان' : 'Address',
+                    value: locale === 'ar'
+                      ? 'تقسيم النصر، الغردقة 1، محافظة البحر الأحمر'
+                      : 'Taksim El-Nasr, Hurghada 1, Red Sea Governorate'
+                  },
+                  {
+                    icon: '📧',
+                    label: locale === 'ar' ? 'البريد الإلكتروني' : 'Email',
+                    value: 'info@orluxus.com',
+                    href: 'mailto:info@orluxus.com'
+                  },
+                  {
+                    icon: '💬',
+                    label: locale === 'ar' ? 'واتساب الدعم' : 'WhatsApp Support',
+                    value: locale === 'ar' ? 'متوفر عبر الموقع' : 'Available via the website'
+                  },
+                  {
+                    icon: '🌍',
+                    label: locale === 'ar' ? 'مناطق الخدمة' : 'Service Areas',
+                    value: locale === 'ar'
+                      ? 'الغردقة • مرسى علم • شرم الشيخ • الساحل الشمالي'
+                      : 'Hurghada • Marsa Alam • Sharm El-Sheikh • North Coast'
+                  },
+                  {
+                    icon: '⭐',
+                    label: locale === 'ar' ? 'معايير الخدمة' : 'Service Standards',
+                    value: locale === 'ar'
+                      ? 'خدمات سياحية فاخرة ومعتمدة 100%'
+                      : '100% Certified Luxury Tourism Services',
+                    highlight: true
+                  }
+                ].map((item, i) => (
+                  <div key={i} style={{
+                    display: 'flex',
+                    gap: '0.6rem',
+                    alignItems: 'flex-start',
+                    padding: '0.7rem',
+                    background: item.highlight ? 'rgba(201,162,39,0.08)' : 'rgba(255,255,255,0.02)',
+                    borderRadius: '10px',
+                    border: item.highlight ? '1px solid rgba(201,162,39,0.3)' : '1px solid rgba(255,255,255,0.05)'
+                  }}>
+                    <span style={{ fontSize: '1.1rem', flexShrink: 0, marginTop: '1px' }}>{item.icon}</span>
+                    <div>
+                      <div style={{
+                        fontSize: '0.7rem',
+                        color: 'var(--text-tertiary)',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        marginBottom: '2px'
+                      }}>
+                        {item.label}
+                      </div>
+                      {item.href ? (
+                        <a href={item.href} style={{
+                          fontSize: '0.85rem',
+                          color: 'var(--gold-400)',
+                          fontWeight: '600',
+                          textDecoration: 'none',
+                          fontFamily: 'var(--font-en)'
+                        }}>
+                          {item.value}
+                        </a>
+                      ) : (
+                        <div style={{
+                          fontSize: '0.85rem',
+                          color: item.highlight ? 'var(--gold-400)' : 'var(--text-primary)',
+                          fontWeight: item.highlight ? '700' : '600',
+                          fontFamily: (i === 0 || i === 2) ? 'var(--font-en)' : 'inherit'
+                        }}>
+                          {item.value}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Signature Divider */}
             <div style={{
               marginTop: '4rem',
@@ -246,6 +370,7 @@ export default function OurStoryPage() {
 
         </div>
       </section>
+
 
       {/* 5. DYNAMIC LUXURY COMPANY FOOTER */}
       <footer style={{

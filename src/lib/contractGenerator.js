@@ -37,9 +37,9 @@ export function generateContract(bookingData, signatureData) {
   });
 
   const contract = `
-INTEGRATED MARKETING SERVICES AND TOURISM BROKERAGE AGREEMENT
+INTEGRATED LUXURY TOURISM EXPERIENCES & SERVICES BOOKING AGREEMENT
 Between:
-ORLUXUS MARKETING AND BRANDING
+ORLUXUS
 (hereinafter referred to as the "Company")
 And:
 ${customer} (email: ${email}, phone: ${phone})
@@ -65,18 +65,14 @@ Booking Details:
 - Payment Type: ${paymentType}
 ───
 PREAMBLE
-WHEREAS the Company operates in the field of electronic marketing and branding, and provides an electronic platform acting as a marketing and organizational broker between Clients and providers of tourism, entertainment, hospitality, transportation, and other services related to tourism and entertainment within and outside the Arab Republic of Egypt;
-WHEREAS the Company expressly declares that it is not a licensed tourism company, does not provide tourism services itself, and only provides services within the limits of electronic marketing, brokerage between Clients and service providers, and the organization and coordination of bookings and activities;
-WHEREAS the Client wishes to benefit from the Company's services through its electronic platforms;
+WHEREAS the Company specializes in organizing and providing luxury tourism experiences, private yacht charters, desert excursions, and VIP travel services across the Arab Republic of Egypt;
+WHEREAS the Client wishes to book and benefit from the Company's luxury tourism services;
 NOW, THEREFORE, the Parties have agreed as follows:
 ───
 PART ONE: GENERAL TERMS AND CONDITIONS
 Article (1): Definition of the Company and Scope of Work
-The Company is defined as a company operating in the field of marketing and branding, providing an electronic platform that acts as a marketing and organizational broker between Clients and providers of tourism, entertainment, hospitality, transportation, and other services related to tourism and entertainment within and outside the Arab Republic of Egypt.
-The Company acknowledges and expressly declares that it is not a licensed tourism company, does not provide tourism services itself, and only provides its services within the following limits:
-· Electronic marketing of tourism and entertainment services on behalf of service providers.
-· Brokerage between Clients and service providers.
-· Coordination of bookings and activities.
+The Company provides luxury tourism, entertainment, marine excursions, and bespoke travel experiences across the Arab Republic of Egypt (Hurghada, Sharm El-Sheikh, Marsa Alam, and the North Coast).
+The Company is dedicated to delivering world-class hospitality, safety, and personalized guest services.
 Article (2): Electronic Consent and Formation of Contract
 First: Methods of Consent:
 Upon the Client taking any of the following actions:
@@ -91,17 +87,14 @@ A final and legally binding electronic consent in accordance with the provisions
 3. Explicit consent to the collection and processing of personal data in accordance with the attached Privacy Policy.
 Third: Effectiveness of the Contract:
 The Contract shall be deemed concluded and effective between the Client and the Company as of the moment the aforementioned electronic consent is given, and the Client may not withdraw from this Contract except in accordance with the conditions specified in the Cancellation and Refund Policy set forth in this Agreement.
-Article (3): Nature of the Company's Work and Scope of Its Role
-First: As a Broker and Marketing Organizer:
-The Client acknowledges and agrees that the Company acts as a broker and booking organizer, and that its role is limited to:
-· Marketing tourism and entertainment services through its electronic platforms.
-· Organizing bookings and coordinating between the Client and service providers.
-· Monitoring the quality of services provided by service providers.
-· Providing technical support and customer service.
-Second: Contractual Relationship:
-In the case of services provided through external parties (such as hotels, transportation companies, cruise companies, islands and resorts, restaurants and cafes, entertainment activity companies, or any independent service providers), the direct contractual relationship arises between the Client and the primary service provider, and the responsibility for performing the service lies solely with the direct service provider. The Company shall not be a party to any contract between the Client and the service provider.
-Third: Disclosure:
-The Company expressly declares that it is not a licensed tourism company, does not provide any direct tourism services, and only provides marketing, brokerage, and organizational services.
+Article (3): Nature of the Company's Services and Scope of Work
+First: Organization and Provision of Services:
+The Company organizes, schedules, and delivers premium tours, yacht charters, and entertainment experiences:
+· Organizing itineraries and confirming client reservations.
+· Monitoring service quality, comfort, and guest safety.
+· Providing 24/7 concierge, technical support, and client assistance.
+Second: Operational Standards:
+The Company cooperates with certified facilities, marine vessels, and licensed professionals to ensure the highest standards of safety and comfort.
 Article (4): Company's Liability
 First: Scope of Liability:
 The Company's liability is limited to:
@@ -400,7 +393,7 @@ PART FOUR: CLIENT'S FINAL ACKNOWLEDGMENT
 The Client acknowledges the following:
 ☑ I acknowledge that I have read and understood all the Terms and Conditions set forth in this Agreement, including the Privacy Policy and Risk Acknowledgment.
 ☑ I agree that clicking the "I Agree," "Complete Booking," or "Confirm Payment" button constitutes a legally binding electronic signature, having the same legal validity as a written signature in accordance with the Egyptian Electronic Signature Law No. 15 of 2004.
-☑ I acknowledge that ORLUXUS MARKETING AND BRANDING operates as a marketing platform, broker, and booking organizer, and is not a licensed tourism company, and is not responsible for the execution of services provided by third parties.
+☑ I acknowledge that ORLUXUS operates as a premier luxury tourism and experiences provider, and that its liability is defined in accordance with this Agreement.
 ☑ I agree to the limitations of liability and disclaimers set forth in this Agreement.
 ☑ I agree to the Cancellation and Refund Policy and the Data Protection Policy.
 ☑ I acknowledge that I bear full responsibility for my physical safety, for my full understanding of the risks associated with the activities, and for any consequences arising from my concealment of any health information or my violation of safety instructions, and I hereby waive any right I may have to sue the Company or service providers for any injuries or damages arising from participation in these activities, unless resulting from gross negligence or willful misconduct on the part of the Company.
@@ -409,15 +402,15 @@ The Client acknowledges the following:
 ───
 FINAL PROVISIONS
 By clicking the "Complete Booking" or "Confirm Payment" button, you acknowledge and agree to the following:
-1. That you have read, understood, and accepted all the Terms and Conditions, Privacy Policy, and Risk Acknowledgment of ORLUXUS MARKETING AND BRANDING, and agree to comply with all their provisions.
+1. That you have read, understood, and accepted all the Terms and Conditions, Privacy Policy, and Risk Acknowledgment of ORLUXUS, and agree to comply with all their provisions.
 2. That this consent constitutes a legally binding electronic signature in accordance with the provisions of the Egyptian Electronic Signature Law No. 15 of 2004, and has the same legal validity as a written signature.
-3. That you acknowledge and agree that the Company operates as a marketing platform, broker, and booking organizer, and is not a licensed tourism company, and that its liability is limited in accordance with what is set forth in this Agreement.
+3. That you acknowledge and agree that the Company provides luxury travel experiences and services, and that its liability is defined in accordance with what is set forth in this Agreement.
 4. That you agree to the Cancellation and Refund Policy, and to the collection and processing of your personal data in accordance with the Privacy Policy.
 5. That you bear full responsibility for your personal safety during participation in activities, and acknowledge the risks associated therewith.
 6. That you agree that this consent supersedes any other written or oral procedures, and shall be deemed evidence of the conclusion of the contract between you and the Company.
 ───
 CONCLUSION
-This Agreement constitutes the complete and integrated contract between the Client and the Company, and includes all the essential provisions relating to marketing and brokerage services, data protection, and risk acknowledgment.
+This Agreement constitutes the complete and integrated contract between the Client and the Company, and includes all the essential provisions relating to tourism booking services, data protection, and risk acknowledgment.
 This Agreement is prepared in the Arabic language, which shall be the authoritative language in the event of any conflict with any other translation.
 ───
 ORLUXUS MARKETING AND BRANDING

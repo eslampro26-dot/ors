@@ -70,8 +70,8 @@ export const SUPPORTED_LEGAL_LANGUAGES = [
 export const LEGAL_UI = {
   "ar": {
     "portalBadge": "البوابة القانونية الرسمية • ORLUXUS",
-    "pageTitle": "اتفاقية الوساطة السياحية والتسويق الإلكتروني وسياسة الإلغاء",
-    "pageSubtitle": "الإطار القانوني والتشريعي الكامل المنظم لخدمات منصة ORLUXUS في جمهورية مصر العربية",
+    "pageTitle": "الشروط والأحكام الرسمية وسياسة الإلغاء وحجز الخدمات السياحية",
+    "pageSubtitle": "الإطار التنظيمي والخدمي الكامل المنظم لخدمات وتجارب ORLUXUS في جمهورية مصر العربية",
     "tabBoth": "⚖️ عرض القسمين معاً (نصفين متجاورين)",
     "tabTerms": "📜 الشروط والأحكام الكاملة (15 بنداً)",
     "tabCancellation": "🔄 سياسة الإلغاء واسترداد الأموال (9 مواد)",
@@ -88,7 +88,7 @@ export const LEGAL_UI = {
     "recordedTimestamp": "توقيت وتاريخ التسجيل:",
     "lawNote": "محرر وموثق إلكترونياً وفقاً لأحكام قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004 والقانون المدني رقم 131 لسنة 1948",
     "prevailWarning": "⚠️ تنويه قانوني ملزم للمحاكم والنزاعات: تم تحرير هذه الاتفاقية والسياسات أصلاً باللغة العربية، ووفقاً للتشريعات المصرية النافذة، فإن النص العربي هو المعتمد والملزم قانوناً وقضائياً، وتُعد الترجمات باللغات الأخرى الصادرة عن المنصة لغايات الشفافية وإرشاد وتسهيل تجربة عملائنا الدوليين.",
-    "part1Title": "القسم الأول: الشروط والأحكام واتفاقية الوساطة",
+    "part1Title": "القسم الأول: الشروط والأحكام العامة وحجز الخدمات السياحية",
     "part2Title": "القسم الثاني: سياسة الإلغاء واسترداد الأموال",
     "tableTitle": "المادة (9): السند والتحصين التشريعي المباشر (القوانين المصرية)",
     "thLaw": "التشريع والقانون",
@@ -99,8 +99,8 @@ export const LEGAL_UI = {
   },
   "en": {
     "portalBadge": "Official Legal Portal • ORLUXUS",
-    "pageTitle": "Tourism Brokerage Agreement, Terms & Cancellation Policy",
-    "pageSubtitle": "Comprehensive Legal & Regulatory Framework Governing ORLUXUS Services in Egypt",
+    "pageTitle": "Official Terms, Conditions & Tourism Services Booking Policy",
+    "pageSubtitle": "Comprehensive Service & Booking Framework Governing ORLUXUS Services in Egypt",
     "tabBoth": "⚖️ Dual Split View (Side-by-Side)",
     "tabTerms": "📜 Terms & Conditions (15 Sections)",
     "tabCancellation": "🔄 Cancellation & Refund Policy (9 Articles)",
@@ -117,7 +117,7 @@ export const LEGAL_UI = {
     "recordedTimestamp": "Recorded Timestamp:",
     "lawNote": "Executed pursuant to Egyptian Electronic Signature Law No. 15 of 2004 and Civil Code No. 131 of 1948",
     "prevailWarning": "⚠️ Binding Legal Notice: This Agreement and Policies were originally executed in Arabic. Pursuant to Egyptian Law, the Arabic text shall prevail and remain legally authoritative in judicial disputes; translations in other languages are provided for clarity and transparency for international guests.",
-    "part1Title": "Part 1: Terms, Conditions & Tourism Brokerage",
+    "part1Title": "Part 1: General Terms, Conditions & Services Booking",
     "part2Title": "Part 2: Cancellation & Refund Policy",
     "tableTitle": "Article (9): Direct Legislative Shield & Statutory Table (Egyptian Law)",
     "thLaw": "Statute / Legislation",
@@ -362,13 +362,13 @@ export const LEGAL_UI = {
 
 export const TERMS_AND_CONDITIONS_DATA = {
   "ar": {
-    "title": "الشروط والأحكام لاتفاقية التسويق والوساطة السياحية المتكاملة",
-    "importantNotice": "تنبيه هام: الموافقة الإلكترونية وانعقاد العقد الملزم\nيرجى قراءة هذه الشروط والأحكام بعناية تامة قبل إتمام الحجز أو استخدام منصتنا. يُعد استكمالك للحجز إبراماً لعقد قانوني ملزم مع منصة ORLUXUS للتسويق والوساطة السياحية وإدارة الهوية التجارية (المشار إليها فيما بعد بـ 'الشركة').",
+    "title": "الشروط والأحكام العامة لحجز وتنظيم الخدمات والتجارب السياحية",
+    "importantNotice": "تنبيه هام: الموافقة الإلكترونية وانعقاد العقد الملزم\nيرجى قراءة هذه الشروط والأحكام بعناية تامة قبل إتمام الحجز أو استخدام خدماتنا. يُعد استكمالك للحجز إبراماً لعقد قانوني ملزم مع ORLUXUS (المشار إليها فيما بعد بـ 'الشركة').",
     "sections": [
       {
         "num": 1,
         "title": "1. تعريف الشركة ونطاق العمل",
-        "content": "تُعرف الشركة بأنها شركة تعمل في مجالات التسويق وتطوير الهوية التجارية، وتوفر منصة إلكترونية تعمل كوسيط تسويقي وتنظيمي بين العملاء ومقدمي الخدمات السياحية والترفيهية والضيافة والنقل وغيرها داخل وخارج جمهورية مصر العربية.\n\nوتقر الشركة وتصرح صراحة بأنها:\n• ليست شركة سياحية مرخصة، ولا تقدم خدمات سياحية بنفسها مباشرة.\n• يقتصر دورها القانوني بدقة على:\n  - التسويق الإلكتروني للخدمات السياحية والترفيهية لصالح مقدمي الخدمات المستقلين.\n  - الوساطة والتوفيق بين العملاء ومقدمي الخدمات.\n  - التنسيق والتنظيم المكتبي للحجوزات والأنشطة."
+        "content": "تُعرف الشركة بأنها شركة متخصصة في تقديم وتنظيم أرقى تجارب السياحة الفاخرة والأنشطة الترفيهية والبحرية والضيافة والنقل لعملائها في جمهورية مصر العربية (الغردقة، شرم الشيخ، مرسى علم، والساحل الشمالي).\n\nوتلتزم الشركة بتقديم أعلى مستويات الجودة والسلامة والراحة لجميع ضيوفها الكرام وفق أفضل المعايير الدولية."
       },
       {
         "num": 2,
@@ -378,7 +378,7 @@ export const TERMS_AND_CONDITIONS_DATA = {
       {
         "num": 3,
         "title": "3. طبيعة عمل الشركة ونطاق دورها",
-        "content": "أ. دور الوسيط التسويقي ومنظم الحجز:\nيقر العميل بأن الشركة تعمل كوسيط تسويقي ومنظم حجز فقط، وأن دورها ينحصر في:\n• تسويق الخدمات والأنشطة عبر منصاتها الإلكترونية.\n• تنظيم الحجوزات والتنسيق بين العميل ومقدمي الخدمات.\n• متابعة جودة الخدمات والتنسيق مع المنفذين.\n• تقديم الدعم الفني وخدمة العملاء.\n\nب. العلاقة التعاقدية (خدمات الطرف الثالث):\nبالنسبة للخدمات المقدمة من أطراف خارجية (فنادق، شركات نقل، يخوت، منتجعات، مطاعم، منظمو أنشطة وسفاري)، فإن العلاقة التعاقدية المباشرة تنشأ بين العميل ومقدم الخدمة الفعلي. ولا تُعد الشركة طرفاً في عقد تقديم الخدمة المباشر ولا تتحمل مسؤولية التنفيذ الميداني.\n\nج. الإفصاح والشفافية:\nتؤكد الشركة أنها منصة تسويق وإدارة حجوزات وليست شركة سياحة مباشرة."
+        "content": "أ. تقديم وتنظيم الخدمات السياحية:\nتقدم الشركة خدمات تنظيم وحجز الرحلات السياحية والأنشطة الترفيهية واليخوت والباقات المتكاملة.\n• تنظيم وتنسيق البرامج السياحية وتأكيد الحجوزات.\n• الإشراف على معايير الجودة وخدمة الضيوف.\n• تقديم الدعم الفني وخدمة العملاء على مدار الساعة.\n\nب. معايير التشغيل:\nتلتزم الشركة بالتعاون مع أفضل الكوادر والمنشآت المعتمدة لضمان أقصى درجات الأمان والرفاهية لضيوفها."
       },
       {
         "num": 4,
@@ -436,9 +436,8 @@ export const TERMS_AND_CONDITIONS_DATA = {
         "content": "أ. استقلالية النصوص:\nبطلان أو عدم نفاذ أي بند من بنود هذه الاتفاقية لا يؤثر على صحة ونفاذ باقي البنود.\n\nب. عدم التنازل:\nعدم ممارسة الشركة لأي حق من حقوقها بموجب هذا العقد لا يُعد بأي حال تنازلاً عن ذلك الحق مستقبلاً.\n\nج. تعديل الاتفاقية:\nتحتفظ الشركة بحق تعديل أو تحديث هذه الاتفاقية وتصبح نافذة فور نشرها على المنصة.\n\nد. سيادة النص العربي:\nتم تحرير هذه الاتفاقية باللغة العربية، وفي حال ترجمتها إلى أي لغة أخرى، فإن النص العربي هو المعتمد والملزم قانوناً عند حدوث أي نزاع أو تعارض."
       },
       {
-        "num": 15,
         "title": "15. الإقرار النهائي والموافقة عند إتمام الحجز",
-        "content": "(يظهر هذا الإقرار في صفحة الدفع النهائي للدفع والحجز)\n\nبمجرد النقر على زر 'تأكيد الحجز' أو 'إتمام الدفع'، يقر العميل ويوافق إلكترونياً على ما يلي:\n\n☑ أقر بأنني قرأت وفهمت ووافقت على كافة الشروط والأحكام، وسياسة الخصوصية، وإقرار المخاطر لمنصة ORLUXUS، وألتزم بجميع بنودها.\n☑ أوافق على إبرام هذا العقد إلكترونياً وفقاً لأحكام قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004، ولهذه الموافقة حجية التوقيع الكتابي التامة.\n☑ أقر بعلمي التام بأن الشركة منصة تسويق ووسيط تنظيم حجوزات وليست شركة سياحة منفذة مباشرة، وأن مسؤوليتها محددة بوضوح بالاتفاقية.\n☑ أوافق على سياسة الإلغاء واسترداد الأموال وعلى خصم المصاريف المقررة عند الإلغاء.\n☑ أتحمل كامل المسؤولية عن سلامتي الشخصية وأقر بعلمي بالمخاطر الطبيعية المصاحبة للأنشطة.\n☑ أؤكد أن عمري لا يقل عن 18 عاماً (أو بموافقة ولي الأمر القانوني).\n☑ أقر بأن هذا التوثيق الإلكتروني يعد حجة قاطعة في الإثبات لا يجوز الطعن عليها.\n\nالبصمة الرقمية: يقوم النظام بتسجيل التاريخ والوقت وعنوان IP العميل تلقائياً عند النقر."
+        "content": "(يظهر هذا الإقرار في صفحة الدفع النهائي للدفع والحجز)\n\nبمجرد النقر على زر 'تأكيد الحجز' أو 'إتمام الدفع'، يقر العميل ويوافق إلكترونياً على ما يلي:\n\n☑ أقر بأنني قرأت وفهمت ووافقت على كافة الشروط والأحكام، وسياسة الخصوصية، وإقرار المخاطر لـ ORLUXUS، وألتزم بجميع بنودها.\n☑ أوافق على إبرام هذا العقد إلكترونياً وفقاً لأحكام قانون التوقيع الإلكتروني المصري رقم 15 لسنة 2004، ولهذه الموافقة حجية التوقيع الكتابي التامة.\n☑ أقر بموافقتي التامة على الشروط والتعليمات التنظيمية لرحلات وخدمات ORLUXUS، وأن مسؤولية الشركة محددة بوضوح بهذه الاتفاقية.\n☑ أوافق على سياسة الإلغاء واسترداد الأموال وعلى خصم المصاريف المقررة عند الإلغاء.\n☑ أتحمل كامل المسؤولية عن سلامتي الشخصية وأقر بعلمي بالمخاطر الطبيعية المصاحبة للأنشطة.\n☑ أؤكد أن عمري لا يقل عن 18 عاماً (أو بموافقة ولي الأمر القانوني).\n☑ أقر بأن هذا التوثيق الإلكتروني يعد حجة قاطعة في الإثبات لا يجوز الطعن عليها.\n\nالبصمة الرقمية: يقوم النظام بتسجيل التاريخ والوقت وعنوان IP العميل تلقائياً عند النقر."
       }
     ],
     "footer": {
@@ -447,13 +446,13 @@ export const TERMS_AND_CONDITIONS_DATA = {
     }
   },
   "en": {
-    "title": "INTEGRATED MARKETING SERVICES AND TOURISM BROKERAGE – TERMS AND CONDITIONS",
-    "importantNotice": "IMPORTANT: ELECTRONIC CONSENT & BINDING AGREEMENT\nPlease read these Terms and Conditions carefully before using our platform or making a booking. By proceeding, you enter into a legally binding agreement with ORLUXUS MARKETING AND BRANDING (hereinafter referred to as the \"Company\").",
+    "title": "TERMS AND CONDITIONS - LUXURY TOURISM EXPERIENCES & SERVICES BOOKING",
+    "importantNotice": "IMPORTANT: ELECTRONIC CONSENT & BINDING AGREEMENT\nPlease read these Terms and Conditions carefully before using our services or making a booking. By proceeding, you enter into a legally binding agreement with ORLUXUS (hereinafter referred to as the \"Company\").",
     "sections": [
       {
         "num": 1,
         "title": "1. DEFINITION OF THE COMPANY AND SCOPE OF WORK",
-        "content": "The Company is a marketing and branding firm that operates an electronic platform acting as a marketing and organizational broker between Clients and providers of tourism, entertainment, hospitality, transportation, and related services within and outside the Arab Republic of Egypt.\n\nThe Company expressly declares and you acknowledge that:\n• It is not a licensed tourism company.\n• It does not provide tourism services directly.\n• Its role is strictly limited to:\n  - Electronic marketing of tourism/entertainment services on behalf of third-party providers.\n  - Brokerage between Clients and service providers.\n  - Coordination of bookings and activities."
+        "content": "The Company is a premier luxury tourism and experiences provider organizing and offering luxury Red Sea excursions, private yachts, VIP transportation, and curated travel experiences across the Arab Republic of Egypt (Hurghada, Sharm El-Sheikh, Marsa Alam, and the North Coast).\n\nThe Company is committed to delivering world-class hospitality, unparalleled luxury, and the highest standards of guest comfort and safety."
       },
       {
         "num": 2,
@@ -462,8 +461,8 @@ export const TERMS_AND_CONDITIONS_DATA = {
       },
       {
         "num": 3,
-        "title": "3. NATURE OF THE COMPANY'S ROLE",
-        "content": "A. As a Broker and Marketing Organizer:\nYou acknowledge that the Company acts solely as a broker and booking organizer. Its role is limited to:\n• Marketing services via its platforms.\n• Organizing bookings and coordinating between you and service providers.\n• Monitoring service quality.\n• Providing technical support and customer service.\n\nB. Contractual Relationship (Third-Party Services):\nFor services provided by external parties (hotels, transport, cruise companies, resorts, restaurants, activity providers, etc.), the direct contractual relationship is strictly between you and that primary service provider. The Company is not a party to that contract and bears no responsibility for the actual execution of the service by the third-party provider.\n\nC. Disclosure:\nThe Company is not a licensed tourism company and does not provide direct tourism services."
+        "title": "3. NATURE OF THE COMPANY'S SERVICES",
+        "content": "A. Organization and Provision of Tourism Services:\nThe Company organizes, confirms, and coordinates premium excursions, marine charters, and tailored travel packages.\n• Organizing and confirming detailed itineraries and reservations.\n• Maintaining rigorous service quality and safety standards.\n• Providing 24/7 client care, VIP support, and on-ground concierge services.\n\nB. Quality Standards:\nThe Company collaborates with top-tier certified facilities and professionals to guarantee exceptional experiences."
       },
       {
         "num": 4,
@@ -523,7 +522,7 @@ export const TERMS_AND_CONDITIONS_DATA = {
       {
         "num": 15,
         "title": "15. FINAL ACKNOWLEDGMENT AND WEBSITE CHECKOUT CONSENT",
-        "content": "(This section appears at checkout)\n\nBy clicking the \"Complete Booking\" or \"Confirm Payment\" button, you acknowledge and agree to the following:\n\n☑ I have read, understood, and accepted all the Terms and Conditions, Privacy Policy, and Risk Acknowledgment of ORLUXUS MARKETING AND BRANDING, and I agree to comply with all provisions.\n☑ I consent electronically per the Egyptian Electronic Signature Law No. 15 of 2004. This action has the same legal validity as a written signature.\n☑ I acknowledge the Company operates as a marketing platform, broker, and booking organizer—not a licensed tourism company—and that its liability is limited per this Agreement.\n☑ I agree to the Cancellation and Refund Policy and to the collection/processing of my personal data per the Privacy Policy.\n☑ I bear full responsibility for my personal safety during activities and acknowledge the associated risks.\n☑ I confirm I am at least 18 years of age (or have obtained my legal guardian's consent).\n☑ I agree that this consent supersedes any other procedures and serves as evidence of the contract between me and the Company.\n\nTimestamp: Your consent, IP address, and the exact date/time will be securely recorded by our system upon submission."
+        "content": "(This section appears at checkout)\n\nBy clicking the \"Complete Booking\" or \"Confirm Payment\" button, you acknowledge and agree to the following:\n\n☑ I have read, understood, and accepted all the Terms and Conditions, Privacy Policy, and Risk Acknowledgment of ORLUXUS, and I agree to comply with all provisions.\n☑ I consent electronically per the Egyptian Electronic Signature Law No. 15 of 2004. This action has the same legal validity as a written signature.\n☑ I acknowledge that I agree to all operational guidelines and terms of ORLUXUS, and that the Company's liability is defined per this Agreement.\n☑ I agree to the Cancellation and Refund Policy and to the collection/processing of my personal data per the Privacy Policy.\n☑ I bear full responsibility for my personal safety during activities and acknowledge the associated risks.\n☑ I confirm I am at least 18 years of age (or have obtained my legal guardian's consent).\n☑ I agree that this consent supersedes any other procedures and serves as evidence of the contract between me and the Company.\n\nTimestamp: Your consent, IP address, and the exact date/time will be securely recorded by our system upon submission."
       }
     ],
     "footer": {
@@ -1338,7 +1337,7 @@ export const CANCELLATION_POLICY_DATA = {
           {
             "law": "قانون تنظيم الشركات السياحية رقم 38 لسنة 1977",
             "article": "المادة (1)",
-            "purpose": "تحديد نطاق الأعمال السياحية وتأكيد صفة المنصة كوسيط تسويقي وليس جهة تنفيذ مباشر."
+            "purpose": "تحديد نطاق وتنظيم الخدمات والبرامج السياحية وحماية حقوق الأطراف المتعاقدة."
           }
         ]
       }
@@ -1480,7 +1479,7 @@ export const CANCELLATION_POLICY_DATA = {
           {
             "law": "Tourism Law 38/1977",
             "article": "Article (1)",
-            "purpose": "Defines the scope of tourism companies. Used to clarify that the Company is not a licensed tourism executor, but a marketing intermediary. This justifies limiting liability and restricting refunds to amounts received less amounts paid to third parties."
+            "purpose": "Defines the scope and organization of tourism services, protecting contractual parties and regulating booking terms."
           }
         ]
       }
