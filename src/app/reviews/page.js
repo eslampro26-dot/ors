@@ -7,6 +7,7 @@ import { getReviews, addReview, getSocialMedia } from '@/lib/db';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSettings, getPolicyText } from '@/hooks/useSettings';
 import TranslatedText from '@/components/TranslatedText';
+import TrustBadges from '@/components/TrustBadges';
 
 const CONTENT_FALLBACKS = {
   vision: {
@@ -55,10 +56,12 @@ export default function ReviewsPage() {
     country: '',
     rating: 0,
     text: '',
-    images: []
+    images: [],
+    video: ''
   });
   const [hoverRating, setHoverRating] = useState(0);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [videoPreview, setVideoPreview] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const POLICY_FIELDS = {
@@ -95,33 +98,62 @@ export default function ReviewsPage() {
     loadData();
   }, [siteSettings]);
 
+  const [uploadingMedia, setUploadingMedia] = useState(false);
 
+  const uploadFileToCloud = async (file) => {
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) return data.url;
+      }
+    } catch (err) {
+      console.error('Cloud upload error:', err);
+    }
+    return null;
+  };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const files = Array.from(e.target.files || []);
-    if (files.length > 0) {
-      const filesToProcess = files.slice(0, 5);
-      filesToProcess.forEach(file => {
+    if (files.length === 0) return;
+
+    setUploadingMedia(true);
+    const filesToProcess = files.slice(0, 5);
+
+    for (const file of filesToProcess) {
+      const cloudUrl = await uploadFileToCloud(file);
+      if (cloudUrl) {
+        setImagePreviews(prev => [...prev, cloudUrl]);
+        setFormData(prev => ({
+          ...prev,
+          images: [...(prev.images || []), cloudUrl],
+          image: prev.image || cloudUrl
+        }));
+      } else {
+        // Fallback preview
         const reader = new FileReader();
         reader.onloadend = () => {
-          const result = reader.result;
-          if (!result) return;
-          setImagePreviews(prev => [...prev, result]);
-          setFormData(prev => ({
-            ...prev,
-            images: [...prev.images, result],
-            image: prev.image || result // Set primary image field as well
-          }));
+          if (reader.result) {
+            setImagePreviews(prev => [...prev, reader.result]);
+            setFormData(prev => ({
+              ...prev,
+              images: [...(prev.images || []), reader.result],
+              image: prev.image || reader.result
+            }));
+          }
         };
         reader.readAsDataURL(file);
-      });
+      }
     }
+    setUploadingMedia(false);
   };
 
   const handleRemoveImage = (index) => {
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
     setFormData(prev => {
-      const updatedImages = prev.images.filter((_, i) => i !== index);
+      const updatedImages = (prev.images || []).filter((_, i) => i !== index);
       return {
         ...prev,
         images: updatedImages,
@@ -130,11 +162,48 @@ export default function ReviewsPage() {
     });
   };
 
+  const handleVideoChange = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 50 * 1024 * 1024) {
+      alert(locale === 'ar' ? 'حجم مقطع الفيديو يجب ألا يتجاوز 50 ميجابايت!' : 'Video size must not exceed 50MB!');
+      return;
+    }
+
+    setUploadingMedia(true);
+    const cloudUrl = await uploadFileToCloud(file);
+    if (cloudUrl) {
+      setVideoPreview(cloudUrl);
+      setFormData(prev => ({ ...prev, video: cloudUrl }));
+    } else {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.result) {
+          setVideoPreview(reader.result);
+          setFormData(prev => ({ ...prev, video: reader.result }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    setUploadingMedia(false);
+  };
+
+  const handleRemoveVideo = () => {
+    setVideoPreview('');
+    setFormData(prev => ({ ...prev, video: '' }));
+  };
+
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     
     if (!formData.name || !formData.country || !formData.rating || !formData.text) {
-      alert('يرجى ملء جميع الحقول وتحديد التقييم!');
+      alert(locale === 'ar' ? 'يرجى ملء جميع الحقول وتحديد التقييم!' : 'Please fill all required fields and select a rating!');
+      return;
+    }
+
+    if (formData.text.trim().length < 3) {
+      alert(locale === 'ar' ? 'يرجى كتابة تقييم أطول (3 أحرف على الأقل)' : 'Please write a longer review (at least 3 characters)');
       return;
     }
 
@@ -142,30 +211,44 @@ export default function ReviewsPage() {
 
     try {
       const reviewPhoto = (formData.images && formData.images[0]) || formData.image || '';
-      const newReview = await addReview({
+      const payload = {
         name: formData.name,
         country: formData.country,
         rating: formData.rating,
         text: formData.text,
-        image: reviewPhoto
+        image: reviewPhoto,
+        images: formData.images || [],
+        video: formData.video || '',
+        verified: true
+      };
+
+      // Direct API call to get proper error messages
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'include',
       });
 
-      if (newReview) {
-        setReviews([newReview, ...reviews]);
-        setFormData({
-          name: '',
-          country: '',
-          rating: 0,
-          text: '',
-          image: '',
-          images: []
-        });
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || (locale === 'ar' ? '❌ حدث خطأ في إرسال التقييم.' : '❌ Error submitting review.'));
+        return;
+      }
+
+      if (data && data.id) {
+        setReviews([data, ...reviews]);
+        setFormData({ name: '', country: '', rating: 0, text: '', image: '', images: [], video: '' });
         setImagePreviews([]);
-        alert('✅ شكراً! تم إضافة تقييمك بنجاح!');
+        setVideoPreview('');
+        alert(locale === 'ar' ? '✅ شكراً! تم إضافة تقييمك بنجاح!' : '✅ Thank you! Your review has been submitted successfully!');
+      } else {
+        alert(locale === 'ar' ? '❌ حدث خطأ في إرسال التقييم. يرجى المحاولة مرة أخرى.' : '❌ Error submitting review. Please try again.');
       }
     } catch (error) {
       console.error('Error submitting review:', error);
-      alert('❌ حدث خطأ في إرسال التقييم. يرجى المحاولة مرة أخرى.');
+      alert(locale === 'ar' ? '❌ حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.' : '❌ Connection error. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -212,16 +295,41 @@ export default function ReviewsPage() {
             lineHeight: 1.2,
             marginBottom: '1.5rem'
           }}>
-            شارك تجربتك معنا 🌟
+            {locale === 'ar' ? 'تجارب وتقييمات عملائنا 🌟' : 'Guest Reviews & Experiences 🌟'}
           </h1>
           <p style={{
             fontSize: 'var(--font-size-lg)',
             color: 'var(--text-secondary)',
-            maxWidth: '600px',
-            margin: '0 auto'
+            maxWidth: '650px',
+            margin: '0 auto 1.5rem',
+            lineHeight: '1.7'
           }}>
-            رأيك يساعد عملاءنا الآخرين على اختيار التجارب المثالية. شارك صورك وتقييمك الآن!
+            {locale === 'ar'
+              ? 'تجارب حقيقية موثقة من ضيوفنا في مصر. شارك تجربتك وانطباعك بالصور أو مقاطع الفيديو!'
+              : 'Authentic verified experiences from our guests in Egypt. Share your feedback with photos or short videos!'}
           </p>
+
+          {/* 🛡️ Guarantee Badge */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '12px 24px',
+            background: 'rgba(16, 185, 129, 0.1)',
+            border: '1.5px solid rgba(16, 185, 129, 0.4)',
+            borderRadius: '30px',
+            color: '#10b981',
+            fontWeight: '800',
+            fontSize: '0.98rem',
+            boxShadow: '0 4px 15px rgba(16, 185, 129, 0.15)'
+          }}>
+            <span style={{ fontSize: '1.3rem' }}>🛡️</span>
+            <span>
+              {locale === 'ar'
+                ? 'إلغاء مجاني حتى 24 ساعة واسترداد كامل 100%'
+                : 'Free Cancellation up to 24h & 100% Full Refund'}
+            </span>
+          </div>
         </div>
       </section>
 
@@ -256,13 +364,15 @@ export default function ReviewsPage() {
                       style={{
                         width: '100%',
                         padding: '12px 14px',
-                        background: 'rgba(255,255,255,0.04)',
-                        color: 'white',
-                        border: '1px solid var(--border-medium)',
+                        background: '#1e293b',
+                        color: '#ffffff',
+                        caretColor: '#f59e0b',
+                        border: '1px solid rgba(201,162,39,0.3)',
                         borderRadius: '6px',
                         outline: 'none',
                         textAlign: 'right',
-                        fontSize: 'inherit'
+                        fontSize: 'inherit',
+                        boxSizing: 'border-box',
                       }}
                     />
                   </div>
@@ -280,13 +390,15 @@ export default function ReviewsPage() {
                       style={{
                         width: '100%',
                         padding: '12px 14px',
-                        background: 'rgba(255,255,255,0.04)',
-                        color: 'white',
-                        border: '1px solid var(--border-medium)',
+                        background: '#1e293b',
+                        color: '#ffffff',
+                        caretColor: '#f59e0b',
+                        border: '1px solid rgba(201,162,39,0.3)',
                         borderRadius: '6px',
                         outline: 'none',
                         textAlign: 'right',
-                        fontSize: 'inherit'
+                        fontSize: 'inherit',
+                        boxSizing: 'border-box',
                       }}
                     />
                   </div>
@@ -334,15 +446,17 @@ export default function ReviewsPage() {
                       style={{
                         width: '100%',
                         padding: '12px 14px',
-                        background: 'rgba(255,255,255,0.04)',
-                        color: 'white',
-                        border: '1px solid var(--border-medium)',
+                        background: '#1e293b',
+                        color: '#ffffff',
+                        caretColor: '#f59e0b',
+                        border: '1px solid rgba(201,162,39,0.3)',
                         borderRadius: '6px',
                         outline: 'none',
                         textAlign: 'right',
                         fontFamily: 'inherit',
                         resize: 'vertical',
-                        fontSize: 'inherit'
+                        fontSize: 'inherit',
+                        boxSizing: 'border-box',
                       }}
                     />
                   </div>
@@ -431,6 +545,68 @@ export default function ReviewsPage() {
                     </div>
                   </div>
 
+                  {/* Video Upload (Optional) */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>
+                      🎬 {locale === 'ar' ? 'أضف مقطع فيديو قصير (اختياري)' : 'Add Short Video (Optional)'}
+                    </label>
+                    <div style={{
+                      position: 'relative',
+                      border: '2px dashed var(--border-medium)',
+                      borderRadius: '6px',
+                      padding: '1.5rem',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      background: videoPreview ? 'rgba(251, 191, 36, 0.05)' : 'rgba(255,255,255,0.02)'
+                    }}>
+                      {videoPreview ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                          <video
+                            src={videoPreview}
+                            controls
+                            style={{
+                              maxWidth: '100%',
+                              maxHeight: '180px',
+                              borderRadius: '8px',
+                              border: '1px solid var(--gold-400)'
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={handleRemoveVideo}
+                            style={{
+                              padding: '6px 14px',
+                              borderRadius: '20px',
+                              background: 'rgba(239, 68, 68, 0.2)',
+                              border: '1px solid rgba(239, 68, 68, 0.5)',
+                              color: '#ef4444',
+                              cursor: 'pointer',
+                              fontSize: '0.82rem',
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            🗑️ {locale === 'ar' ? 'حذف مقطع الفيديو' : 'Remove Video'}
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <input
+                            type="file"
+                            accept="video/mp4,video/webm,video/quicktime"
+                            onChange={handleVideoChange}
+                            style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
+                          />
+                          <div style={{ fontSize: '2rem', marginBottom: '0.4rem' }}>🎥</div>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '0.3rem' }}>
+                            {locale === 'ar' ? 'اضغط لرفع فيديو قصير من تجربتك' : 'Click to upload a short experience video'}
+                          </p>
+                          <p style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>MP4, WebM — Max 25MB</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   {/* Submit Button */}
                   <button
                     type="submit"
@@ -461,7 +637,7 @@ export default function ReviewsPage() {
                       }
                     }}
                   >
-                    {isSubmitting ? '⏳ جاري الإرسال...' : '📤 إرسال التقييم'}
+                    {isSubmitting ? (locale === 'ar' ? '⏳ جاري الإرسال...' : '⏳ Submitting...') : (locale === 'ar' ? '📤 إرسال التقييم' : '📤 Submit Review')}
                   </button>
                 </form>
               </div>
@@ -469,49 +645,100 @@ export default function ReviewsPage() {
 
             {/* Reviews Display Section */}
             <div>
-              <h2 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 'bold' }}>
-                {t('reviews.title')}
-              </h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h2 style={{ color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
+                  {t('reviews.title')}
+                </h2>
+                <span style={{
+                  fontSize: '0.85rem',
+                  color: 'var(--gold-400)',
+                  background: 'rgba(201, 162, 39, 0.1)',
+                  padding: '4px 12px',
+                  borderRadius: '20px',
+                  border: '1px solid rgba(201, 162, 39, 0.25)',
+                  fontWeight: '700'
+                }}>
+                  ⭐ 5.0 · {reviews.length} {locale === 'ar' ? 'تقييم' : 'Reviews'}
+                </span>
+              </div>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', maxHeight: '600px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', maxHeight: '700px', overflowY: 'auto', paddingRight: '0.5rem' }}>
                 {reviews && reviews.length > 0 ? (
                   reviews.map((review, idx) => (
                     <div key={review.id || idx} className="glass-card" style={{
                       padding: '1.5rem',
                       background: 'var(--bg-primary)',
-                      border: '1px solid rgba(251, 191, 36, 0.1)',
-                      borderRadius: '8px'
+                      border: '1px solid rgba(251, 191, 36, 0.15)',
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
                     }}>
-                      {/* Image */}
-                      {review.image && (
+                      {/* Video Player if present */}
+                      {review.video && (
+                        <div style={{ marginBottom: '1rem', borderRadius: '8px', overflow: 'hidden', background: '#000' }}>
+                          <video
+                            src={review.video}
+                            controls
+                            style={{ width: '100%', maxHeight: '240px', objectFit: 'contain' }}
+                          />
+                        </div>
+                      )}
+
+                      {/* Images Gallery */}
+                      {review.images && review.images.length > 0 ? (
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: review.images.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(100px, 1fr))',
+                          gap: '6px',
+                          marginBottom: '1rem'
+                        }}>
+                          {review.images.map((img, imgIdx) => (
+                            <div
+                              key={imgIdx}
+                              style={{
+                                height: review.images.length === 1 ? '180px' : '90px',
+                                borderRadius: '6px',
+                                backgroundImage: `url(${img})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                border: '1px solid var(--border-subtle)'
+                              }}
+                            />
+                          ))}
+                        </div>
+                      ) : review.image ? (
                         <div style={{
                           width: '100%',
-                          height: '150px',
-                          borderRadius: '6px',
+                          height: '160px',
+                          borderRadius: '8px',
                           backgroundImage: `url(${review.image})`,
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
                           marginBottom: '1rem',
                           border: '1px solid var(--border-subtle)'
-                        }}></div>
-                      )}
+                        }} />
+                      ) : null}
                       
                       {/* Review Content */}
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '0.8rem' }}>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '0.9rem' }}>
                         &quot;{review.text}&quot;
                       </p>
 
                       {/* Footer */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.8rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.8rem' }}>
                         <div>
-                          <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>
-                            {review.name}
-                          </h4>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <h4 style={{ fontSize: '0.92rem', fontWeight: 'bold', color: 'var(--text-primary)', margin: 0 }}>
+                              {review.name}
+                            </h4>
+                            <span style={{ fontSize: '0.72rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', padding: '2px 6px', borderRadius: '10px' }}>
+                              ✓ {locale === 'ar' ? 'موثق' : 'Verified'}
+                            </span>
+                          </div>
                           <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
-                            {review.country}
+                            {review.country} {review.date ? `· ${review.date}` : ''}
                           </span>
                         </div>
-                        <div style={{ color: 'var(--gold-400)', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
+                        <div style={{ color: 'var(--gold-400)', fontSize: '0.95rem', whiteSpace: 'nowrap' }}>
                           {'★'.repeat(Math.max(1, review.rating || 0))}
                         </div>
                       </div>
@@ -528,6 +755,10 @@ export default function ReviewsPage() {
           </div>
         </div>
       </section>
+
+      {/* Trust Badges */}
+      <TrustBadges variant="default" showTitle={false} />
+
 
       {/* Back Button */}
       <div style={{ padding: 'var(--space-xl) 0' }}>

@@ -48,4 +48,8 @@ export {
   updateBookingReceipt,
   confirmBankPayment,
   rejectBankPayment,
+  getPartners,
+  addPartner,
+  updatePartner,
+  deletePartner,
 } from './db.adapter';

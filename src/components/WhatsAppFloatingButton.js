@@ -36,17 +36,14 @@ const LABELS = {
 };
 
 export default function WhatsAppFloatingButton() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { locale } = useLanguage();
   const { settings } = useSettings();
   const pathname = usePathname();
+  const isAr = locale === 'ar';
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsVisible(window.scrollY > 300);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    setMounted(true);
   }, []);
 
   // Hide WhatsApp button on admin and agent dashboard pages
@@ -54,7 +51,7 @@ export default function WhatsAppFloatingButton() {
     return null;
   }
 
-  if (!isVisible) return null;
+  if (!mounted) return null;
 
   const whatsappNum = (settings?.whatsapp || DEFAULT_WHATSAPP).replace(/[^0-9]/g, '');
   const labels = LABELS[locale] || LABELS.en;

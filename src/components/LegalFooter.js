@@ -4,16 +4,16 @@ import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 
 const FOOTER_TEXT = {
-  ar:  { terms: 'الشروط والأحكام', privacy: 'سياسة الخصوصية', delivery: 'سياسة تقديم الخدمة', cancel: 'الإلغاء والاسترداد', refund: 'استرداد 7-14 يوم', location: 'الغردقة، البحر الأحمر، مصر' },
-  en:  { terms: 'Terms & Conditions', privacy: 'Privacy Policy', delivery: 'Service Delivery', cancel: 'Refund & Cancellation', refund: 'Refund in 7–14 days', location: 'Hurghada, Red Sea, Egypt' },
-  de:  { terms: 'AGB', privacy: 'Datenschutz', delivery: 'Servicelieferung', cancel: 'Stornierung & Erstattung', refund: 'Erstattung in 7–14 Tagen', location: 'Hurghada, Rotes Meer, Ägypten' },
-  fr:  { terms: 'CGV', privacy: 'Confidentialité', delivery: 'Livraison de service', cancel: 'Annulation & Remboursement', refund: 'Remboursement en 7–14 jours', location: 'Hurghada, Mer Rouge, Égypte' },
-  es:  { terms: 'Términos', privacy: 'Privacidad', delivery: 'Entrega de servicio', cancel: 'Cancelación y Reembolso', refund: 'Reembolso en 7–14 días', location: 'Hurghada, Mar Rojo, Egipto' },
-  it:  { terms: 'Termini', privacy: 'Privacy', delivery: 'Consegna servizio', cancel: 'Annullamento e Rimborso', refund: 'Rimborso in 7–14 giorni', location: 'Hurghada, Mar Rosso, Egitto' },
-  ru:  { terms: 'Условия', privacy: 'Конфиденциальность', delivery: 'Доставка услуг', cancel: 'Отмена и возврат', refund: 'Возврат за 7–14 дней', location: 'Хургада, Красное море, Египет' },
-  tr:  { terms: 'Şartlar', privacy: 'Gizlilik', delivery: 'Hizmet teslimatı', cancel: 'İptal ve İade', refund: '7–14 günde iade', location: 'Hurgada, Kızıldeniz, Mısır' },
-  zh:  { terms: '条款与条件', privacy: '隐私政策', delivery: '服务交付', cancel: '退款与取消', refund: '7–14个工作日退款', location: '赫尔格达，红海，埃及' },
-  ja:  { terms: '利用規約', privacy: 'プライバシー', delivery: 'サービス配信', cancel: 'キャンセルと返金', refund: '7〜14日で返金', location: 'フルガダ、紅海、エジプト' },
+  ar:  { ourStory: 'من نحن', reviews: 'التقييمات', terms: 'الشروط والأحكام', privacy: 'سياسة الخصوصية', delivery: 'سياسة تقديم الخدمة', cancel: 'الإلغاء والاسترداد', refund: 'استرداد 7-14 يوم', location: 'الغردقة، البحر الأحمر، مصر' },
+  en:  { ourStory: 'Our Story', reviews: 'Reviews', terms: 'Terms & Conditions', privacy: 'Privacy Policy', delivery: 'Service Delivery', cancel: 'Refund & Cancellation', refund: 'Refund in 7–14 days', location: 'Hurghada, Red Sea, Egypt' },
+  de:  { ourStory: 'Über uns', reviews: 'Bewertungen', terms: 'AGB', privacy: 'Datenschutz', delivery: 'Servicelieferung', cancel: 'Stornierung & Erstattung', refund: 'Erstattung in 7–14 Tagen', location: 'Hurghada, Rotes Meer, Ägypten' },
+  fr:  { ourStory: 'À propos', reviews: 'Avis', terms: 'CGV', privacy: 'Confidentialité', delivery: 'Livraison de service', cancel: 'Annulation & Remboursement', refund: 'Remboursement en 7–14 jours', location: 'Hurghada, Mer Rouge, Égypte' },
+  es:  { ourStory: 'Sobre nosotros', reviews: 'Reseñas', terms: 'Términos', privacy: 'Privacidad', delivery: 'Entrega de servicio', cancel: 'Cancelación y Reembolso', refund: 'Reembolso en 7–14 días', location: 'Hurghada, Mar Rojo, Egipto' },
+  it:  { ourStory: 'Chi siamo', reviews: 'Recensioni', terms: 'Termini', privacy: 'Privacy', delivery: 'Consegna servizio', cancel: 'Annullamento e Rimborso', refund: 'Rimborso in 7–14 أيام', location: 'Hurghada, Mar Rosso, Egitto' },
+  ru:  { ourStory: 'О нас', reviews: 'Отзывы', terms: 'Условия', privacy: 'Конфиденциальность', delivery: 'Доставка услуг', cancel: 'Отмена и возврат', refund: 'Возврат за 7–14 дней', location: 'Хургада, Красное море, Египет' },
+  tr:  { ourStory: 'Hakkımızda', reviews: 'Yorumlar', terms: 'Şartlar', privacy: 'Gizlilik', delivery: 'Hizmet teslimatı', cancel: 'İptal ve İade', refund: '7–14 günde iade', location: 'Hurgada, Kızıldeniz, Mısır' },
+  zh:  { ourStory: '关于我们', reviews: '评价', terms: '条款与条件', privacy: '隐私政策', delivery: '服务交付', cancel: '退款与取消', refund: '7–14个工作日退款', location: '赫尔格达，红海，埃及' },
+  ja:  { ourStory: '会社概要', reviews: 'レビュー', terms: '利用規約', privacy: 'プライバシー', delivery: 'サービス配信', cancel: 'キャンセルと返金', refund: '7〜14日で返金', location: 'フルガダ、紅海、エジプト' },
 };
 
 export default function LegalFooter() {
@@ -33,8 +33,10 @@ export default function LegalFooter() {
       }}
     >
       {/* Legal Policy Links */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.4rem 1.2rem', marginBottom: '0.9rem' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.6rem 1.4rem', marginBottom: '0.9rem' }}>
         {[
+          { href: '/our-story', label: txt.ourStory },
+          { href: '/reviews', label: txt.reviews },
           { href: '/terms', label: txt.terms },
           { href: '/privacy', label: txt.privacy },
           { href: '/service-delivery', label: txt.delivery },

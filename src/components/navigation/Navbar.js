@@ -148,17 +148,18 @@ export default function Navbar() {
             );
           })}
 
-          {/* 4. Entertainment */}
+
+          {/* 6. Entertainment */}
           <Link href="/entertainment" className={styles.navLink} onClick={() => setMobileOpen(false)}>
             {t('nav.entertainment')}
           </Link>
 
-          {/* 5. Booking Confirmation */}
+          {/* 7. Booking Confirmation */}
           <Link href="/booking-confirmation" className={styles.navLink} onClick={() => setMobileOpen(false)}>
             {t('nav.myBooking')}
           </Link>
 
-          {/* 6. Install App PWA Trigger */}
+          {/* 9. Install App PWA Trigger */}
           <button
             type="button"
             onClick={() => {

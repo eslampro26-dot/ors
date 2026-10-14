@@ -106,6 +106,7 @@ const COL = {
   SOCIAL: 'social_media',
   SETTINGS: 'settings',
   BANK_ACCOUNTS: 'bank_accounts',
+  PARTNERS: 'partners',
 };
 
 // ==========================================
@@ -1524,6 +1525,140 @@ export function subscribeToAgents(callback) {
     const agents = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
     callback(agents);
   });
+}
+
+// ==========================================
+// PARTNERS CRUD (Hotels, Restaurants, Yachts, Activities)
+// ==========================================
+
+export const DEFAULT_PARTNERS = [
+  {
+    id: 'partner-rixos-hurghada',
+    nameAr: 'ريكسوس بريميوم مجاويش سويتس وفلل',
+    nameEn: 'Rixos Premium Magawish Suites & Villas',
+    category: 'hotel',
+    categoryLabelAr: 'فندق ومنتجع فاخر',
+    categoryLabelEn: 'Luxury Resort & Villas',
+    city: 'hurghada',
+    cityLabelAr: 'الغردقة',
+    cityLabelEn: 'Hurghada',
+    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
+    rating: 5.0,
+    descriptionAr: 'منتجع فندقي فائق الفخامة على شواطئ البحر الأحمر مع أجنحة وفلل خاصة وتجارب طعام عالمية وخدمات VIP لضيوف أورلوكسوس.',
+    descriptionEn: 'Ultra-luxury Red Sea beachfront resort featuring private villas, world-class dining, and bespoke VIP hospitality for ORLUXUS guests.',
+    websiteUrl: 'https://www.orluxus.com',
+    featured: true,
+    discountOffer: 'خصم حصري 15% لعملاء أورلوكسوس'
+  },
+  {
+    id: 'partner-steigenberger-aldau',
+    nameAr: 'شتايجنبرجر ألدو بيتش ريزورت',
+    nameEn: 'Steigenberger ALDAU Beach Hotel',
+    category: 'hotel',
+    categoryLabelAr: 'منتجع وسبا عالمي',
+    categoryLabelEn: 'World-Class Spa Resort',
+    city: 'hurghada',
+    cityLabelAr: 'الغردقة',
+    cityLabelEn: 'Hurghada',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+    rating: 4.9,
+    descriptionAr: 'أحد أرقى منتجعات الغردقة مع ملاعب جولف وشاطئ رملي خاص وخدمات استجمام متكاملة.',
+    descriptionEn: 'One of the most prestigious luxury resorts in Hurghada featuring a championship golf course and private sandy beach.',
+    websiteUrl: 'https://www.orluxus.com',
+    featured: true,
+    discountOffer: 'مشروب ترحيبي وترقية مجانية للغرف'
+  },
+  {
+    id: 'partner-marina-yachts',
+    nameAr: 'مارينا لاكجري لليخوت الملكية',
+    nameEn: 'Red Sea Royal Yachts Marina',
+    category: 'yacht',
+    categoryLabelAr: 'يخوت بحرية خاصة',
+    categoryLabelEn: 'Private Marine Yachts',
+    city: 'el-gouna',
+    cityLabelAr: 'الجونة',
+    cityLabelEn: 'El Gouna',
+    image: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?auto=format&fit=crop&w=1200&q=80',
+    rating: 5.0,
+    descriptionAr: 'أسطول يخوت حديث ومجهز بأحدث تقنيات الإبحار وطهاة محترفين لرحلات جزر البحر الأحمر الخاصة.',
+    descriptionEn: 'State-of-the-art private yacht fleet with professional crew and private chefs for custom island exploration.',
+    websiteUrl: 'https://www.orluxus.com',
+    featured: true,
+    discountOffer: 'باقات إبحار VIP بأسعار خاصة'
+  },
+  {
+    id: 'partner-le-bistro-sharm',
+    nameAr: 'مطعم وبار لو بيسترو للمأكولات البحرية',
+    nameEn: 'Le Bistro Seafood & Fine Dining',
+    category: 'restaurant',
+    categoryLabelAr: 'مطعم مأكولات بحرية فاخر',
+    categoryLabelEn: 'Seafood Fine Dining',
+    city: 'sharm-el-sheikh',
+    cityLabelAr: 'شرم الشيخ',
+    cityLabelEn: 'Sharm El Sheikh',
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
+    rating: 4.8,
+    descriptionAr: 'تجربة طعام استثنائية بإطلالة بانورامية على خليج نعمة مع أرقى الأسماك والمأكولات البحرية الطازجة.',
+    descriptionEn: 'Exceptional dining experience with panoramic Naama Bay views serving the freshest catch and international gourmet dishes.',
+    websiteUrl: 'https://www.orluxus.com',
+    featured: true,
+    discountOffer: 'حجز طاولات VIP مع خصم 10%'
+  }
+];
+
+export async function getPartners() {
+  try {
+    const snapshot = await safeGetDocs(collection(db, COL.PARTNERS));
+    if (snapshot && !snapshot.empty) {
+      const items = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      return items.filter(p => !p.deleted);
+    }
+    return DEFAULT_PARTNERS;
+  } catch (e) {
+    console.error('Error fetching partners:', e);
+    return DEFAULT_PARTNERS;
+  }
+}
+
+export async function addPartner(partnerData) {
+  try {
+    const id = partnerData.id || `partner-${Date.now()}`;
+    const newPartner = {
+      id,
+      createdAt: new Date().toISOString(),
+      ...partnerData,
+    };
+    await safeSetDoc(doc(db, COL.PARTNERS, id), newPartner);
+    return newPartner;
+  } catch (e) {
+    console.error('Error adding partner:', e);
+    return false;
+  }
+}
+
+export async function updatePartner(id, partnerData) {
+  try {
+    const partnerRef = doc(db, COL.PARTNERS, String(id));
+    await safeUpdateDoc(partnerRef, {
+      ...partnerData,
+      updatedAt: new Date().toISOString(),
+    });
+    return true;
+  } catch (e) {
+    console.error('Error updating partner:', e);
+    return false;
+  }
+}
+
+export async function deletePartner(id) {
+  try {
+    const partnerRef = doc(db, COL.PARTNERS, String(id));
+    await safeDeleteDoc(partnerRef);
+    return true;
+  } catch (e) {
+    console.error('Error deleting partner:', e);
+    return false;
+  }
 }
 
 // تحقق من إعداد Firebase

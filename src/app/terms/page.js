@@ -12,6 +12,7 @@ import {
 export default function TermsAndCancellationPage() {
   const [currentLang, setCurrentLang] = useState('ar');
   const [activeTab, setActiveTab] = useState('both'); // 'both' | 'terms' | 'cancellation'
+  const [activeCategory, setActiveCategory] = useState('all'); // 'all' | 'hotels' | 'restaurants' | 'yachts' | 'tours'
 
   const langMeta = SUPPORTED_LEGAL_LANGUAGES.find(l => l.code === currentLang) || SUPPORTED_LEGAL_LANGUAGES[0];
   const isRtl = langMeta.dir === 'rtl';
@@ -19,6 +20,78 @@ export default function TermsAndCancellationPage() {
   const ui = getLegalUI(currentLang);
   const terms = getTermsAndConditions(currentLang);
   const cancellation = getCancellationPolicy(currentLang);
+
+  // Category specific policies based on selected language
+  const CATEGORY_POLICIES = {
+    hotels: {
+      icon: '🏨',
+      name: isRtl ? 'الفنادق والمنتجعات' : 'Hotels & Resorts',
+      rules: isRtl ? [
+        'تسجيل الوصول من الساعة 14:00 وتسجيل المغادرة حتى الساعة 12:00 ظهراً.',
+        'الإلغاء المجاني متاح حتى 48 ساعة قبل موعد الوصول المحدد في الحجز.',
+        'يُشترط تقديم جواز سفر أو بطاقة هوية وطنية سارية لجميع النزلاء عند تسجيل الوصول.',
+        'التأمين المسترد يتبع سياسة الفندق ويُعاد عند المغادرة بعد فحص الغرفة.',
+        'الطلبات الخاصة (سرير إضافي، إطلالة معينة) تخضع لتوفر الفندق وقت الوصول.'
+      ] : [
+        'Check-in is from 14:00 and check-out is until 12:00 noon.',
+        'Free cancellation is available up to 48 hours prior to scheduled check-in.',
+        'Valid passport or national ID is strictly required for all guests upon check-in.',
+        'Security deposit is subject to hotel policy and refunded upon inspection at check-out.',
+        'Special requests (extra bed, view) are subject to hotel availability upon arrival.'
+      ]
+    },
+    restaurants: {
+      icon: '🍽️',
+      name: isRtl ? 'المطاعم والضيافة الفاخرة' : 'Fine Dining & Restaurants',
+      rules: isRtl ? [
+        'يتم تأكيد طاولة الحجز مع فترة سماح بحد أقصى 20 دقيقة من الموعد المحدد.',
+        'الإلغاء أو تعديل عدد الأفراد متاح قبل 6 ساعات من موعد الحجز.',
+        'الالتزام بالزي الأنيق (Smart Casual) المعتمد في المطاعم الفاخرة.',
+        'يُرجى إخطارنا بأي حساسية طعام مسبقاً عند تأكيد الحجز لضمان سلامتكم.',
+        'الحد الأدنى للإنفاق (إن وجد) يتم توضيحه مسبقاً في تفاصيل الحجز.'
+      ] : [
+        'Table reservation is held with a maximum grace period of 20 minutes.',
+        'Cancellation or guest count modification is available up to 6 hours before reservation.',
+        'Smart Casual dress code is strictly enforced across partner luxury restaurants.',
+        'Please inform us of any food allergies in advance upon booking confirmation.',
+        'Minimum charge (if applicable) is clearly stated in the reservation confirmation.'
+      ]
+    },
+    yachts: {
+      icon: '⛵',
+      name: isRtl ? 'اليخوت والأنشطة البحرية' : 'Luxury Yachts & Marine Tours',
+      rules: isRtl ? [
+        'تخضع جميع الرحلات البحرية لتصاريح حرس الحدود والأحوال الجوية لسلامتكم.',
+        'في حال إلغاء الرحلة بقرار من سلطات الميناء لسوء الأحوال الجوية، يُعاد المبلغ كاملاً 100% فوراً.',
+        'الإلغاء المجاني متاح قبل 48 ساعة من موعد انطلاق اليخت.',
+        'الالتزام الصارم بتعليمات القبطان وسترات النجاة ومعدات السلامة البحرية.',
+        'رسوم المحميات الطبيعية والبيئة مشمولة وفق ما هو موضح في قسيمة الحجز.'
+      ] : [
+        'All marine trips are strictly subject to Coast Guard permits and sea weather conditions.',
+        'If trip is canceled by port authority due to weather, a 100% full refund is issued immediately.',
+        'Free cancellation is available up to 48 hours prior to yacht departure.',
+        'Strict compliance with the captain’s safety instructions and life jackets is mandatory.',
+        'National park and marine sanctuary environmental fees are included as stated on voucher.'
+      ]
+    },
+    tours: {
+      icon: '🚗',
+      name: isRtl ? 'الجولات والرحلات البرية' : 'Private Tours & Transfers',
+      rules: isRtl ? [
+        'موعد الاستلام من الفندق محدد بدقة، يرجى التواجد في بهو الفندق قبل 10 دقائق.',
+        'الإلغاء المجاني متاح قبل 24 ساعة من موعد بدء الجولة أو النقل الخاص.',
+        'السيارات المستخدمة حديثة، مكيفة، ومؤمنة بالكامل مع سائقين معتمدين.',
+        'أي تعديل في مسار الرحلة الخاصة يتم بالتنسيق المسبق مع خدمة العملاء.',
+        'الأمتعة والأغراض الشخصية تقع تحت مسؤولية الضيف داخل المركبة.'
+      ] : [
+        'Hotel pickup time is fixed; please be present in the hotel lobby 10 minutes prior.',
+        'Free cancellation is available up to 24 hours prior to tour departure or transfer.',
+        'All vehicles are modern, air-conditioned, and fully insured with certified drivers.',
+        'Any route modification for private tours must be coordinated in advance with support.',
+        'Personal belongings remain the guest’s responsibility inside the vehicle.'
+      ]
+    }
+  };
 
   return (
     <div 
@@ -206,6 +279,98 @@ export default function TermsAndCancellationPage() {
         }}>
           {ui.prevailWarning}
         </div>
+
+        {/* Category Specific Filter Tabs */}
+        <div className="hide-print" style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          padding: '12px 16px',
+          borderRadius: '14px',
+          border: '1px solid rgba(201, 162, 39, 0.3)',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+          marginBottom: '20px'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '8px', fontSize: '0.82rem', fontWeight: '800', color: '#8c6a12', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            {isRtl ? '📌 فرز الشروط والسياسات بحسب نوع الخدمة' : '📌 Filter Policies by Service Category'}
+          </div>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '8px',
+            flexWrap: 'wrap'
+          }}>
+            {[
+              { id: 'all', icon: '🌐', label: isRtl ? 'جميع الخدمات' : 'All Services' },
+              { id: 'hotels', icon: '🏨', label: isRtl ? 'الفنادق والمنتجعات' : 'Hotels & Resorts' },
+              { id: 'restaurants', icon: '🍽️', label: isRtl ? 'المطاعم الفاخرة' : 'Fine Dining' },
+              { id: 'yachts', icon: '⛵', label: isRtl ? 'اليخوت والأنشطة البحرية' : 'Yachts & Marine' },
+              { id: 'tours', icon: '🚗', label: isRtl ? 'الجولات والرحلات البرية' : 'Tours & Transfers' },
+            ].map(cat => {
+              const isActive = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    fontWeight: '700',
+                    fontSize: '0.84rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    background: isActive ? 'linear-gradient(135deg, #c9a227 0%, #aa841a 100%)' : '#f9fafb',
+                    color: isActive ? '#ffffff' : '#374151',
+                    border: isActive ? '1px solid #8c6a12' : '1px solid #e5e7eb',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: isActive ? '0 2px 8px rgba(201, 162, 39, 0.35)' : 'none'
+                  }}
+                >
+                  <span>{cat.icon}</span>
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Display Category Specific Highlight Card when a specific category is selected */}
+        {activeCategory !== 'all' && CATEGORY_POLICIES[activeCategory] && (
+          <div style={{
+            background: 'linear-gradient(135deg, #fefce8 0%, #fef3c7 100%)',
+            border: '2px solid #f59e0b',
+            borderRadius: '14px',
+            padding: '20px 24px',
+            marginBottom: '26px',
+            boxShadow: '0 4px 14px rgba(245, 158, 11, 0.12)'
+          }}>
+            <h3 style={{
+              margin: '0 0 12px 0',
+              fontSize: '1.15rem',
+              fontWeight: '900',
+              color: '#92400e',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span>{CATEGORY_POLICIES[activeCategory].icon}</span>
+              <span>{isRtl ? `الشروط والأحكام الخاصة بـ: ${CATEGORY_POLICIES[activeCategory].name}` : `Specific Terms for: ${CATEGORY_POLICIES[activeCategory].name}`}</span>
+            </h3>
+            <ul style={{
+              margin: 0,
+              padding: isRtl ? '0 1.4rem 0 0' : '0 0 0 1.4rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
+              {CATEGORY_POLICIES[activeCategory].rules.map((rule, rIdx) => (
+                <li key={rIdx} style={{ fontSize: '0.9rem', color: '#78350f', lineHeight: '1.7', fontWeight: '500' }}>
+                  {rule}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* View Switcher Tabs */}
         <div className="hide-print" style={{

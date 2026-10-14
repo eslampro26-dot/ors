@@ -58,6 +58,10 @@ import {
   updateBookingReceipt as fbUpdateBookingReceipt,
   confirmBankPayment as fbConfirmBankPayment,
   rejectBankPayment as fbRejectBankPayment,
+  getPartners as fbGetPartners,
+  addPartner as fbAddPartner,
+  updatePartner as fbUpdatePartner,
+  deletePartner as fbDeletePartner,
 } from './db.firebase';
 
 import { sampleTrips } from './data';
@@ -588,6 +592,23 @@ export async function confirmBankPayment(bookingId, adminNote) {
   return fbConfirmBankPayment(bookingId, adminNote);
 }
 
-export async function rejectBankPayment(bookingId, rejectionReason) {
-  return fbRejectBankPayment(bookingId, rejectionReason);
+export async function rejectBankPayment(bookingId, reason) {
+  return fbRejectBankPayment(bookingId, reason);
+}
+
+// -- PARTNERS CRUD --
+export async function getPartners() {
+  return fbGetPartners();
+}
+
+export async function addPartner(partnerData) {
+  return fbAddPartner(partnerData);
+}
+
+export async function updatePartner(id, partnerData) {
+  return fbUpdatePartner(id, partnerData);
+}
+
+export async function deletePartner(id) {
+  return fbDeletePartner(id);
 }

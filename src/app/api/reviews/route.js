@@ -41,8 +41,8 @@ export async function POST(request) {
     if (!body.name || typeof body.name !== 'string' || body.name.trim().length < 2) {
       return NextResponse.json({ error: 'الاسم مطلوب (على الأقل حرفان).' }, { status: 400 });
     }
-    if (!body.text || typeof body.text !== 'string' || body.text.trim().length < 10) {
-      return NextResponse.json({ error: 'نص المراجعة مطلوب (على الأقل 10 أحرف).' }, { status: 400 });
+    if (!body.text || typeof body.text !== 'string' || body.text.trim().length < 3) {
+      return NextResponse.json({ error: 'نص المراجعة مطلوب (على الأقل 3 أحرف).' }, { status: 400 });
     }
     if (body.text.trim().length > 1000) {
       return NextResponse.json({ error: 'نص المراجعة طويل جداً (الحد الأقصى 1000 حرف).' }, { status: 400 });
@@ -52,11 +52,15 @@ export async function POST(request) {
     }
 
     const sanitized = {
-      name:    body.name.trim().slice(0, 100),
-      country: body.country ? String(body.country).trim().slice(0, 50) : '',
-      text:    body.text.trim().slice(0, 1000),
-      rating:  Math.round(body.rating),
-      image:   body.image ? String(body.image) : '',
+      name:     body.name.trim().slice(0, 100),
+      country:  body.country ? String(body.country).trim().slice(0, 50) : '',
+      text:     body.text.trim().slice(0, 1000),
+      rating:   Math.round(body.rating),
+      image:    body.image ? String(body.image) : '',
+      images:   Array.isArray(body.images) ? body.images : (body.image ? [body.image] : []),
+      video:    body.video ? String(body.video) : '',
+      verified: true,
+      createdAt: new Date().toISOString()
     };
 
     const result = await addReview(sanitized);

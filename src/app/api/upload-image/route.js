@@ -12,14 +12,17 @@ export async function POST(request) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    const allowedTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
+      'video/mp4', 'video/webm', 'video/quicktime'
+    ];
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Only image files are allowed (jpg, png, webp, gif)' }, { status: 400 });
+      return NextResponse.json({ error: 'Only image files (jpg, png, webp, gif) and video files (mp4, webm, mov) are allowed' }, { status: 400 });
     }
 
-    const MAX_SIZE = 10 * 1024 * 1024; // 10MB max
+    const MAX_SIZE = 50 * 1024 * 1024; // 50MB max (supports video and high-res images)
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: 'File too large. Max 10MB allowed.' }, { status: 400 });
+      return NextResponse.json({ error: 'File too large. Max 50MB allowed.' }, { status: 400 });
     }
 
     const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY || 'AIzaSyA3Q9bwzj9Xr05ha_gMIMrg-pOTIhSeCTI';
@@ -31,8 +34,10 @@ export async function POST(request) {
     // Generate unique filename
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 8);
-    const ext = file.type.split('/')[1].replace('jpeg', 'jpg');
-    const filename = `trips/${timestamp}_${randomStr}.${ext}`;
+    let ext = file.type.split('/')[1]?.replace('jpeg', 'jpg') || 'bin';
+    if (file.type === 'video/quicktime') ext = 'mov';
+    const folder = file.type.startsWith('video/') ? 'videos' : 'trips';
+    const filename = `${folder}/${timestamp}_${randomStr}.${ext}`;
     const encodedFilename = encodeURIComponent(filename);
     
     // Upload to Firebase Storage REST API

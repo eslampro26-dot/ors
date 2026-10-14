@@ -624,23 +624,25 @@ export default function Home() {
                       />
                     </div>
                     
-                    {/* Overlay Tag: Price starts from */}
+                    {/* Overlay Tag: Luxury Badge */}
                     <div style={{
                       position: 'absolute',
                       top: '12px',
                       right: locale === 'ar' ? 'auto' : '12px',
                       left: locale === 'ar' ? '12px' : 'auto',
-                      background: 'rgba(11, 11, 11, 0.75)',
+                      background: 'linear-gradient(135deg, rgba(201,162,39,0.85), rgba(180,140,20,0.9))',
                       backdropFilter: 'blur(8px)',
                       color: '#FFFFFF',
                       padding: '4px 12px',
                       borderRadius: '999px',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      fontFamily: 'var(--font-en)',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      fontFamily: 'var(--font-title)',
                       zIndex: 2,
+                      letterSpacing: '0.5px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                     }}>
-                      {t('common.fromPrice')}
+                      ✦ {locale === 'ar' ? 'وجهة فاخرة' : 'Luxury Destination'}
                     </div>
                   </div>
 
@@ -886,233 +888,35 @@ export default function Home() {
       </section>
       </LazySection>
 
-      {/* 4. CLIENT TESTIMONIALS SECTION */}
-      <LazySection fallback={<SectionSkeleton height="500px" />}>
-      <section style={{ padding: 'var(--space-4xl) 0', background: 'transparent', borderTop: '1px solid var(--border-subtle)', position: 'relative' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <span style={{ color: 'var(--gold-600)', fontWeight: '700', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', fontSize: 'var(--font-size-sm)' }}>
-              {t('reviews.title')}
-            </span>
-            <h2 style={{ fontSize: 'var(--font-size-3xl)', fontWeight: '800', color: 'var(--text-primary)' }}>{t('reviews.subtitle')}</h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-              {t('reviews.readWrite')}
-            </p>
-          </div>
-
-          {/* Review Form - Interactive */}
-          <div style={{ maxWidth: '600px', margin: '0 auto 3rem auto' }}>
-            <div className="glass-card" style={{
-              padding: '2rem',
-              background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.05), rgba(59, 130, 246, 0.05))',
-              border: '1px solid rgba(251, 191, 36, 0.2)',
-              borderRadius: '12px'
-            }}>
-              <h3 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', fontSize: '1.2rem' }}>{t('reviews.share')}</h3>
-              <form onSubmit={handleSubmitReview} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {/* Name */}
-                <input
-                  type="text"
-                  placeholder={t('reviews.name')}
-                  value={reviewForm.name}
-                  onChange={(e) => setReviewForm({ ...reviewForm, name: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    background: 'rgba(255,255,255,0.04)',
-                    color: 'var(--text-primary)',
-                    border: '1px solid var(--border-medium)',
-                    borderRadius: '6px',
-                    outline: 'none',
-                  }}
-                />
-                
-                {/* Country */}
-                <input
-                  type="text"
-                  placeholder={t('reviews.country')}
-                  value={reviewForm.country}
-                  onChange={(e) => setReviewForm({ ...reviewForm, country: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    background: 'rgba(255,255,255,0.04)',
-                    color: 'var(--text-primary)',
-                    border: '1px solid var(--border-medium)',
-                    borderRadius: '6px',
-                    outline: 'none',
-                  }}
-                />
-
-                {/* Rating Stars */}
-                <div>
-                  <label style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold' }}>{t('reviews.rating')}</label>
-                  <div style={{ display: 'flex', gap: '0.5rem' }} className="stars-row">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setReviewForm({ ...reviewForm, rating: star })}
-                        onMouseEnter={() => setHoverRating(star)}
-                        onMouseLeave={() => setHoverRating(0)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          fontSize: '2.2rem',
-                          cursor: 'pointer',
-                          opacity: (hoverRating || reviewForm.rating) >= star ? 1 : 0.3,
-                          filter: (hoverRating || reviewForm.rating) >= star ? 'drop-shadow(0 0 8px rgba(251, 191, 36, 0.6))' : 'none',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        ★
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Comment */}
-                <textarea
-                  placeholder={t('reviews.textPlaceholder')}
-                  value={reviewForm.text}
-                  onChange={(e) => setReviewForm({ ...reviewForm, text: e.target.value })}
-                  rows="3"
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    background: 'rgba(255,255,255,0.04)',
-                    color: 'var(--text-primary)',
-                    border: '1px solid var(--border-medium)',
-                    borderRadius: '6px',
-                    outline: 'none',
-                    fontFamily: 'inherit',
-                    resize: 'vertical'
-                  }}
-                />
-
-                {/* Photo Upload */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    <TranslatedText text="Add your profile photo (Optional)" />
-                  </label>
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={handleReviewImageUpload}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      background: 'rgba(255,255,255,0.04)',
-                      color: 'var(--text-secondary)',
-                      border: '1px solid var(--border-medium)',
-                      borderRadius: '6px',
-                      outline: 'none',
-                      fontSize: '0.85rem'
-                    }}
-                  />
-                  {reviewForm.image && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem' }}>
-                      <img src={reviewForm.image} alt="Preview" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
-                      <span style={{ fontSize: '0.8rem', color: 'var(--emerald-400)' }}>
-                        <TranslatedText text="✓ Image uploaded" />
-                      </span>
-                      <button 
-                        type="button" 
-                        onClick={() => setReviewForm(prev => ({ ...prev, image: '' }))} 
-                        style={{ background: 'none', border: 'none', color: 'var(--coral-500)', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline' }}
-                      >
-                        <TranslatedText text="Remove" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  style={{
-                    padding: '12px',
-                    background: 'linear-gradient(135deg, var(--gold-600), var(--gold-400))',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 6px 20px rgba(251, 191, 36, 0.5)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 4px 15px rgba(251, 191, 36, 0.3)';
-                  }}
-                >
-                  {t('reviews.submit')}
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* Display Reviews */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 'var(--space-xl)',
-            maxWidth: '1000px',
-            margin: '0 auto'
-          }}>
-            {reviews && reviews.length > 0 ? reviews.map((test, idx) => (
-              <div key={test.id || idx} className="glass-card" style={{
-                textAlign: locale === 'ar' ? 'right' : 'left',
-                padding: '1.5rem',
-                background: 'var(--bg-primary)',
-                border: '1px solid rgba(217, 119, 6, 0.08)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: '1rem',
-                borderRadius: '12px'
-              }}>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontStyle: 'italic', lineHeight: '1.6', margin: 0 }}>
-                  &quot;{test.text}&quot;
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.8rem', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexDirection: locale === 'ar' ? 'row-reverse' : 'row' }}>
-                    {test.image ? (
-                      <img 
-                        src={test.image} 
-                        alt={test.name} 
-                        style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--gold-500)' }} 
-                      />
-                    ) : (
-                      <div style={{ 
-                        width: '40px', 
-                        height: '40px', 
-                        borderRadius: '50%', 
-                        background: 'rgba(255,255,255,0.06)', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        border: '1px solid var(--border-subtle)',
-                        fontSize: '1rem'
-                      }}>
-                        👤
-                      </div>
-                    )}
-                    <div style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
-                      <h4 style={{ fontSize: '0.95rem', fontWeight: 'bold', color: 'var(--text-primary)', margin: 0 }}>{test.name}</h4>
-                      <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>{test.country}</span>
-                    </div>
-                  </div>
-                  <div style={{ color: 'var(--gold-400)', fontSize: '0.95rem' }}>
-                    {'★'.repeat(Math.max(1, test.rating || 0))}
-                  </div>
-                </div>
-              </div>
-            )) : <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>{t('reviews.noReviews')}</p>}
-          </div>
+      {/* 4. CLIENT TESTIMONIALS CTA */}
+      <LazySection fallback={<SectionSkeleton height="280px" />}>
+      <section style={{ padding: 'var(--space-3xl) 0', background: 'transparent', borderTop: '1px solid var(--border-subtle)', position: 'relative' }}>
+        <div className="container" style={{ textAlign: 'center', maxWidth: '750px', margin: '0 auto' }}>
+          <span style={{ color: 'var(--gold-500)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', fontSize: 'var(--font-size-xs)' }}>
+            ⭐ {locale === 'ar' ? 'آراء عملائنا' : 'Client Testimonials'}
+          </span>
+          <h2 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '0.8rem' }}>
+            {t('reviews.subtitle')}
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.8rem', fontSize: '0.95rem', lineHeight: '1.6' }}>
+            {t('reviews.readWrite')}
+          </p>
+          <Link 
+            href="/reviews" 
+            className="btn btn-primary" 
+            style={{ 
+              padding: '12px 36px', 
+              fontSize: '0.95rem', 
+              fontWeight: '700',
+              borderRadius: '30px', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '8px',
+              boxShadow: '0 4px 18px rgba(201, 162, 39, 0.35)'
+            }}
+          >
+            ⭐ {locale === 'ar' ? 'اقرأ آراء عملائنا أو شارك تجربتك' : 'Read Client Reviews & Share Your Experience'}
+          </Link>
         </div>
       </section>
       </LazySection>
@@ -1184,23 +988,12 @@ export default function Home() {
             </ul>
           </div>
 
-          {/* Column 4: Join Us (وظائف) & Payment Methods */}
+          {/* Column 4: Payment Methods */}
           <div>
             <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#ffffff', marginBottom: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {t('footer.joinUs')}
-            </h4>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: 0, listStyle: 'none', marginBottom: '1.5rem' }}>
-              <li>
-                <Link href="/agent/login" style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'var(--font-size-sm)', textDecoration: 'none', transition: 'color var(--transition-fast)' }} className="footer-link">
-                  {t('footer.partnersProfile')}
-                </Link>
-              </li>
-            </ul>
-
-            <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
               {t('footer.paymentMethods')}
             </h4>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', margin: 0 }}>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', margin: 0, lineHeight: 1.6 }}>
               {t('footer.paymentMethodsDesc')}
             </p>
           </div>
