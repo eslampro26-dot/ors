@@ -7,7 +7,7 @@ import { getReviews, addReview, getSocialMedia } from '@/lib/db';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSettings, getPolicyText } from '@/hooks/useSettings';
 import TranslatedText from '@/components/TranslatedText';
-import TrustBadges from '@/components/TrustBadges';
+
 
 const CONTENT_FALLBACKS = {
   vision: {
@@ -756,8 +756,6 @@ export default function ReviewsPage() {
         </div>
       </section>
 
-      {/* Trust Badges */}
-      <TrustBadges variant="default" showTitle={false} />
 
 
       {/* Back Button */}
