@@ -2,6 +2,7 @@
 
 import { useCurrency } from '@/context/CurrencyContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { EUR_TO_EGP_RATE } from '@/lib/currency';
 
 /**
  * Renders an amount in the active currency with its approximate EGP equivalent.
@@ -23,7 +24,7 @@ export default function DualPrice({
   const num = Number(amount) || 0;
   // If base price was already marked as EGP, calculate accordingly, otherwise treat base as EUR
   const isBaseEgp = baseCurrency === 'EGP' || baseCurrency === 'ج.م';
-  const effectiveEur = isBaseEgp ? (num / (rates?.EGP || 53.5)) : num;
+  const effectiveEur = isBaseEgp ? (num / (rates?.EGP || EUR_TO_EGP_RATE)) : num;
 
   const dual = formatDual(effectiveEur, isAr);
 

@@ -48,7 +48,11 @@ export function CurrencyProvider({ children }) {
       }
     }
     fetchRates();
-    return () => { isMounted = false; };
+    const interval = setInterval(fetchRates, 60 * 60 * 1000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   // 3. Change Currency Handler

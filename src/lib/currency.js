@@ -45,7 +45,7 @@ export const SUPPORTED_CURRENCIES = {
 };
 
 // EGP checkout prices use the business's fixed EUR conversion rate.
-export const EUR_TO_EGP_RATE = 55;
+export const EUR_TO_EGP_RATE = 60.5;
 
 // Fallback exchange rates relative to 1 EUR; EGP uses the fixed business rate above.
 export const DEFAULT_EXCHANGE_RATES = {
@@ -74,11 +74,11 @@ export function convertFromEur(amountEur, targetCurrency = 'EUR', rates = DEFAUL
  */
 export function calculateEgpSettlement(amount, fromCurrency = 'EUR', rates = DEFAULT_EXCHANGE_RATES) {
   const num = Number(amount) || 0;
-  if (num <= 0) return { egpAmount: 0, appliedRate: rates.EGP || 53.5 };
+  if (num <= 0) return { egpAmount: 0, appliedRate: rates.EGP || EUR_TO_EGP_RATE };
 
   const currentRates = { ...DEFAULT_EXCHANGE_RATES, ...rates };
   const fromRate = currentRates[fromCurrency] || 1.0;
-  const egpRate = currentRates.EGP || 53.5;
+  const egpRate = currentRates.EGP || EUR_TO_EGP_RATE;
 
   // Convert to EUR base first, then to EGP
   const amountInEur = fromCurrency === 'EUR' ? num : num / fromRate;
