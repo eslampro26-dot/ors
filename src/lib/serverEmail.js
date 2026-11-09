@@ -201,10 +201,10 @@ export function buildBookingInvoiceHTML(data) {
           <!-- Parties -->
           <div style="font-size: 12px; color: #c9d1d9; background: rgba(255,255,255,0.02); border: 1px solid #21262d; border-radius: 6px; padding: 10px; margin-bottom: 14px;">
             ${isAr ? `
-            <p style="margin: 0 0 6px 0;"><strong>الطرف الأول:</strong> شركة أورلوكسوس لتنظيم الرحلات والخدمات السياحية (ORLUXUS) — المقر: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533.</p>
+            <p style="margin: 0 0 6px 0;"><strong>الطرف الأول:</strong> شركة أورلوكسوس (ORLUXUS MARKETING AND BRANDING) — المقر: الدور الثالث، عمارة 11، خلف بيتك، ش تقسيم طريق النصر - 111، الغردقة، البحر الأحمر — رقم التسجيل الضريبي: 781-373-557.</p>
             <p style="margin: 0;"><strong>الطرف الثاني (العميل):</strong> ${(data.electronicSignature?.name || customerName || 'العميل المحترم')} — البريد الإلكتروني: ${(data.electronicSignature?.email || email || 'N/A')}${phone ? ` — الهاتف: ${phone}` : ''}.</p>
             ` : `
-            <p style="margin: 0 0 6px 0;"><strong>First Party (Company):</strong> ORLUXUS Luxury Tourism &amp; Experiences — Registered Address: Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt.</p>
+            <p style="margin: 0 0 6px 0;"><strong>First Party (Company):</strong> ORLUXUS MARKETING &amp; BRANDING — Registered Address: 3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt — Tax Reg. No: 781-373-557.</p>
             <p style="margin: 0;"><strong>Second Party (Client):</strong> ${(data.electronicSignature?.name || customerName || 'Valued Guest')} — Email: ${(data.electronicSignature?.email || email || 'N/A')}${phone ? ` — Phone: ${phone}` : ''}.</p>
             `}
           </div>
@@ -292,7 +292,7 @@ export function buildBookingInvoiceHTML(data) {
               <td style="vertical-align: top; width: 50%;">
                 <span style="color: #8b949e; display: block; font-size: 11px; margin-bottom: 3px;">${isAr ? 'توقيع الطرف الأول (الشركة):' : 'First Party Signature:'}</span>
                 <strong style="color: #d4af37; font-size: 13px;">ORLUXUS MARKETING &amp; BRANDING</strong>
-                <span style="display: block; color: #8b949e; font-size: 10px; margin-top: 2px;">${isAr ? 'مقر الشركة: Taksim El-Nasr, Hurghada 1, Red Sea' : 'Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533'}</span>
+                <span style="display: block; color: #8b949e; font-size: 10px; margin-top: 2px;">${isAr ? 'مقر الشركة: 3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada • س.ض: 781-373-557' : '3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada • Tax ID: 781-373-557'}</span>
               </td>
               <td style="vertical-align: top; text-align: ${isAr ? 'left' : 'right'}; width: 50%;">
                 <span style="color: #8b949e; display: block; font-size: 11px; margin-bottom: 3px;">${isAr ? 'توقيع الطرف الثاني (العميل):' : 'Second Party Digital Signature:'}</span>
@@ -308,7 +308,7 @@ export function buildBookingInvoiceHTML(data) {
     <div class="footer">
       <p style="margin: 0 0 6px 0; font-weight: bold; color: #f0f6fc;">ORLUXUS GROUP Ltd. • Verified Travel &amp; Excursions Partner</p>
       <p style="margin: 0 0 6px 0;">
-        📍 <a href="https://maps.app.goo.gl/7tsNKEHJ8cEBcR9Q6" target="_blank" style="color: #d4af37; text-decoration: underline;">Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533</a>
+        📍 <a href="https://maps.app.goo.gl/7tsNKEHJ8cEBcR9Q6" target="_blank" style="color: #d4af37; text-decoration: underline;">3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea</a>
       </p>
       <p style="margin: 0; font-size: 11px; color: #8b949e;">This is an automated official booking voucher and digital contract agreement. Please keep this email as your valid digital ticket upon arrival.</p>
     </div>

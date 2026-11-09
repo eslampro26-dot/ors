@@ -430,7 +430,7 @@ export default function LegalPoliciesModal({
           flexWrap: 'wrap'
         }}>
           <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>
-            🔒 {ui.lawBadge || 'ORLUXUS Official Verified Digital Contract Record'}
+            🔒 {ui.lawBadge || 'ORLUXUS Official Verified Digital Contract Record'} • {isRtl ? 'س.ض: 781-373-557' : 'Tax ID: 781-373-557'}
           </span>
 
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>

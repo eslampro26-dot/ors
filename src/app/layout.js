@@ -83,10 +83,12 @@ export default async function RootLayout({ children, params }) {
               "email": "info@orluxus.com",
               "address": {
                 "@type": "PostalAddress",
-                "addressLocality": "Sharm El Sheikh",
-                "addressRegion": "South Sinai",
+                "streetAddress": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111",
+                "addressLocality": "Hurghada",
+                "addressRegion": "Red Sea",
                 "addressCountry": "EG"
               },
+              "taxID": "781-373-557",
               "sameAs": [
                 "https://facebook.com/orluxus",
                 "https://www.tiktok.com/@orluxus",

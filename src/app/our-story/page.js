@@ -27,8 +27,8 @@ const CONTENT_FALLBACKS = {
     en: 'Our team consists of professional tour guides and local experts trained to the highest hospitality standards.'
   },
   legalCompany: {
-    ar: 'ORLUXUS هي شركة سياحية متخصصة في تقديم وتنظيم أرقى تجارب السياحة الفاخرة والرحلات البحرية في البحر الأحمر (الغردقة، شرم الشيخ، مرسى علم، والساحل الشمالي). نحرص على تقديم أعلى معايير الجودة والضيافة لضيوفنا الكرام.',
-    en: 'ORLUXUS is a premier luxury tourism and travel experiences provider specializing in luxury Red Sea excursions, private yachts, and bespoke tours across Hurghada, Sharm El-Sheikh, Marsa Alam, and the North Coast.'
+    ar: 'ORLUXUS (أورلوكسوس ماركتينج اند براندينج) هي شركة مسجلة رسمياً برقم تسجيل ضريبي 781-373-557، متخصصة في تقديم وتنظيم أرقى تجارب السياحة الفاخرة والرحلات البحرية في البحر الأحمر (الغردقة، شرم الشيخ، مرسى علم، والساحل الشمالي). العنوان: الدور الثالث، عمارة 11، خلف بيتك، ش تقسيم طريق النصر - 111، الغردقة، البحر الأحمر.',
+    en: 'ORLUXUS (ORLUXUS MARKETING AND BRANDING) is an officially registered entity with Tax Registration No. 781-373-557, specializing in luxury Red Sea excursions, private yachts, and bespoke tours across Hurghada, Sharm El-Sheikh, Marsa Alam, and the North Coast. Address: 3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea.'
   },
   legalCancellation: {
     ar: 'يمكن إلغاء الحجز مجاناً قبل 48 ساعة من موعد الرحلة. في حال الإلغاء المتأخر أو عدم الحضور، يتم تطبيق رسوم إلغاء تعادل قيمة الليلة الأولى أو 50% من قيمة الرحلة حسب نوع البرنامج.',
@@ -258,8 +258,14 @@ export default function OurStoryPage() {
                     icon: '📍',
                     label: locale === 'ar' ? 'العنوان' : 'Address',
                     value: locale === 'ar'
-                      ? 'تقسيم النصر، الغردقة 1، محافظة البحر الأحمر'
-                      : 'Taksim El-Nasr, Hurghada 1, Red Sea Governorate'
+                      ? 'الدور الثالث، عمارة 11، خلف بيتك، ش تقسيم طريق النصر - 111، الغردقة، البحر الأحمر'
+                      : '3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea'
+                  },
+                  {
+                    icon: '📜',
+                    label: locale === 'ar' ? 'رقم التسجيل الضريبي' : 'Tax Registration No.',
+                    value: '781-373-557',
+                    highlight: true
                   },
                   {
                     icon: '📧',

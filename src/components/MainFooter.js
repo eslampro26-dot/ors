@@ -167,9 +167,31 @@ export default function MainFooter() {
             >
               <span style={{ fontSize: '1rem', lineHeight: 1, flexShrink: 0 }}>📍</span>
               <span style={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}>
-                {siteSettings?.companyAddress || 'Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533'}
+                {siteSettings?.companyAddress || (locale === 'ar' ? 'الدور الثالث، عمارة 11، خلف بيتك، ش تقسيم طريق النصر - 111، الغردقة، البحر الأحمر' : '3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea')}
               </span>
             </a>
+
+            {/* Tax Registration Number (البطاقة الضريبية) */}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.82rem',
+              color: 'rgba(255,255,255,0.85)',
+              marginBottom: '1rem',
+              background: 'rgba(212, 175, 55, 0.08)',
+              border: '1px solid rgba(212, 175, 55, 0.25)',
+              padding: '5px 12px',
+              borderRadius: '6px'
+            }}>
+              <span>📜</span>
+              <span>
+                {locale === 'ar' ? 'رقم التسجيل الضريبي: ' : 'Tax Reg. No: '}
+                <strong style={{ color: 'var(--gold-400)', fontFamily: 'monospace', letterSpacing: '0.5px' }}>
+                  781-373-557
+                </strong>
+              </span>
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
               <a 
                 href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`} 
@@ -315,7 +337,7 @@ export default function MainFooter() {
           position: 'relative',
           zIndex: 2
         }}>
-          <span>{t('footer.copyright', { year: new Date().getFullYear(), siteName })}</span>
+          <span>{t('footer.copyright', { year: new Date().getFullYear(), siteName })} • {locale === 'ar' ? 'س.ض: 781-373-557' : 'Tax ID: 781-373-557'}</span>
           <span>{t('common.designedBy')}</span>
         </div>
       </footer>

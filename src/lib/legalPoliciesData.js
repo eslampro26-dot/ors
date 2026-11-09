@@ -95,7 +95,8 @@ export const LEGAL_UI = {
     "thArticle": "المادة القانونية",
     "thPurpose": "الأثر القانوني والتحصين",
     "footerCompany": "ORLUXUS MARKETING AND BRANDING",
-    "footerAddress": "تقسيم النصر، الغردقة 1، محافظة البحر الأحمر، جمهورية مصر العربية"
+    "footerAddress": "الدور الثالث، عمارة 11، خلف بيتك، ش تقسيم طريق النصر - 111، الغردقة، البحر الأحمر",
+    "taxNumber": "781-373-557"
   },
   "en": {
     "portalBadge": "Official Legal Portal • ORLUXUS",
@@ -124,7 +125,7 @@ export const LEGAL_UI = {
     "thArticle": "Article",
     "thPurpose": "Legal Authority & Effect",
     "footerCompany": "ORLUXUS MARKETING AND BRANDING",
-    "footerAddress": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+    "footerAddress": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
   },
   "de": {
     "portalBadge": "Offizielles Rechtsportal • ORLUXUS",
@@ -153,7 +154,7 @@ export const LEGAL_UI = {
     "thArticle": "Artikel",
     "thPurpose": "Rechtswirkung & Bestimmung",
     "footerCompany": "ORLUXUS MARKETING AND BRANDING",
-    "footerAddress": "Taksim El-Nasr, Hurghada 1, Gouvernement Rotes Meer 1966533, Ägypten"
+    "footerAddress": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Rotes Meer, Ägypten"
   },
   "fr": {
     "portalBadge": "Portail Juridique Officiel • ORLUXUS",
@@ -182,7 +183,7 @@ export const LEGAL_UI = {
     "thArticle": "Article",
     "thPurpose": "Portée et effet juridique",
     "footerCompany": "ORLUXUS MARKETING AND BRANDING",
-    "footerAddress": "Taksim El-Nasr, Hurghada 1, Gouvernorat de la Mer Rouge 1966533, Égypte"
+    "footerAddress": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Mer Rouge, Égypte"
   },
   "es": {
     "portalBadge": "Portal Legal Oficial • ORLUXUS",
@@ -211,7 +212,7 @@ export const LEGAL_UI = {
     "thArticle": "Artículo",
     "thPurpose": "Efecto legal y protección",
     "footerCompany": "ORLUXUS MARKETING AND BRANDING",
-    "footerAddress": "Taksim El-Nasr, Hurghada 1, Gobernación del Mar Rojo 1966533, Egipto"
+    "footerAddress": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Mar Rojo, Egipto"
   },
   "it": {
     "portalBadge": "Portale Legale Ufficiale • ORLUXUS",
@@ -240,7 +241,7 @@ export const LEGAL_UI = {
     "thArticle": "Articolo",
     "thPurpose": "Efficacia giuridica e tutela",
     "footerCompany": "ORLUXUS MARKETING AND BRANDING",
-    "footerAddress": "Taksim El-Nasr, Hurghada 1, Governatorato del Mar Rosso 1966533, Egitto"
+    "footerAddress": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Mar Rosso, Egitto"
   },
   "ru": {
     "portalBadge": "Официальный правовой портал • ORLUXUS",
@@ -298,7 +299,7 @@ export const LEGAL_UI = {
     "thArticle": "Madde",
     "thPurpose": "Yasal Etki ve Koruma",
     "footerCompany": "ORLUXUS MARKETING AND BRANDING",
-    "footerAddress": "Taksim El-Nasr, Hurgada 1, Kızıldeniz İli 1966533, Mısır"
+    "footerAddress": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurgada, Kızıldeniz İli, Mısır"
   },
   "zh": {
     "portalBadge": "官方法律门户 • ORLUXUS",
@@ -327,7 +328,7 @@ export const LEGAL_UI = {
     "thArticle": "法定条款",
     "thPurpose": "法律效力与保障",
     "footerCompany": "ORLUXUS MARKETING AND BRANDING",
-    "footerAddress": "Taksim El-Nasr, 赫尔格达 1, 红海省 1966533, 埃及"
+    "footerAddress": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, 赫尔格达 1, 红海省, 埃及"
   },
   "ja": {
     "portalBadge": "公式法的ポータル • ORLUXUS",
@@ -356,7 +357,7 @@ export const LEGAL_UI = {
     "thArticle": "該当条項",
     "thPurpose": "法的効力および趣旨",
     "footerCompany": "ORLUXUS MARKETING AND BRANDING",
-    "footerAddress": "Taksim El-Nasr, フルガダ 1, 紅海県 1966533, エジプト"
+    "footerAddress": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, フルガダ 1, 紅海県, エジプト"
   }
 };
 
@@ -442,7 +443,8 @@ export const TERMS_AND_CONDITIONS_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "تقسيم النصر، الغردقة 1، محافظة البحر الأحمر، جمهورية مصر العربية"
+      "address": "الدور الثالث، عمارة 11، خلف بيتك، ش تقسيم طريق النصر - 111، الغردقة، البحر الأحمر",
+      "taxId": "781-373-557"
     }
   },
   "en": {
@@ -527,7 +529,7 @@ export const TERMS_AND_CONDITIONS_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "de": {
@@ -612,7 +614,7 @@ export const TERMS_AND_CONDITIONS_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "fr": {
@@ -697,7 +699,7 @@ export const TERMS_AND_CONDITIONS_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "es": {
@@ -782,7 +784,7 @@ export const TERMS_AND_CONDITIONS_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "it": {
@@ -867,7 +869,7 @@ export const TERMS_AND_CONDITIONS_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "ru": {
@@ -952,7 +954,7 @@ export const TERMS_AND_CONDITIONS_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "tr": {
@@ -1037,7 +1039,7 @@ export const TERMS_AND_CONDITIONS_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "zh": {
@@ -1122,7 +1124,7 @@ export const TERMS_AND_CONDITIONS_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "ja": {
@@ -1207,7 +1209,7 @@ export const TERMS_AND_CONDITIONS_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   }
 };
@@ -1344,7 +1346,8 @@ export const CANCELLATION_POLICY_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "تقسيم النصر، الغردقة 1، محافظة البحر الأحمر، جمهورية مصر العربية"
+      "address": "الدور الثالث، عمارة 11، خلف بيتك، ش تقسيم طريق النصر - 111، الغردقة، البحر الأحمر",
+      "taxId": "781-373-557"
     }
   },
   "en": {
@@ -1486,7 +1489,7 @@ export const CANCELLATION_POLICY_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "de": {
@@ -1628,7 +1631,7 @@ export const CANCELLATION_POLICY_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "fr": {
@@ -1770,7 +1773,7 @@ export const CANCELLATION_POLICY_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "es": {
@@ -1912,7 +1915,7 @@ export const CANCELLATION_POLICY_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "it": {
@@ -2054,7 +2057,7 @@ export const CANCELLATION_POLICY_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "ru": {
@@ -2196,7 +2199,7 @@ export const CANCELLATION_POLICY_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "tr": {
@@ -2338,7 +2341,7 @@ export const CANCELLATION_POLICY_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "zh": {
@@ -2480,7 +2483,7 @@ export const CANCELLATION_POLICY_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   },
   "ja": {
@@ -2622,7 +2625,7 @@ export const CANCELLATION_POLICY_DATA = {
     ],
     "footer": {
       "company": "ORLUXUS MARKETING AND BRANDING",
-      "address": "Taksim El-Nasr, Hurghada 1, Red Sea Governorate 1966533, Egypt"
+      "address": "3rd Floor, Building 11, Behind Beitak, Taqseem Tareeq El Nasr St - 111, Hurghada, Red Sea, Egypt"
     }
   }
 };
