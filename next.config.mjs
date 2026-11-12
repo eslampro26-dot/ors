@@ -22,6 +22,14 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // Service Worker & Manifest: always revalidate so PWA updates arrive immediately
+        source: '/(sw\\.js|manifest\\.json)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+        ],
+      },
+      {
         // Static assets: aggressive caching for CDN
         source: '/:path*(\\.ico|\\.png|\\.jpg|\\.jpeg|\\.gif|\\.svg|\\.webp|\\.avif|\\.woff2|\\.woff|\\.ttf|\\.eot)',
         headers: [
