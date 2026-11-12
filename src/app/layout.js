@@ -71,6 +71,12 @@ export default async function RootLayout({ children, params }) {
         <meta name="mobile-web-app-capable" content="yes" />
         <script
           nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `window.__deferredPwaPrompt=null;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__deferredPwaPrompt=e;});`
+          }}
+        />
+        <script
+          nonce={nonce}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({

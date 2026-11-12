@@ -147,48 +147,53 @@ export default function InstallAppBanner() {
       return;
     }
 
-    // 2. Check if already installed (localStorage flag)
-    if (localStorage.getItem('orluxus_pwa_installed') === 'true') {
-      setIsInstalled(true);
-      return;
-    }
+    // 2. Check if user dismissed auto-banner recently (within last 3 days)
+    let isRecentlyDismissed = false;
+    try {
+      const dismissedUntil = localStorage.getItem('orluxus_pwa_dismissed');
+      if (dismissedUntil && Number(dismissedUntil) > Date.now()) {
+        isRecentlyDismissed = true;
+      }
+    } catch (e) { /* ignore */ }
 
-    // 3. Check if user dismissed prompt recently (within last 3 days)
-    const dismissedUntil = localStorage.getItem('orluxus_pwa_dismissed');
-    if (dismissedUntil && Number(dismissedUntil) > Date.now()) {
-      return;
-    }
-
-    // 4. Detect iOS Safari
+    // 3. Detect iOS / Mobile
     const ua = window.navigator.userAgent.toLowerCase();
-    const isIosDevice = /iphone|ipad|ipod/.test(ua) && !ua.includes('crios') && !ua.includes('fxios');
+    const isIosDevice = /iphone|ipad|ipod/.test(ua);
     const isSafariBrowser = /safari/.test(ua) && !/chrome/.test(ua) && !/crios/.test(ua) && !/fxios/.test(ua);
     setIsIOS(isIosDevice);
     setIsSafari(isSafariBrowser);
 
-    // iOS in non-Safari browser (Chrome for iOS, Firefox for iOS, etc)
-    const isIosNonSafari = /iphone|ipad|ipod/.test(ua) && !isSafariBrowser;
+    // 4. Pick up early-captured beforeinstallprompt if it fired before React hydrated
+    let promptFired = false;
+    if (window.__deferredPwaPrompt) {
+      promptFired = true;
+      setDeferredPrompt(window.__deferredPwaPrompt);
+      if (!isRecentlyDismissed) {
+        setTimeout(() => setIsVisible(true), 2000);
+      }
+    }
 
     // 5. Listen for Chrome/Android "beforeinstallprompt"
-    let promptFired = false;
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       promptFired = true;
+      window.__deferredPwaPrompt = e;
       setDeferredPrompt(e);
-      setTimeout(() => {
-        setIsVisible(true);
-      }, 2500);
+      if (!isRecentlyDismissed) {
+        setTimeout(() => {
+          setIsVisible(true);
+        }, 2500);
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // 6. Fallback: if mobile and beforeinstallprompt didn't fire after 4 seconds
+    // 6. Fallback: if mobile and beforeinstallprompt didn't fire after 3.5 seconds
     const isMobile = /android|iphone|ipad|ipod|mobile/i.test(ua);
     const fallbackTimer = setTimeout(() => {
-      if (!promptFired && (isMobile || isIosDevice) && !isStandalone) {
+      if (!isRecentlyDismissed && !promptFired && (isMobile || isIosDevice)) {
         setIsVisible(true);
-        // Auto-show iOS guide for iOS Safari users
-        if (isIosDevice && isSafariBrowser) {
+        if (isIosDevice) {
           setShowIOSGuide(true);
         }
       }
@@ -199,16 +204,38 @@ export default function InstallAppBanner() {
       setIsInstalled(true);
       setIsVisible(false);
       setDeferredPrompt(null);
-      try {
-        localStorage.setItem('orluxus_pwa_installed', 'true');
-      } catch (e) { /* ignore */ }
+      window.__deferredPwaPrompt = null;
     };
 
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // 8. Custom trigger listener
-    const handleCustomTrigger = () => {
+    // 8. Custom trigger listener (always active even if user dismissed auto-banner before)
+    const handleCustomTrigger = async () => {
+      const activePrompt = window.__deferredPwaPrompt;
+      if (activePrompt) {
+        try {
+          activePrompt.prompt();
+          const { outcome } = await activePrompt.userChoice;
+          window.__deferredPwaPrompt = null;
+          setDeferredPrompt(null);
+          if (outcome === 'accepted') {
+            setIsVisible(false);
+            setIsInstalled(true);
+            return;
+          }
+        } catch (err) {
+          console.error('PWA install error:', err);
+        }
+      }
+      // Show banner with guide open immediately so user always sees actionable steps
       setIsVisible(true);
+      if (isIosDevice) {
+        setShowIOSGuide(true);
+        setShowAndroidTip(false);
+      } else {
+        setShowAndroidTip(true);
+        setShowIOSGuide(false);
+      }
     };
     window.addEventListener('open-pwa-install', handleCustomTrigger);
 
@@ -221,28 +248,26 @@ export default function InstallAppBanner() {
   }, []);
 
   const handleInstallClick = useCallback(async () => {
-    if (deferredPrompt) {
+    const activePrompt = deferredPrompt || (typeof window !== 'undefined' ? window.__deferredPwaPrompt : null);
+    if (activePrompt) {
       // Native Chrome/Android installation prompt
       try {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
+        activePrompt.prompt();
+        const { outcome } = await activePrompt.userChoice;
         if (outcome === 'accepted') {
           setIsVisible(false);
           setIsInstalled(true);
-          try { localStorage.setItem('orluxus_pwa_installed', 'true'); } catch (e) { /* */ }
         }
         setDeferredPrompt(null);
+        if (typeof window !== 'undefined') window.__deferredPwaPrompt = null;
       } catch (err) {
-        // If native prompt fails, show manual instructions
         console.error('PWA install error:', err);
         setShowAndroidTip(true);
       }
     } else if (isIOS) {
-      // Toggle iOS instruction guide
       setShowIOSGuide((prev) => !prev);
       setShowAndroidTip(false);
     } else {
-      // Fallback for Android/Desktop browsers without deferred prompt
       setShowAndroidTip((prev) => !prev);
       setShowIOSGuide(false);
     }
