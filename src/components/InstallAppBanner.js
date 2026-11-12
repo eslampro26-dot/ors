@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 
 const TEXTS = {
@@ -11,11 +11,21 @@ const TEXTS = {
     rating: '4.9 ★★★★★ (تطبيق معتمد)',
     installBtn: '📲 تثبيت التطبيق الآن',
     dismissBtn: 'لاحقاً',
-    installedMsg: 'تم تثبيت التطبيق بنجاح!',
-    iosTitle: 'لتثبيت التطبيق على آيفون:',
-    iosStep1: '1. اضغط على زر المشاركة (Share ⎋) في أسفل المتصفح',
-    iosStep2: '2. مرر للأسفل واختر "إضافة إلى الشاشة الرئيسية" (Add to Home Screen ➕)',
-    androidFallback: 'اضغط على قائمة المتصفح (⋮) ثم اختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"',
+    installedMsg: '✅ تم تثبيت التطبيق بنجاح!',
+    iosTitle: '📱 لتثبيت التطبيق على آيفون:',
+    iosStep1: '1. اضغط على زر المشاركة',
+    iosStep1Icon: '⎋',
+    iosStep1Desc: 'في أسفل شاشة Safari',
+    iosStep2: '2. اختر "إضافة إلى الشاشة الرئيسية"',
+    iosStep2Icon: '➕',
+    iosStep2Desc: 'مرر للأسفل في القائمة',
+    iosStep3: '3. اضغط "إضافة" في الأعلى',
+    iosStep3Icon: '✓',
+    iosStep3Desc: 'سيظهر التطبيق على شاشتك',
+    androidFallback: '📋 لتثبيت التطبيق:',
+    androidStep1: '1. اضغط على قائمة المتصفح (⋮) في الأعلى',
+    androidStep2: '2. اختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"',
+    androidStep3: '3. اضغط "تثبيت" للتأكيد',
   },
   en: {
     title: 'ORLUXUS App',
@@ -24,11 +34,21 @@ const TEXTS = {
     rating: '4.9 ★★★★★ (Verified App)',
     installBtn: '📲 Install App Now',
     dismissBtn: 'Not Now',
-    installedMsg: 'App installed successfully!',
-    iosTitle: 'To install on iPhone / iPad:',
-    iosStep1: '1. Tap the Share button (⎋) at the bottom of Safari',
-    iosStep2: '2. Scroll down and tap "Add to Home Screen" (➕)',
-    androidFallback: 'Tap your browser menu (⋮) and select "Install app" or "Add to Home screen"',
+    installedMsg: '✅ App installed successfully!',
+    iosTitle: '📱 To install on iPhone / iPad:',
+    iosStep1: '1. Tap the Share button',
+    iosStep1Icon: '⎋',
+    iosStep1Desc: 'at the bottom of Safari',
+    iosStep2: '2. Select "Add to Home Screen"',
+    iosStep2Icon: '➕',
+    iosStep2Desc: 'scroll down in the menu',
+    iosStep3: '3. Tap "Add" at the top right',
+    iosStep3Icon: '✓',
+    iosStep3Desc: 'The app will appear on your home screen',
+    androidFallback: '📋 To install the app:',
+    androidStep1: '1. Tap the browser menu (⋮) at the top',
+    androidStep2: '2. Select "Install app" or "Add to Home screen"',
+    androidStep3: '3. Tap "Install" to confirm',
   },
   de: {
     title: 'ORLUXUS App',
@@ -37,11 +57,21 @@ const TEXTS = {
     rating: '4.9 ★★★★★',
     installBtn: '📲 App jetzt installieren',
     dismissBtn: 'Später',
-    installedMsg: 'App erfolgreich installiert!',
-    iosTitle: 'Installation auf iPhone:',
-    iosStep1: '1. Tippen Sie auf Teilen (⎋) in Safari',
-    iosStep2: '2. Wählen Sie "Zum Home-Bildschirm" (➕)',
-    androidFallback: 'Tippen Sie auf das Menü (⋮) und wählen Sie "App installieren"',
+    installedMsg: '✅ App erfolgreich installiert!',
+    iosTitle: '📱 Installation auf iPhone:',
+    iosStep1: '1. Tippen Sie auf Teilen',
+    iosStep1Icon: '⎋',
+    iosStep1Desc: 'unten in Safari',
+    iosStep2: '2. Wählen Sie "Zum Home-Bildschirm"',
+    iosStep2Icon: '➕',
+    iosStep2Desc: 'scrollen Sie im Menü',
+    iosStep3: '3. Tippen Sie auf "Hinzufügen"',
+    iosStep3Icon: '✓',
+    iosStep3Desc: 'Die App erscheint auf Ihrem Bildschirm',
+    androidFallback: '📋 So installieren Sie die App:',
+    androidStep1: '1. Tippen Sie auf das Menü (⋮) oben',
+    androidStep2: '2. Wählen Sie "App installieren"',
+    androidStep3: '3. Tippen Sie auf "Installieren"',
   },
   fr: {
     title: 'Application ORLUXUS',
@@ -50,11 +80,21 @@ const TEXTS = {
     rating: '4.9 ★★★★★',
     installBtn: '📲 Installer l\'application',
     dismissBtn: 'Plus tard',
-    installedMsg: 'Application installée avec succès !',
-    iosTitle: 'Installation sur iPhone :',
-    iosStep1: '1. Appuyez sur Partager (⎋) dans Safari',
-    iosStep2: '2. Sélectionnez "Sur l\'écran d\'accueil" (➕)',
-    androidFallback: 'Appuyez sur le menu (⋮) et choisissez "Installer l\'application"',
+    installedMsg: '✅ Application installée avec succès !',
+    iosTitle: '📱 Installation sur iPhone :',
+    iosStep1: '1. Appuyez sur Partager',
+    iosStep1Icon: '⎋',
+    iosStep1Desc: 'en bas de Safari',
+    iosStep2: '2. Sélectionnez "Sur l\'écran d\'accueil"',
+    iosStep2Icon: '➕',
+    iosStep2Desc: 'faites défiler le menu',
+    iosStep3: '3. Appuyez sur "Ajouter"',
+    iosStep3Icon: '✓',
+    iosStep3Desc: 'L\'app apparaîtra sur votre écran',
+    androidFallback: '📋 Pour installer l\'application :',
+    androidStep1: '1. Appuyez sur le menu (⋮) en haut',
+    androidStep2: '2. Choisissez "Installer l\'application"',
+    androidStep3: '3. Appuyez sur "Installer"',
   },
   ru: {
     title: 'Приложение ORLUXUS',
@@ -63,11 +103,21 @@ const TEXTS = {
     rating: '4.9 ★★★★★',
     installBtn: '📲 Установить приложение',
     dismissBtn: 'Позже',
-    installedMsg: 'Приложение успешно установлено!',
-    iosTitle: 'Установка на iPhone:',
-    iosStep1: '1. Нажмите "Поделиться" (⎋) в Safari',
-    iosStep2: '2. Выберите "На экран «Домой»" (➕)',
-    androidFallback: 'Нажмите меню (⋮) и выберите "Установить приложение"',
+    installedMsg: '✅ Приложение успешно установлено!',
+    iosTitle: '📱 Установка на iPhone:',
+    iosStep1: '1. Нажмите "Поделиться"',
+    iosStep1Icon: '⎋',
+    iosStep1Desc: 'внизу Safari',
+    iosStep2: '2. Выберите "На экран «Домой»"',
+    iosStep2Icon: '➕',
+    iosStep2Desc: 'прокрутите меню вниз',
+    iosStep3: '3. Нажмите "Добавить"',
+    iosStep3Icon: '✓',
+    iosStep3Desc: 'Приложение появится на экране',
+    androidFallback: '📋 Для установки:',
+    androidStep1: '1. Нажмите меню (⋮) вверху',
+    androidStep2: '2. Выберите "Установить приложение"',
+    androidStep3: '3. Нажмите "Установить"',
   },
 };
 
@@ -82,6 +132,7 @@ export default function InstallAppBanner() {
   const [showIOSGuide, setShowIOSGuide] = useState(false);
   const [showAndroidTip, setShowAndroidTip] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isSafari, setIsSafari] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -96,22 +147,34 @@ export default function InstallAppBanner() {
       return;
     }
 
-    // 2. Check if user dismissed prompt recently (within last 3 days)
+    // 2. Check if already installed (localStorage flag)
+    if (localStorage.getItem('orluxus_pwa_installed') === 'true') {
+      setIsInstalled(true);
+      return;
+    }
+
+    // 3. Check if user dismissed prompt recently (within last 3 days)
     const dismissedUntil = localStorage.getItem('orluxus_pwa_dismissed');
     if (dismissedUntil && Number(dismissedUntil) > Date.now()) {
       return;
     }
 
-    // 3. Detect iOS Safari
+    // 4. Detect iOS Safari
     const ua = window.navigator.userAgent.toLowerCase();
-    const isIosDevice = /iphone|ipad|ipod/.test(ua);
+    const isIosDevice = /iphone|ipad|ipod/.test(ua) && !ua.includes('crios') && !ua.includes('fxios');
+    const isSafariBrowser = /safari/.test(ua) && !/chrome/.test(ua) && !/crios/.test(ua) && !/fxios/.test(ua);
     setIsIOS(isIosDevice);
+    setIsSafari(isSafariBrowser);
 
-    // 4. Listen for Chrome/Android "beforeinstallprompt"
+    // iOS in non-Safari browser (Chrome for iOS, Firefox for iOS, etc)
+    const isIosNonSafari = /iphone|ipad|ipod/.test(ua) && !isSafariBrowser;
+
+    // 5. Listen for Chrome/Android "beforeinstallprompt"
+    let promptFired = false;
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
+      promptFired = true;
       setDeferredPrompt(e);
-      // Show banner after brief delay
       setTimeout(() => {
         setIsVisible(true);
       }, 2500);
@@ -119,26 +182,31 @@ export default function InstallAppBanner() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // 5. If Android / mobile and beforeinstallprompt didn't fire after 4 seconds (e.g. some browsers),
-    // show our banner anyway so user can trigger installation
+    // 6. Fallback: if mobile and beforeinstallprompt didn't fire after 4 seconds
     const isMobile = /android|iphone|ipad|ipod|mobile/i.test(ua);
     const fallbackTimer = setTimeout(() => {
-      if (isMobile && !isStandalone) {
+      if (!promptFired && (isMobile || isIosDevice) && !isStandalone) {
         setIsVisible(true);
+        // Auto-show iOS guide for iOS Safari users
+        if (isIosDevice && isSafariBrowser) {
+          setShowIOSGuide(true);
+        }
       }
     }, 3500);
 
-    // 6. Listen for appinstalled event
+    // 7. Listen for appinstalled event
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setIsVisible(false);
       setDeferredPrompt(null);
-      localStorage.setItem('orluxus_pwa_installed', 'true');
+      try {
+        localStorage.setItem('orluxus_pwa_installed', 'true');
+      } catch (e) { /* ignore */ }
     };
 
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // 7. Custom trigger listener so any button can open install prompt
+    // 8. Custom trigger listener
     const handleCustomTrigger = () => {
       setIsVisible(true);
     };
@@ -152,30 +220,35 @@ export default function InstallAppBanner() {
     };
   }, []);
 
-  const handleInstallClick = async () => {
+  const handleInstallClick = useCallback(async () => {
     if (deferredPrompt) {
-      // Native Android / Chrome installation prompt
+      // Native Chrome/Android installation prompt
       try {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
           setIsVisible(false);
           setIsInstalled(true);
+          try { localStorage.setItem('orluxus_pwa_installed', 'true'); } catch (e) { /* */ }
         }
         setDeferredPrompt(null);
       } catch (err) {
+        // If native prompt fails, show manual instructions
         console.error('PWA install error:', err);
+        setShowAndroidTip(true);
       }
     } else if (isIOS) {
       // Toggle iOS instruction guide
       setShowIOSGuide((prev) => !prev);
+      setShowAndroidTip(false);
     } else {
-      // Fallback for Android browsers without deferred prompt available
-      setShowAndroidTip(true);
+      // Fallback for Android/Desktop browsers without deferred prompt
+      setShowAndroidTip((prev) => !prev);
+      setShowIOSGuide(false);
     }
-  };
+  }, [deferredPrompt, isIOS]);
 
-  const handleDismiss = () => {
+  const handleDismiss = useCallback(() => {
     setIsVisible(false);
     // Dismiss for 3 days
     const threeDays = Date.now() + 3 * 24 * 60 * 60 * 1000;
@@ -184,9 +257,51 @@ export default function InstallAppBanner() {
     } catch (e) {
       // ignore
     }
-  };
+  }, []);
 
   if (!isVisible || isInstalled) return null;
+
+  const stepBoxStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '8px 10px',
+    background: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: '8px',
+    marginBottom: '6px',
+  };
+
+  const stepIconStyle = {
+    width: '32px',
+    height: '32px',
+    borderRadius: '8px',
+    background: 'rgba(201, 162, 39, 0.2)',
+    border: '1px solid rgba(201, 162, 39, 0.4)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '1.1rem',
+    flexShrink: 0,
+  };
+
+  const stepTextStyle = {
+    flex: 1,
+    fontSize: '0.78rem',
+    color: '#e5e7eb',
+    lineHeight: 1.4,
+  };
+
+  const stepTitleStyle = {
+    fontWeight: '700',
+    color: '#fff',
+    display: 'block',
+  };
+
+  const stepDescStyle = {
+    color: 'rgba(255, 255, 255, 0.6)',
+    display: 'block',
+    fontSize: '0.72rem',
+  };
 
   return (
     <aside
@@ -200,7 +315,7 @@ export default function InstallAppBanner() {
         width: 'calc(100% - 24px)',
         maxWidth: '460px',
         zIndex: 99995,
-        background: 'rgba(10, 14, 26, 0.95)',
+        background: 'rgba(10, 14, 26, 0.96)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         border: '1.5px solid rgba(201, 162, 39, 0.4)',
@@ -280,6 +395,8 @@ export default function InstallAppBanner() {
           <img
             src="/logo_gold_icon.png"
             alt="ORLUXUS"
+            width={56}
+            height={56}
             style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
@@ -318,41 +435,67 @@ export default function InstallAppBanner() {
         </div>
       </div>
 
-      {/* iOS Instructions Dropdown */}
+      {/* iOS Instructions — Step by Step visual guide */}
       {showIOSGuide && (
         <div
           style={{
-            background: 'rgba(255, 255, 255, 0.05)',
+            background: 'rgba(255, 255, 255, 0.04)',
             border: '1px solid rgba(201, 162, 39, 0.3)',
-            borderRadius: '10px',
-            padding: '10px 12px',
+            borderRadius: '12px',
+            padding: '12px',
             marginBottom: '12px',
-            fontSize: '0.78rem',
-            color: '#e5e7eb',
-            lineHeight: 1.5,
           }}
         >
-          <div style={{ fontWeight: '700', color: '#d4aa30', marginBottom: '4px' }}>{t.iosTitle}</div>
-          <div>{t.iosStep1}</div>
-          <div>{t.iosStep2}</div>
+          <div style={{ fontWeight: '700', color: '#d4aa30', marginBottom: '8px', fontSize: '0.82rem' }}>
+            {t.iosTitle}
+          </div>
+          
+          <div style={stepBoxStyle}>
+            <div style={stepIconStyle}>{t.iosStep1Icon}</div>
+            <div style={stepTextStyle}>
+              <span style={stepTitleStyle}>{t.iosStep1}</span>
+              <span style={stepDescStyle}>{t.iosStep1Desc}</span>
+            </div>
+          </div>
+
+          <div style={stepBoxStyle}>
+            <div style={stepIconStyle}>{t.iosStep2Icon}</div>
+            <div style={stepTextStyle}>
+              <span style={stepTitleStyle}>{t.iosStep2}</span>
+              <span style={stepDescStyle}>{t.iosStep2Desc}</span>
+            </div>
+          </div>
+
+          <div style={{...stepBoxStyle, marginBottom: 0}}>
+            <div style={stepIconStyle}>{t.iosStep3Icon}</div>
+            <div style={stepTextStyle}>
+              <span style={stepTitleStyle}>{t.iosStep3}</span>
+              <span style={stepDescStyle}>{t.iosStep3Desc}</span>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Android Browser Menu Tip */}
+      {/* Android/Desktop Browser Menu — Step by Step guide */}
       {showAndroidTip && (
         <div
           style={{
-            background: 'rgba(201, 162, 39, 0.1)',
+            background: 'rgba(201, 162, 39, 0.08)',
             border: '1px solid rgba(201, 162, 39, 0.3)',
-            borderRadius: '10px',
-            padding: '10px 12px',
+            borderRadius: '12px',
+            padding: '12px',
             marginBottom: '12px',
-            fontSize: '0.78rem',
-            color: '#fef3c7',
-            lineHeight: 1.4,
           }}
         >
-          💡 {t.androidFallback}
+          <div style={{ fontWeight: '700', color: '#d4aa30', marginBottom: '8px', fontSize: '0.82rem' }}>
+            {t.androidFallback}
+          </div>
+          
+          <div style={{ fontSize: '0.78rem', color: '#fef3c7', lineHeight: 1.6 }}>
+            <div style={{ marginBottom: '4px' }}>{t.androidStep1}</div>
+            <div style={{ marginBottom: '4px' }}>{t.androidStep2}</div>
+            <div>{t.androidStep3}</div>
+          </div>
         </div>
       )}
 
