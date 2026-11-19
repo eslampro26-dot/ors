@@ -249,16 +249,23 @@ export const internalPackages = [
   {
     id: "beach",
     names: {
-      en: "Beach Packages", ar: "باقات شاطئية شاملة", de: "Strandurlaubspakete", fr: "Formules Plage",
-      es: "Paquetes de Playa", it: "Pacchetti Mare", ru: "Пляжные пакеты", tr: "Plaj Paketleri",
-      zh: "海滩度假套餐", ja: "ビーチパッケージ"
+      en: "Diving Liveaboard", ar: "Diving Liveaboard (رحلات سفاري الغوص)", de: "Tauchsafari (Liveaboard)", fr: "Croisières Plongée (Liveaboard)",
+      es: "Cruceros de Buceo (Liveaboard)", it: "Crociere Subacquee (Liveaboard)", ru: "Дайвинг-сафари (Liveaboard)", tr: "Dalış Safarisi (Liveaboard)",
+      zh: "潜水船宿 (Liveaboard)", ja: "ダイビングクルーズ (Liveaboard)"
     },
     descriptions: {
-      en: "", ar: "", de: "", fr: "",
-      es: "", it: "", ru: "", tr: "",
-      zh: "", ja: ""
+      en: "Premium liveaboard diving safaris in the Red Sea, Brother Islands, Daedalus & Elphinstone",
+      ar: "رحلات سفاري غوص ويخوت مجهزة لأشهر مواقع الغوص بالبحر الأحمر مع مدربين وإقامة كاملة",
+      de: "Erstklassige Tauchsafaris im Roten Meer mit Vollpension",
+      fr: "Croisières de plongée de luxe en Mer Rouge tout compris",
+      es: "Cruceros de buceo y safaris marinos de lujo en el Mar Rojo",
+      it: "Crociere subacquee e safari nel Mar Rosso con istruttori certificati",
+      ru: "Премиальные сафари на яхтах по лучшим дайв-сайтам Красного моря",
+      tr: "Kızıldeniz'in en iyi dalış noktalarında lüks canlı gemi turları",
+      zh: "红海顶级潜水船宿与潜水探险之旅",
+      ja: "紅海の最高峰ダイビングポイントを巡る豪華ダイビングクルーズ"
     },
-    icon: "🏝️", slots: 20
+    icon: "🤿", slots: 20
   },
   {
     id: "entertainment-pkg",

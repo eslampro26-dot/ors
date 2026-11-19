@@ -100,6 +100,8 @@ export default function AdminServices() {
     businessDesc: '',
     vipDesc: '',
     specialRequests: [],
+    // Service Specific Custom Cancellation Policy
+    customCancellationPolicy: '',
     // Hotel Specific System Fields
     hotelRating: '5',
     hotelCity: 'hurghada',
@@ -391,6 +393,19 @@ export default function AdminServices() {
       businessDesc: trip.businessDesc || '',
       vipDesc: trip.vipDesc || '',
       specialRequests: trip.specialRequests || [],
+      customCancellationPolicy: trip.customCancellationPolicy || '',
+      hotelRating: trip.hotelRating || '5',
+      hotelCity: trip.hotelCity || cityId || 'hurghada',
+      hotelAddress: trip.hotelAddress || '',
+      hotelDiscount: trip.hotelDiscount || '',
+      hotelCancellationPolicy: trip.hotelCancellationPolicy || '',
+      hotelRooms: trip.hotelRooms || [
+        { id: 'standard', nameAr: 'غرفة قياسية (Standard Room)', nameEn: 'Standard Room', priceSingle: '', priceDouble: '', descriptionAr: 'شاملة الإفطار وواي فاي مجاني', descriptionEn: 'Breakfast included, Free Wi-Fi' },
+        { id: 'deluxe', nameAr: 'غرفة ديلوكس (Deluxe Room)', nameEn: 'Deluxe Room', priceSingle: '', priceDouble: '', descriptionAr: 'إطلالة جزئية على البحر أو المسبح، إفطار فاخر', descriptionEn: 'Partial sea/pool view, luxury breakfast' },
+        { id: 'sea_view', nameAr: 'غرفة إطلالة بانورامية على البحر (Sea View)', nameEn: 'Sea View Suite', priceSingle: '', priceDouble: '', descriptionAr: 'إطلالة أمامية مباشرة، شرفة خاصة، خدمة غرف VIP', descriptionEn: 'Direct sea view, private balcony, VIP service' },
+        { id: 'family_suite', nameAr: 'جناح عائلي (Family Suite)', nameEn: 'Family Suite', priceSingle: '', priceDouble: '', descriptionAr: 'غرفتان وصالة، شامل الإفطار والعشاء العائلي', descriptionEn: '2 bedrooms + lounge, half board' },
+        { id: 'royal_suite', nameAr: 'جناح ملكي (Royal Suite)', nameEn: 'Royal Suite', priceSingle: '', priceDouble: '', descriptionAr: 'فخامة ملكية، جاكوزي خاص، نقل مجاني من المطار', descriptionEn: 'Royal luxury, private jacuzzi, free airport transfer' }
+      ]
     });
     setModalOpen(true);
   };
@@ -555,6 +570,7 @@ export default function AdminServices() {
         businessDesc: businessDesc || '',
         vipDesc: vipDesc || '',
         specialRequests: specialRequests || [],
+        customCancellationPolicy: formData.customCancellationPolicy || '',
       };
       
       try {
@@ -788,6 +804,7 @@ export default function AdminServices() {
           hotelCity: formData.hotelCity || 'hurghada',
           hotelAddress: formData.hotelAddress || '',
           hotelDiscount: parseFloat(formData.hotelDiscount) || 0,
+          customCancellationPolicy: formData.customCancellationPolicy || formData.hotelCancellationPolicy || '',
           hotelCancellationPolicy: formData.hotelCancellationPolicy || '',
           hotelRooms: (formData.hotelRooms || []).map(r => ({
             id: r.id,
@@ -1609,29 +1626,45 @@ export default function AdminServices() {
 
               {/* Special Requests */}
               {modalType === 'trip' && (
-                <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-                  <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--text-primary)', fontSize: '0.95rem' }}>🎯 Special requests available to customers (select what applies to your trip)</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.5rem' }}>
-                    {specialRequestsOptions.map(req => (
-                      <label key={req.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '0.85rem', padding: '0.4rem 0.5rem', borderRadius: '6px', background: formData.specialRequests.includes(req.id) ? 'rgba(217,119,6,0.1)' : 'transparent', border: formData.specialRequests.includes(req.id) ? '1px solid var(--gold-500)' : '1px solid transparent', transition: 'all 0.15s' }}>
-                        <input
-                          type="checkbox"
-                          checked={formData.specialRequests.includes(req.id)}
-                          onChange={(e) => {
-                            setFormData(prev => ({
-                              ...prev,
-                              specialRequests: e.target.checked
-                                ? [...prev.specialRequests, req.id]
-                                : prev.specialRequests.filter(r => r !== req.id)
-                            }));
-                          }}
-                          style={{ width: '15px', height: '15px', cursor: 'pointer' }}
-                        />
-                        <span>{req.labelEn} ({req.labelAr})</span>
-                      </label>
-                    ))}
+                <>
+                  <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+                    <label style={{ color: 'var(--gold-400)', fontWeight: 'bold' }}>
+                      📜 سياسة الإلغاء والاسترداد الخاصة بهذه الخدمة (اختياري - تظهر للعميل في مرحلة الدفع)
+                    </label>
+                    <textarea
+                      name="customCancellationPolicy"
+                      value={formData.customCancellationPolicy}
+                      onChange={handleInputChange}
+                      placeholder="مثال: إلغاء مجاني حتى 48 ساعة قبل الرحلة، استرداد 50% بعد ذلك..."
+                      className={styles.input}
+                      rows="2"
+                    ></textarea>
                   </div>
-                </div>
+
+                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+                    <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--text-primary)', fontSize: '0.95rem' }}>🎯 Special requests available to customers (select what applies to your trip)</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.5rem' }}>
+                      {specialRequestsOptions.map(req => (
+                        <label key={req.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '0.85rem', padding: '0.4rem 0.5rem', borderRadius: '6px', background: formData.specialRequests.includes(req.id) ? 'rgba(217,119,6,0.1)' : 'transparent', border: formData.specialRequests.includes(req.id) ? '1px solid var(--gold-500)' : '1px solid transparent', transition: 'all 0.15s' }}>
+                          <input
+                            type="checkbox"
+                            checked={formData.specialRequests.includes(req.id)}
+                            onChange={(e) => {
+                              setFormData(prev => ({
+                                ...prev,
+                                specialRequests: e.target.checked
+                                  ? [...prev.specialRequests, req.id]
+                                  : prev.specialRequests.filter(r => r !== req.id)
+                              }));
+                            }}
+                            style={{ width: '15px', height: '15px', cursor: 'pointer' }}
+                          />
+                          <span>{req.labelEn} ({req.labelAr})</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </>
               )}
 
               {modalType === 'package' ? (
@@ -1833,6 +1866,22 @@ export default function AdminServices() {
                           ))}
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {formData.category !== 'relaxation' && (
+                    <div className={styles.formGroup}>
+                      <label style={{ color: 'var(--gold-400)', fontWeight: 'bold' }}>
+                        📜 سياسة الإلغاء والاسترداد الخاصة بهذه الباقة (اختياري - تظهر للعميل في مرحلة الدفع)
+                      </label>
+                      <textarea
+                        name="customCancellationPolicy"
+                        value={formData.customCancellationPolicy}
+                        onChange={handleInputChange}
+                        placeholder="مثال: إلغاء مجاني حتى 7 أيام قبل موعد الرحلة..."
+                        className={styles.input}
+                        rows="2"
+                      ></textarea>
                     </div>
                   )}
 

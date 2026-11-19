@@ -111,6 +111,7 @@ function CheckoutContent() {
   const category = searchParams.get('category') || '';
   const tier = searchParams.get('tier') || 'economy';
   const tierDesc = searchParams.get('tierDesc') || searchParams.get('desc') || '';
+  const itemCustomPolicy = searchParams.get('policy') || searchParams.get('cancellationPolicy') || '';
 
   // Customer State
   const [travelers, setTravelers] = useState(1);
@@ -3369,6 +3370,12 @@ function CheckoutContent() {
                 </p>
 
                 <ul style={{ margin: '0 0 0.8rem 0', paddingInlineStart: '1.2rem', fontSize: '0.82rem', color: 'var(--text-primary, #1f2937)', lineHeight: 1.6 }}>
+                  {itemCustomPolicy && (
+                    <li style={{ marginBottom: '6px', color: '#c9a227', fontWeight: '800' }}>
+                      <strong>{locale === 'ar' ? '⭐ سياسة الإلغاء الخاصة بهذه الخدمة المحددة:' : '⭐ Cancellation Policy for this specific booking:'}</strong>{' '}
+                      <span>{itemCustomPolicy}</span>
+                    </li>
+                  )}
                   <li style={{ marginBottom: '4px' }}>
                     <strong>{locale === 'ar' ? 'الرحلات والأنشطة السياحية العادية:' : 'Standard Excursions & Activities:'}</strong>{' '}
                     {locale === 'ar' ? 'إلغاء مجاني قبل موعد تنفيذ الخدمة بـ 24 ساعة، واسترداد 50% عند الإلغاء قبل الموعد بـ 12 ساعة على الأقل.' : 'Free cancellation up to 24 hours before service; 50% refund when cancelled at least 12 hours prior.'}

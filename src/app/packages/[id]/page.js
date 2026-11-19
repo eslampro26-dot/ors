@@ -558,7 +558,7 @@ export default function PackagePage({ params }) {
 
                     <div style={{ marginTop: '1.5rem' }}>
                       <Link 
-                        href={`/checkout?tripId=${item.id}&price=${totalPriceForStay}&titleAr=${encodeURIComponent(item.titleAr + ' - ' + (activeRoom.nameAr || ''))}&titleEn=${encodeURIComponent((item.titleEn || item.titleAr) + ' - ' + (activeRoom.nameEn || ''))}&type=hotel&category=hotels&tier=${activeRoom.id}&nights=${nightsCount}&checkIn=${checkInDate}&checkOut=${checkOutDate}&occupancy=${occupancy}&discount=${discountPercent}`}
+                        href={`/checkout?tripId=${item.id}&price=${totalPriceForStay}&titleAr=${encodeURIComponent(item.titleAr + ' - ' + (activeRoom.nameAr || ''))}&titleEn=${encodeURIComponent((item.titleEn || item.titleAr) + ' - ' + (activeRoom.nameEn || ''))}&type=hotel&category=hotels&tier=${activeRoom.id}&nights=${nightsCount}&checkIn=${checkInDate}&checkOut=${checkOutDate}&occupancy=${occupancy}&discount=${discountPercent}&policy=${encodeURIComponent(item.hotelCancellationPolicy || item.customCancellationPolicy || '')}`}
                         className="btn btn-primary" 
                         style={{
                           width: '100%',
