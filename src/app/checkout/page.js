@@ -19,6 +19,7 @@ function CheckoutContent() {
   const router = useRouter();
   const { locale, t: tGlobal, isReady } = useLanguage();
   const isAr = locale === 'ar';
+  const isRtl = locale === 'ar';
   const { settings } = useSettings();
   const { currency, currencyDetails, convert, getEgpSettlement, formatDual } = useCurrency();
 
