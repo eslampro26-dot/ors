@@ -100,6 +100,19 @@ export default function AdminServices() {
     businessDesc: '',
     vipDesc: '',
     specialRequests: [],
+    // Hotel Specific System Fields
+    hotelRating: '5',
+    hotelCity: 'hurghada',
+    hotelAddress: '',
+    hotelDiscount: '',
+    hotelCancellationPolicy: '',
+    hotelRooms: [
+      { id: 'standard', nameAr: 'غرفة قياسية (Standard Room)', nameEn: 'Standard Room', priceSingle: '', priceDouble: '', descriptionAr: 'شاملة الإفطار وواي فاي مجاني', descriptionEn: 'Breakfast included, Free Wi-Fi' },
+      { id: 'deluxe', nameAr: 'غرفة ديلوكس (Deluxe Room)', nameEn: 'Deluxe Room', priceSingle: '', priceDouble: '', descriptionAr: 'إطلالة جزئية على البحر أو المسبح، إفطار فاخر', descriptionEn: 'Partial sea/pool view, luxury breakfast' },
+      { id: 'sea_view', nameAr: 'غرفة إطلالة بانورامية على البحر (Sea View)', nameEn: 'Sea View Suite', priceSingle: '', priceDouble: '', descriptionAr: 'إطلالة أمامية مباشرة، شرفة خاصة، خدمة غرف VIP', descriptionEn: 'Direct sea view, private balcony, VIP service' },
+      { id: 'family_suite', nameAr: 'جناح عائلي (Family Suite)', nameEn: 'Family Suite', priceSingle: '', priceDouble: '', descriptionAr: 'غرفتان وصالة، شامل الإفطار والعشاء العائلي', descriptionEn: '2 bedrooms + lounge, half board' },
+      { id: 'royal_suite', nameAr: 'جناح ملكي (Royal Suite)', nameEn: 'Royal Suite', priceSingle: '', priceDouble: '', descriptionAr: 'فخامة ملكية، جاكوزي خاص، نقل مجاني من المطار', descriptionEn: 'Royal luxury, private jacuzzi, free airport transfer' }
+    ]
   });
   const [useTierPrices, setUseTierPrices] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState('ar');
@@ -768,7 +781,23 @@ export default function AdminServices() {
           icon: icon || '✈️',
           image: image || '',
           images: images || [],
-          videos: formData.videos || []
+          videos: formData.videos || [],
+          // Hotel Specific Payload attributes
+          isHotel: category === 'relaxation',
+          hotelRating: formData.hotelRating || '5',
+          hotelCity: formData.hotelCity || 'hurghada',
+          hotelAddress: formData.hotelAddress || '',
+          hotelDiscount: parseFloat(formData.hotelDiscount) || 0,
+          hotelCancellationPolicy: formData.hotelCancellationPolicy || '',
+          hotelRooms: (formData.hotelRooms || []).map(r => ({
+            id: r.id,
+            nameAr: r.nameAr,
+            nameEn: r.nameEn,
+            priceSingle: parseFloat(r.priceSingle) || 0,
+            priceDouble: parseFloat(r.priceDouble) || 0,
+            descriptionAr: r.descriptionAr || '',
+            descriptionEn: r.descriptionEn || ''
+          }))
         };
 
         const success = await addPackage(category, packagePayload);
@@ -1607,6 +1636,206 @@ export default function AdminServices() {
 
               {modalType === 'package' ? (
                 <>
+                  {/* Hotel Specific Configuration if adding in relaxation (Hotels) */}
+                  {formData.category === 'relaxation' && (
+                    <div style={{
+                      padding: '1.25rem',
+                      background: 'rgba(201, 162, 39, 0.05)',
+                      borderRadius: '12px',
+                      border: '1.5px solid rgba(201, 162, 39, 0.35)',
+                      marginBottom: '1.5rem',
+                      direction: 'rtl'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+                        <span style={{ fontSize: '1.5rem' }}>🏨</span>
+                        <div>
+                          <h4 style={{ margin: 0, color: 'var(--gold-400)', fontSize: '1.1rem', fontWeight: '800' }}>
+                            إعدادات نظام الفندق والغرف المتقدم (Hotels System)
+                          </h4>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                            تحديد تقييم النجوم، الموقع، الغرف، الأسعار للفرد والفردين، والخصم وسياسة الإلغاء
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* City Target & Star Rating */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>📍 المدينة التابع لها الفندق</label>
+                          <select
+                            name="hotelCity"
+                            value={formData.hotelCity}
+                            onChange={handleInputChange}
+                            className={styles.input}
+                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                          >
+                            {cities.map(c => (
+                              <option key={c.id} value={c.id}>{c.nameAr || c.name} ({c.name})</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>⭐ تقييم الفندق (النجوم)</label>
+                          <select
+                            name="hotelRating"
+                            value={formData.hotelRating}
+                            onChange={handleInputChange}
+                            className={styles.input}
+                            style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                          >
+                            <option value="5">⭐⭐⭐⭐⭐ 5 نجوم (فاخر Luxury)</option>
+                            <option value="4">⭐⭐⭐⭐ 4 نجوم (ممتاز Deluxe)</option>
+                            <option value="3">⭐⭐⭐ 3 نجوم (جيد Standard)</option>
+                            <option value="7">⭐⭐⭐⭐⭐⭐⭐ 7 نجوم (فائق الفخامة Ultra Luxury)</option>
+                          </select>
+                        </div>
+
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>🏷️ نسبة الخصم المتاح % (إن وجد)</label>
+                          <input
+                            type="number"
+                            name="hotelDiscount"
+                            value={formData.hotelDiscount}
+                            onChange={handleInputChange}
+                            placeholder="مثال: 15 (يعني خصم 15%)"
+                            className={styles.input}
+                            min="0"
+                            max="90"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Hotel Address / Location Details */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>📌 عنوان الفندق / المنطقة بالتفصيل</label>
+                          <input
+                            type="text"
+                            name="hotelAddress"
+                            value={formData.hotelAddress}
+                            onChange={handleInputChange}
+                            placeholder="مثال: الممشى السياحي، طريق القرى، الغردقة"
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <div className={styles.formGroup} style={{ margin: 0 }}>
+                          <label style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>🗺️ رابط موقع الفندق (Google Maps)</label>
+                          <input
+                            type="text"
+                            name="locationUrl"
+                            value={formData.locationUrl}
+                            onChange={handleInputChange}
+                            placeholder="https://maps.google.com/..."
+                            className={styles.input}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Hotel Cancellation Policy */}
+                      <div className={styles.formGroup} style={{ marginBottom: '1.2rem' }}>
+                        <label style={{ color: 'var(--text-primary)', fontWeight: 'bold' }}>
+                          📜 سياسة الإلغاء والاسترداد الخاصة بهذا الفندق (تظهر للعميل في الحجز والدفع)
+                        </label>
+                        <textarea
+                          name="hotelCancellationPolicy"
+                          value={formData.hotelCancellationPolicy}
+                          onChange={handleInputChange}
+                          placeholder="مثال: إلغاء مجاني حتى 48 ساعة قبل موعد الوصول. في حال الإلغاء المتأخر يتم خصم قيمة أول ليلة."
+                          className={styles.input}
+                          rows="2"
+                        ></textarea>
+                      </div>
+
+                      {/* 5 Room Categories */}
+                      <div style={{ borderTop: '1px solid rgba(201, 162, 39, 0.25)', paddingTop: '1rem' }}>
+                        <h5 style={{ color: 'var(--gold-400)', margin: '0 0 0.8rem 0', fontSize: '0.95rem', fontWeight: '800' }}>
+                          🛏️ تصنيفات الغرف المتاحة (5 تصنيفات مع سعر الفرد والفردين ووصف لكل غرفة):
+                        </h5>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          {(formData.hotelRooms || []).map((room, rIdx) => (
+                            <div key={room.id || rIdx} style={{
+                              background: 'rgba(255, 255, 255, 0.03)',
+                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                              borderRadius: '8px',
+                              padding: '0.85rem'
+                            }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.88rem' }}>
+                                  {rIdx + 1}. {room.nameAr}
+                                </span>
+                                <span style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>{room.nameEn}</span>
+                              </div>
+
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.6rem', marginBottom: '0.5rem' }}>
+                                <div>
+                                  <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>سعر الليلة للفرد (€ Single)</label>
+                                  <input
+                                    type="number"
+                                    value={room.priceSingle}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setFormData(prev => {
+                                        const newRooms = [...prev.hotelRooms];
+                                        newRooms[rIdx] = { ...newRooms[rIdx], priceSingle: val };
+                                        return { ...prev, hotelRooms: newRooms };
+                                      });
+                                    }}
+                                    placeholder="مثال: 80"
+                                    className={styles.input}
+                                    style={{ padding: '0.4rem 0.6rem', fontSize: '0.85rem' }}
+                                    min="0"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label style={{ fontSize: '0.75rem', color: 'var(--gold-400)' }}>سعر الليلة للفردين (€ Double)</label>
+                                  <input
+                                    type="number"
+                                    value={room.priceDouble}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setFormData(prev => {
+                                        const newRooms = [...prev.hotelRooms];
+                                        newRooms[rIdx] = { ...newRooms[rIdx], priceDouble: val };
+                                        return { ...prev, hotelRooms: newRooms };
+                                      });
+                                    }}
+                                    placeholder="مثال: 120"
+                                    className={styles.input}
+                                    style={{ padding: '0.4rem 0.6rem', fontSize: '0.85rem' }}
+                                    min="0"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>وصف خدمات الغرفة (وجبات، إطلالة، مميزات)</label>
+                                <input
+                                  type="text"
+                                  value={room.descriptionAr}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setFormData(prev => {
+                                      const newRooms = [...prev.hotelRooms];
+                                      newRooms[rIdx] = { ...newRooms[rIdx], descriptionAr: val };
+                                      return { ...prev, hotelRooms: newRooms };
+                                    });
+                                  }}
+                                  placeholder="مثال: شامل الإفطار، إطلالة على الحديقة، سرير كينج، واي فاي فائق السرعة"
+                                  className={styles.input}
+                                  style={{ padding: '0.4rem 0.6rem', fontSize: '0.82rem' }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Description */}
                   <div className={styles.formGroup}>
                     <label>Description in English (will be auto-translated to all languages)</label>

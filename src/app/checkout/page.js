@@ -3322,6 +3322,93 @@ function CheckoutContent() {
                 )}
               </div>
 
+              {/* Hotel & Cancellation Policy Showcase Box */}
+              <div style={{
+                marginTop: '1.2rem',
+                marginBottom: '1rem',
+                padding: '1.1rem 1.25rem',
+                background: 'linear-gradient(135deg, rgba(201, 162, 39, 0.08) 0%, rgba(10, 14, 26, 0.03) 100%)',
+                border: '1.5px solid rgba(201, 162, 39, 0.35)',
+                borderRadius: '12px',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.04)',
+                direction: isRtl ? 'rtl' : 'ltr',
+                textAlign: isRtl ? 'right' : 'left'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '1.25rem' }}>📋</span>
+                    <h4 style={{ margin: 0, fontSize: '0.98rem', color: 'var(--gold-600, #c9a227)', fontWeight: '800' }}>
+                      {locale === 'ar' ? 'سياسة الإلغاء والاسترداد — ORLUXUS' : 'Cancellation & Refund Policy — ORLUXUS'}
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLegalModalTab('cancellation');
+                      setLegalModalOpen(true);
+                    }}
+                    style={{
+                      background: 'rgba(201, 162, 39, 0.15)',
+                      border: '1px solid rgba(201, 162, 39, 0.4)',
+                      color: 'var(--gold-600, #c9a227)',
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      fontSize: '0.78rem',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {locale === 'ar' ? '📖 قراءة السياسة كاملة' : '📖 Read Full Policy'}
+                  </button>
+                </div>
+
+                <p style={{ margin: '0 0 0.6rem 0', fontSize: '0.84rem', color: 'var(--text-secondary, #4b5563)', lineHeight: 1.5, fontWeight: '600' }}>
+                  {locale === 'ar'
+                    ? 'تختلف شروط الإلغاء والاسترداد وفقًا لنوع الخدمة وطبيعة الحجز، وذلك على النحو التالي:'
+                    : 'Cancellation and refund terms vary according to the service type and nature of booking, as follows:'}
+                </p>
+
+                <ul style={{ margin: '0 0 0.8rem 0', paddingInlineStart: '1.2rem', fontSize: '0.82rem', color: 'var(--text-primary, #1f2937)', lineHeight: 1.6 }}>
+                  <li style={{ marginBottom: '4px' }}>
+                    <strong>{locale === 'ar' ? 'الرحلات والأنشطة السياحية العادية:' : 'Standard Excursions & Activities:'}</strong>{' '}
+                    {locale === 'ar' ? 'إلغاء مجاني قبل موعد تنفيذ الخدمة بـ 24 ساعة، واسترداد 50% عند الإلغاء قبل الموعد بـ 12 ساعة على الأقل.' : 'Free cancellation up to 24 hours before service; 50% refund when cancelled at least 12 hours prior.'}
+                  </li>
+                  <li style={{ marginBottom: '4px' }}>
+                    <strong>{locale === 'ar' ? 'الخدمات الخاصة (VIP):' : 'Private & VIP Services:'}</strong>{' '}
+                    {locale === 'ar' ? 'إلغاء مجاني قبل موعد تنفيذ الخدمة بـ 7 أيام، واسترداد 50% عند الإلغاء قبل الموعد بـ 3 أيام على الأقل.' : 'Free cancellation up to 7 days prior; 50% refund when cancelled at least 3 days prior.'}
+                  </li>
+                  <li style={{ marginBottom: '4px', color: '#c9a227', fontWeight: '700' }}>
+                    <strong>{locale === 'ar' ? '🏨 الفنادق والإقامة:' : '🏨 Hotels & Accommodation:'}</strong>{' '}
+                    <span>{locale === 'ar' ? 'وفقًا لسياسة الفندق ونوع الحجز المختار.' : 'Subject to the specific hotel policy and selected room category terms.'}</span>
+                  </li>
+                  <li style={{ marginBottom: '4px' }}>
+                    <strong>{locale === 'ar' ? 'تذاكر الطيران:' : 'Flight Tickets:'}</strong>{' '}
+                    {locale === 'ar' ? 'وفقًا لشروط شركة الطيران وفئة التذكرة.' : 'Subject to the airline carrier terms and ticket class rules.'}
+                  </li>
+                  <li>
+                    <strong>{locale === 'ar' ? 'البرامج السياحية:' : 'Tour Packages:'}</strong>{' '}
+                    {locale === 'ar' ? 'وفقًا لشروط البرنامج ومقدمي الخدمات المشاركين فيه.' : 'Subject to overall package schedule and participating providers.'}
+                  </li>
+                </ul>
+
+                <div style={{
+                  background: 'rgba(255, 255, 255, 0.65)',
+                  border: '1px dashed rgba(201, 162, 39, 0.35)',
+                  borderRadius: '8px',
+                  padding: '8px 10px',
+                  fontSize: '0.78rem',
+                  color: 'var(--text-secondary, #4b5563)',
+                  lineHeight: 1.45
+                }}>
+                  <strong style={{ color: 'var(--gold-600, #c9a227)', display: 'block', marginBottom: '2px' }}>
+                    {locale === 'ar' ? '💳 آلية الاسترداد:' : '💳 Refund Mechanism:'}
+                  </strong>
+                  {locale === 'ar'
+                    ? 'تتم معالجة المبالغ المستحقة للاسترداد خلال مدة تصل إلى 15 يوم عمل من خلال وسيلة الدفع الأصلية، مع خصم أي عمولات بنكية أو رسوم فعلية تفرضها بوابات الدفع أو شركات تحويل الأموال، متى كانت غير قابلة للاسترداد وكان خصمها جائزًا قانونًا. تُحدد شروط الإلغاء والاسترداد الخاصة بكل حجز قبل إتمام عملية الدفع، وتخضع جميع العمليات للقوانين واللوائح المعمول بها.'
+                    : 'Eligible refund amounts are processed within up to 15 business days via the original payment method, deducting actual non-refundable bank or gateway processing fees. All transactions are governed by applicable regulations.'}
+                </div>
+              </div>
+
               {(() => {
                 const openTerms = (e) => {
                   if (e) e.preventDefault();

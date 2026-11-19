@@ -140,9 +140,9 @@ export default function Home() {
 
     // 2. Search packages across languages
     const packageList = [
-      { id: 'pkg-relaxation', titleAr: 'باقات استرخاء استثنائية', titleEn: 'Relaxation Packages', typeAr: '✨ باكج سياحي', typeEn: '✨ Package', url: '/packages#relaxation', image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=400&q=80', price: 299 },
-      { id: 'pkg-cultural', titleAr: 'جولات سياحية ثقافية', titleEn: 'Cultural Packages', typeAr: '🏺 باكج سياحي', typeEn: '🏺 Package', url: '/packages#cultural', image: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=400&q=80', price: 349 },
-      { id: 'pkg-nile', titleAr: 'باقات كروز النيل الفاخرة', titleEn: 'Nile Cruise Packages', typeAr: '🛳️ كروز النيل', typeEn: '🛳️ Nile Cruise', url: '/packages#nile-cruise', image: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=400&q=80', price: 499 }
+      { id: 'pkg-relaxation', titleAr: 'فنادق ومنتجعات', titleEn: 'Hotels & Resorts', typeAr: '🏨 فنادق', typeEn: '🏨 Hotels', url: '/packages/relaxation', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80', price: 199 },
+      { id: 'pkg-cultural', titleAr: 'جولات سياحية ثقافية', titleEn: 'Cultural Packages', typeAr: '🏺 باكج سياحي', typeEn: '🏺 Package', url: '/packages/cultural', image: 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?auto=format&fit=crop&w=400&q=80', price: 349 },
+      { id: 'pkg-nile', titleAr: 'باقات كروز النيل الفاخرة', titleEn: 'Nile Cruise Packages', typeAr: '🛳️ كروز النيل', typeEn: '🛳️ Nile Cruise', url: '/packages/nile-cruise', image: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?auto=format&fit=crop&w=400&q=80', price: 499 }
     ];
 
     const packageMatches = packageList.filter(p => 

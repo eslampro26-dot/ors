@@ -186,16 +186,23 @@ export const internalPackages = [
   {
     id: "relaxation",
     names: {
-      en: "Relaxation Packages", ar: "باقات استرخاء استثنائية", de: "Entspannungspakete", fr: "Formules de Relaxation",
-      es: "Paquetes de Relajación", it: "Pacchetti Relax", ru: "Пакеты отдыха", tr: "Rahatlama Paketleri",
-      zh: "休闲度假套餐", ja: "リラクゼーションパック"
+      en: "Hotels & Resorts", ar: "فنادق", de: "Hotels & Resorts", fr: "Hôtels & Resorts",
+      es: "Hoteles y Resorts", it: "Hotel e Resort", ru: "Отели и курорты", tr: "Oteller ve Tatil Köyleri",
+      zh: "酒店与度假村", ja: "ホテル＆リゾート"
     },
     descriptions: {
-      en: "", ar: "", de: "", fr: "",
-      es: "", it: "", ru: "", tr: "",
-      zh: "", ja: ""
+      en: "Luxury hotel bookings, room categories, and bespoke stays across Egypt",
+      ar: "حجز أفخم الفنادق والمنتجعات المصرية مع مختلف تصنيفات الغرف وتأكيد فوري",
+      de: "Luxushotels und maßgeschneiderte Aufenthalte in ganz Ägypten",
+      fr: "Réservations d'hôtels de luxe et séjours sur mesure en Égypte",
+      es: "Reservas de hoteles de lujo y estancias a medida en Egipto",
+      it: "Prenotazioni alberghiere di lusso e soggiorni su misura in Egitto",
+      ru: "Бронирование роскошных отелей и курортов по всему Египту",
+      tr: "Mısır genelinde lüks otel rezervasyonları ve özel konaklamalar",
+      zh: "埃及全境奢华酒店预订与尊贵度假体验",
+      ja: "エジプト全土の高級ホテル予約と贅沢な滞在プラン"
     },
-    icon: "🧖", slots: 20
+    icon: "🏨", slots: 20
   },
   {
     id: "cultural",
