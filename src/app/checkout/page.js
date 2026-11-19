@@ -3415,6 +3415,39 @@ function CheckoutContent() {
                     ? 'تتم معالجة المبالغ المستحقة للاسترداد خلال مدة تصل إلى 15 يوم عمل من خلال وسيلة الدفع الأصلية، مع خصم أي عمولات بنكية أو رسوم فعلية تفرضها بوابات الدفع أو شركات تحويل الأموال، متى كانت غير قابلة للاسترداد وكان خصمها جائزًا قانونًا. تُحدد شروط الإلغاء والاسترداد الخاصة بكل حجز قبل إتمام عملية الدفع، وتخضع جميع العمليات للقوانين واللوائح المعمول بها.'
                     : 'Eligible refund amounts are processed within up to 15 business days via the original payment method, deducting actual non-refundable bank or gateway processing fees. All transactions are governed by applicable regulations.'}
                 </div>
+
+                {/* Checkbox Consent for Cancellation Policy */}
+                <div style={{
+                  marginTop: '0.8rem',
+                  paddingTop: '0.8rem',
+                  borderTop: '1px solid rgba(201, 162, 39, 0.25)'
+                }}>
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.65rem',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={e => setTermsAccepted(e.target.checked)}
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        accentColor: 'var(--gold-500)',
+                        cursor: 'pointer',
+                        flexShrink: 0
+                      }}
+                    />
+                    <span style={{ fontSize: '0.84rem', color: 'var(--text-primary, #1f2937)', fontWeight: '700' }}>
+                      {locale === 'ar'
+                        ? 'قرأت وفهمت شروط الإلغاء والاسترداد الموضحة أعلاه وأوافق عليها *'
+                        : 'I have read, understood and agree to the Cancellation & Refund Policy terms above *'}
+                    </span>
+                  </label>
+                </div>
               </div>
 
               {(() => {

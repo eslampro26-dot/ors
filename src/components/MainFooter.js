@@ -359,11 +359,15 @@ export default function MainFooter() {
           <div style={{
             background: 'var(--bg-secondary)',
             border: '2px solid var(--border-accent)',
-            borderRadius: '24px',
+            borderRadius: '20px',
             boxShadow: 'var(--shadow-xl), var(--shadow-glow-gold)',
-            maxWidth: '600px',
+            maxWidth: '680px',
             width: '100%',
-            padding: '2.5rem',
+            maxHeight: '85vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            padding: '2rem',
             position: 'relative',
             textAlign: locale === 'ar' ? 'right' : 'left',
             animation: 'fadeInUp 0.3s ease-out'
@@ -389,7 +393,8 @@ export default function MainFooter() {
                 fontWeight: 'bold',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                outline: 'none'
+                outline: 'none',
+                zIndex: 10
               }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(251, 191, 36, 0.2)'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
@@ -399,19 +404,26 @@ export default function MainFooter() {
 
             <h3 style={{
               color: 'var(--gold-400)',
-              fontSize: '1.5rem',
+              fontSize: '1.4rem',
               fontWeight: 'bold',
-              marginBottom: '1.5rem',
-              fontFamily: 'var(--font-heading)'
+              marginBottom: '1rem',
+              paddingRight: locale === 'ar' ? '0' : '40px',
+              paddingLeft: locale === 'ar' ? '40px' : '0',
+              fontFamily: 'var(--font-heading)',
+              flexShrink: 0
             }}>
               {modalConfig.title}
             </h3>
 
             <div style={{
               color: 'var(--text-secondary)',
-              fontSize: '1rem',
+              fontSize: '0.95rem',
               lineHeight: '1.8',
-              whiteSpace: 'pre-line'
+              whiteSpace: 'pre-line',
+              overflowY: 'auto',
+              paddingRight: locale === 'ar' ? '0' : '8px',
+              paddingLeft: locale === 'ar' ? '8px' : '0',
+              flex: 1
             }}>
               {modalConfig.content}
             </div>
